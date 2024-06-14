@@ -1,0 +1,47 @@
+--nzombies specific shit---
+--mainly for tac grenades--
+
+local nzombies = engine.ActiveGamemode() == "nzombies"
+
+if nzombies then
+	--local wep = ply:GetActiveWeapon()
+    hook.Add("InitPostEntity", "Wavy_NZ_Tacticals_NZMOO", function()
+		nzSpecialWeapons:AddKnife("nz_waw_bowie", false, 0.7)
+		nzSpecialWeapons:AddKnife("nz_bo1_sickle", false, 0.7)
+		nzSpecialWeapons:AddKnife("nz_bo3_combatknife", false, 0.6)
+		nzSpecialWeapons:AddKnife("nz_bo3_bowie", false, 0.65)
+		nzSpecialWeapons:AddKnife("nz_bo2_galvies", false, 0.6)
+		nzSpecialWeapons:AddKnife("nz_bo4_galvies", false, 0.65)
+		nzSpecialWeapons:AddKnife("nz_bo2_one_inch_punch", false, 0.6)
+		nzSpecialWeapons:AddGrenade("nz_mmod_grenade", 4, false, 0.6, false, 0.4)
+		nzSpecialWeapons:AddSpecialGrenade( "nz_bo1_claymore", 3, false, 1, false, 0.4 )
+		nzSpecialWeapons:AddSpecialGrenade( "nz_bo2_claymore", 3, false, 1, false, 0.4 )
+		nzSpecialWeapons:AddSpecialGrenade( "nz_bo1_semtex", 3, false, 1, false, 0.4 )
+		nzSpecialWeapons:AddSpecialGrenade( "nz_bo2_emp", 3, false, 1, false, 0.4 )
+		nzSpecialWeapons:AddDisplay("nz_waw_bowie_display", false, function(wep)
+			return SERVER and (wep.nzDeployTime + 2.8 < CurTime())
+		end)
+		nzSpecialWeapons:AddDisplay("nz_bo2_one_inch_punch_display", false, function(wep)
+			return SERVER and (wep.nzDeployTime + 2 < CurTime())
+		end)
+		nzSpecialWeapons:AddDisplay("nz_bo2_galvies_display", false, function(wep)
+			return SERVER and (wep.nzDeployTime + 2.4 < CurTime())
+		end)
+		nzSpecialWeapons:AddDisplay("nz_bo4_galvies_display", false, function(wep)
+			return SERVER and (wep.nzDeployTime + 1.8 < CurTime())
+		end)
+		nzSpecialWeapons:AddDisplay("nz_bo3_bowie_display", false, function(wep)
+			return SERVER and (wep.nzDeployTime + 2.75 < CurTime())
+		end)
+		nzSpecialWeapons:AddDisplay("nz_iw7_revive", false, function(wep)
+			return SERVER and (wep.nzDeployTime + 4 < CurTime())
+		end)
+		nzSpecialWeapons:AddDisplay("nz_waw_paparms", false, function(wep)
+			return SERVER and (wep.nzDeployTime + 2.25 < CurTime())
+		end)
+		nzSpecialWeapons:AddDisplay("nz_iw7_paparms", false, function(wep)
+			return SERVER and (wep.nzDeployTime + 2.25 < CurTime())
+		end)
+    end)
+end
+
