@@ -18,15 +18,14 @@ ENT.IsMooZombie = true
 ENT.RedEyes = true
 
 ENT.Models = {
-	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_prototype_honorguard.mdl", Skin = 0, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_prototype_honorguard.mdl", Skin = 1, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_prototype_honorguard.mdl", Skin = 2, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_prototype_honorguard.mdl", Skin = 3, Bodygroups = {0,0}},
-
-	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_prototype_honorguard.mdl", Skin = 4, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_prototype_honorguard.mdl", Skin = 5, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_prototype_honorguard.mdl", Skin = 6, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_prototype_honorguard.mdl", Skin = 7, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_ger_honorguard.mdl", Skin = 8, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_ger_honorguard.mdl", Skin = 9, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_ger_honorguard.mdl", Skin = 10, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_ger_honorguard.mdl", Skin = 11, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_ger_honorguard.mdl", Skin = 12, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_ger_honorguard.mdl", Skin = 13, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_ger_honorguard.mdl", Skin = 14, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_ger_honorguard.mdl", Skin = 15, Bodygroups = {0,0}},
 }
 
 local spawnslow = {"nz_spawn_ground_v1", "nz_spawn_ground_ad_v2", "nz_spawn_ground_v2", "nz_spawn_ground_v2_altb"}
@@ -51,11 +50,23 @@ ENT.DeathSequences = {
 	"nz_death_f_11",
 	"nz_death_f_12",
 	"nz_death_f_13",
-	"nz_death_fallback",
 	"nz_l4d_death_running_11a",
 	"nz_l4d_death_running_11g",
 	"nz_l4d_death_02a",
 	"nz_l4d_death_11_02d",
+	"nz_t9_dth_f_chest_lt_00",
+	"nz_t9_dth_f_chest_lt_01",
+	"nz_t9_dth_f_chest_lt_02",
+	"nz_t9_dth_f_chest_lt_03",
+	"nz_t9_dth_f_chest_lt_04",
+	"nz_t9_dth_f_chest_lt_05",
+	"nz_t9_dth_f_chest_lt_06",
+	"nz_t9_dth_f_chest_lt_07",
+	"nz_t9_dth_f_chest_lt_08",
+	"nz_t9_dth_f_chest_lt_09",
+	"nz_t9_dth_f_head_lt_00",
+	"nz_t9_dth_f_head_lt_01",
+	"nz_t9_dth_f_head_lt_02",
 }
 
 ENT.CrawlDeathSequences = {
@@ -283,9 +294,9 @@ ENT.SequenceTables = {
 			SpawnSequence = {spawnslow},
 			MovementSequence = {
 				"nz_walk_ad1",
-				"nz_walk_ad2",
+				"nz_s4_3arc_walk_ad_v2",
 				"nz_walk_ad3",
-				"nz_walk_ad4",
+				"nz_s4_3arc_walk_ad_v4",
 				"nz_walk_ad7",
 				"nz_walk_ad5",
 				"nz_walk_ad6",
@@ -808,9 +819,9 @@ ENT.SequenceTables = {
 		{
 			SpawnSequence = {spawnsuperfast},
 			MovementSequence = {
-				"nz_l4d_run_05",
-				"nz_pb_zombie_sprint_v7",
-				"nz_pb_zombie_sprint_v9",
+				--"nz_l4d_run_05",
+				--"nz_pb_zombie_sprint_v7",
+				--"nz_pb_zombie_sprint_v9",
 				"nz_supersprint_ad1",
 				"nz_supersprint_ad2",
 				"nz_supersprint_ad3",
@@ -888,9 +899,9 @@ ENT.SequenceTables = {
 		{
 			SpawnSequence = {spawnsuperfast},
 			MovementSequence = {
-				"nz_l4d_run_05",
-				"nz_pb_zombie_sprint_v7",
-				"nz_pb_zombie_sprint_v9",
+				--"nz_l4d_run_05",
+				--"nz_pb_zombie_sprint_v7",
+				--"nz_pb_zombie_sprint_v9",
 				"nz_supersprint_au1",
 				"nz_supersprint_au2",
 				"nz_supersprint_au3",
@@ -1114,13 +1125,13 @@ function ENT:StatsInitialize()
 			end
 			self:SetHealth( nzRound:GetZombieHealth() or 75 )
 		end
+
+		-- Force the enhanced bodygroups to be blank(Theres an extra lua that allows them.)
+		self:SetBodygroup(2,0)
+		self:SetBodygroup(3,0)
 	end
 end
 
-function ENT:SpecialInit()
-	if CLIENT then
-	end
-end
 function ENT:OnSpawn(animation, grav, dirt)
 	animation = animation or self:SelectSpawnSequence()
 	grav = grav

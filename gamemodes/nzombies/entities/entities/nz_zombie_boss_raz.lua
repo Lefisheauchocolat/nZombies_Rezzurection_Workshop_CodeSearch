@@ -5,7 +5,75 @@ ENT.PrintName = "The Mangle... er"
 ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 
-if CLIENT then return end -- Client doesn't really need anything beyond the basics
+if CLIENT then
+	local eyeglow =  Material("nz_moo/sprites/moo_glow1")
+	--local eyeglow = Material("nz_moo/sprites/hud_particle_glow_04")
+
+	local defaultColor = Color(255, 75, 0, 255)
+
+	ENT.EyeColorTable = {
+		[0] = Material("models/moo/codz/t8_zombies/common/mtl_c_t8_zmb_eyes.vmt"),
+	}
+
+	function ENT:Draw() //Runs every frame
+		self:DrawModel()
+		self:PostDraw()
+		self:DrawEyeGlow()
+
+		if self.EyeColorTable then
+			-- Go through every material given and set the color.
+			local eyecolor = nzMapping.Settings.zombieeyecolor
+			local col = Color(eyecolor.r,eyecolor.g,eyecolor.b):ToVector()
+
+			for k,v in pairs(self.EyeColorTable) do
+				v:SetVector("$emissiveblendtint", col)
+			end
+		end
+		if GetConVar( "nz_zombie_debug" ):GetBool() then
+			render.DrawWireframeBox(self:GetPos(), Angle(0,0,0), self:OBBMins(), self:OBBMaxs(), Color(255,0,0), true)
+		end
+	end
+	function ENT:DrawEyeGlow()
+		local eyeColor = nzMapping.Settings.zombieeyecolor
+		local nocolor = Color(0,0,0)
+
+		if eyeColor == nocolor then return end
+
+
+		local latt = self:LookupAttachment("lefteye")
+		local ratt = self:LookupAttachment("righteye")
+
+		if latt == nil then return end
+		if ratt == nil then return end
+
+		local leye = self:GetAttachment(latt)
+		local reye = self:GetAttachment(ratt)
+
+		if leye == nil then return end
+		if reye == nil then return end
+
+		local righteyepos = leye.Pos + leye.Ang:Forward()*0.49
+		local lefteyepos = reye.Pos + reye.Ang:Forward()*0.49
+
+		if lefteyepos and righteyepos then
+			render.SetMaterial(eyeglow)
+			render.DrawSprite(lefteyepos, 5, 5, eyeColor)
+			render.DrawSprite(righteyepos, 5, 5, eyeColor)
+		end
+
+
+		if self.EyeColorTable then
+			-- Go through every material given and set the color.
+			local eyecolor = nzMapping.Settings.zombieeyecolor
+			local col = Color(eyecolor.r,eyecolor.g,eyecolor.b):ToVector()
+
+			for k,v in pairs(self.EyeColorTable) do
+				v:SetVector("$emissiveblendtint", col)
+			end
+		end
+	end
+	return 
+end -- Client doesn't really need anything beyond the basics
 
 local util_traceline = util.TraceLine
 local util_tracehull = util.TraceHull
@@ -16,6 +84,7 @@ ENT.SpeedBasedSequences = true
 ENT.IsMooZombie = true
 ENT.IsMooSpecial = true
 ENT.IsMooBossZombie = true
+ENT.IsMiniBoss = true
 
 ENT.AttackRange = 95
 ENT.DamageRange = 95
@@ -26,41 +95,43 @@ ENT.HeavyAttackDamage = 95
 ENT.MinSoundPitch = 95
 ENT.MaxSoundPitch = 105
 
-ENT.SoundDelayMin = 10
+ENT.SoundDelayMin = 7
 ENT.SoundDelayMax = 12
 
 ENT.Models = {
-	{Model = "models/moo/_codz_ports/t7/stalingrad/moo_codz_t7_dlc3_raz.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t9/gold/moo_codz_t9_zmb_raz_mangler.mdl", Skin = 0, Bodygroups = {0,0}},
 }
 
+local spawn = {"nz_base_zmb_raz_portal_spawn"}
+
 ENT.DeathSequences = {
-	"nz_raz_death_collapse_fallback_1",
-	"nz_raz_death_collapse_fallback_2",
-	"nz_raz_death_collapse_fallforward_1",
+	"nz_base_zmb_raz_death_collapse_fallback_1",
+	"nz_base_zmb_raz_death_collapse_fallback_2",
+	"nz_base_zmb_raz_death_collapse_fallback_2",
 }
 
 ENT.BarricadeTearSequences = {}
 
 local JumpSequences = {
-	{seq = "nz_raz_mantle_over_36"},
+	{seq = "nz_base_zmb_raz_mantle_over_36"},
 }
 
 local AttackSequences = {
-	{seq = "nz_raz_attack_double_swing_1"},
-	{seq = "nz_raz_attack_double_swing_2"},
-	{seq = "nz_raz_attack_swing_l_to_r"},
-	{seq = "nz_raz_attack_swing_r_to_l"},
-	{seq = "nz_raz_attack_sickle_double_swing_1"},
-	{seq = "nz_raz_attack_sickle_double_swing_2"},
-	{seq = "nz_raz_attack_sickle_double_swing_3"},
-	{seq = "nz_raz_attack_sickle_swing_down"},
-	{seq = "nz_raz_attack_sickle_swing_l_to_r"},
-	{seq = "nz_raz_attack_sickle_swing_r_to_l"},
-	{seq = "nz_raz_attack_sickle_swing_uppercut"},
+	{seq = "nz_base_zmb_raz_attack_sickle_double_swing_1"},
+	{seq = "nz_base_zmb_raz_attack_sickle_double_swing_2"},
+	{seq = "nz_base_zmb_raz_attack_sickle_double_swing_3"},
+	{seq = "nz_base_zmb_raz_attack_sickle_swing_down"},
+	{seq = "nz_base_zmb_raz_attack_sickle_swing_l_to_r"},
+	{seq = "nz_base_zmb_raz_attack_sickle_swing_r_to_l"},
+	{seq = "nz_base_zmb_raz_attack_sickle_swing_uppercut"},
+}
+
+local WalkAttackSequences = {
+	{seq = "nz_base_zmb_raz_run_attack_v1"},
 }
 
 local RunAttackSequences = {
-	{seq = "nz_raz_attack_sprint"},
+	{seq = "nz_base_zmb_raz_sprint_attack_v1"},
 }
 
 local walksounds = {
@@ -81,58 +152,68 @@ local walksounds = {
 }
 
 ENT.NormalMantleOver48 = {
-	"nz_raz_mantle_over_48",
+	"nz_base_zmb_raz_mantle_over_48",
 }
 
 ENT.NormalMantleOver72 = {
-	"nz_raz_mantle_over_72",
+	"nz_base_zmb_raz_mantle_over_72",
 }
 
 ENT.NormalMantleOver96 = {
-	"nz_raz_mantle_over_96",
+	"nz_base_zmb_raz_mantle_over_96",
 }
 
 ENT.NormalMantleOver128 = {
-	"nz_raz_mantle_over_128",
-}
-
-ENT.NormalJumpUp128 = {
-	"nz_raz_jump_up_128",
-}
-
-ENT.NormalJumpUp128Quick = {
-	"nz_raz_jump_up_128",
-}
-
-ENT.NormalJumpDown128 = {
-	"nz_raz_jump_down_128",
+	"nz_base_zmb_raz_mantle_over_128",
 }
 
 ENT.ShootSequences = {
-	--"nz_raz_attack_shoot",
-	"nz_t9_raz_attack_shoot",
+	"nz_base_zmb_raz_attack_shoot_01",
+	"nz_base_zmb_raz_attack_shoot_02",
+}
+--[[
+ENT.ZombieLedgeClimbLoopSequences = {
+	"nz_base_zmb_raz_jump_up_loop",
+}
+ENT.ZombieLedgeClimbSequences = {
+	"nz_base_zmb_raz_jump_finish", -- Will only ever be one, for easy overridding.
+}
+ENT.ZombieLedgeClimbSmallLoopSequences = {
+	"nz_base_zmb_raz_jump_up_loop_quick",
+}
+ENT.ZombieLedgeClimbSmallSequences = {
+	"nz_base_zmb_raz_jump_finish_quick", -- Will only ever be one, for easy overridding.
+}
+]]
+ENT.ZombieLandSequences = {
+	"nz_base_zmb_raz_land", -- Will only ever be one, for easy overridding.
 }
 
-ENT.IdleSequence = "nz_raz_idle"
-ENT.IdleSequenceAU = "nz_raz_idle_look_around"
+ENT.SparkySequences = {
+	"nz_base_zmb_raz_stun_loop",
+}
+
+ENT.IdleSequence 	= "nz_base_zmb_raz_idle"
+ENT.IdleSequenceAU 	= "nz_base_zmb_raz_idle"
 
 ENT.SequenceTables = {
 	{Threshold = 0, Sequences = {
 		{
+			SpawnSequence = {spawn},
 			MovementSequence = {
-				"nz_raz_walk",
+				"nz_base_zmb_raz_walk",
 			},
 			StandAttackSequences = {AttackSequences},
-			AttackSequences = {AttackSequences},
+			AttackSequences = {WalkAttackSequences},
 			JumpSequences = {JumpSequences},
 			PassiveSounds = {walksounds},
 		},
 	}},
 	{Threshold = 71, Sequences = {
 		{
+			SpawnSequence = {spawn},
 			MovementSequence = {
-				--"nz_raz_sprint",
-				"nz_t9_raz_sprint",
+				"nz_base_zmb_raz_sprint",
 			},
 			StandAttackSequences = {AttackSequences},
 			AttackSequences = {RunAttackSequences},
@@ -150,11 +231,20 @@ ENT.EnrageSounds = {
 	Sound("nz_moo/zombies/vox/_raz/_t9/voxt9/rage/rage_04.mp3"),
 }
 
-ENT.CustomMeleeWhooshSounds = {
+ENT.MeleeWhooshSounds = {
 	Sound("nz_moo/zombies/vox/_raz/melee/swing/melee_swing_00.mp3"),
 	Sound("nz_moo/zombies/vox/_raz/melee/swing/melee_swing_01.mp3"),
 	Sound("nz_moo/zombies/vox/_raz/melee/swing/melee_swing_02.mp3"),
 	Sound("nz_moo/zombies/vox/_raz/melee/swing/melee_swing_03.mp3"),
+}
+
+ENT.MeleeWhooshSWTSounds = {
+	Sound("nz_moo/zombies/vox/_raz/swing_blade/swing_00.mp3"),
+	Sound("nz_moo/zombies/vox/_raz/swing_blade/swing_01.mp3"),
+	Sound("nz_moo/zombies/vox/_raz/swing_blade/swing_02.mp3"),
+	Sound("nz_moo/zombies/vox/_raz/swing_blade/swing_03.mp3"),
+	Sound("nz_moo/zombies/vox/_raz/swing_blade/swing_04.mp3"),
+	Sound("nz_moo/zombies/vox/_raz/swing_blade/swing_05.mp3"),
 }
 
 ENT.WalkFootstepsSounds = {
@@ -208,6 +298,17 @@ ENT.DeathExploSounds = {
 	Sound("nz_moo/zombies/vox/_raz/death/warlord_death_01.mp3"),
 	Sound("nz_moo/zombies/vox/_raz/death/warlord_death_02.mp3"),
 	Sound("nz_moo/zombies/vox/_raz/death/warlord_death_03.mp3"),
+}
+
+ENT.DeathSWTSounds = {
+	Sound("nz_moo/zombies/vox/_deceiver/head_explo/deceiver_head_explo_00.mp3"),
+	Sound("nz_moo/zombies/vox/_deceiver/head_explo/deceiver_head_explo_01.mp3"),
+	Sound("nz_moo/zombies/vox/_deceiver/head_explo/deceiver_head_explo_02.mp3"),
+}
+
+ENT.CannonInterruptSounds = {
+	Sound("nz_moo/zombies/vox/_raz/_t9/mangler/raz_charge_interrupt_00.mp3"),
+	Sound("nz_moo/zombies/vox/_raz/_t9/mangler/raz_charge_interrupt_01.mp3"),
 }
 
 ENT.ManglerLinesSounds = {
@@ -341,6 +442,46 @@ ENT.MumbleSounds = {
 	Sound("nz_moo/zombies/vox/_raz/_t9/voxt9/amb/mumble/mumble_43.mp3"),
 }
 
+ENT.CustomAttackImpactSounds = {
+	Sound("nz_moo/zombies/plr_impact/_s4/zmb_swiped_plr_01.mp3"),
+	Sound("nz_moo/zombies/plr_impact/_s4/zmb_swiped_plr_02.mp3"),
+	Sound("nz_moo/zombies/plr_impact/_s4/zmb_swiped_plr_03.mp3"),
+	Sound("nz_moo/zombies/plr_impact/_s4/zmb_swiped_plr_04.mp3"),
+	Sound("nz_moo/zombies/plr_impact/_s4/zmb_swiped_plr_05.mp3"),
+	Sound("nz_moo/zombies/plr_impact/_s4/zmb_swiped_plr_06.mp3"),
+}
+
+ENT.BloodSounds = {
+	Sound("physics/flesh/flesh_squishy_impact_hard1.wav"),
+	Sound("physics/flesh/flesh_squishy_impact_hard2.wav"),
+	Sound("physics/flesh/flesh_squishy_impact_hard3.wav"),
+	Sound("physics/flesh/flesh_squishy_impact_hard4.wav"),
+}
+
+ENT.MetalImpactSounds = {
+	Sound("physics/metal/metal_solid_impact_bullet1.wav"),
+	Sound("physics/metal/metal_solid_impact_bullet2.wav"),
+	Sound("physics/metal/metal_solid_impact_bullet3.wav"),
+	Sound("physics/metal/metal_solid_impact_bullet4.wav"),
+}
+
+ENT.ArmorBreakSounds = {
+	Sound("nz_moo/zombies/fly/armor_break/break_00.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_01.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_02.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_03.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_04.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_05.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_06.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_07.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_08.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_09.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_10.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_11.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_12.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_13.mp3"),
+}
+
 ENT.BehindSoundDistance = 0 -- When the zombie is within 200 units of a player, play these sounds instead
 
 function ENT:StatsInitialize()
@@ -348,8 +489,8 @@ function ENT:StatsInitialize()
 		local count = #player.GetAllPlaying()
 
 		if nzRound:InState( ROUND_CREATE ) then
-			self:SetHealth(1000)
-			self:SetMaxHealth(1000)
+			self:SetHealth(2500)
+			self:SetMaxHealth(2500)
 		else
 			if nzRound:InState( ROUND_PROG ) then
 				self:SetHealth(math.Clamp(nzRound:GetNumber() * 950 + (500 * count), 1000, 55000 * count))
@@ -362,13 +503,14 @@ function ENT:StatsInitialize()
 
 		self.NextShoot = CurTime() + 3
 		self.ArmCannon = true
-		self.ArmCannonHP = math.Clamp(self:GetMaxHealth() / 8, 250, 1500)
+		self.UsingArmCannon = false
+		self.ArmCannonHP = self:GetMaxHealth() * 0.01
 
 		self.Helmet = true
-		self.HelmetHP = math.Clamp(self:GetMaxHealth() / 8, 250, 1000)
+		self.HelmetHP = self:GetMaxHealth() * 0.25
 
 		self.Chest = true
-		self.ChestHP = math.Clamp(self:GetMaxHealth() / 8, 250, 1000)
+		self.ChestHP = self:GetMaxHealth() * 0.25
 
 		self.ShouldEnrage = false
 		self.Enraged = false
@@ -376,8 +518,6 @@ function ENT:StatsInitialize()
 		self.RadioSoundTime = CurTime() + 5
 
 		self.CannonInspect = CurTime() + 5
-
-		self.CanCancelAttack = true
 
 		self:SetRunSpeed(1)
 	end
@@ -389,6 +529,8 @@ function ENT:SpecialInit()
 end
 
 function ENT:OnSpawn()
+	animation = self:SelectSpawnSequence()
+
 	local comedyday = os.date("%d-%m") == "01-04"
 	if math.random(10000) == 1 or comedyday then
 		self.RISE = ents.Create("nz_zombie_boss_gigan")
@@ -400,27 +542,31 @@ function ENT:OnSpawn()
 
 	self:SetCollisionBounds(Vector(-14,-14, 0), Vector(14, 14, 72))
 	self:SetSurroundingBounds(Vector(-45, -45, 0), Vector(45, 45, 80))
-	
-	local effectData = EffectData()
-	effectData:SetOrigin( self:GetPos() + Vector(0, 0, 50)  )
-	effectData:SetMagnitude( 1 )
-	effectData:SetEntity(nil)
-	util.Effect("panzer_spawn_tp", effectData)
-	
-	self:SolidMaskDuringEvent(MASK_SOLID_BRUSHONLY)
+	self:SetBodygroup(1,0)
+
+	ParticleEffect("zmb_spawn_portal",self:GetPos()+Vector(0,0,1),self:GetAngles(),self)
+	self:EmitSound("nz_moo/zombies/spawn/portal/zmb_spawn_portal_0"..math.random(6)..".mp3",100,math.random(95,105))
 
 	self:EmitSound("nz_moo/zombies/vox/_raz/_t9/spawn.mp3", 577)
 
-	self:TimeOut(2)
+	if animation then
+		self:SolidMaskDuringEvent(MASK_PLAYERSOLID)
+		self:SetSpecialAnimation(true)
+		self:SetIsBusy(true)
+			
+		self:PlaySequenceAndMove(animation, {gravity = true})
 
-	self:CollideWhenPossible()
+		self:SetSpecialAnimation(false)
+		self:SetIsBusy(false)
+		self:CollideWhenPossible()
+	end
 end
 
 function ENT:AI()
-	if CurTime() > self.NextShoot and self.ArmCannon then
-		if !self:IsAttackBlocked() and self:TargetInRange(500) and !self:TargetInRange(150) then
+	if CurTime() > self.NextShoot and self.ArmCannon and self:IsOnGround() then
+		if !self:IsAttackBlocked() and self:TargetInRange(750) and !self:TargetInRange(150) then
 			self:TempBehaveThread(function(self)
-				self.NextShoot = CurTime() + math.random(7,10)
+				self.NextShoot = CurTime() + math.random(3,10)
 
 				self:SetSpecialAnimation(true)
 
@@ -444,16 +590,17 @@ function ENT:AI()
 		self.RadioSoundTime = CurTime() + dur + math.random(5)
 	end
 
-	-- Random Spark
-	if math.random(10) <= 3 and !self.ArmCannon then
-		self:ArmCannonSpark()
-	end
-
 	-- Stim Inspect
 	if CurTime() > self.CannonInspect and self.ArmCannon and !self:HasTarget() then
 		self:EmitSound("nz_moo/zombies/vox/_raz/_t9/flourish_cannon.mp3",75)
-		self:DoSpecialAnimation("nz_raz_idle_twitch_check")
+		self:DoSpecialAnimation("nz_base_zmb_raz_idle_twitch_check")
 		self.CannonInspect = CurTime() + math.random(8,15)
+	end
+
+	-- Random Blood Gush
+	if math.random(10) <= 3 and !self.ArmCannon then
+		self:EmitSound(self.BloodSounds[math.random(#self.BloodSounds)],75,math.random(95, 105))
+		ParticleEffectAttach("ins_blood_impact_generic", 4, self, 6)
 	end
 end
 
@@ -564,13 +711,14 @@ function ENT:Explode(dmg)
         util.Effect("HelicopterMegaBomb", effectdata)
         util.Effect("Explosion", effectdata)
 
-        self:EmitSound(self.DeathExploSounds[math.random(#self.DeathExploSounds)],70)
+        self:EmitSound(self.DeathExploSounds[math.random(#self.DeathExploSounds)],85)
+        self:EmitSound(self.DeathSWTSounds[math.random(#self.DeathSWTSounds)],SNDLVL_180dB,math.random(95, 105))
 
         util.ScreenShake(self:GetPos(), 20, 255, 1.5, 400)
     end
 end
 
-function ENT:OnInjured(dmginfo)
+function ENT:PostTookDamage(dmginfo)
 	local attacker = dmginfo:GetAttacker()
 	local inflictor = dmginfo:GetInflictor()
 
@@ -580,94 +728,84 @@ function ENT:OnInjured(dmginfo)
 
 	local damage = dmginfo:GetDamage()
 
-	local armpos = self:GetBonePosition(self:LookupBone("j_weapon_spin"))
-	local headpos = self:GetBonePosition(self:LookupBone("j_head_attach"))
-	local chestpos = self:GetBonePosition(self:LookupBone("j_spine4_attach"))
+	local armpos = self:GetBonePosition(self:LookupBone("j_elbow_ri"))
+	local headpos = self:GetBonePosition(self:LookupBone("j_head"))
+	local chestpos = self:GetBonePosition(self:LookupBone("j_spine4"))
 
-	if (hitpos:DistToSqr(headpos) < 20^2) then
-		if self.Helmet and self.HelmetHP > 0 then
-			self.HelmetHP = self.HelmetHP - damage
-			dmginfo:ScaleDamage(0.15)
-		elseif self.Helmet and self.HelmetHP <= 0 then
-			self.Helmet = false
-			
-        	self:EmitSound(self.DeathExploSounds[math.random(#self.DeathExploSounds)],70)
+	-- Using the same type of armor code as the Heavy Zombie.
+	if (hitpos:DistToSqr(headpos) < 13^2) then
+		if self.Helmet then
+			if self.HelmetHP > 0 then
+				self:EmitSound(self.MetalImpactSounds[math.random(#self.MetalImpactSounds)], 95, math.random(95,105))
+				ParticleEffectAttach("npcarmor_hit", PATTACH_POINT_FOLLOW, self, 10)
 
-			self:ManipulateBoneScale(self:LookupBone("j_head_attach"), Vector(0.00001,0.00001,0.00001))
-			ParticleEffectAttach("bo3_explosion_micro", PATTACH_POINT_FOLLOW, self, 10)
+				self.HelmetHP = self.HelmetHP - damage
 
-			self:TempBehaveThread(function(self)
-				self:SetSpecialAnimation(true)
-				self:PlaySequenceAndMove("nz_raz_pain_chest_armor", 1)
-				self:SetSpecialAnimation(false)
-			end)
-		else
-			dmginfo:ScaleDamage(0.25)
+				dmginfo:ScaleDamage(0.015)
+			else
+				self.Helmet = false
+
+				self:PlaySound(self.PainSounds[math.random(#self.PainSounds)], 90, math.random(85, 105), 1, 2)
+				self:EmitSound(self.ArmorBreakSounds[math.random(#self.ArmorBreakSounds)], 95)	
+				attacker:EmitSound(self.ArmorBreakSounds[math.random(#self.ArmorBreakSounds)], SNDLVL_GUNFIRE)
+
+				self:ManipulateBoneScale(self:LookupBone("j_head_attach"), Vector(0.00001,0.00001,0.00001))
+				ParticleEffectAttach("npcarmor_break", PATTACH_POINT_FOLLOW, self, 10)
+				if !self:GetSpecialAnimation() then
+					self:DoSpecialAnimation("nz_base_zmb_raz_pain_facemask")
+				end
+			end
 		end
-	end
+	elseif (hitpos:DistToSqr(chestpos) < 13^2) then
+		if self.Chest then
+			if self.ChestHP > 0 then
+				self:EmitSound(self.MetalImpactSounds[math.random(#self.MetalImpactSounds)], 95, math.random(95,105))
+				ParticleEffectAttach("npcarmor_hit", PATTACH_POINT_FOLLOW, self, 9)
 
-	if (hitpos:DistToSqr(chestpos) < 30^2) then
-		if self.Chest and self.ChestHP > 0 then
-			self.ChestHP = self.ChestHP - damage
-			dmginfo:ScaleDamage(0.15)
-		elseif self.Chest and self.ChestHP <= 0 then
-			self.Chest = false
-			
-        	self:EmitSound(self.DeathExploSounds[math.random(#self.DeathExploSounds)],70)
+				self.ChestHP = self.ChestHP - damage
 
-			self:ManipulateBoneScale(self:LookupBone("j_spine4_attach"), Vector(0.00001,0.00001,0.00001))
-			ParticleEffectAttach("bo3_explosion_micro", PATTACH_POINT_FOLLOW, self, 9)
+				dmginfo:ScaleDamage(0.015)
+			else
+				self.Chest = false
 
-			self:TempBehaveThread(function(self)
-				self:SetSpecialAnimation(true)
-				self:PlaySequenceAndMove("nz_raz_pain_chest_armor", 1)
-				self:SetSpecialAnimation(false)
-			end)
-		else
-			dmginfo:ScaleDamage(0.25)
+				self:PlaySound(self.PainSounds[math.random(#self.PainSounds)], 90, math.random(85, 105), 1, 2)
+				self:EmitSound(self.ArmorBreakSounds[math.random(#self.ArmorBreakSounds)], 95)	
+				attacker:EmitSound(self.ArmorBreakSounds[math.random(#self.ArmorBreakSounds)], SNDLVL_GUNFIRE)
+
+				self:ManipulateBoneScale(self:LookupBone("j_spine4_attach"), Vector(0.00001,0.00001,0.00001))
+				ParticleEffectAttach("npcarmor_break", PATTACH_POINT_FOLLOW, self, 9)
+
+				if !self:GetSpecialAnimation() then
+					self:DoSpecialAnimation("nz_base_zmb_raz_pain_chest_armor")
+				end
+			end
 		end
-	end
+	elseif (hitpos:DistToSqr(armpos) < 16^2) then
+		if self.ArmCannon and self.UsingArmCannon then
+			self:StopParticles()
+			self.UsingArmCannon = false
 
-	if (hitpos:DistToSqr(armpos) < 25^2) then
-		if self.ArmCannon and self.ArmCannonHP > 0 then
-			self.ArmCannonHP = self.ArmCannonHP - damage
-		elseif self.ArmCannon and self.ArmCannonHP <= 0 then
-			self.ArmCannon = false
-			self:ArmCannonSpark()
+			if self.ArmCannonHP > 0 then
+				self.ArmCannonHP = self.ArmCannonHP - damage
+				--print(self.ArmCannonHP)
 
-			ParticleEffectAttach("bo3_explosion_micro", PATTACH_POINT_FOLLOW, self, 13)
-
-			self:TempBehaveThread(function(self)
-				self:SetSpecialAnimation(true)
-				self:PlaySequenceAndMove("nz_raz_pain_mangler", 1)
-				self:PlaySequenceAndMove("nz_raz_enrage", 1)
-				self:SetSpecialAnimation(false)
-			end)
+        		attacker:EmitSound(self.CannonInterruptSounds[math.random(#self.CannonInterruptSounds)],SNDLVL_TALKING,math.random(95,105))
+				self:DoSpecialAnimation("nz_base_zmb_raz_attack_shoot_01_pain")
+			else
+				self.ArmCannon = false
+				self:DoSpecialAnimation("nz_base_zmb_raz_attack_shoot_01_pain_gib")
+			end
 		end
+		dmginfo:ScaleDamage(0.25)
+	else
+		dmginfo:ScaleDamage(0.15)
 	end
 end
 
 function ENT:OnGameOver()
 	if !self.yousuck then
 		self.yousuck = true
-		self:DoSpecialAnimation("nz_t9_raz_com_summon")
-	end
-end
-
-function ENT:ArmCannonSpark() -- Copy and Paste of George's Stagelight spark code.
-	local spark = ents.Create("env_spark")
-	spark:SetOwner(self)
-	spark:SetParent(self)
-	spark:SetLocalPos(self:GetPos())
-	spark:SetKeyValue("MaxDelay","3")
-	spark:SetKeyValue("Magnitude","2")
-	spark:SetKeyValue("TrailLength","2")
-	spark:Fire("setparentattachment", "weapon_fx_tag")
-	spark:Spawn()
-	spark:Activate()
-	spark:Fire("SparkOnce" ,"", 0)
-	if IsValid(spark) then
-		spark:Remove() -- Removes the spark when its done... Important because the spark entities wouldn't go away otherwise.
+		self:DoSpecialAnimation("nz_base_zmb_raz_com_summon")
 	end
 end
 
@@ -677,41 +815,30 @@ function ENT:IsValidTarget( ent )
 	-- Won't go for special targets (Monkeys), but still MAX, ALWAYS and so on
 end
 
-function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how sad I am that I didn't know about this sooner.
+function ENT:CustomAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how sad I am that I didn't know about this sooner.
+	self.OverrideLsmall = true 		-- Overrides step_left_small
+	self.OverrideLLarge = true 		-- Overrides step_left_large
+	self.OverrideRsmall = true 		-- Overrides step_right_small
+	self.OverrideRLarge = true 		-- Overrides step_right_large
+
 	if e == "step_right_small" or e == "step_left_small" or e == "step_right_large" or e == "step_left_large" then
 		util.ScreenShake(self:GetPos(),1,1,0.2,450)
 		self:EmitSound(self.WalkFootstepsSounds[math.random(#self.WalkFootstepsSounds)], 70)
-		self:EmitSound(self.WalkFootstepsGearSounds[math.random(#self.WalkFootstepsGearSounds)], 70)
+		self:EmitSound(self.WalkFootstepsGearSounds[math.random(#self.WalkFootstepsGearSounds)], 65)
 	end
-	if e == "melee_whoosh" then
-		if self.CustomMeleeWhooshSounds then
-			self:EmitSound(self.CustomMeleeWhooshSounds[math.random(#self.CustomMeleeWhooshSounds)], 80)
-		else
-			self:EmitSound(self.MeleeWhooshSounds[math.random(#self.MeleeWhooshSounds)], 80)
-		end
-	end
-	if e == "melee" or e == "melee_heavy" then
-		if self:BomberBuff() and self.GasAttack then
-			self:EmitSound(self.GasAttack[math.random(#self.GasAttack)], 100, math.random(95, 105), 1, 2)
-		else
-			if self.AttackSounds then
-				self:EmitSound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(85, 105), 1, 2)
-			end
-		end
-		if e == "melee_heavy" then
-			self.HeavyAttack = true
-		end
-		self:DoAttackDamage()
+	if e == "raz_melee_whoosh" then
+		self:EmitSound(self.MeleeWhooshSounds[math.random(#self.MeleeWhooshSounds)], 80)
+		self:EmitSound(self.MeleeWhooshSWTSounds[math.random(#self.MeleeWhooshSWTSounds)], 80)
 	end
 
 	if e == "raz_charge" then
-		self:EmitSound(self.EnrageSounds[math.random(#self.EnrageSounds)], 100, math.random(85, 105), 1, 2)
 		self:EmitSound("nz_moo/zombies/vox/_raz/_t9/mangler/raz_charge_oneshot.mp3", 90)
 		ParticleEffectAttach("bo3_mangler_charge", PATTACH_POINT_FOLLOW, self, 13)
 	end
 	if e == "raz_shoot" then
+		self:StopParticles()
 		self:EmitSound(self.ArmCannonShootSounds[math.random(#self.ArmCannonShootSounds)], 90)
-		ParticleEffectAttach("cw_mangler_blast", PATTACH_POINT_FOLLOW, self, 13)
+		ParticleEffectAttach("bo3_mangler_blast", PATTACH_POINT_FOLLOW, self, 13)
 
 		self:Retarget()
 
@@ -719,18 +846,47 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 		local target = self:GetTarget()
 
 		if IsValid(target) then
-			self.ZapShot = ents.Create("nz_mangler_shot")
+			self.ZapShot = ents.Create("nz_proj_mangler_shot_bo3")
 			self.ZapShot:SetPos(rarmfx_tag)
 			self.ZapShot:Spawn()
-			self.ZapShot:Launch(((target:EyePos() - Vector(0,0,7)) - self.ZapShot:GetPos()):GetNormalized())
+			self.ZapShot:Launch(((target:EyePos() - Vector(0,0,7) + target:GetVelocity() * math.Clamp(target:GetVelocity():Length2D(),0,0.5)) - self.ZapShot:GetPos()):GetNormalized())
 		end
 
+		self.Enraged = false
+		self:SetRunSpeed(1)
+		self:SpeedChanged()
+	end
+
+	if e == "raz_mangler_explode" then
+		self.NextSound = CurTime() + self.SoundDelayMax
+		self:PlaySound(self.PainSounds[math.random(#self.PainSounds)], 90, math.random(85, 105), 1, 2)
+        self:EmitSound(self.CannonInterruptSounds[math.random(#self.CannonInterruptSounds)],100,math.random(95,105))
+        self:EmitSound(self.DeathExploSounds[math.random(#self.DeathExploSounds)],100,math.random(95,105))
+		ParticleEffectAttach("bo3_explosion_micro", PATTACH_POINT_FOLLOW, self, 13)
+	end
+
+	if e == "raz_mangler_gib" then
+		self.NextSound = CurTime() + self.SoundDelayMax
+		self:SetBodygroup(1,1)
+		self:PlaySound(self.PainSounds[math.random(#self.PainSounds)], 90, math.random(85, 105), 1, 2)
+		self:EmitSound(self.MeleeWhooshSounds[math.random(#self.MeleeWhooshSounds)], 80)
+		self:EmitSound(self.MeleeWhooshSWTSounds[math.random(#self.MeleeWhooshSWTSounds)], 80)
+		self:EmitSound(self.BloodSounds[math.random(#self.BloodSounds)],75,math.random(95, 105))
+		self:EmitSound("nz_moo/zombies/gibs/gib_0"..math.random(3)..".mp3",100)
+		ParticleEffectAttach("ins_blood_dismember_limb", 4, self, 6)
 	end
 
 	if e == "raz_enrage" then
+		self.NextSound = CurTime() + self.SoundDelayMax
 		self:EmitSound(self.EnrageSounds[math.random(#self.EnrageSounds)], 100, math.random(85, 105), 1, 2)
 		self:SetRunSpeed(71)
 		self:SpeedChanged()
+
+		self.Enraged = true
+	end
+
+	if e == "raz_portal_spawn" then
+		self:EmitSound("nz_moo/zombies/vox/_raz/_t9/spawn_appear.mp3",85)
 	end
 
 	if e == "raz_taunt" then
@@ -740,20 +896,5 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 
 	if e == "raz_idle_click" then
 		ParticleEffectAttach("doom_mancu_blast", PATTACH_POINT_FOLLOW, self, 13)
-	end
-
-	if e == "death_ragdoll" then
-		self:BecomeRagdoll(DamageInfo())
-	end
-	if e == "start_traverse" then
-		--print("starttraverse")
-		self.TraversalAnim = true
-	end
-	if e == "finish_traverse" then
-		--print("finishtraverse")
-		self.TraversalAnim = false
-	end
-	if e == "remove_zombie" then
-		self:Remove()
 	end
 end

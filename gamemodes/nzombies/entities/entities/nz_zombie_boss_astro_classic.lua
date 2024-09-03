@@ -177,9 +177,9 @@ ENT.AstronautNames = {
 	"Kuro","Mario","Wario","McAfee","OJ Simpson","Saddam Hussein","ENA","The Two.","Dr.Pepper","House M.D.","Herobrine","Herobrin","King Tut",
 	"Ra God of The Sun","Orenthal James Simpson","Rand Ridley","Mordecai","Rigby","Skips","Benson","Bo Narr","Wir Suchen Dich!","Flapjack",
 	"Captain K'nuckles","mf doom","Eugene Krabs","John Bone","Red Skeleton","Gray Grayson","InkNoodleSoup","Dr.Kleiner","Morgan Friedman","Saltine Cracker",
-	"MoistCr1TiKaL","Jonesey the First","NickEh30","Ronald Raygun","S.Gojo","E.Yeager","M.Ackerman","Raven Team Leader","S.Geto",
+	"MoistCr1TiKaL","Jonesey the First","NickEh30","Ronald Raygun","S.Gojo","E.Yeager","M.Ackerman","S.Geto",
 	"Demonless1","KellDoStuff","The Professional","TheGraveKeeper","Timka Kidala","Simian Smasher","Spunchbop","Pumpkin Spice","Mauga Main",
-	"MrStealYoPerks", "Devious Lick",
+	"MrStealYoPerks",
 }
 
 ENT.BehindSoundDistance = 0 -- When the zombie is within 200 units of a player, play these sounds instead

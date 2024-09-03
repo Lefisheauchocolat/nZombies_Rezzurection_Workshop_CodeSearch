@@ -44,6 +44,10 @@ function ENT:Initialize()
 		self:SetModel("models/nz/perks/w_wpn_t7_zmb_bubblegum_view_lod4.mdl")
 	elseif (nzMapping.Settings.bottle == "tfa_bo3_nana") then
 		self:SetModel("models/nz/perks/wm_perk_nana.mdl")
+	elseif (nzMapping.Settings.bottle == "tfa_perk_candy") then
+		self:SetModel("models/nz/perks/wm_iw8_candy.mdl")
+	elseif (nzMapping.Settings.bottle == "tfa_perk_goblet") then
+		self:SetModel("models/nz/perks/wm_s4_goblet.mdl")
 	else
 		self:SetModel("models/nzr/2022/perks/w_perk_bottle.mdl")
 	end

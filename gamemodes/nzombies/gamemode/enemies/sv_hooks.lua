@@ -34,18 +34,22 @@ function nzEnemies:OnEnemyKilled(enemy, attacker, dmginfo, hitgroup)
 
 		local wep = dmginfo:GetInflictor()
 
+		if attacker:HasUpgrade("jugg") and hitgroup == HITGROUP_HEAD and dmginfo:IsBulletDamage() then
+			attacker:SetArmor(math.min(attacker:Armor() + 10, 200))
+		end
+
 		if attacker:HasPerk("vulture") then
-			local chance = 12
+			local chance = 9
 			if attacker:HasUpgrade("vulture") then
 				chance = 6
 			end
 
-			if math.random(chance) == 1 and attacker:GetNW2Int("nz.VultureCount", 0) < 6 then
+			if math.random(chance) == 1 and attacker:GetNW2Int("nz.VultureCount", 0) < 4 then
 				attacker:SetNW2Int("nz.VultureCount", attacker:GetNW2Int("nz.VultureCount", 0) + 1)
 
 				local drop = ents.Create("drop_vulture")
 				drop:SetOwner(attacker)
-				drop:SetPos(enemy:WorldSpaceCenter())
+				drop:SetPos(enemy:GetPos() + vector_up)
 				drop:SetAngles(enemy:GetForward():Angle())
 				drop:Spawn()
 
@@ -94,8 +98,8 @@ function nzEnemies:OnEnemyKilled(enemy, attacker, dmginfo, hitgroup)
 
 				zomb:Spawn()
 
-				attacker:SetNW2Float("nz.ZombShellDelay", CurTime() + (10 * attacker:GetNW2Int("nz.ZombShellCount",0)))
 				attacker:SetNW2Int("nz.ZombShellCount", attacker:GetNW2Int("nz.ZombShellCount",0) + 1)
+				attacker:SetNW2Float("nz.ZombShellDelay", CurTime() + (10 * attacker:GetNW2Int("nz.ZombShellCount", 0)))
 			end
 		end
 
@@ -129,18 +133,26 @@ function nzEnemies:OnEnemyKilled(enemy, attacker, dmginfo, hitgroup)
 		if attacker:HasPerk("widowswine") and enemy.BO3IsWebbed and enemy:BO3IsWebbed() and math.random(7) == 1 and IsValid(wep) then
 			local wido = ents.Create("drop_widows")
 			wido:SetOwner(attacker)
-			wido:SetPos(enemy:WorldSpaceCenter())
+			wido:SetPos(enemy:GetPos() + (vector_up*50))
 			wido:SetAngles(enemy:GetForward():Angle())
 			wido:Spawn()
 		end
 
 		if meleetypes[dmginfo:GetDamageType()] then
-			attacker:GivePoints(130, false, true)
+			if nzMapping.Settings.cwpointssystem == 1 then
+				attacker:GivePoints(115)
+			else
+				attacker:GivePoints(130)
+			end
 		elseif ((enemy:GetDecapitated() and !enemy.IsMooSpecial) or (hitgroup == HITGROUP_HEAD)) and not dmginfo:IsDamageType(DMG_MISSILEDEFENSE) then
 			attacker:EmitSound("nz_moo/effects/headshot_notif_2k24/ui_zmb_headshot_fatal_0"..math.random(4)..".mp3", 65)
-			attacker:GivePoints(100, false, true)
+			if nzMapping.Settings.cwpointssystem == 1 then
+				attacker:GivePoints(115)
+			else
+				attacker:GivePoints(100)
+			end
 			if dmginfo:IsBulletDamage() and attacker:HasUpgrade("vigor") then
-				attacker:GivePoints(50, false, true)
+				attacker:GivePoints(50)
 			end
 
 			if attacker:HasPerk("deadshot") then
@@ -152,13 +164,38 @@ function nzEnemies:OnEnemyKilled(enemy, attacker, dmginfo, hitgroup)
 					local round = nzRound:GetNumber() > 0 and nzRound:GetNumber() or 1
 					local health = tonumber(nzCurves.GenerateHealthCurve(round))
 					local scale = math.random(3) * 0.1
-					local max = math.random(4,6)
 					local range = 160
 
 					if attacker:HasUpgrade("deadshot") then
 						scale = math.random(9) * 0.1
-						max = 6
 						range = 180
+
+						//fear effect moved to upgrade
+						timer.Simple(0, function()
+							if not IsValid(attacker) then return end
+							local pos = attacker:GetPos()
+
+							local zombies = {}
+							for k, v in nzLevel.GetZombieArray() do
+								if IsValid(v) and v:Alive() and v:Health() > 0 and attacker:VisibleVec(v:EyePos()) then
+									table.insert(zombies, v)
+								end
+							end
+
+							if table.IsEmpty(zombies) then return end
+
+							if #zombies > 1 then
+								table.sort(zombies, function(a, b) return tobool(a:GetPos():DistToSqr(pos) < b:GetPos():DistToSqr(pos)) end)
+							end
+
+							local count = 0
+							for k, v in pairs(zombies) do
+								v:FleeTarget(math.Rand(1.5,2.5))
+
+								count = count + 1
+								if count >= 12 then break end
+							end
+						end)
 					end
 
 					for k, v in pairs(ents.FindInSphere(enemy:EyePos(), range)) do
@@ -171,37 +208,11 @@ function nzEnemies:OnEnemyKilled(enemy, attacker, dmginfo, hitgroup)
 							damage:SetAttacker(attacker)
 							damage:SetInflictor(enemy)
 							damage:SetDamageType(DMG_MISSILEDEFENSE)
-							damage:SetDamageForce(v:GetUp()*5000 + (v:GetPos() - enemy:GetPos()):GetNormalized()*10000)
+							damage:SetDamageForce(v:GetUp()*math.random(4000,6000) + (v:GetPos() - enemy:GetPos()):GetNormalized()*math.random(10000,14000))
 							damage:SetDamagePosition(v:WorldSpaceCenter())
 							v:TakeDamageInfo(damage)
 						end
 					end
-
-					timer.Simple(0, function()
-						if not IsValid(attacker) then return end
-						local pos = attacker:GetPos()
-
-						local zombies = {}
-						for k, v in nzLevel.GetZombieArray() do
-							if IsValid(v) and v:Alive() and v:Health() > 0 and attacker:VisibleVec(v:EyePos()) and v:GetPos():DistToSqr(pos) <= 640000 then //800^2
-								table.insert(zombies, v)
-							end
-						end
-
-						if table.IsEmpty(zombies) then return end
-
-						if #zombies > 1 then
-							table.sort(zombies, function(a, b) return a:GetPos():DistToSqr(pos) < b:GetPos():DistToSqr(pos) end)
-						end
-
-						local count = 0
-						for k, v in pairs(zombies) do
-							v:FleeTarget(math.Rand(1.5,2.5))
-
-							count = count + 1
-							if count >= max then break end
-						end
-					end)
 
 					attacker:SetNW2Float("nz.DeadshotDecay", CurTime() + 1)
 					attacker:SetNW2Int("nz.DeadshotChance", 0)
@@ -210,11 +221,15 @@ function nzEnemies:OnEnemyKilled(enemy, attacker, dmginfo, hitgroup)
 				end
 			end
 		elseif dmginfo:IsDamageType(DMG_MISSILEDEFENSE) then
-			attacker:GivePoints(30, false, true)
+			attacker:GivePoints(30)
 		else
-			attacker:GivePoints(50, false, true)
+			if nzMapping.Settings.cwpointssystem == 1 then
+				attacker:GivePoints(90)
+			else
+				attacker:GivePoints(50)
+			end
 			if dmginfo:IsBulletDamage() and attacker:HasUpgrade("vigor") then
-				attacker:GivePoints(math.random(5) * 10, false, true)
+				attacker:GivePoints(math.random(5) * 10)
 			end
 		end
 	end
@@ -291,6 +306,14 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 		if !headbone then headbone = zombie:LookupBone("j_head") end
 		if headbone then headpos = zombie:GetBonePosition(headbone) end
 
+		//antipowerup godmode makes zombies invulnerable to you
+		if isplayer and nzMapping.Settings.antipowerups and nzPowerUps:IsPlayerAntiPowerupActive(attacker,"godmode") then
+			dmginfo:SetDamage(0)
+			dmginfo:SetMaxDamage(0)
+			dmginfo:ScaleDamage(0)
+			return true
+		end
+
 		if (zombie.NZBossType or zombie.IsMooBossZombie) then
 			if zombie.BossMeleeOnly and isplayer and not meleetypes[dmgtype] then return true end
 			if zombie.IsInvulnerable and zombie:IsInvulnerable() then return true end
@@ -345,6 +368,7 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 
 			if isplayer and attacker:HasPerk("sake") and meleetypes[dmgtype] then
 				dmginfo:SetDamageType(DMG_MISSILEDEFENSE)
+
 				if attacker:HasUpgrade("sake") then
 					zombie:EmitSound("NZ.POP.Deadwire.Shock")
 					ParticleEffectAttach("bo3_waffe_electrocute", PATTACH_POINT_FOLLOW, zombie, 2)
@@ -353,7 +377,7 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 					end
 					dmginfo:SetDamageType(DMG_SHOCK)
 
-					if attacker:HasUpgrade("sake") and math.random(100) <= 45 and attacker:GetNW2Float("nz.SakeDelay", 0) < CurTime() then
+					if math.random(100) <= 45 and attacker:GetNW2Float("nz.SakeDelay", 0) < CurTime() then
 						local arc = ents.Create("elemental_pop_effect_2")
 						arc:SetModel("models/dav0r/hoverball.mdl")
 						arc:SetPos(zombie:GetPos())
@@ -377,6 +401,8 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 					dmginfo:SetDamagePosition(headpos)
 				end
 				dmginfo:SetDamage(zombie:Health() + 666)
+
+				zombie.SakeKilled = true
 				nzEnemies:OnEnemyKilled(zombie, attacker, dmginfo, hitgroup)
 				return
 			end
@@ -446,7 +472,10 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 					end
 
 					if attacker:GetNotDowned() and !hook.Call("OnZombieShot", nil, zombie, attacker, dmginfo, hitgroup) then
-						attacker:GivePoints(10, false, true)
+
+						if nzMapping.Settings.cwpointssystem ~= 1 then
+							attacker:GivePoints(10)
+						end
 					end
 				end
 

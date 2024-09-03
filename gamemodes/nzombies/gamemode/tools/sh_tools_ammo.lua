@@ -6,7 +6,7 @@ nzTools:CreateTool("ammobox", {
 	end,
 	
 	PrimaryAttack = function(wep, ply, tr, data)
-		nzMapping:AmmoBox(tr.HitPos, Angle(0,0,0), "models/codww2/other/zombielootcrate.mdl", ply)
+		nzMapping:AmmoBox(tr.HitPos, Angle(0,0,0), "models/codww2/other/carepackage.mdl", ply)
 	end,
 	SecondaryAttack = function(wep, ply, tr, data)
 		if IsValid(tr.Entity) and tr.Entity:GetClass() == "ammo_box" then

@@ -26,6 +26,7 @@ local util 			= util
 local self 			= self
 local ENT 			= ENT
 local SERVER 		= SERVER
+local CLIENT 		= CLIENT
 
 local util_traceline 	= util.TraceLine
 local util_tracehull 	= util.TraceHull
@@ -34,19 +35,19 @@ Localization/optimization
 ---------------------------------------------------------------------------]]
 
 -- Can be overridden.
-ENT.MaxYawRate 				= 420				-- Limits how fast the zombie can turn.(Higher numbers work well for enemies that move at high speeds.)
+ENT.MaxYawRate 				= 360				-- Limits how fast the zombie can turn.(Higher numbers work well for enemies that move at high speeds.)
 ENT.DeathDropHeight 		= 99999999999 		-- Limits the height zombies can drop from.
 ENT.StepHeight 				= 24 				-- Limits the height zombies can climb up.
 ENT.JumpHeight 				= 90 				-- Limits the height zombies can jump.
-ENT.AttackRange 			= 75 				-- Limits the range the zombies have to be in to attack.
+ENT.AttackRange 			= 80 				-- Limits the range the zombies have to be in to attack.
 ENT.CrawlAttackRange 		= 70 				-- Limits the range the zombies have to be in to attack when crawling.
-ENT.DamageRange 			= 75 				-- Limits the range the zombies have to be in in order for their attack hit.
+ENT.DamageRange 			= 80 				-- Limits the range the zombies have to be in in order for their attack hit.
 ENT.AttackDamage 			= 40 				-- Limits the amount of damage a zombies attack will do.
 ENT.HeavyAttackDamage 		= 50 				-- Limits the amount of damage a zombies heavy attack will do.
 ENT.PlankPullAmount 		= 1 				-- Limits the amount of planks the zombie can remove at once.
 
-ENT.MinSoundPitch 			= 80 				-- Limits the minimum pitch for passive sounds the zombie can make.
-ENT.MaxSoundPitch 			= 110 				-- Limits the maximum pitch for passive sounds the zombie can make.
+ENT.MinSoundPitch 			= 75 				-- Limits the minimum pitch for passive sounds the zombie can make.
+ENT.MaxSoundPitch 			= 115 				-- Limits the maximum pitch for passive sounds the zombie can make.
 ENT.SoundVolume 			= 80 				-- Limits the volume for passive sounds the zombie can make.
 
 ENT.TraversalCheckRange 	= 50 				-- Limits the range on how far the zombies can trace when looking for jump traversals.(Done after checking for interactables.)
@@ -110,6 +111,7 @@ if CLIENT then
 end
 
 local eyetrails 	= GetConVar("nz_zombie_eye_trails")
+local allowstumble  = GetConVar("nz_difficulty_zombie_stumble"):GetInt()
 local comedyday 	= os.date("%d-%m") == "01-04"
 local miricalday 	= os.date("%d-%m") == "25-12"
 
@@ -153,6 +155,9 @@ if SERVER then
 		self:SetLastTargetChange( CurTime() )
 		self.InAirTime = 0
 
+		self.RepathTimeCheck = CurTime() + 2
+		self.RepathTimeMod = 0
+
 		--stuck prevetion
 		self:SetLastPush( CurTime() )
 		self:SetLastPostionSave( CurTime() )
@@ -177,7 +182,7 @@ if SERVER then
 		self.NextClimb = 0
 
 		self.TestForBigJump = false 			-- Should the bot look for a nav square with a jump attribute to use for a big jump?
-		self.BigJumpCooldown = CurTime() + 1 	-- How long the bot can wait before trying another big jump.
+		self.BigJumpCooldown = CurTime() + 0.1 	-- How long the bot can wait before trying another big jump.
 		self.BigJumpTime = 0 					-- The time a bot is currently jumping.
 
 		self.AttackRangeUpdate = 0
@@ -206,6 +211,7 @@ if SERVER then
 
 		self.LastStun = CurTime() + 8 -- Cooldown in between stuns on the zombie
 		self.IsBeingStunned = false -- Here so zobies don't stumble twice in a row... I hope.
+		self.LastFlinch = CurTime() + 0.25 -- Cooldown in between flinches on the zombie.
 
 		self.Dying = false -- To know if a zombie is currently dying.
 		self.IsIdle = false
@@ -256,7 +262,7 @@ if SERVER then
 		-- You should keep the Collisin Bounds as is for normal sized enemies.
 		-- Use "SetSurroundingBounds" for your bot's hitbox detection.
 		self:SetCollisionBounds(Vector(-10,-10, 0), Vector(10, 10, 72))			-- Nextbots Collision Box(Mainly for interacting with the world.)
-		self:SetSurroundingBounds(Vector(-25, -25, 0), Vector(25, 25, 72)) 	-- Nextbots Surrounding Bounds(For Hitbox detection.)
+		self:SetSurroundingBounds(Vector(-28, -28, 0), Vector(28, 28, 72)) 	-- Nextbots Surrounding Bounds(For Hitbox detection.)
 
 		self:SetSpecialAnimation(false)
 		self:SetSpecialShouldDie(false) -- Used for anims where the zombie reacts to something and they should die after the anim finishes. 
@@ -281,6 +287,7 @@ if SERVER then
 		self.ArmsUporDown = math.random(2)
 		self.AttackIsBlocked = false
 		self.CanCancelAttack = false -- Allows the nextbot to cancel their attack animation if their target is no longer in their attack range.
+		self.CancelCurrentAction = false -- Set to true to force the nextbot to stop playing their current sequence.(Will reset back to false on its own once passed.)
 		self.UseCustomAttackDamage = false -- If set to true, the nextbot will call a function that lets you modify the damage type a bot does.
 
 
@@ -290,6 +297,7 @@ if SERVER then
 		self.UpdateSeq = self.IdleSequence
 
 		self.FacialGesture = "none" -- Name is pretty obvious.
+		self.FacialUpdateTime = CurTime() + 0.1
 
 		self:StatsInitialize()
 		self:SpecialInit()
@@ -366,6 +374,34 @@ if SERVER then
 				self:DeleteOnRemove( self.xmas )
 			end
 			-- [[ Christmas Hat ]]--
+
+			--[[ Duck Floats ]]--
+			if !self.IsMooSpecial and !self.IsMooBossZombie then
+
+				if (nzGum.QuacknarokActive) then
+					self.DUCKS = true
+				end
+				
+				if !self.DUCKS then return end
+
+	            self.quack = ents.Create("nz_prop_effect_attachment")
+	            local mainroot = self:LookupBone("j_mainroot")
+
+	            if !isnumber(mainroot) then return end
+
+	            local pos = self:GetBonePosition(mainroot)
+
+	            self.quack:SetPos(pos)
+	            self.quack:SetAngles(self:GetAngles())
+	            self.quack:SetParent(self, 9)
+	            self.quack:SetModel("models/moo/_codz_ports_props/t8/zm_red/p8_zm_red_floatie_duck.mdl")
+	            self.quack:SetCollisionGroup(COLLISION_GROUP_IN_VEHICLE)
+	            self.quack:SetModelScale(1, 0)
+	            self.quack:Spawn()
+
+	            self:DeleteOnRemove( self.quack )
+	        end
+			--[[ Duck Floats ]]--
 		end
 	end
 
@@ -385,6 +421,8 @@ if SERVER then
 		local speed = self:GetSequenceGroundSpeed( self:GetSequence() )
 		self:SetRunSpeed( speed )
 		self.loco:SetDesiredSpeed( self:GetRunSpeed() )
+
+		self.loco:SetMaxYawRate( self.MaxYawRate + speed * 0.85 )
 		self.DesiredSpeed = self:GetRunSpeed()
 
 		return speed -- Return the speed incase we wanna check it later.
@@ -474,7 +512,9 @@ if SERVER then
 	local bloat = Vector(5,5,0)
 
 	function ENT:Think()
-		if (self:IsOnGround() and !self:GetSpecialAnimation() and !self:GetIsBusy() and !self:GetCrawler() and self.SameSquare and self.loco:GetVelocity():Length2D() >= 125 and !nzPowerUps:IsPowerupActive("timewarp")) then -- Moo Mark
+		if (self:IsOnGround() and !self:GetSpecialAnimation() and !self:GetIsBusy() and !self:GetCrawler() 
+		and self.SameSquare and self:GetStuckCounter() < 1 
+		and --[[self.loco:GetVelocity():Length2D() >= 125 and]] !nzPowerUps:IsPowerupActive("timewarp")) then -- Moo Mark
 			local velocity = self:GetGroundSpeedVelocity()
 			self.loco:SetVelocity(velocity)
         end
@@ -495,6 +535,7 @@ if SERVER then
 		end
 		
 		if self:IsJumping() then
+			self:SolidMaskDuringEvent(MASK_SOLID_BRUSHONLY, false) 
 			self.InAirTime = self.InAirTime + 0.1
 		end
 
@@ -521,6 +562,16 @@ if SERVER then
 					self.NextCollideCheck = CurTime() + collidedelay
 				end
 			end
+		end
+
+		-- Moo Mark 6/21/24: Very experimental feature where the amount of enemies have a hand in affecting repath times. Hopefully this would reduce stress in calculating paths by a little when mass amounts of enemies are alive at one time.
+		if CurTime() > self.RepathTimeCheck then
+			self.RepathTimeMod = 0
+			for k,v in nzLevel.GetZombieArray() do
+				self.RepathTimeMod = self.RepathTimeMod + 0.05
+				--print(self.RepathTimeMod)
+			end
+			self.RepathTimeCheck = CurTime() + 2
 		end
 
 		self:StuckPrevention()
@@ -561,7 +612,7 @@ if SERVER then
 				self:SetStuckCounter( 0 )
 			end
 
-			if self:GetStuckCounter() > 1 then
+			if self:GetStuckCounter() > 5 then
 				local tr = util_tracehull({
 					start = self:GetPos(),
 					endpos = self:GetPos(),
@@ -712,7 +763,7 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 			self:EmitSound(self.MeleeWhooshSounds[math.random(#self.MeleeWhooshSounds)], 80)
 		end
 	end
-	if e == "melee" or e == "melee_heavy" then
+	if (e == "melee" or e == "melee_heavy") and !self.OverrideAttack then
 		if self:BomberBuff() and self.GasAttack then
 			self:EmitSound(self.GasAttack[math.random(#self.GasAttack)], 100, math.random(95, 105), 1, 2)
 		else
@@ -773,6 +824,12 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 		end
 		self:EmitSound("nz_moo/zombies/gibs/gib_0"..math.random(3)..".mp3",100)
 		self:EmitSound("nz_moo/zombies/gibs/head/_og/zombie_head_0"..math.random(0,2)..".mp3", 100, math.random(95,105))
+	end
+	if e == "bodyfall_light" then
+		self:EmitSound(self.BodyfallLightSounds[math.random(#self.BodyfallLightSounds)], 85, math.random(95,105))
+	end
+	if e == "bodyfall_heavy" then
+		self:EmitSound(self.BodyfallHeavySounds[math.random(#self.BodyfallHeavySounds)], 85, math.random(95,105))
 	end
 
 	if e == "death_ragdoll" and !self.OverrideDDoll then
@@ -898,6 +955,7 @@ function ENT:CustomAnimEvent(a,b,c,d,e)
 	self.OverrideLLarge = true 		-- Overrides step_left_large
 	self.OverrideRsmall = true 		-- Overrides step_right_small
 	self.OverrideRLarge = true 		-- Overrides step_right_large
+	self.OverrideAttack = true 		-- Overrides melee and melee_heavy
 	self.OverrideDDoll = true 		-- Overrides death_ragdoll
 
 
@@ -933,6 +991,9 @@ if SERVER then
 		self:CreateTrigger() -- Though this means the trigger isn't created until after the bot spawns... It does mean the Trigger's size is always correct.
 
 		while (true) do
+
+			self:ZombieGestureSequences()
+
 			if !self:GetStop() then
 				if self.EventMask and not self.DoCollideWhenPossible then
 					self:SetSolidMask(MASK_NPCSOLID)
@@ -967,16 +1028,16 @@ if SERVER then
 							if self:TargetInAttackRange() then
 								self:OnTargetInAttackRange()
 							else
-								self:TimeOut(1)
+								self:TimeOut(0.1)
 							end
 						elseif path == "timeout" then
 							self:OnPathTimeOut()
 						else
-							self:TimeOut(0.15)
+							self:TimeOut(0.1)
 						end
 					end
 				else
-					self:TimeOut(0.15)
+					self:TimeOut(0.1)
 				end
 
 
@@ -992,7 +1053,7 @@ if SERVER then
 				self:AI()
 				self:AdditionalZombieStuff()
 			else
-				self:TimeOut(0.15)
+				self:TimeOut(0.1)
 			end
 		end
 	end
@@ -1011,164 +1072,6 @@ if SERVER then
 					self.loco:SetDesiredSpeed(self.loco:GetDesiredSpeed()*0.25)
 				end
 			end
-		end
-	end
-
-	function ENT:TraversalCheck()
-		-- ORIGINALLY TAKEN FROM THE VJBASE L4D COMMON INFECTED SNPCS!!!
-		-- Moo Mark 3/18/23: Now includes a failsafe for enemies who lack climb anims.
-		if !self:GetSpecialAnimation() and !self:GetAttacking() and !self.Climbing and CurTime() > self.NextClimb then
-			local seq
-			local target
-			local anim = false
-			local hasanim = false
-
-			local finalpos = self:GetPos()
-			local tr6 = util_traceline({
-				start = self:GetPos() + self:GetUp()*200, 
-				endpos = self:GetPos() + self:GetUp()*200 + self:GetForward()*self.TraversalCheckRange,
-				ignoreworld = true,
-				filter = function(ent) if (ent:GetClass() == "jumptrav_block") then return true end
-			end}) -- 200
-			local tr5 = util_traceline({
-				start = self:GetPos() + self:GetUp()*160, 
-				endpos = self:GetPos() + self:GetUp()*160 + self:GetForward()*self.TraversalCheckRange,
-				ignoreworld = true, 
-				filter = function(ent) if (ent:GetClass() == "jumptrav_block") then return true end 
-			end}) -- 160
-			local tr4 = util_traceline({
-				start = self:GetPos() + self:GetUp()*120, 
-				endpos = self:GetPos() + self:GetUp()*120 + self:GetForward()*self.TraversalCheckRange,
-				ignoreworld = true, 
-				filter = function(ent) if (ent:GetClass() == "jumptrav_block") then return true end 
-			end}) -- 120
-			local tr3 = util_traceline({
-				start = self:GetPos() + self:GetUp()*96, 
-				endpos = self:GetPos() + self:GetUp()*96 + self:GetForward()*self.TraversalCheckRange,
-				ignoreworld = true, 
-				filter = function(ent) if (ent:GetClass() == "jumptrav_block") then return true end 
-			end}) -- 96
-			local tr2 = util_traceline({
-				start = self:GetPos() + self:GetUp()*72, 
-				endpos = self:GetPos() + self:GetUp()*72 + self:GetForward()*self.TraversalCheckRange,
-				ignoreworld = true, 
-				filter = function(ent) if (ent:GetClass() == "jumptrav_block") then return true end 
-			end}) -- 72
-			local tr1 = util_traceline({
-				start = self:GetPos() + self:GetUp()*48, 
-				endpos = self:GetPos() + self:GetUp()*48 + self:GetForward()*self.TraversalCheckRange,
-				ignoreworld = true, 
-				filter = function(ent) if (ent:GetClass() == "jumptrav_block") then return true end 
-			end}) -- 48
-			local tr0 = util_traceline({
-				start = self:GetPos() + self:GetUp()*36, 
-				endpos = self:GetPos() + self:GetUp()*36 + self:GetForward()*self.TraversalCheckRange,
-				ignoreworld = true, 
-				filter = function(ent) if (ent:GetClass() == "jumptrav_block") then return true end 
-			end}) -- 36
-			local tru = util_traceline({
-				start = self:GetPos(), 
-				endpos = self:GetPos() + self:GetUp()*200, 
-				ignoreworld = true,
-				filter = self and function(ent) if ent:IsValidZombie() then return false end 
-			end})
-			
-			debugoverlay.Line(self:GetPos() + self:GetUp()*200, self:GetPos() + self:GetUp()*200 + self:GetForward()*self.TraversalCheckRange, 1, Color( 255, 100, 100 ), false)
-			debugoverlay.Line(self:GetPos() + self:GetUp()*160, self:GetPos() + self:GetUp()*160 + self:GetForward()*self.TraversalCheckRange, 1, Color( 255, 0, 255 ), false)
-			debugoverlay.Line(self:GetPos() + self:GetUp()*120, self:GetPos() + self:GetUp()*120 + self:GetForward()*self.TraversalCheckRange, 1, Color( 255, 255, 0 ), false)
-			debugoverlay.Line(self:GetPos() + self:GetUp()*96, self:GetPos() + self:GetUp()*96 + self:GetForward()*self.TraversalCheckRange, 1, Color( 255, 0, 0 ), false)
-			debugoverlay.Line(self:GetPos() + self:GetUp()*72, self:GetPos() + self:GetUp()*72 + self:GetForward()*self.TraversalCheckRange, 1, Color( 0, 255, 0 ), false)
-			debugoverlay.Line(self:GetPos() + self:GetUp()*48, self:GetPos() + self:GetUp()*48 + self:GetForward()*self.TraversalCheckRange, 1, Color( 0, 0, 255 ), false)
-			debugoverlay.Line(self:GetPos() + self:GetUp()*36, self:GetPos() + self:GetUp()*36 + self:GetForward()*self.TraversalCheckRange, 1, Color( 255, 10, 50 ), false)
-
-			if !IsValid(tru.Entity) then
-				if IsValid(tr6.Entity) then
-				local tr6b = util_traceline({start = self:GetPos() + self:GetUp()*260, endpos = self:GetPos() + self:GetUp()*260 + self:GetForward()*self.TraversalCheckRange, filter = function(ent) if (ent:GetClass() == "jumptrav_block") then return true end end})
-				if !IsValid(tr6b.Entity) then
-					if self.Climb200 then
-						target = type(self.Climb200) == "table" and self.Climb200[math.random(#self.Climb200)] or self.Climb200
-						seq = self:LookupSequence(target)
-						hasanim = true
-					end
-					anim = seq or true
-					finalpos = tr6.HitPos
-				end
-				elseif IsValid(tr5.Entity) then
-					if self.Climb160 then
-						target = type(self.Climb160) == "table" and self.Climb160[math.random(#self.Climb160)] or self.Climb160
-						seq = self:LookupSequence(target)
-						hasanim = true
-					end
-					anim = seq or true
-					finalpos = tr5.HitPos
-				elseif IsValid(tr4.Entity) then
-					if self.Climb120 then
-						target = type(self.Climb120) == "table" and self.Climb120[math.random(#self.Climb120)] or self.Climb120
-						seq = self:LookupSequence(target)
-						hasanim = true
-					end
-					anim = seq or true
-					finalpos = tr4.HitPos
-				elseif IsValid(tr3.Entity) then
-					if self.Climb96 then
-						target = type(self.Climb96) == "table" and self.Climb96[math.random(#self.Climb96)] or self.Climb96
-						seq = self:LookupSequence(target)
-						hasanim = true
-					end
-					anim = seq or true
-					finalpos = tr3.HitPos
-				elseif IsValid(tr2.Entity) then
-					if self.Climb72 then
-						target = type(self.Climb72) == "table" and self.Climb72[math.random(#self.Climb72)] or self.Climb72
-						seq = self:LookupSequence(target)
-						hasanim = true
-					end
-					anim = seq or true
-					finalpos = tr2.HitPos
-				elseif IsValid(tr1.Entity) then
-					if self.Climb48 then
-						target = type(self.Climb48) == "table" and self.Climb48[math.random(#self.Climb48)] or self.Climb48
-						seq = self:LookupSequence(target)
-						hasanim = true
-					end
-					anim = seq or true
-					finalpos = tr1.HitPos
-				elseif IsValid(tr0.Entity) then
-					if self.Climb36 then
-						target = type(self.Climb36) == "table" and self.Climb36[math.random(#self.Climb36)] or self.Climb36
-						seq = self:LookupSequence(target)
-						hasanim = true
-					end
-					anim = seq or true
-					finalpos = tr0.HitPos
-				end
-			end
-			if anim ~= false then
-				if IsValid(self) then
-					self:SolidMaskDuringEvent(MASK_SOLID_BRUSHONLY, false) 
-
-					self.Climbing = true
-					self:SetSpecialAnimation(true)
-					
-					self:FaceTowards(finalpos)
-					self:SetPos(finalpos)
-
-					if hasanim ~= false then
-						self:PlaySequenceAndMove(anim, {gravity = false})
-					else -- For enemies that don't have a traversal for a given height or doesn't have traversal anims period.
-						local effectData = EffectData()
-						effectData:SetOrigin( self:GetPos() + Vector(0, 0, 50)  )
-						effectData:SetMagnitude( 1 )
-						effectData:SetEntity(nil)
-						util.Effect("panzer_spawn_tp", effectData) -- Express Portal to their destination.
-						self:TimeOut(0.25)
-					end
-					self:SetSpecialAnimation(false)
-					self:CollideWhenPossible()
-					self.Climbing = false
-				end
-			end
-			self.NextClimb = CurTime() + 0.1
 		end
 	end
 
@@ -1273,10 +1176,11 @@ if SERVER then
 		
 		self:PostAdditionalZombieStuff()
 
+		--[[
 		if self.loco:GetVelocity():Length2D() < 75 then
 			self:TraversalCheck()
 		end
-
+		]]
 		if self:GetSpecialAnimation() or self.IsMooSpecial and !self.MooSpecialZombie or self.IsTurned then return end
 		if self:Alive() and self:Health() <= 0 then return end
 		if self.BO4IsToxic and self:BO4IsToxic() then
@@ -1386,7 +1290,7 @@ if SERVER then
 			local ply = self:GetTarget():IsOnGround() -- Also make sure the target is on the ground. People who are in the air are probably falling, diving with phd, or are trying to be an action hero. So we don't wanna accidentally think they're unreachable because of that.
 
 			if IsValid(nav) then
-				self.ThrowGuts = false -- If there a nav found then we stop or do nothing.
+				self.ThrowGuts = false -- If theres a nav found then we stop or do nothing.
 			else
 				if ply then -- Otherwise, if the target is no where near a nav square and is on the ground...
 					self.ThrowGuts = true -- THROW SHIT AT THEM
@@ -1914,10 +1818,17 @@ if SERVER then
 		if IsValid(self) and !self.IsMooSpecial and self.CanGib then
 			local lowhealthpercent = (self:Health() / self:GetMaxHealth()) * 100 -- Copied one of 3arcs many checks for head gibbing.
 			local head = self:LookupBone("j_head")
-			local headpos = self:GetBonePosition(head)
+			local headpos
 			
+			if head then 
+				headpos = self:GetBonePosition(head)
+			else
+				headpos = self:EyePos() 
+			end
+			
+
 			if lowhealthpercent <= 10 and !self:GetDecapitated() then
-				if (hitpos:DistToSqr(headpos) < 20^2) then -- Only do the check if the lowhealthpercent check goes through.
+				if (hitpos:DistToSqr(headpos) < 15^2) then -- Only do the check if the lowhealthpercent check goes through.
 					self:GibHead()
 				end
 			end
@@ -2068,6 +1979,41 @@ if SERVER then
 				gravity = true
 				return seq 
 			end,
+
+			[14] = function(type)
+				seq = self.ProneCrawlSequences[math.random(#self.ProneCrawlSequences)]
+				dirt = false
+				gravity = true
+				return seq 
+			end,
+
+			[15] = function(type)
+				seq = self.UnderbedSequences[math.random(#self.UnderbedSequences)]
+				dirt = false
+				gravity = true
+				return seq 
+			end,
+
+			[16] = function(type)
+				seq = self.Alcove40Sequences[math.random(#self.Alcove40Sequences)]
+				dirt = false
+				gravity = true
+				return seq 
+			end,
+
+			[17] = function(type)
+				seq = self.Alcove56Sequences[math.random(#self.Alcove56Sequences)]
+				dirt = false
+				gravity = true
+				return seq 
+			end,
+
+			[18] = function(type)
+				seq = self.Alcove96Sequences[math.random(#self.Alcove96Sequences)]
+				dirt = false
+				gravity = true
+				return seq 
+			end,
 		}
 
 		for k,v in pairs(ents.FindInSphere(self:GetPos(), 10)) do
@@ -2082,9 +2028,13 @@ if SERVER then
 		if IsValid(spawn) then
 			spawnanimtype = spawn:GetSpawnType()
             self.SpawnIndex = spawn -- Index the spawn the zombie comes from for later.
+        else
+        	spawnanimtype = 1
 		end
 
 		animation = spawnanim[spawnanimtype](seq)
+
+		hook.Call("OnEnemySpawn", GAMEMODE, self)
 
 		self:OnSpawn(animation, gravity, dirt)
 
@@ -2381,13 +2331,15 @@ if SERVER then
 
 					result = ""..anim..""..planknumber..""
 
-					local speed = 1
+					local speed = 1.1
+
+					if planktopull.Enhanced then speed = 0.75 else speed = 1.1 end
 
 					if self.AttackSounds then self:PlaySound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(85, 105), 1, 2) end
 					
 					-- Check if the enemy in question even has the selected animation. If not, use an attack/barricade attack animation.
 					if self:LookupSequence(result) > 0 and (self.IsMooSpecial and self.MooSpecialZombie or !self.IsMooSpecial) then
-						self:SetPos(Vector(bpos.x,bpos.y,bpos.z))
+						self:SetPos(Vector(bpos.x,bpos.y,bpos.z + 5))
 						self:PlaySequenceAndMove(result, {gravity = false, rate = speed})
 					else
 						timer.Simple(dur/2, function() -- TIMER SPOTTED!!!
@@ -2510,9 +2462,11 @@ function ENT:OnGameOver() end -- If you want your enemy to do something once eve
 
 -- This doesn't affect anything if its overridden, so feel free to do so if you need to.
 function ENT:OnThink()
+
 	if not IsValid(self) then return end
 
-	self:ZombieFacialSequences() -- Not every zombie has this feature so its not that important, just a nice little cosmetic addition.
+	-- Moo Mark 8/1/24: Moved to RunBehaviour, while the gestures tend to jitter and spaz more. Runbehaviour actually allows them to be 100% consistent in mp(FUCK YOU).
+	--self:ZombieGestureSequences() -- Not every zombie has this feature so its not that important, just a nice little cosmetic addition.
 
 	if self:GetSpecialAnimation() and self.ZCTTraitActive and self.ZCTCloaked then
 		self:ZCTPhazeShift()
@@ -2538,27 +2492,36 @@ function ENT:OnThink()
 	end
 end
 
-function ENT:ZombieFacialSequences()
+function ENT:ZombieGestureSequences()
 	-- For zombies that have the sequences, they have the ability to flap their jaws at you.
+	-- ... And now also flinch from taking damage.
+
+	if self.CanFlinch and self.CanFlinch == true then
+		self.CanFlinch = false
+
+		self:RemoveGesture(ACT_GESTURE_FLINCH_HEAD)
+		self:AddGesture(ACT_GESTURE_FLINCH_HEAD, true)
+	end
 
 	if self.DisableFacial and self.DisableFacial == true then return end
-
-
-	-- These gestures are what cause zombies to very breifly t-pose before playing an attack anim in multiplay.(Cause multiplayer is just stinky like that.)
+	
+	-- These gestures are what cause zombies to very breifly t-pose before playing an attack anim in multiplayer.(Cause multiplayer is just stinky like that.)
 	if self:IsAttacking() or self.Dying or self.IsBeingStunned then
 		local face_attack = self:LookupSequence("a_zombie_face_attack")
 		if self.FacialGesture ~= face_attack then
 			self.FacialGesture = face_attack
 			self:RemoveAllGestures()
 			self:AddGestureSequence(face_attack, false)
-        end
-	else
+	    end
+	end
+
+	if !self:IsAttacking() and !self.Dying and !self.IsBeingStunned then
 		local face_idle = self:LookupSequence("a_zombie_face_idle")
 		if self.FacialGesture ~= face_idle then
 			self.FacialGesture = face_idle
 			self:RemoveAllGestures()
 			self:AddGestureSequence(face_idle, false)
-        end
+	    end
 	end
 end
 
@@ -2592,6 +2555,7 @@ function ENT:OnLandOnGround(ent)
 		self:SetBlockAttack(false)
 		self:SetJumping( false )
 		self:SetIsBusy(false)
+		self.SameSquare = true
 		self.loco:SetVelocity( Vector(0,0,0) )
 	end
 
@@ -2599,6 +2563,9 @@ function ENT:OnLandOnGround(ent)
 		self:SetBlockAttack(false)
 		self:SetJumping( false )
 		self:SetIsBusy(false)
+		self.SameSquare = true
+
+		self.CancelCurrentPath = true
 
 		self:CollideWhenPossible()
 
@@ -2609,8 +2576,14 @@ function ENT:OnLandOnGround(ent)
 			end
 		end
 
+		if self.InAirTime > 0.5 then
+			self.BigJumpCooldown = CurTime() + 2
+		else
+			self.BigJumpCooldown = CurTime() + 0.1
+		end
+
+
 		self.InAirTime = 0
-		self.BigJumpCooldown = CurTime() + 5
 		if !self:GetSpecialAnimation() then
 			self:ResetMovementSequence()
 		end
@@ -2724,7 +2697,7 @@ end
 function ENT:Alive() return self:GetAlive() end
 
 if SERVER then
-	ENT.DeathRagdollForce = 9500
+	ENT.DeathRagdollForce = 9000
 	ENT.CrawlerForce = 7500
 	ENT.GibForce = 200
 	ENT.StunForce = 1250
@@ -2795,6 +2768,15 @@ if SERVER then
 				end
 			end
 
+			--[[ FLINCHING ]]--
+			if !self:GetSpecialAnimation() and !self.Dying and !self:IsAttacking() and !self.IsBeingStunned and CurTime() > self.LastFlinch then
+				-- Just plays an additive that makes the zombie look like they flinch whenever they take damage.
+				-- Fuck you multiplayer... IT DECIDES WHEN THIS SHOULD WORK.
+				self.CanFlinch = true
+				self.LastFlinch = CurTime() + 0.1
+				--self:RestartGesture(ACT_GESTURE_FLINCH_HEAD, true, true)
+			end
+
 			--[[ STUMBLING/STUN ]]--
 			if CurTime() > self.LastStun then -- The code here is kinda bad tbh, and in turn it does weird shit because of it.
 				-- Moo Mark 7/17/23: Alright... We're gonna try again.
@@ -2809,40 +2791,53 @@ if SERVER then
 
 				-- 11/1/23: Have to double check the CurTime() > self.LastStun in order to stop the Zombie from being able to stumble two times in a row.
 				if !self.IsBeingStunned and !self:GetSpecialAnimation() then
-					if hitgroup == HITGROUP_HEAD and CurTime() > self.LastStun then
-						if self.PainSounds and !self:GetDecapitated() then
-							self:EmitSound(self.PainSounds[math.random(#self.PainSounds)], 100, math.random(85, 105), 1, 2)
-							self.NextSound = CurTime() + self.SoundDelayMax
+					if allowstumble == 1 then
+						if hitgroup == HITGROUP_HEAD and self:RagdollForceTest(hitforce) and CurTime() > self.LastStun then
+							if self.PainSounds and !self:GetDecapitated() then
+								self:EmitSound(self.PainSounds[math.random(#self.PainSounds)], 100, math.random(85, 105), 1, 2)
+								self.NextSound = CurTime() + self.SoundDelayMax
+							end
+							self.IsBeingStunned = true
+							self:DoSpecialAnimation(self.HeadPainSequences[math.random(#self.HeadPainSequences)], true, true)
+							self.IsBeingStunned = false
+							self.LastStun = CurTime() + 8
+							self:ResetMovementSequence()
 						end
-						self.IsBeingStunned = true
-						self:DoSpecialAnimation(self.HeadPainSequences[math.random(#self.HeadPainSequences)], true, true)
-						self.IsBeingStunned = false
-						self.LastStun = CurTime() + 8
-						self:ResetMovementSequence()
-					end
 
-					if hitgroup == HITGROUP_LEFTARM and CurTime() > self.LastStun then
-						if self.PainSounds and !self:GetDecapitated() then
-							self:EmitSound(self.PainSounds[math.random(#self.PainSounds)], 100, math.random(85, 105), 1, 2)
-							self.NextSound = CurTime() + self.SoundDelayMax
+						if hitgroup == HITGROUP_LEFTARM and CurTime() > self.LastStun then
+							if self.PainSounds and !self:GetDecapitated() then
+								self:EmitSound(self.PainSounds[math.random(#self.PainSounds)], 100, math.random(85, 105), 1, 2)
+								self.NextSound = CurTime() + self.SoundDelayMax
+							end
+							self.IsBeingStunned = true
+							self:DoSpecialAnimation(self.LeftPainSequences[math.random(#self.LeftPainSequences)], true, true)
+							self.IsBeingStunned = false
+							self.LastStun = CurTime() + 8
+							self:ResetMovementSequence()
 						end
-						self.IsBeingStunned = true
-						self:DoSpecialAnimation(self.LeftPainSequences[math.random(#self.LeftPainSequences)], true, true)
-						self.IsBeingStunned = false
-						self.LastStun = CurTime() + 8
-						self:ResetMovementSequence()
-					end
 
-					if hitgroup == HITGROUP_RIGHTARM and CurTime() > self.LastStun then
-						if self.PainSounds and !self:GetDecapitated() then
-							self:EmitSound(self.PainSounds[math.random(#self.PainSounds)], 100, math.random(85, 105), 1, 2)
-							self.NextSound = CurTime() + self.SoundDelayMax
+						if hitgroup == HITGROUP_RIGHTARM and CurTime() > self.LastStun then
+							if self.PainSounds and !self:GetDecapitated() then
+								self:EmitSound(self.PainSounds[math.random(#self.PainSounds)], 100, math.random(85, 105), 1, 2)
+								self.NextSound = CurTime() + self.SoundDelayMax
+							end
+							self.IsBeingStunned = true
+							self:DoSpecialAnimation(self.RightPainSequences[math.random(#self.RightPainSequences)], true, true)
+							self.IsBeingStunned = false
+							self.LastStun = CurTime() + 8
+							self:ResetMovementSequence()
 						end
-						self.IsBeingStunned = true
-						self:DoSpecialAnimation(self.RightPainSequences[math.random(#self.RightPainSequences)], true, true)
-						self.IsBeingStunned = false
-						self.LastStun = CurTime() + 8
-						self:ResetMovementSequence()
+						if self:CrawlerForceTest(hitforce) and CurTime() > self.LastStun then
+							if self.PainSounds and !self:GetDecapitated() then
+								self:EmitSound(self.PainSounds[math.random(#self.PainSounds)], 100, math.random(85, 105), 1, 2)
+								self.NextSound = CurTime() + self.SoundDelayMax
+							end
+							self.IsBeingStunned = true
+							self:DoSpecialAnimation(self.PainSequences[math.random(#self.PainSequences)], true, true)
+							self.IsBeingStunned = false
+							self.LastStun = CurTime() + 8
+							self:ResetMovementSequence()
+						end
 					end
 					if (self.LlegOff or self.RlegOff) and !self.HasBeenCrippled then
 						if self.PainSounds and !self:GetDecapitated() then
@@ -2856,19 +2851,9 @@ if SERVER then
 						self.LastStun = CurTime() + 8
 						self:ResetMovementSequence()
 					end
-					if self:CrawlerForceTest(hitforce) and CurTime() > self.LastStun then
-						if self.PainSounds and !self:GetDecapitated() then
-							self:EmitSound(self.PainSounds[math.random(#self.PainSounds)], 100, math.random(85, 105), 1, 2)
-							self.NextSound = CurTime() + self.SoundDelayMax
-						end
-						self.IsBeingStunned = true
-						self:DoSpecialAnimation(self.PainSequences[math.random(#self.PainSequences)], true, true)
-						self.IsBeingStunned = false
-						self.LastStun = CurTime() + 8
-						self:ResetMovementSequence()
-					end
 				end
 			end
+
 		end
 	end
 
@@ -3053,6 +3038,7 @@ if SERVER then
 		if head then
 			self:DeflateBones({
 				"j_head",
+				"j_helmet",
 				"j_chin_jaw",
 				"j_jaw",
 				"j_levator_le",
@@ -3075,6 +3061,16 @@ if SERVER then
 				"j_eye_lid_bot_ri",
 				"j_eye_lid_top_le",
 				"j_eye_lid_top_ri",
+				"j_brow_a01_le",
+				"j_brow_a01_ri",
+				"j_brow_a03_le",
+				"j_brow_a03_ri",
+				"j_brow_a05_le",
+				"j_brow_a05_ri",
+				"j_brow_a07_le",
+				"j_brow_a07_ri",
+				"j_cheek_a05_le",
+				"j_cheek_a05_ri",
 			})
 
 			if self.CanBleed then
@@ -3124,10 +3120,16 @@ if SERVER then
 					local lowhealthpercent = (self:Health() / self:GetMaxHealth()) * 100 -- Copied one of 3arcs many checks for head gibbing.
 					local hitpos = dmginfo:GetDamagePosition()
 					local head = self:LookupBone("j_head")
-					local headpos = self:GetBonePosition(head)
-			
+					local headpos
+
+					if head then 
+						headpos = self:GetBonePosition(head)
+					else
+						headpos = self:EyePos() 
+					end
+					
 					if lowhealthpercent <= 50 and !self:GetDecapitated() then
-						if (hitpos:DistToSqr(headpos) < 20^2) then -- Only do the check if the lowhealthpercent check goes through.
+						if (hitpos:DistToSqr(headpos) < 15^2) then -- Only do the check if the lowhealthpercent check goes through.
 							self:GibHead()
 						end
 					end
@@ -3161,6 +3163,12 @@ if SERVER then
     			self:Explode( math.random( 25, 50 ))
 			end
 
+			if self.DUCKS then
+				self:EmitSound(self.QuacknarokPopSounds[math.random(#self.QuacknarokPopSounds)], 85, math.random(95,105))
+				self:EmitSound(self.QuacknarokDeflateSounds[math.random(#self.QuacknarokDeflateSounds)], 85, math.random(95,105))
+				self:EmitSound(self.QuacknarokQuackSounds[math.random(#self.QuacknarokQuackSounds)], 85, math.random(95,105))
+			end
+
 			self:ClearBigJumpNav()
 
 			self:RemoveTrigger()
@@ -3178,6 +3186,7 @@ if SERVER then
 		local damagetype = dmginfo:GetDamageType()
 
 		self:PostDeath(dmginfo)
+
 
 		if damagetype == DMG_DISSOLVE then
 			self:DissolveEffect()
@@ -3223,7 +3232,12 @@ if SERVER then
 					self:DoDeathAnimation(self.CrawlDeathSequences[math.random(#self.CrawlDeathSequences)])
 				end
 			else
-				if self:RagdollForceTest(dmginfo:GetDamageForce()) then
+				if self:RagdollForceTest(dmginfo:GetDamageForce()) and !dmginfo:IsExplosionDamage() then
+					if self.DeathSounds then
+						self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
+					end
+					self:DoDeathAnimation(self.HeavyDeathSequences[math.random(#self.HeavyDeathSequences)])
+				elseif self:RagdollForceTest(dmginfo:GetDamageForce()) and dmginfo:IsExplosionDamage() then
 					if self.DeathSounds then
 						self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
 					end
@@ -3279,12 +3293,13 @@ if SERVER then
 		Allowing them to cancel their anim or not can be a touchy one though so becareful how you use it.
 	]]--
 
-	function ENT:DoSpecialAnimation(seq, collision, cancancel, hasgravity, mask)
+	function ENT:DoSpecialAnimation(seq, collision, cancancel, hasgravity, mask, facetarget)
 		if !self:Alive() then return end
 		collision = collision or false -- Works in conjunction with "SolidMaskDuringEvent" so you can decide if the zombie should keep their collision or not during the special anim.
 		cancancel = cancancel or false -- Did this so zombies don't appear to be "Stuck in time" when trying to play a special anim while they're currently playing one.
 		hasgravity = hasgravity or true
 		mask = mask or MASK_PLAYERSOLID
+		facetarget = facetarget or false
 
 		if !self:HasSequence(seq) then return end -- Back out, the entity doesn't have a given sequence.
 
@@ -3298,7 +3313,7 @@ if SERVER then
 			end
 
 			self:SolidMaskDuringEvent(mask, collision)
-			self:PlaySequenceAndMove(seq)
+			self:PlaySequenceAndMove(seq, false)
 			if !self:GetSpecialShouldDie() and IsValid(self) and self:Alive() or (self.ZCTGivePinkStats and IsValid(self) and self:Alive()) then -- COMMON NZ VALID W
 				self:CollideWhenPossible()
 				self:SetSpecialAnimation(false) -- Stops them from going back to idle.
@@ -3356,100 +3371,119 @@ function ENT:FakeKillZombie(respawn)
 end
 
 
-	-- A standard attack you can use it or create something fancy yourself
-	function ENT:Attack( data )
+-- A standard attack you can use it or create something fancy yourself
+function ENT:Attack( data )
 
-		self:SetLastAttack(CurTime())
-		self:SetStuckCounter(0)
+	self:OnAttack()
 
-		local useswalkframes = false
+	self:SetStuckCounter(0)
+	local useswalkframes = false
 
-		data = data or {}
+	data = data or {}
 			
-		data.attackseq = data.attackseq
-		if !data.attackseq then
+	data.attackseq = data.attackseq
+	if !data.attackseq then
 
-			local attacktbl = self.AttackSequences
+		local attacktbl = self.AttackSequences
 
-			if nzMapping.Settings.badattacks == 1 and self.Bo3AttackSequences or self.IsTurned and self.Bo3AttackSequences then
-				attacktbl = self.Bo3AttackSequences
+		if nzMapping.Settings.badattacks == 1 and self.Bo3AttackSequences or self.IsTurned and self.Bo3AttackSequences then
+			attacktbl = self.Bo3AttackSequences
+		end
+
+		self:SetStandingAttack(false)
+
+		if self:GetCrawler() then
+			attacktbl = self.CrawlAttackSequences
+		end
+
+		if self:GetTarget():GetVelocity():LengthSqr() < 15 and self:TargetInRange( self.AttackRange - 15 ) and !self:GetCrawler() and !self.IsTurned then
+			if self.StandAttackSequences then -- Incase they don't have standing attack anims.
+				attacktbl = self.StandAttackSequences
 			end
+			self:SetStandingAttack(true)
+		end
 
-			self:SetStandingAttack(false)
-
-			if self:GetCrawler() then
-				attacktbl = self.CrawlAttackSequences
-			end
-
-			if self:GetTarget():GetVelocity():LengthSqr() < 15 and self:TargetInRange( self.DamageRange ) and !self:GetCrawler() and !self.IsTurned then
-				if self.StandAttackSequences then -- Incase they don't have standing attack anims.
-					attacktbl = self.StandAttackSequences
-				end
-				self:SetStandingAttack(true)
-			end
-
-			local target = type(attacktbl) == "table" and attacktbl[math.random(#attacktbl)] or attacktbl
+		local target = type(attacktbl) == "table" and attacktbl[math.random(#attacktbl)] or attacktbl
 
 		
-			if type(target) == "table" then
-				local id, dur = self:LookupSequenceAct(target.seq)
-				if target.dmgtimes then
-					data.attackseq = {seq = id, dmgtimes = target.dmgtimes }
-					useswalkframes = false
-				else
-					data.attackseq = {seq = id} -- Assume that if the selected sequence isn't using dmgtimes, its probably using notetracks.
-					useswalkframes = true
-				end
-				data.attackdur = dur
-			elseif target then -- It is a string or ACT
-				local id, dur = self:LookupSequenceAct(attacktbl)
-				data.attackseq = {seq = id, dmgtimes = {dur/2}}
-				data.attackdur = dur
+		if type(target) == "table" then
+			local id, dur = self:LookupSequenceAct(target.seq)
+			if target.dmgtimes then
+				data.attackseq = {seq = id, dmgtimes = target.dmgtimes }
+				useswalkframes = false
 			else
-				local id, dur = self:LookupSequence("swing")
-				data.attackseq = {seq = id, dmgtimes = {1}}
-				data.attackdur = dur
+				data.attackseq = {seq = id} -- Assume that if the selected sequence isn't using dmgtimes, its probably using notetracks.
+				useswalkframes = true
 			end
-		end
-	
-		self:SetAttacking( true )
-		if IsValid(self:GetTarget()) and self:GetTarget():Health() and self:GetTarget():Health() > 0 then -- Doesn't matter if its a player... If the zombie is targetting it, they probably wanna attack it.
-			if data.attackseq.dmgtimes then
-				for k,v in pairs(data.attackseq.dmgtimes) do
-					self:TimedEvent( v, function()
-						if self.AttackSounds then self:PlaySound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(85, 105), 1, 2) end
-						self:EmitSound("nz_moo/zombies/fly/attack/whoosh/zmb_attack_med_0"..math.random(0,2)..".mp3", 75)
-						self:DoAttackDamage()
-					end)
-				end
-			end
-		end
-
-		self:TimedEvent(data.attackdur, function()
-			self:SetAttacking(false)
-			self:SetLastAttack(CurTime())
-		end)
-
-		if useswalkframes then
-			self:PlaySequenceAndMove(data.attackseq.seq, 1, self.FaceEnemy)
-			self:SetAttacking(false)
+			data.attackdur = dur
+		elseif target then -- It is a string or ACT
+			local id, dur = self:LookupSequenceAct(attacktbl)
+			data.attackseq = {seq = id, dmgtimes = {dur/2}}
+			data.attackdur = dur
 		else
-			self:PlayAttackAndWait(data.attackseq.seq, 1)
-			self:SetAttacking(false)
+			local id, dur = self:LookupSequence("swing")
+			data.attackseq = {seq = id, dmgtimes = {1}}
+			data.attackdur = dur
+		end
+	end
+	
+	self:SetAttacking( true )
+	if IsValid(self:GetTarget()) and self:GetTarget():Health() and self:GetTarget():Health() > 0 then -- Doesn't matter if its a player... If the zombie is targetting it, they probably wanna attack it.
+		if data.attackseq.dmgtimes then
+			for k,v in pairs(data.attackseq.dmgtimes) do
+				self:TimedEvent( v, function()
+					if self.AttackSounds then self:PlaySound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(85, 105), 1, 2) end
+					self:EmitSound("nz_moo/zombies/fly/attack/whoosh/zmb_attack_med_0"..math.random(0,2)..".mp3", 75)
+					self:DoAttackDamage()
+				end)
+			end
 		end
 	end
 
+	self:TimedEvent(data.attackdur, function()
+		self:SetAttacking(false)
+	end)
+
+	if useswalkframes then
+		self:PlaySequenceAndMove(data.attackseq.seq, 1, self.FaceEnemy)
+		self:SetAttacking(false)
+	else
+		self:PlayAttackAndWait(data.attackseq.seq, 1)
+		self:SetAttacking(false)
+	end
+
+	self:CollideWhenPossible()
+	self:PostAttack()
+end
+
+-- Do something when attack is started.
+function ENT:OnAttack() end
+
+-- Do something when attack is finished.
+function ENT:PostAttack() end
 
 function ENT:DoAttackDamage() -- Moo Mark 4/14/23: Made the part that does damage during an attack its own function.
+	local ct = CurTime()
+
 	local target = self:GetTarget()
 
 	local damage = self.AttackDamage
 	local dmgrange = self.DamageRange
 	local range = self.AttackRange
 
+	local impsnd = self.AttackImpactSounds
+
+	if self.CustomAttackImpactSounds then
+		impsnd = self.CustomAttackImpactSounds
+	end
+
 	if self.HeavyAttack then
 		damage = self.HeavyAttackDamage
 		self.HeavyAttack = false
+
+		if self.HeavyAttackImpactSounds then
+			impsnd = self.HeavyAttackImpactSounds
+		end
 	end
 
 	-- Don't do damage if it isn't an arm reach, the nextbot could be using attack anims for the barricades.
@@ -3469,36 +3503,36 @@ function ENT:DoAttackDamage() -- Moo Mark 4/14/23: Made the part that does damag
 		damage = damage * 2
 	end
 
-	if IsValid(target) and target:Health() and target:Health() > 0 then -- Doesn't matter if its a player... If the zombie is targetting it, they probably wanna attack it.
-		if self:TargetInRange( range ) then
-			local dmgInfo = DamageInfo()
-			dmgInfo:SetAttacker( self )
-			dmgInfo:SetDamage( damage )
-			dmgInfo:SetDamageType( DMG_SLASH )
+	if ct > self:GetLastAttack() then
 
-			if self:TargetInRange( dmgrange ) then
-				if self.UseCustomAttackDamage then
-					self:CustomAttackDamage(target, damage)
-				else
-					target:TakeDamageInfo(dmgInfo)
-				end
+		self:SetLastAttack(CurTime() + 0.05)
+		if IsValid(target) and target:Health() and target:Health() > 0 then -- Doesn't matter if its a player... If the zombie is targetting it, they probably wanna attack it.
+			if self:TargetInRange( range ) then
+				local dmgInfo = DamageInfo()
+				dmgInfo:SetAttacker( self )
+				dmgInfo:SetDamage( damage )
+				dmgInfo:SetDamageType( DMG_SLASH )
 
-				if self.ZCTPersonality == 0 then
-					if target:IsPlayer() then
-						target:ViewPunch( VectorRand():Angle() * 0.05 )
-						if target:IsOnGround() then
-							target:SetVelocity( (target:GetPos() - self:GetPos()) * 7 + Vector( 0, 0, 30 ) )
+				if self:TargetInRange( dmgrange ) then
+					if self.UseCustomAttackDamage then
+						self:CustomAttackDamage(target, damage)
+					else
+						target:TakeDamageInfo(dmgInfo)
+					end
+
+					if self.ZCTPersonality == 0 then
+						if target:IsPlayer() then
+							target:ViewPunch( VectorRand():Angle() * 0.05 )
+							if target:IsOnGround() then
+								target:SetVelocity( (target:GetPos() - self:GetPos()) * 7 + Vector( 0, 0, 30 ) )
+							end
 						end
 					end
-				end
 
-				if comedyday or math.random(500) == 1 then
-					if self.GoofyahAttackSounds then target:EmitSound(self.GoofyahAttackSounds[math.random(#self.GoofyahAttackSounds)], SNDLVL_GUNFIRE, math.random(95,105)) end
-				else
-					if self.CustomAttackImpactSounds then
-						target:EmitSound(self.CustomAttackImpactSounds[math.random(#self.CustomAttackImpactSounds)], SNDLVL_GUNFIRE, math.random(95,105))
+					if comedyday or math.random(500) == 1 then
+						if self.GoofyahAttackSounds then target:EmitSound(self.GoofyahAttackSounds[math.random(#self.GoofyahAttackSounds)], SNDLVL_GUNFIRE, math.random(95,105)) end
 					else
-						target:EmitSound(self.AttackImpactSounds[math.random(#self.AttackImpactSounds)], SNDLVL_GUNFIRE, math.random(95,105))
+						target:EmitSound(impsnd[math.random(#impsnd)], SNDLVL_GUNFIRE, math.random(95,105))
 					end
 				end
 			end
@@ -3564,6 +3598,10 @@ if SERVER then
 			if !IsValid(v) then continue end
 			if IsValid(v) and v == zobie then continue end -- Ignore self during targetting, I highly doubt you'd ever wanna have the zombie target themself.
 
+			-- Ignore a player who might be timing out. They may come back from it so leave them alone as to not unfairly kill them.
+			if v:IsPlayer() and v:IsTimingOut() then continue end 
+			if v:IsPlayer() and !v:Alive() then continue end
+
 			if v:GetTargetPriority() == TARGET_PRIORITY_ALWAYS then return v end
 
 			local d = self:GetRangeTo(v)
@@ -3611,6 +3649,9 @@ if SERVER then
 		local path = self:ChaseTargetPath()	-- Compute the path towards the enemy's position
 		local distToTarget = self:GetPos():DistToSqr(self:GetTargetPosition())
 
+		local slowpth = 1.45 + self.RepathTimeMod
+		local quickpth = 0.25 + self.RepathTimeMod
+
 		if ( !path:IsValid() ) then return "failed" end
 
 		while ( path:IsValid() and self:HasTarget() and !self:TargetInAttackRange() and !self.Big_Jump_area_start ) do
@@ -3626,10 +3667,10 @@ if SERVER then
 
 				-- This is allows bots to pass through squares with a jump attribute without having to interact with them and treat them as normal squares.
 				if goal then
-
 					--PrintTable(goal)
+					--print(0.25 + self.RepathTimeMod)
 
-					self:PlayTurnAround(goal)
+					--self:PlayTurnAround(goal)
 					if goal.type >= 1 then
 						self.TestForBigJump = true
 					elseif goal.type < 1 then
@@ -3638,12 +3679,12 @@ if SERVER then
 					self.GoalType = goal.type
 				end
 
-				if (distToTarget > 750^2) then
-					if path:GetAge() > math.Clamp(distToTarget / 1000^2,3,15) then
+				if (distToTarget > 850^2) then
+					if path:GetAge() > math.Clamp(distToTarget / 1000^2,slowpth,15) then
 						return "timeout"
 					end
 				else
-					if path:GetAge() > math.Clamp(distToTarget / 295^2,0.25,1) then -- We're closing in, let's start repathing sooner!
+					if path:GetAge() > math.Clamp(distToTarget / 295^2,quickpth,2) then -- We're closing in, let's start repathing sooner!
 						return "timeout"
 					end
 				end
@@ -3660,6 +3701,9 @@ if SERVER then
 			
 			if self:IsMovingIntoObject() then
             	self:ApplyRandomPush(100)
+            	self.SameSquare = false
+            else
+            	self.SameSquare = true
         	end
 
 			-- If we're stuck, then call the HandleStuck function and abandon
@@ -3683,6 +3727,7 @@ if SERVER then
 
 		local target = self:GetTargetPosition()
 		local lookahead = 25
+		local tolerance = 25
 
 		local nav = navmesh.GetNavArea(self:GetPos(), 15)
 		if IsValid(nav) then
@@ -3690,17 +3735,20 @@ if SERVER then
 			local y = nav:GetSizeY()
 			if x >= 450 and y >= 450 then
 				lookahead = 1950
+				--tolerance = 75
 			else
 				lookahead = 25
+				--tolerance = 20
 			end
 			--print("X:" ..nav:GetSizeX())
 			--print("Y:" ..nav:GetSizeY())
 		else
 			lookahead = 25
+			--tolerance = 20
 		end
 
 		path:SetMinLookAheadDistance( lookahead )
-		path:SetGoalTolerance( 20 ) -- Don't let this be near or higher than the attack range...
+		path:SetGoalTolerance( tolerance ) -- Don't let this be near or higher than the attack range...
 
 		--path:Compute(self, target, self.ComputePath) -- The normal path generator.
 
@@ -3756,26 +3804,11 @@ if SERVER then
 		-- [[Big Jump Code By: Chtidino]] --
 
 		if !self.Big_Jump_area_start and CurTime() < self.BigJumpCooldown then return end
+		if self.Dying then return end
 
 		local seq = self.ZombieLedgeClimbSequences[math.random(#self.ZombieLedgeClimbSequences)]
 		local seq2 = self.ZombieLedgeClimbLoopSequences[math.random(#self.ZombieLedgeClimbLoopSequences)]
 
-		--[[if !self:IsOnGround() and self.On_Jump then
-			local min,max = self:GetCollisionBounds()
-			for k,v in pairs(ents.FindInSphere(self:GetPos(), max.x*2.5)) do
-				if v:IsValidZombie() and v != self then
-					local dir = (v:GetPos() - self:GetPos())*4
-					dir.z = 0
-					v.loco:SetVelocity(dir)
-				elseif v:IsPlayer() then
-					local dir = (v:GetPos() - self:GetPos())*1.25
-					dir.z = 0
-					v:SetVelocity(dir)
-				end
-			end
-			
-		end]]
-		
 		-- If the bot is caught on anything during the jump(Most commonly the world), just force them to their destination after 5 seconds.
 		if self.Big_Jump_area_start and self.Big_Jump_area_end and self.On_Big_Jump and CurTime() > self.BigJumpTime then
 			self.BigJumpTime = 0
@@ -3787,6 +3820,7 @@ if SERVER then
 		if self.Big_Jump_area_start and !self.Big_Jump_area_end and !self.On_Big_Jump then
 		
 			self:SetIsBusy(true)
+			self.SameSquare = false
 
 			self:SolidMaskDuringEvent(MASK_NPCSOLID_BRUSHONLY)
 
@@ -3834,6 +3868,7 @@ if SERVER then
 		elseif self.Big_Jump_area_start and self.Big_Jump_area_end and !self.On_Big_Jump then
 			
 			self:SetIsBusy(true)
+			self.SameSquare = false
 
 			self:SolidMaskDuringEvent(MASK_NPCSOLID_BRUSHONLY)
 
@@ -3842,6 +3877,13 @@ if SERVER then
 			if self.Big_Jump_area_start:GetCenter():Distance(self:GetPos()) <= 25 then
 				
 				local hasledge = self.Big_Jump_area_end:HasAttributes(NAV_MESH_OBSTACLE_TOP)
+				local smldist = self.Big_Jump_area_end:GetCenter():Distance(self:GetPos())
+				--print(smldist)
+
+				if smldist <= 90 and self:HasSequence(self.ZombieLedgeClimbSmallLoopSequences[math.random(#self.ZombieLedgeClimbSmallLoopSequences)]) then
+					self.Big_Jump_area_ledge_small = true
+					seq2 = self.ZombieLedgeClimbSmallLoopSequences[math.random(#self.ZombieLedgeClimbSmallLoopSequences)]
+				end
 
 				if hasledge and self:HasSequence(seq2) then
 					self.loco:Jump()
@@ -3882,7 +3924,9 @@ if SERVER then
 
 				local hasledge = self.Big_Jump_area_end:HasAttributes(NAV_MESH_OBSTACLE_TOP)
 
-				if self:GetPos().z >= math.max(self.Big_Jump_area_end:GetCenter().z,self.Big_Jump_area_start:GetCenter().z) + (self:OBBMaxs().z*0.5) and !hasledge or self:GetPos().z >= math.max(self.Big_Jump_area_end:GetCenter().z,self.Big_Jump_area_start:GetCenter().z) - (self:OBBMaxs().z*0.7) and hasledge then
+				if self:GetPos().z >= math.max(self.Big_Jump_area_end:GetCenter().z,self.Big_Jump_area_start:GetCenter().z) + (self:OBBMaxs().z*0.5) and (!hasledge or !self:HasSequence(seq)) 
+				or self:GetPos().z >= math.max(self.Big_Jump_area_end:GetCenter().z,self.Big_Jump_area_start:GetCenter().z) - (self:OBBMaxs().z*0.1) and hasledge and self:HasSequence(seq) and self.Big_Jump_area_ledge_small
+				or self:GetPos().z >= math.max(self.Big_Jump_area_end:GetCenter().z,self.Big_Jump_area_start:GetCenter().z) - (self:OBBMaxs().z*0.95) and hasledge and self:HasSequence(seq) and !self.Big_Jump_area_ledge_small then
 					self.On_Big_Jump = "down"
 				end
 				
@@ -3900,18 +3944,22 @@ if SERVER then
 				
 				local result = Vector(calc1,calc2,calc3)
 
+				if self.Big_Jump_area_ledge_small then
+					seq = self.ZombieLedgeClimbSmallSequences[math.random(#self.ZombieLedgeClimbSmallSequences)]
+				end
+
 				if hasledge and self:HasSequence(seq) then
 					self:TempBehaveThread(function(self)
 						self.Big_Jump_area_ledge = "reached"
  
 						self:FaceTowards(xy_point)
-						self:SetPos(Vector(self:GetPos().x,self:GetPos().y,z_pointledge) + (Vector(self:OBBMaxs().x,self:OBBMaxs().y,0) + self:GetForward() * 15))
-
+						self:SetPos(Vector(self:GetPos().x,self:GetPos().y,z_pointledge) + (Vector(self:OBBMaxs().x,self:OBBMaxs().y,0) + self:GetForward() * 2))
 						self:SetIsBusy(true)
 						self:SetSpecialAnimation(true)
 						self:PlaySequenceAndMove(seq, {gravity = false})
 						self:SetSpecialAnimation(false)
 						self:SetIsBusy(false)
+						self.SameSquare = true
 
 						self:FinishBigJumpClimb()
 					end)
@@ -3920,17 +3968,6 @@ if SERVER then
 				end
 				
 				local min,max = self:GetCollisionBounds()
-				--[[for k,v in pairs(ents.FindInSphere(self.Big_Jump_area_end:GetCenter(), max.x*4)) do
-					if v:IsValidZombie() and v != self then
-						local dir = (self.Big_Jump_area_end:GetCenter() - self.Big_Jump_area_start:GetCenter())
-						dir.z = 0
-						v.loco:SetVelocity(dir*5)
-					elseif v:IsPlayer() then
-						local dir = (self.Big_Jump_area_end:GetCenter() - self.Big_Jump_area_start:GetCenter())
-						dir.z = 0
-						v:SetVelocity(dir*0.75)
-					end
-				end]]
 
 				if self:GetPos().z <= self.Big_Jump_area_end:GetCenter().z + (self:OBBMaxs().z*0.2) then
 					nzNav.Reserved[self.Big_Jump_area_start:GetID()] = nil
@@ -3940,6 +3977,7 @@ if SERVER then
 					self.On_Big_Jump = nil
 					self:SetBlockAttack(false)
 					self:SetIsBusy(false)
+					self.SameSquare = true
 
 					if self.current_speed then
 						self.loco:SetDesiredSpeed(self.current_speed)
@@ -3998,8 +4036,10 @@ if SERVER then
 
 				if self.Big_Jump_area_ledge then
 					self.Big_Jump_area_ledge = nil
+					self.Big_Jump_area_ledge_small = nil
 					self:SetSpecialAnimation(false)
 					self:SetIsBusy(false)
+					self.SameSquare = true
 				end
 						
 				if self.On_Jump then
@@ -4007,6 +4047,7 @@ if SERVER then
 					self:SetBlockAttack(false)
 					self:SetJumping( false )
 					self:SetIsBusy(false)
+					self.SameSquare = true
 					self.loco:SetVelocity( Vector(0,0,0) )
 				end
 
@@ -4014,6 +4055,7 @@ if SERVER then
 					self:SetBlockAttack(false)
 					self:SetJumping( false )
 					self:SetIsBusy(false)
+					self.SameSquare = true
 
 					self:CollideWhenPossible()
 
@@ -4024,8 +4066,13 @@ if SERVER then
 						end
 					end
 
+					if self.InAirTime > 0.5 then
+						self.BigJumpCooldown = CurTime() + 2
+					else
+						self.BigJumpCooldown = CurTime() + 0.1
+					end
+					
 					self.InAirTime = 0
-					self.BigJumpCooldown = CurTime() + 5
 					if !self:GetSpecialAnimation() then
 					self:ResetMovementSequence()
 				end
@@ -4477,6 +4524,33 @@ if SERVER then
 						end
 						return id
 					end,
+
+					[9] = function(type) 
+						if !self.CustomCrawlThroughCarSlow then
+							id = self.CrawlThroughCarSlow[math.random(#self.CrawlThroughCarSlow)]
+						else
+							id = self.CustomCrawlThroughCarSlow[math.random(#self.CustomCrawlThroughCarSlow)]
+						end
+						return id
+					end,
+
+					[10] = function(type) 
+						if !self.CustomCrawlThroughCarFast then
+							id = self.CrawlThroughCarFast[math.random(#self.CrawlThroughCarFast)]
+						else
+							id = self.CustomCrawlThroughCarFast[math.random(#self.CustomCrawlThroughCarFast)]
+						end
+						return id
+					end,
+
+					[11] = function(type) 
+						if !self.CustomCrawlThroughCarSuperFast then
+							id = self.CrawlThroughCarSuperFast[math.random(#self.CrawlThroughCarSuperFast)]
+						else
+							id = self.CustomCrawlThroughCarSuperFast[math.random(#self.CustomCrawlThroughCarSuperFast)]
+						end
+						return id
+					end,
 				}
 
 				final = barricadejumptypes[jumptype](id)
@@ -4540,7 +4614,9 @@ if SERVER then
 
 		if tr.Hit and move and isvector(position) then
 			self:SetPos(position)
+			return true
 		end
+		return false
 	end
 
 	function ENT:GetAimVector()
@@ -4647,7 +4723,7 @@ if SERVER then
         	["mins"] = bounds.mins,
         	["maxs"] = bounds.maxs,
         	["collisiongroup"] = self:GetCollisionGroup(),
-        	["mask"] = MASK_SOLID
+        	["mask"] = MASK_ALL
     	})
 
     	local ent = tr.Entity
@@ -4660,7 +4736,7 @@ if SERVER then
 							v:Fire("Break")
 						end
 					end)
-					self:Attack()
+					--self:Attack()
 				end
 			end
 			for k,v in nzLevel.GetBarricadeArray() do
@@ -4673,12 +4749,14 @@ if SERVER then
 					end
 				end
 			end
+			--[[
 			for k,v in nzLevel.GetJumpTravArray() do
 				if IsValid(v) and self:GetRangeTo( v:GetPos() ) < self.InteractCheckRange then
 					self:FaceTowards(v:GetPos())
 					self:TraversalCheck()
 				end
 			end
+			]]
 		end
     	if IsValid(ent) and (ent:IsPlayer() or ent:IsScripted() or ent:IsValidZombie()) then return false end
 
@@ -4867,6 +4945,8 @@ if SERVER then
 
 			path:Update( self )
 
+			self:ResetMovementSequence()
+
 			-- Draw the path (only visible on listen servers or single player)
 			if ( options.draw ) then
 				path:Draw()
@@ -4899,11 +4979,6 @@ if SERVER then
 		return self:IsValidTarget( self:GetTarget() )
 	end
 
-	function ENT:GetTarget()
-		if !IsValid(self.Target) then return false end
-		return self.Target
-	end
-
 	function ENT:GetTargetNavArea()
 		return self:HasTarget() and navmesh.GetNearestNavArea( self:GetTarget():GetPos(), false, 100)
 	end
@@ -4925,6 +5000,10 @@ if SERVER then
 
 	function ENT:IsValidTarget( ent )
 		if not ent then return false end
+
+		-- Ignore a player who might be timing out. They may come back from it so leave them alone as to not unfairly kill them.
+		if ent:IsPlayer() and ent:IsTimingOut() then return false end 
+		if ent:IsPlayer() and !ent:Alive() then return false end
 
 		-- Turned Zombie Targetting
 		if self.IsTurned then
@@ -5068,7 +5147,7 @@ if SERVER then
     	local nearbyents = {}
     	for k, v in nzLevel.GetZombieSpawnArray() do
         	if v.GetSpawner and v:GetSpawner() then
-            	if (v.link == nil or nzDoors:IsLinkOpened( v.link )) and v:IsSuitable() and !v:GetMasterSpawn() then
+            	if (v.link == nil or nzDoors:IsLinkOpened( v.link ) or nzDoors:IsLinkOpened( v.link2 ) or nzDoors:IsLinkOpened( v.link3 )) and v:IsSuitable() and !v:GetMasterSpawn() then
                 	table.insert(nearbyents, v)
             	end
         	end
@@ -5082,7 +5161,7 @@ if SERVER then
     	local nearbyents = {}
     	for k, v in nzLevel.GetSpecialSpawnArray() do
         	if v.GetSpawner and v:GetSpawner() then
-            	if (v.link == nil or nzDoors:IsLinkOpened( v.link )) and v:IsSuitable() and !v:GetMasterSpawn() then
+            	if (v.link == nil or nzDoors:IsLinkOpened( v.link ) or nzDoors:IsLinkOpened( v.link2 ) or nzDoors:IsLinkOpened( v.link3 )) and v:IsSuitable() and !v:GetMasterSpawn() then
                 	table.insert(nearbyents, v)
             	end
         	end
@@ -5096,7 +5175,7 @@ if SERVER then
     	local nearbyents = {}
     	for k, v in nzLevel.GetZombieBossArray() do
         	if v.GetSpawner and v:GetSpawner() then
-            	if (v.link == nil or nzDoors:IsLinkOpened( v.link )) and v:IsSuitable() and !v:GetMasterSpawn() then
+            	if (v.link == nil or nzDoors:IsLinkOpened( v.link ) or nzDoors:IsLinkOpened( v.link2 ) or nzDoors:IsLinkOpened( v.link3 )) and v:IsSuitable() and !v:GetMasterSpawn() then
                 	table.insert(nearbyents, v)
             	end
         	end
@@ -5129,6 +5208,11 @@ if SERVER then
 		return pos2 + Vector(x, y, z)
 	end
 end
+
+	function ENT:GetTarget()
+		if !IsValid(self.Target) then return false end
+		return self.Target
+	end
 
 --[[
 self.funny = Material("the_cage.png"), "unlitgeneric smooth")
@@ -5247,8 +5331,11 @@ function ENT:PlaySequenceAndWait(seq, rate, callback)
 			if lastCycle >= cycle and cycle >= 1 then break end
 
 			-- A janky modification that allows the nextbot to cancel their attack sequence if the criteria is met.
-			if (!self:TargetInRange(self.AttackRange + 35) or !IsValid(self.Target)) and self:GetAttacking() and self.CanCancelAttack then 
+			if (!self:TargetInRange(self.AttackRange + 35) or !IsValid(self.Target)) and self:GetAttacking() and self.CanCancelAttack or self.CancelCurrentAction then 
 				self:SetAttacking(false) 
+				if self.CancelCurrentAction then
+					self.CancelCurrentAction = false
+				end
 				break 
 			end
 
@@ -5297,6 +5384,8 @@ function ENT:PlaySequenceAndMove(seq, options, callback)
 				local tr = self:NZDrG_TraceHull(vec, {step = self:IsOnGround()})
 
 				debugoverlay.Sphere(previousPos, 5, 0.03, Color( 100,255,100), false)
+
+				--if tr.Hit and tr.Entity:IsPlayer() and self:CollisionInWorld(tr.Entity:GetPos(), MASK_ALL, false) then self:SolidMaskDuringEvent(MASK_NPCSOLID_BRUSHONLY) end
 
 				if !tr.Hit and (qtr.Hit or self.Big_Jump_area_ledge == "reached") or (self:GetIsBusy() and (self.TraversalAnim or tr.HitNoDraw)) then
 					if not options.gravity then
@@ -5355,6 +5444,13 @@ ENT.ZombieLedgeClimbLoopSequences = {
 ENT.ZombieLedgeClimbSequences = {
 	"nz_base_zombie_jump_up_finish", -- Will only ever be one, for easy overridding.
 }
+ENT.ZombieLedgeClimbSmallLoopSequences = {
+	"nz_base_zombie_jump_up_small_loop",
+}
+ENT.ZombieLedgeClimbSmallSequences = {
+	"nz_base_zombie_jump_up_small_finish", -- Will only ever be one, for easy overridding.
+}
+
 
 
 ENT.RagdollDeathSequences = {
@@ -5376,6 +5472,16 @@ ENT.CrawlBlackHoleDeathSequences = {
 ENT.BlackHoleDeathSequences = {
 	"nz_blackhole_death_v1",
 	"nz_blackhole_death_v2",
+}
+ENT.HeavyDeathSequences = {
+	"nz_t9_dth_f_chest_hvy_00",
+	"nz_t9_dth_f_chest_hvy_01",
+	"nz_t9_dth_f_chest_hvy_02",
+	"nz_t9_dth_f_head_hvy_01",
+	"nz_t9_dth_f_head_hvy_02",
+	"nz_t9_dth_f_head_hvy_03",
+	"nz_t9_dth_f_larm_hvy_00",
+	"nz_t9_dth_f_larm_hvy_01",
 }
 ENT.BlastDeathSequences = {
 	"nz_death_blast_1",
@@ -5729,6 +5835,28 @@ ENT.ElevatorCeilingSpawnSequences = {
 	"nz_base_riser_elevator_from_ceiling",
 }
 
+ENT.ProneCrawlSequences = {
+	"nz_s4_3arc_traverse_ground_crawl",
+}
+
+ENT.UnderbedSequences = {
+	"nz_base_ent_under_bed_01",
+	"nz_base_ent_under_bed_02",
+	"nz_base_ent_under_bed_03",
+}
+
+ENT.Alcove40Sequences = {
+	"nz_base_zombie_alcove_traverse_40",
+}
+
+ENT.Alcove56Sequences = {
+	"nz_base_zombie_alcove_traverse_56",
+}
+
+ENT.Alcove96Sequences = {
+	"nz_base_zombie_alcove_traverse_96",
+}
+
 ENT.DugUpSpawnSequences = {
 	"nz_s4_3arc_traverse_ground_dugup",
 }
@@ -5783,6 +5911,18 @@ ENT.JumpThroughClosetDoor = {
 	"nz_zom_core_spawn_closet_door_v2",
 	"nz_zom_core_spawn_closet_door_v3",
 	"nz_zom_core_spawn_closet_door_v4",
+}
+
+ENT.CrawlThroughCarSlow = {
+	"nz_base_zombie_traverse_car",
+}
+
+ENT.CrawlThroughCarFast = {
+	"nz_base_zombie_traverse_car_run",
+}
+
+ENT.CrawlThroughCarSuperFast = {
+	"nz_base_zombie_traverse_car_sprint",
 }
 
 ENT.NormalForwardReactSequences = {
@@ -5934,6 +6074,63 @@ ENT.ZombieMutateSounds = {
 	Sound("nz_moo/zombies/vox/_mutated/new/_shared/spawn_vox/zmb_transform_vox_02.mp3"),
 	Sound("nz_moo/zombies/vox/_mutated/new/_shared/spawn_vox/zmb_transform_vox_03.mp3"),
 	Sound("nz_moo/zombies/vox/_mutated/new/_shared/spawn_vox/zmb_transform_vox_04.mp3"),
+}
+
+ENT.QuacknarokPopSounds = {
+	Sound("nz_moo/bgb/quacknarok/pop_00.mp3"),
+	Sound("nz_moo/bgb/quacknarok/pop_01.mp3"),
+	Sound("nz_moo/bgb/quacknarok/pop_02.mp3"),
+	Sound("nz_moo/bgb/quacknarok/pop_03.mp3"),
+	Sound("nz_moo/bgb/quacknarok/pop_04.mp3"),
+	Sound("nz_moo/bgb/quacknarok/pop_05.mp3"),
+}
+
+ENT.QuacknarokDeflateSounds = {
+	Sound("nz_moo/bgb/quacknarok/deflate_00.mp3"),
+	Sound("nz_moo/bgb/quacknarok/deflate_01.mp3"),
+	Sound("nz_moo/bgb/quacknarok/deflate_02.mp3"),
+	Sound("nz_moo/bgb/quacknarok/deflate_03.mp3"),
+	Sound("nz_moo/bgb/quacknarok/deflate_04.mp3"),
+	Sound("nz_moo/bgb/quacknarok/deflate_05.mp3"),
+	Sound("nz_moo/bgb/quacknarok/deflate_06.mp3"),
+	Sound("nz_moo/bgb/quacknarok/deflate_07.mp3"),
+}
+
+ENT.QuacknarokQuackSounds = {
+	Sound("nz_moo/bgb/quacknarok/quack_00.mp3"),
+	Sound("nz_moo/bgb/quacknarok/quack_01.mp3"),
+	Sound("nz_moo/bgb/quacknarok/quack_02.mp3"),
+	Sound("nz_moo/bgb/quacknarok/quack_03.mp3"),
+	Sound("nz_moo/bgb/quacknarok/quack_04.mp3"),
+	Sound("nz_moo/bgb/quacknarok/quack_05.mp3"),
+	Sound("nz_moo/bgb/quacknarok/quack_06.mp3"),
+	Sound("nz_moo/bgb/quacknarok/quack_07.mp3"),
+	Sound("nz_moo/bgb/quacknarok/quack_08.mp3"),
+	Sound("nz_moo/bgb/quacknarok/quack_09.mp3"),
+}
+
+ENT.BodyfallLightSounds = {
+	Sound("nz_moo/zombies/fly/bodyfall/fly_bodyfall_generic_00.mp3"),
+	Sound("nz_moo/zombies/fly/bodyfall/fly_bodyfall_generic_01.mp3"),
+	Sound("nz_moo/zombies/fly/bodyfall/fly_bodyfall_generic_02.mp3"),
+	Sound("nz_moo/zombies/fly/bodyfall/fly_bodyfall_generic_03.mp3"),
+	Sound("nz_moo/zombies/fly/bodyfall/fly_bodyfall_generic_04.mp3"),
+	Sound("nz_moo/zombies/fly/bodyfall/fly_bodyfall_generic_05.mp3"),
+	Sound("nz_moo/zombies/fly/bodyfall/fly_bodyfall_generic_06.mp3"),
+	Sound("nz_moo/zombies/fly/bodyfall/fly_bodyfall_generic_07.mp3"),
+	Sound("nz_moo/zombies/fly/bodyfall/fly_bodyfall_generic_08.mp3"),
+	Sound("nz_moo/zombies/fly/bodyfall/fly_bodyfall_generic_09.mp3"),
+}
+
+ENT.BodyfallHeavySounds = {
+	Sound("nz_moo/zombies/fly/bodyfall/heavy/fly_bodyfall_heavy_00.mp3"),
+	Sound("nz_moo/zombies/fly/bodyfall/heavy/fly_bodyfall_heavy_01.mp3"),
+	Sound("nz_moo/zombies/fly/bodyfall/heavy/fly_bodyfall_heavy_02.mp3"),
+	Sound("nz_moo/zombies/fly/bodyfall/heavy/fly_bodyfall_heavy_03.mp3"),
+	Sound("nz_moo/zombies/fly/bodyfall/heavy/fly_bodyfall_heavy_04.mp3"),
+	Sound("nz_moo/zombies/fly/bodyfall/heavy/fly_bodyfall_heavy_05.mp3"),
+	Sound("nz_moo/zombies/fly/bodyfall/heavy/fly_bodyfall_heavy_06.mp3"),
+	Sound("nz_moo/zombies/fly/bodyfall/heavy/fly_bodyfall_heavy_07.mp3"),
 }
 
 ENT.TauntAnimV1Sounds = {
@@ -6110,6 +6307,16 @@ if CLIENT then
 		local eyeColor = nzMapping.Settings.zombieeyecolor
 		local nocolor = Color(0,0,0)
 
+		if self.EyeColorTable then
+			-- Go through every material given and set the color.
+			local eyecolor = nzMapping.Settings.zombieeyecolor
+			local col = Color(eyecolor.r,eyecolor.g,eyecolor.b):ToVector()
+
+			for k,v in pairs(self.EyeColorTable) do
+				v:SetVector("$emissiveblendtint", col)
+			end
+		end
+		
 		if eyeColor == nocolor then return end
 
 
@@ -6133,23 +6340,26 @@ if CLIENT then
 			render.DrawSprite(lefteyepos, 5, 5, eyeColor)
 			render.DrawSprite(righteyepos, 5, 5, eyeColor)
 		end
-
-
-		if self.EyeColorTable then
-			-- Go through every material given and set the color.
-			local eyecolor = nzMapping.Settings.zombieeyecolor
-			local col = Color(eyecolor.r,eyecolor.g,eyecolor.b):ToVector()
-
-			for k,v in pairs(self.EyeColorTable) do
-				v:SetVector("$emissiveblendtint", col)
-			end
-		end
 	end
 
 	hook.Add("CreateClientsideRagdoll", "nzZCTragdollfire", function(ent, ragdoll)
         if not IsValid(ent) or not IsValid(ragdoll) then return end
         if not ent:IsValidZombie() then return end
+        
+        for k, v in pairs(player.GetAll()) do
+        	if IsValid(v) and (nzGum:GetActiveGum(v) and nzGum:GetActiveGumData(v).name == "Newtonian Negation") then
+        		--local phys = ragdoll:GetPhysicsObject()
+        		local bones = ragdoll:GetPhysicsObjectCount()
+        		for i = 0, bones - 1 do
 
+					local phys = ragdoll:GetPhysicsObjectNum( i )
+					if ( IsValid( phys ) ) then
+						phys:EnableGravity( false )
+						phys:Wake()
+					end
+				end
+        	end
+        end
         --
         if IsValid(ent) and ent.GetZCTFlameColor and ent:GetZCTFlameColor() then 
         	if ent:GetZCTFlameColor() == "" then

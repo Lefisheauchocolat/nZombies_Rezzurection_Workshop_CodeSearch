@@ -45,6 +45,7 @@ function ENT:Use( activator )
 		
 	--print(self:GetLimited())
 	if self:GetLimited() == true and self:GetAOE() > 0 then
+
 		--print("limited")
 		net.Start("nz.nzElec.Sound")
 			net.WriteBool(true)
@@ -66,7 +67,7 @@ function ENT:Use( activator )
 				v:TurnOn()
 			end
 		
-			if v:GetClass() == "perk_machine" then 
+			if v:GetClass() == "perk_machine" and !v:IsOn() then 
 				v:TurnOn()
 			end
 		
@@ -78,8 +79,13 @@ function ENT:Use( activator )
 				v:TurnOn()
 			end
 		
-			if v:GetClass() == "nz_launchpad" then 					  
+			if v:GetClass() == "nz_launchpad" then 
 				v:TurnOn()
+			end
+
+			if v:GetClass() == "nz_button" or v:GetClass() == "nz_activatable" then
+				v:Ready() 
+				v.LocalPower = true -- Give it a new variable so it knows to turn on.
 			end
 		
 			if v:IsBuyableEntity() then
@@ -96,7 +102,7 @@ function ENT:Use( activator )
 		if !IsElec() and nzRound:InProgress() then
 			self:SetSwitch(true)
 			self.Switched = 0
-			self:EmitSound("nz_moo/effects/switch_flip_flux.mp3", 90, math.random(95,105))												 
+			self:EmitSound("nz_moo/effects/switch_flip_flux.mp3", 90, math.random(95,105))
 			nzElec:Activate()
 		end
 	end

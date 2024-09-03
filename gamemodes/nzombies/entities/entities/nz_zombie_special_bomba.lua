@@ -368,7 +368,7 @@ function ENT:StatsInitialize()
 
 		--self.BombDrop = CurTime() + 7 -- Simply used for testing which forces the bomber to drop his bomb after a set amount of time.
 
-		if math.random(300) == 1 then
+		if self.Gum or math.random(300) == 1 then
 			self.Treasure = true
 			self:SetHealth( nzRound:GetZombieHealth() * 4 or 5000 )
 		else
@@ -409,6 +409,8 @@ function ENT:OnSpawn(animation, grav, dirt)
 	if IsValid(self.SpawnIndex) then
 		stype = self.SpawnIndex:GetSpawnType()
 	end
+
+	if self.Gum then stype = 1 end
 
 	if dirt then
 		local SpawnMatSound = {

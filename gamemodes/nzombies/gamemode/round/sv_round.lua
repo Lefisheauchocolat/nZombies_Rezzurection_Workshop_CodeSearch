@@ -40,8 +40,17 @@ function nzRound:Prepare( time )
 		self:IncrementNumber()
 	end
 
+	if self:GetNumber() < 1 then
+		self:SetNumber(1) -- No more -1 :steamhappy:
+	end
+
 	self:SetZombieHealth( nzCurves.GenerateHealthCurve(self:GetNumber()) )
-	self:SetZombiesMax( nzCurves.GenerateMaxZombies(self:GetNumber()) )
+
+	if nzMapping.Settings.timedgame == 1 then
+		self:SetZombiesMax( 666 )
+	else
+		self:SetZombiesMax( nzCurves.GenerateMaxZombies(self:GetNumber()) )
+	end
 
 	self:SetZombieSpeeds( nzCurves.GenerateSpeedTable(self:GetNumber()) )
 	self:SetZombieCoDSpeeds( nzCurves.GenerateCoDSpeedTable(self:GetNumber()) )
@@ -60,17 +69,24 @@ function nzRound:Prepare( time )
 		self:SetZombieCoDSpeeds( nzCurves.GenerateCoDSpeedTable(self:GetNumber()) )
 	end
 
-	if self:GetNumber() == 16 or self:GetNumber() == 26 then -- Beating rounds 15 and 25 will reward you with your 2 slots.
-        GetConVar("nz_difficulty_perks_max"):SetInt(P+1) -- No longer a Powerup, You'll just get slots depending on the round.
-		//PrintMessage( HUD_PRINTTALK, "Perk Slot Rewarded!" )
+	local slot_reward = nzMapping.Settings.roundperkbonus
+	if (self:GetNumber() == 16 or self:GetNumber() == 26) and (slot_reward == nil or tobool(slot_reward)) then -- Beating rounds 15 and 25 will reward you with your 2 slots.
+		GetConVar("nz_difficulty_perks_max"):SetInt(P+1) -- No longer a Powerup, You'll just get slots depending on the round.
+
 		net.Start("nzPowerUps.PickupHud")
 			net.WriteString("Perk Slot!")
 			net.WriteBool(true)
 		net.Broadcast()
 	end
 
-	self:ResetZombiesRemaining()
-	self:SetZombiesKilled( 0 )
+	if nzMapping.Settings.timedgame ~= 1 then
+		self:ResetZombiesRemaining()
+		self:SetZombiesKilled( 0 )
+	else
+		self:ResetZombiesRemaining()
+		self:SetZombiesKilled( 0 )
+	end
+
 
 	--Notify
 	--PrintMessage( HUD_PRINTTALK, "ROUND: " .. self:GetNumber() .. " preparing" )
@@ -87,34 +103,13 @@ function nzRound:Prepare( time )
 	-- Setup the spawners after all players have been spawned
 
 	-- Reset and remove the old spawners
-	if self:GetSpecialSpawner() then
-		self:GetSpecialSpawner():Remove()
-		self:SetSpecialSpawner(nil)
-	end
-	
-	if self:GetExtraSpawner1() then
-		self:GetExtraSpawner1():Remove()
-		self:SetExtraSpawner1(nil)
-	end
-	
-	if self:GetExtraSpawner2() then
-		self:GetExtraSpawner2():Remove()
-		self:SetExtraSpawner2(nil)
-	end
-	
-	if self:GetExtraSpawner3() then
-		self:GetExtraSpawner3():Remove()
-		self:SetExtraSpawner3(nil)
-	end
-	
-	if self:GetExtraSpawner4() then
-		self:GetExtraSpawner4():Remove()
-		self:SetExtraSpawner4(nil)
-	end
-
 	if self:GetNormalSpawner() then
 		self:GetNormalSpawner():Remove()
 		self:SetNormalSpawner(nil)
+	end
+	if self:GetSpecialSpawner() then
+		self:GetSpecialSpawner():Remove()
+		self:SetSpecialSpawner(nil)
 	end
 
 	-- Prioritize any configs (useful for mapscripts)
@@ -185,40 +180,6 @@ function nzRound:Prepare( time )
 
 		-- update the zombiesmax (for win detection)
 		self:SetZombiesMax(normalCount + specialCount)
-		
-	elseif self:GetNumber() == -1 then
-		
-		local normalrounddata = {[nzRound:GetZombieType(nzMapping.Settings.zombietype)] = {chance = 100}}
-		--local specialrounddata = {}
-		
-		--[[for k,v in pairs(nzRound.SpecialData) do
-			if v.data then
-				if v.data.normalTypes then
-					for k3,v3 in pairs(v.data.normalTypes) do
-						local chance = v3.chance
-						normalrounddata[k3] = {["chance"] = chance/10}
-					end
-				end
-				if v.data.specialTypes then
-					for k3,v3 in pairs(v.data.specialTypes) do
-						local chance = v3.chance
-						specialrounddata[k3] = {["chance"] = chance/10}
-					end
-				end
-			end
-		end]]
-		
-		local normalSpawner = Spawner("nz_spawn_zombie_normal", normalrounddata, 1)
-		self:SetNormalSpawner(normalSpawner)
-		
-		--[[if table.Count(specialrounddata) > 0 then
-			local specialSpawner = Spawner("nz_spawn_zombie_special", specialrounddata, 1, 4)
-			self:SetSpecialSpawner(specialSpawner)
-		end]]
-			
-
-	-- else if no data was set continue with the gamemodes default spawning
-	-- if the round is special use the gamemodes default special round (Hellhounds)
 	elseif self:IsSpecial() then
 		-- only setup a special spawner
 		local amntforrnd = self:SetZombiesMax(math.floor(self:GetZombiesMax() / 2)) -- Half the amount of special zombies
@@ -236,75 +197,6 @@ function nzRound:Prepare( time )
 	else
 		local normalSpawner = Spawner("nz_spawn_zombie_normal", {[nzRound:GetZombieType(nzMapping.Settings.zombietype)] = {chance = 100}}, self:GetZombiesMax())
 		
-		local amntcap = nzMapping.Settings.amountcap / 3 or 240 / 3
-		
-		--[[if nzMapping.Settings.newwave1 then
-			if nzMapping.Settings.newwave1 > 0 then
-				if self:GetNumber() > nzMapping.Settings.newwave1 and nzMapping.Settings.newwave1 > -1  then
-					if nzMapping.Settings.newtype1 ~= nil then
-						local amount1 = math.ceil(math.Clamp(self:GetNumber() * nzMapping.Settings.newratio1, 0, amntcap))
-
-						local addSpawner1 = Spawner("nz_spawn_zombie_extra1", {[nzRound:GetSpecialType(nzMapping.Settings.newtype1)] = {chance = 100}}, amount1, 2)
-
-						self:SetExtraSpawner1(addSpawner1)
-						self:SetZombiesMax(self:GetZombiesMax() + amount1)
-					end
-				end
-			else
-				if 0 > nzMapping.Settings.newwave1 and nzElec:IsOn() then
-					if nzMapping.Settings.newtype1 ~= nil then
-						local amount1 = math.ceil(math.Clamp(self:GetNumber() * nzMapping.Settings.newratio1, 0, amntcap))
-						local specialSpawner = Spawner("nz_spawn_zombie_special", {[nzRound:GetSpecialType(nzMapping.Settings.newtype1)] = {chance = 100}}, amount1, 2)
-
-						self:SetSpecialSpawner(specialSpawner)
-						self:SetZombiesMax(self:GetZombiesMax() + amount1)
-					end
-				end
-			end
-		end
-		
-		if nzMapping.Settings.newwave2 then
-			if nzMapping.Settings.newwave2 > 0 then
-				if self:GetNumber() > nzMapping.Settings.newwave2 then
-					if nzMapping.Settings.newtype2 ~= nil then
-						local amount2 = math.ceil(math.Clamp(self:GetNumber() * nzMapping.Settings.newratio2, 0, amntcap))
-						local addSpawner2 = Spawner("nz_spawn_zombie_extra2", {[nzRound:GetSpecialType(nzMapping.Settings.newtype2)] = {chance = 100}}, amount2,2)
-
-						self:SetExtraSpawner2(addSpawner2)
-						self:SetZombiesMax(self:GetZombiesMax() + amount2)
-					end
-				end
-			end
-		end
-		
-		if nzMapping.Settings.newwave3 then
-			if nzMapping.Settings.newwave3 > 0 then
-				if self:GetNumber() > nzMapping.Settings.newwave3 then
-					if nzMapping.Settings.newtype3 ~= nil then
-						local amount3 = math.ceil(math.Clamp(self:GetNumber() * nzMapping.Settings.newratio3, 0, amntcap))
-						local addSpawner3 = Spawner("nz_spawn_zombie_extra3", {[nzRound:GetSpecialType(nzMapping.Settings.newtype3)] = {chance = 100}}, amount3,2)
-
-						self:SetExtraSpawner3(addSpawner3)
-						self:SetZombiesMax(self:GetZombiesMax() + amount3)
-					end
-				end
-			end
-		end
-		
-		if nzMapping.Settings.newwave4 then
-			if nzMapping.Settings.newwave4 > 0 then
-				if self:GetNumber() > nzMapping.Settings.newwave4 then
-					if nzMapping.Settings.newtype4 ~= nil then
-						local amount4 = math.ceil(math.Clamp(self:GetNumber() * nzMapping.Settings.newratio4, 0, amntcap))
-						local addSpawner4 = Spawner("nz_spawn_zombie_extra4", {[nzRound:GetSpecialType(nzMapping.Settings.newtype4)] = {chance = 100}}, amount4,2)
-
-						self:SetExtraSpawner4(addSpawner4)
-						self:SetZombiesMax(self:GetZombiesMax() + amount4)
-					end
-				end
-			end
-		end]]
-
 		-- save the spawner to access data
 		self:SetNormalSpawner(normalSpawner)
 	end
@@ -316,6 +208,8 @@ function nzRound:Prepare( time )
 	local time = 15
 	if self:GetNumber() == -1 then time = 10 end
 	if self:GetNumber() == 1 then time = 1 end
+
+	if nzMapping.Settings.timedgame == 1 then time = 0.5 end -- Timed Gameplay has next to no time in between rounds, in order to keep the zombie spawning near constant.
 	
 	local starttime = CurTime() + time
 	hook.Add("Think", "nzRoundPreparing", function()
@@ -325,10 +219,9 @@ function nzRound:Prepare( time )
 		end
 	end)
 
-	if self:IsSpecial() then
+	if self:IsSpecial() and nzMapping.Settings.timedgame ~= 1 then
 		self:SetNextSpecialRound( self:GetNumber() + math.random(5, 7) ) -- Every 5 to 7 rounds can have a chance of being a special round.
 	end
-
 end
 
 local CurRoundOverSpawned = false
@@ -339,6 +232,17 @@ function nzRound:Start()
 
 	self:SetZombiesKilled( 0 )
 
+	if nzMapping.Settings.timedgame == 1 then
+		local time = CurTime() + nzMapping.Settings.timedgametime * self:GetNumber()
+		local cap = CurTime() + nzMapping.Settings.timedgamemaxtime
+		if time > cap then
+			time = cap
+		end
+		self:SetTimedRoundTime( time )
+	else
+		self:SetTimedRoundTime( 0 )
+	end
+
 	local spawner = self:GetNormalSpawner()
 	if spawner then
 		if self:GetNumber() == 1 then
@@ -346,12 +250,15 @@ function nzRound:Start()
 		else
 			spawner:SetNextSpawn( CurTime() + 3 ) -- Delayed zombie spawning.
 		end
+		if nzMapping.Settings.timedgame == 1 then
+			spawner:SetNextSpawn( CurTime() + 0.1 ) -- Only wait 0.1 seconds on Timed Gameplay.
+		end
 	end
 
 	local specialspawner = self:GetSpecialSpawner()
 	if self:IsSpecial() then
         if specialspawner then
-            specialspawner:SetNextSpawn( CurTime() + 6 ) -- Delay spawning even furhter
+            specialspawner:SetNextSpawn( CurTime() + 6 ) -- Delay spawning even further
         end
 		timer.Simple(3, function()
 			nzRound:CallHellhoundRound() -- Play the sound
@@ -360,24 +267,6 @@ function nzRound:Start()
 		local data = self:GetSpecialRoundData()
 		if data and data.roundfunc then data.roundfunc() end
 	end
-
-	local extraspawner = self:GetExtraSpawner1()
-	local extraspawner2 = self:GetExtraSpawner2()
-	local extraspawner3 = self:GetExtraSpawner3()
-	local extraspawner4 = self:GetExtraSpawner4()
-	if extraspawner then
-		extraspawner:SetNextSpawn( CurTime() + 3 )
-	end
-	if extraspawner2 then
-		extraspawner2:SetNextSpawn( CurTime() + 3 )
-	end
-	if extraspawner3 then
-		extraspawner3:SetNextSpawn( CurTime() + 3 )
-	end
-	if extraspawner4 then
-		extraspawner3:SetNextSpawn( CurTime() + 3 )
-	end
-
 
 	--Notify
 	--PrintMessage( HUD_PRINTTALK, "ROUND: " .. self:GetNumber() .. " started" )
@@ -411,7 +300,7 @@ function nzRound:Think()
 	local numzombies = nzEnemies:TotalAlive()
 
 	-- failsafe temporary until i can identify the issue (why are not all zombies spawned and registered)
-	local zombiesToSpawn
+	--[[local zombiesToSpawn
 	if self:GetNormalSpawner() then
 		zombiesToSpawn = self:GetNormalSpawner():GetZombiesToSpawn()
 	end
@@ -424,21 +313,10 @@ function nzRound:Think()
 		end
 	end
 
-	-- this will trigger if no more zombies will spawn, but more are required to end a round
-	if zombiesToSpawn == 0 and self:GetZombiesKilled() + numzombies < self:GetZombiesMax() then
-		if self:GetNormalSpawner() then
-			self:GetNormalSpawner():SetZombiesToSpawn(self:GetZombiesMax() - (self:GetZombiesKilled() + numzombies))
-			DebugPrint(2, "Spawned additional normal zombies because the wave was underspawning.")
-		elseif self:GetSpecialSpawner() then
-			self:GetSpecialSpawner():SetZombiesToSpawn(self:GetZombiesMax() - (self:GetZombiesKilled() + numzombies))
-			DebugPrint(2, "Spawned additional special zombies because the wave was underspawning.")
-		end
-	end
-	
-	self:SetZombiesToSpawn(zombiesToSpawn)
+	self:SetZombiesToSpawn(zombiesToSpawn)]]
 
-	if ( self:GetZombiesKilled() >= self:GetZombiesMax() and self:GetNumber() ~= -1 ) then
-		if numzombies <= 0 then
+	if (self:GetZombiesKilled() >= self:GetZombiesMax() and self:GetNumber() ~= -1) or (CurTime() > self:GetTimedRoundTime() and nzMapping.Settings.timedgame == 1) then
+		if numzombies <= 0 or (CurTime() > self:GetTimedRoundTime() and nzMapping.Settings.timedgame == 1) then
 			self:Prepare()
 			timer.Remove( "NZRoundThink" )
 		end
@@ -497,6 +375,7 @@ function nzRound:ResetGame()
 
 		ply:KillDownedPlayer(true) --Reset all downed players' downed status
 		ply.SoloRevive = nil -- Reset Solo Revive counter
+		ply:SetNW2Int("nz.SoloReviveCount", #player.GetAll() <= 1 and (nzMapping.Settings.solorevive or 3) or 0)
 
 		if ply:IsPlaying() then
 			ply:SetPlaying(false) --Resets all active palyers playing state
@@ -807,7 +686,9 @@ function nzRound:SetupGame()
 
 	nzPerks:UpdateQuickRevive()
 
-	nzRound:SetNextSpecialRound( GetConVar("nz_round_special_interval"):GetInt() )
+	if nzMapping.Settings.timedgame ~= 1 then
+		nzRound:SetNextSpecialRound( self:GetNumber() + math.random(5, 7) )
+	end
 
 	nzEE.Major:Reset()
 

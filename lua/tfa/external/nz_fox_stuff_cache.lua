@@ -1,5 +1,14 @@
 local nzombies = engine.ActiveGamemode() == "nzombies"
 
+game.AddParticles("particles/perks_aat_radiation.pcf")
+
+PrecacheParticleSystem("bo3_aat_fallout_start")
+PrecacheParticleSystem("bo3_aat_fallout_loop")
+PrecacheParticleSystem("bo3_aat_fallout_zomb")
+PrecacheParticleSystem("bo3_aat_fallout_zomb_floor")
+PrecacheParticleSystem("bo3_aat_fallout_eyes")
+PrecacheParticleSystem("bo3_aat_fallout_kill")
+
 TFA.AddSound("NZ.Cherry.Shock", CHAN_STATIC, 1, SNDLVL_NORM, 100, {"nzr/2022/perks/cherry/zm_common.all.sabl.1796.wav", "nzr/2022/perks/cherry/zm_common.all.sabl.1797.wav", "nzr/2022/perks/cherry/zm_common.all.sabl.1798.wav", "nzr/2022/perks/cherry/zm_common.all.sabl.1799.wav", "nzr/2022/perks/cherry/zm_common.all.sabl.1800.wav", "nzr/2022/perks/cherry/zm_common.all.sabl.1801.wav"},")")
 TFA.AddSound("NZ.Cherry.Sweet", CHAN_VOICE_BASE, 1, SNDLVL_NORM, 100, "nzr/2022/perks/cherry/zm_common.all.sabl.1789.wav",")")
 
@@ -78,5 +87,3 @@ TFA.AddWeaponSound("NZ.Hands.Knuckle1", "nzr/2022/pap/knuckle_01.wav")
 
 TFA.AddWeaponSound("NZ.Syrette.Open", "nzr/2023/syrette/adrenaline_cap_off.wav")
 TFA.AddWeaponSound("NZ.Syrette.Stab", "nzr/2023/syrette/adrenaline_needle_in.wav")
-
-local zmhud_icon_headshot = Material("vgui/hud/hud_headshoticon.png", "smooth unlitgeneric")

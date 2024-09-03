@@ -34,7 +34,7 @@ function ENT:Draw() //Runs every frame
 end
 
 function ENT:DrawEyeGlow()
-	local eyeglow =  Material("nz/zlight")
+	local eyeglow =  Material("nz_moo/sprites/moo_glow1")
 	local eyeColor = Color(255,50,0)
 	local latt = self:LookupAttachment("lefteye")
 	local ratt = self:LookupAttachment("righteye")
@@ -63,13 +63,14 @@ ENT.RedEyes = false
 ENT.IsMooSpecial = true
 ENT.MooSpecialZombie = true
 ENT.IsMooBossZombie = true
+ENT.IsMiniBoss = true
 
 ENT.AttackRange = 72
 
 ENT.TraversalCheckRange = 40
 
 ENT.Models = {
-	{Model = "models/moo/_codz_ports/t7/temple/moo_codz_t7_sonic_napalm.mdl", Skin = 1, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t5/temple/moo_codz_t5_viet_special_zombie.mdl", Skin = 0, Bodygroups = {0,0}},
 }
 
 ENT.DeathSequences = {
@@ -182,8 +183,6 @@ ENT.SequenceTables = {
 				"nz_napalm_walk_01",
 				"nz_napalm_walk_02",
 				"nz_napalm_walk_03",
-				"nz_s1_zom_core_walk_2",
-				"nz_s1_zom_core_walk_4",
 			},
 			BlackholeMovementSequence = {
 				"nz_blackhole_1",
@@ -345,6 +344,7 @@ function ENT:StatsInitialize()
 		self:SetRunSpeed(1)
 
 		self:SetBodygroup(0,0)
+		self:SetBodygroup(1,0)
 
 		self.Cooldown = CurTime() + 3 -- Won't be allowed to explode right after spawning, so they'll attack normally until then.
 		self.CanExplode = false

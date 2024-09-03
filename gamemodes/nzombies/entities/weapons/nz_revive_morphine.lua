@@ -7,7 +7,7 @@ end
 
 if CLIENT then
 
-	SWEP.PrintName     	    = "Morphine (Original)"			
+	SWEP.PrintName     	    = "Morphine"			
 	SWEP.Slot				= 1
 	SWEP.SlotPos			= 1
 	SWEP.DrawAmmo			= false

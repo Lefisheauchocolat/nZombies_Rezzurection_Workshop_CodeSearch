@@ -24,6 +24,8 @@ function ENT:Initialize()
 	self.TransferSpecialFogDensity 	= nil
 	self.TransferSpecialFogColor 	= nil
 
+	self.FogController 				= nil
+
 	-- There can only be one!
 	if IsValid(ents.FindByClass("edit_color")[1]) and ents.FindByClass("edit_color")[1] != self then 
 		ents.FindByClass("edit_color")[1]:Remove() 
@@ -33,6 +35,12 @@ function ENT:Initialize()
 		hook.Add( "RenderScreenspaceEffects", self, self.DrawColorCorretion )
 	end
 	
+	-- Recreate the fog controller. I think nZ removes this in it's creation of the Fog Hooks, but this is needed so the FarZ can be modified.
+	if SERVER then
+		if !IsValid(ents.FindByClass("env_fog_controller")) then
+			self.FogController = ents.Create("env_fog_controller")
+		end
+	end
 end
 
 function ENT:SetupDataTables()
@@ -62,6 +70,9 @@ function ENT:SetupDataTables()
 	self:NetworkVar( "Float",	14, "SpecialDensity", { KeyName = "specialdensity", Edit = { type = "Float", min = 0, max = 1, order = 16 } }  );
 
 	self:NetworkVar( "Vector",	1, "SpecialFogColor", { KeyName = "specialfogcolor", Edit = { type = "VectorColor", order = 17 } }  );
+
+	-- Moo Mark 7/7/24: FINALLY found out how the FarZ is modified. So now you can change that and make maps that run horribly, possibly run better!
+	self:NetworkVar( "Float",	15, "ClipPlane", { KeyName = "clipplane", Edit = { type = "Float", min = 0, max = 100000, order = 18 } }  );
 
 	--
 	-- TODO: Should skybox fog be edited seperately?
@@ -123,10 +134,13 @@ function ENT:SetupDataTables()
 			self:SetDensity( self.TransferFogDensity )
 			self:SetFogColor( self.TransferFogColor )
 		else
-			self:SetFogStart( 0.0 )
-			self:SetFogEnd( 10000 )
-			self:SetDensity( 0.9 )
-			self:SetFogColor( Vector( 0.6, 0.7, 0.8 ) )
+			local fogCntrl = ents.FindByClass( "env_fog_controller" )[ 1 ];
+			if ( !IsValid( fogCntrl ) ) then return end
+
+			self:SetFogStart( fogCntrl:GetInternalVariable( "fogstart" ) )
+			self:SetFogEnd( fogCntrl:GetInternalVariable( "fogend" ) )
+			self:SetDensity( fogCntrl:GetInternalVariable( "fogmaxdensity" ) )
+			self:SetFogColor( Vector( fogCntrl:GetInternalVariable( "fogcolor" ) ) / 255 )
 		end
 
 		if self.HasSpecialFogEntity then
@@ -160,6 +174,50 @@ function ENT:DrawColorCorretion()
 	
 	DrawColorModify(tbl)
 end
+
+function ENT:Think()
+
+	if SERVER then 
+		if IsValid(self.FogController) then
+			for k, v in pairs(ents.FindByClass("env_fog_controller")) do
+				v:SetKeyValue("farz", self:GetClipPlane())
+			end
+		end
+	end
+
+	self:NextThink( CurTime() )
+
+	return true
+end
+
+--[[
+hook.Add("SetupSkyboxFog", "Wedoinitherenow", function(scale)
+
+		local fog = ents.FindByClass("edit_color")
+
+		if !IsValid(fog) then return end
+
+
+		local fogend = fog:GetFogEnd()
+		local fogstart = fogend - fogend * (fog:GetFogStart() / 100)
+		local fogcolor = fog:GetFogColor()
+
+		render.FogMode(1)
+		render.FogColor( fogcolor.r, fogcolor.g, fogcolor.b )
+		render.FogMaxDensity(1)
+		render.FogStart(fogstart * scale)
+		render.FogEnd(fogend * scale)
+
+		print("Skybox Fog SETUP!")
+		
+		return true
+end)
+
+
+function ENT:OnRemove()
+	hook.Remove("SetupSkyboxFog", "Wedoinitherenow")
+end
+]]
 
 --
 -- This edits something global - so always network - even when not in PVS

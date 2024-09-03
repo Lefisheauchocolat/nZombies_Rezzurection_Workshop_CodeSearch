@@ -12,13 +12,13 @@ if CLIENT then return end -- Client doesn't really need anything beyond the basi
 local resist = {
 	[DMG_BLAST] = true,
 	[DMG_ENERGYBEAM] = true,
+	[DMG_MISSILEDEFENSE] = true,
 }
 
 local meleetypes = {
     [DMG_CLUB] = true,
     [DMG_SLASH] = true,
     [DMG_CRUSH] = true,
-    [DMG_GENERIC] = true,
 }
 
 ENT.SpeedBasedSequences = true
@@ -30,7 +30,7 @@ ENT.IsMooBossZombie = true
 
 ENT.AttackRange = 110
 ENT.DamageRange = 110
-ENT.AttackDamage = 75
+ENT.AttackDamage = 80
 
 ENT.Models = {
 	{Model = "models/wavy/wavy_enemies/hulk/l4d1/hulk.mdl", Skin = 0, Bodygroups = {0,0}},
@@ -294,11 +294,11 @@ function ENT:StatsInitialize()
 			self:SetMaxHealth(1000)
 		else
 			if nzRound:InState( ROUND_PROG ) then
-				self:SetHealth(math.Clamp(nzRound:GetNumber() * 1000 + (3000 * count), 15000, 63000 * count))
-				self:SetMaxHealth(math.Clamp(nzRound:GetNumber() * 1000 + (3000 * count), 15000, 63000 * count))
+				self:SetHealth(math.Clamp(nzRound:GetNumber() * 1500 + (3000 * count), 10000, 63000 * count))
+				self:SetMaxHealth(math.Clamp(nzRound:GetNumber() * 1500 + (3000 * count), 10000, 63000 * count))
 			else
-				self:SetHealth(15000)
-				self:SetMaxHealth(15000)	
+				self:SetHealth(10000)
+				self:SetMaxHealth(10000)	
 			end
 		end
 		--self:SetRunSpeed(nzRound:GetNumber() >= 30 and 155 or 71) -- could be useful later, but the tanks supersprint is so fast he constantly times out lol
@@ -346,7 +346,7 @@ function ENT:OnSpawn()
 	end
 end
 
-function ENT:PostTookDamage(dmginfo)
+function ENT:OnTakeDamage(dmginfo)
 	if !self:Alive() then return end
 	if resist[dmginfo:GetDamageType()] then
 		dmginfo:ScaleDamage(0.2)
@@ -435,7 +435,9 @@ function ENT:RockThrow()
 		self:SetSpecialAnimation(true)
 		self.Throwing = true
 		self:PlaySequenceAndMove(rockseq, 1, self.FaceEnemy)
-		self:PlaySequenceAndMove(vicseq, 1)
+		if math.random(3) == 1 then
+			self:PlaySequenceAndMove(vicseq, 1)
+		end
 		self.Throwing = false
 		self.CanThrow = false
 		self:SetSpecialAnimation(false)
@@ -620,7 +622,7 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 		local phys = self.Rock:GetPhysicsObject()
         local target = self:GetTarget()
         if IsValid(phys) and IsValid(target) then
-             phys:SetVelocity(self.Rock:getvel(target:GetPos() + Vector(0,0,15), self:EyePos(), math.Rand(0.6,0.9)))
+             phys:SetVelocity(self.Rock:getvel(target:GetPos() + Vector(0,0,15) + target:GetVelocity() * math.Clamp(target:GetVelocity():Length2D(),0,0.75), self:EyePos(), math.Rand(0.6,0.9)))
         end
 	end
 end

@@ -228,10 +228,18 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 	if e == "point_drain" then
 		local guygettingrobbed = self:GetTarget()
 		if IsValid(self) and guygettingrobbed:IsPlayer() and guygettingrobbed:GetPos():Distance( self:GetPos()) < 100 then
-		guygettingrobbed:TakePoints(2000)
-		guygettingrobbed:EmitSound("wavy_zombie/ghost/drain.mp3")
-		guygettingrobbed:SetAmmo(4, GetNZAmmoID("grenade"))
-		print("child support collected")
+
+			local points = guygettingrobbed:GetPoints()
+			local take = 2000
+			if (points - take) <= 0 then
+				guygettingrobbed:SetPoints(0) -- Obviously you don't wanna go in debt... But you will be broke.
+			else
+				guygettingrobbed:TakePoints(take,true)
+			end
+
+			guygettingrobbed:EmitSound("wavy_zombie/ghost/drain.mp3")
+			guygettingrobbed:SetAmmo(4, GetNZAmmoID("grenade"))
+			print("child support collected")
 		end
 	end
 end

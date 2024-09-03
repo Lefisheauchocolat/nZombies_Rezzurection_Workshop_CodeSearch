@@ -145,6 +145,34 @@ function ENT:StatsInitialize()
 		self:SetRunSpeed( 60 )
 		self.loco:SetDesiredSpeed( 60 )
 		self:SetCollisionBounds(Vector(-16,-16, 0), Vector(16, 16, 70))
+
+
+		for k,v in pairs(player.GetAll()) do
+			if IsValid(v) and v:Alive() and !self.DUCKS then
+				if (nzGum:GetActiveGum(v) and nzGum:GetActiveGumData(v).name == "Quacknarok") then
+					self.DUCKS = true
+				end
+			end
+		end
+
+		if !self.DUCKS then return end
+
+	    self.quack = ents.Create("nz_prop_effect_attachment")
+	    local mainroot = self:LookupBone("j_mainroot")
+
+	    if !isnumber(mainroot) then return end
+
+	    local pos = self:GetBonePosition(mainroot)
+
+	    self.quack:SetPos(pos)
+	    self.quack:SetAngles(self:GetAngles() - Angle(0,0,0))
+	    self.quack:SetParent(self, 4)
+	    self.quack:SetModel("models/moo/_codz_ports_props/t8/zm_red/p8_zm_red_floatie_duck.mdl")
+	    self.quack:SetCollisionGroup(COLLISION_GROUP_IN_VEHICLE)
+	    self.quack:SetModelScale(1.45, 0)
+	    self.quack:Spawn()
+
+	    self:DeleteOnRemove( self.quack )
 	end
 end
 

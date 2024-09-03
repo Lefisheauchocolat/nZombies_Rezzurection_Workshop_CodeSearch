@@ -10,7 +10,7 @@ if Spawner == nil then
 		-- data: information about the entities that are spawned, required are a entity class and chance.
 		-- zombiesToSpawn: the amount of zombies this type of spawner will spawn in total.
 		-- spawnDelay: delays the next spawn by the amount set in this value
-		-- roundNum: the round this spawner was created (after this round teh spawn will be removed)
+		-- roundNum: the round this spawner was created (after this round the spawn will be removed)
 		constructor = function(self, spointClass, data, zombiesToSpawn, spawnDelay, roundNum)
 			local basedelay = nzMapping.Settings.spawndelay or 2 -- Moo Mark. Base Zombie spawn delay to be more like how 3arc did it.
 
@@ -21,10 +21,10 @@ if Spawner == nil then
 			self.tValidSpawns = {}
 
 			if nzRound:GetNumber() == -1 or nzRound:GetRampage() then
-				basedelay = 0.01
+				basedelay = 0.08
 			else
 				for i=1,nzRound:GetNumber() do -- Moo Mark. I finally figured out how spawn delay is done in the real games... Turns out its a "for loop", for every round Base value is multiplied by 0.95.
-					basedelay = math.Clamp(basedelay * 0.95, 0.05, 2)
+					basedelay = math.Clamp(basedelay * 0.95, 0.08, 2)
 				end
 			end
 
@@ -48,7 +48,9 @@ function Spawner:Activate()
 	for _, spawn in pairs(self.tSpawns) do
 		spawn:SetSpawner(self)
 	end
-	timer.Create("nzZombieSpawnThink" .. self.sUniqueName, 2, 0, function() self:Update() end) -- Since it's process is overall simpler, I've shortened the time it takes for the spawn to update.
+
+	self:UpdateValidSpawns() -- Fuck your timer bitch, no need to update a single spawn every 2 seconds.
+	--timer.Create("nzZombieSpawnThink" .. self.sUniqueName, 2, 0, function() self:Update() end) -- Since it's process is overall simpler, I've shortened the time it takes for the spawn to update.
 end
 
 function Spawner:DecrementZombiesToSpawn()
@@ -60,7 +62,7 @@ function Spawner:IncrementZombiesToSpawn()
 end
 
 function Spawner:GetZombiesToSpawn()
-	return nzRound:GetNumber() == -1 and 50 or self.iZombiesToSpawn -- Round Infinity always has 50 zombies to spawn (even after they spawn ;) )
+	return self.iZombiesToSpawn
 end
 
 function Spawner:SetZombiesToSpawn(value)
@@ -75,6 +77,9 @@ function Spawner:GetData()
 	return self.tData
 end
 
+-- Looking back, this is completely unneeded for ONE spawn.
+-- Since theres one spawn(Master), it should be no issue to keep track of ONE.
+--[[
 function Spawner:Update()
 	-- garbage collect the spawner object if a round is over
 	if (self.iRoundNumber != nzRound:GetNumber() or nzRound:InState(ROUND_GO)) and timer.Exists("nzZombieSpawnThink" .. self.sUniqueName) then
@@ -83,6 +88,7 @@ function Spawner:Update()
 
 	self:UpdateValidSpawns()
 end
+]]
 
 function Spawner:UpdateValidSpawns()
 
@@ -106,7 +112,7 @@ function Spawner:UpdateValidSpawns()
 	local vspawn = self.tValidSpawns[1]
 	if IsValid(vspawn) then
 		vspawn:SetZombiesToSpawn(zombiesToSpawn) -- Found the Master Spawner and its valid, time to give it the zombies to spawn for the round.
-		debugoverlay.Text(vspawn:GetPos() + Vector(0,0,75), "ZombiesToSpawn: "..tostring(zombiesToSpawn)..", B: "..tostring(vspawn:IsSuitable())..", T: "..math.Round(vspawn:GetNextSpawn()-CurTime(), 2)..", ST: "..(vspawn:GetSpawner() and math.Round(vspawn:GetSpawner():GetNextSpawn() - CurTime(), 2) or "nil"), 4)
+		--debugoverlay.Text(vspawn:GetPos() + Vector(0,0,75), "ZombiesToSpawn: "..tostring(zombiesToSpawn)..", B: "..tostring(vspawn:IsSuitable())..", T: "..math.Round(vspawn:GetNextSpawn()-CurTime(), 2)..", ST: "..(vspawn:GetSpawner() and math.Round(vspawn:GetSpawner():GetNextSpawn() - CurTime(), 2) or "nil"), 4)
 	end
 end
 
@@ -121,7 +127,7 @@ function Spawner:SetZombieData(data)
 end
 
 function Spawner:Remove()
-	timer.Remove("nzZombieSpawnThink" .. self.sUniqueName)
+	--timer.Remove("nzZombieSpawnThink" .. self.sUniqueName)
 	for _, spawn in pairs(self.tSpawns) do
 		if IsValid(spawn) then
 			spawn:SetSpawner(nil)

@@ -6,7 +6,7 @@ if SERVER then
 	hook.Add("OnZombieShot", "NZ.AAT.Activate", function(ent, ply, dmginfo, hitgroup)
 		if nzMapping.Settings.aats ~= nil and nzMapping.Settings.aats == 0 then return end
 		if not IsValid(ent) or not ent:IsValidZombie() then return end
-		if not IsValid(ply) then return end
+		if not IsValid(ply) or not ply:IsPlayer() then return end
 		local wep = dmginfo:GetInflictor()
 		if not IsValid(wep) then return end
 		local aat = wep:GetNW2String("nzAATType", "")
@@ -14,9 +14,9 @@ if SERVER then
 		if wep:GetNW2Float("nzAATDelay", 0) > CurTime() then return end
 
 		local data = nzAATs:Get(aat)
-		if math.Rand(0,1) < data.chance then
+		if math.Rand(0,1) < (data.chance + (ply.AATChanceBonus or 0)) then
 			ply:SetNW2Float("nzAATDecay", CurTime() + 2)
-			wep:SetNW2Float("nzAATDelay", CurTime() + data.cooldown)
+			wep:SetNW2Float("nzAATDelay", CurTime() + (data.cooldown * (ply.AATCooldownMult or 1)))
 
 			local aat = ents.Create(data.ent)
 			aat:SetPos(ent:GetPos())
@@ -37,7 +37,7 @@ if SERVER then
 		if nzMapping.Settings.aats ~= nil and nzMapping.Settings.aats == 0 then return end
 		if not IsValid(ent) or not ent:IsValidZombie() then return end
 		local ply = dmginfo:GetAttacker()
-		if not IsValid(ply) then return end
+		if not IsValid(ply) or not ply:IsPlayer() then return end
 		local wep = dmginfo:GetInflictor()
 		if not IsValid(wep) then return end
 		local aat = wep:GetNW2String("nzAATType", "")
@@ -45,9 +45,9 @@ if SERVER then
 		if wep:GetNW2Float("nzAATDelay", 0) > CurTime() then return end
 
 		local data = nzAATs:Get(aat)
-		if math.Rand(0,1) < data.chance then
+		if math.Rand(0,1) < (data.chance + (ply.AATChanceBonus or 0)) then
 			ply:SetNW2Float("nzAATDecay", CurTime() + 2)
-			wep:SetNW2Float("nzAATDelay", CurTime() + data.cooldown)
+			wep:SetNW2Float("nzAATDelay", CurTime() + (data.cooldown * (ply.AATCooldownMult or 1)))
 
 			local aat = ents.Create(data.ent)
 			aat:SetPos(ent:GetPos())
@@ -64,10 +64,3 @@ if SERVER then
 		end
 	end)
 end
-
-hook.Add("InitPostEntity", "NZ.AAT.Repap", function()
-	nzWeps:AddWeaponModification("repap_aat", "repap", function(wep) return wep.IsTFAWeapon end, function(wep)
-		if CLIENT then return end
-		wep:RandomizeAAT()
-	end)
-end)

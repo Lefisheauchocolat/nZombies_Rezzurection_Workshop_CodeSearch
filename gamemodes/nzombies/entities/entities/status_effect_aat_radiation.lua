@@ -9,7 +9,8 @@ local entMeta = FindMetaTable("Entity")
 local nzombies = engine.ActiveGamemode() == "nzombies"
 
 if SERVER then
-	entMeta.AATRadiation = function(self, duration, attacker, inflictor)
+	entMeta.AATRadiation = function(self, duration, attacker, inflictor, blockattack)
+		if self.IsAATTurned and self:IsAATTurned() then return end
 		local boss = false
 		if nzombies and (self.NZBossType or self.IsMooBossZombie or string.find(self:GetClass(), "zombie_boss")) then
 			boss = true
@@ -22,6 +23,9 @@ if SERVER then
 		end
 		if inflictor == nil then
 			inflictor = self
+		end
+		if blockattack == nil then
+			blockattack = true
 		end
 
 		if IsValid(self.aat_fallout_logic) then
@@ -37,6 +41,7 @@ if SERVER then
 
 		self.aat_fallout_logic.Attacker = attacker
 		self.aat_fallout_logic.Inflictor = inflictor
+		self.aat_fallout_logic.BlockAttack = blockattack
 
 		self.aat_fallout_logic:Spawn()
 		self.aat_fallout_logic:Activate()
@@ -91,7 +96,9 @@ ENT.Initialize = function(self)
 		p:SetRunSpeed(1)
 		p:SpeedChanged()
 
-		p:SetBlockAttack(true)
+		if self.BlockAttack then
+			p:SetBlockAttack(true)
+		end
 	end
 
 	self.statusStart = CurTime()
@@ -214,7 +221,7 @@ ENT.OnRemove = function(self)
 
 		if SERVER then
 			if p:IsValidZombie() then
-				if !p.IgnoreBlockAttackReset then
+				if self.BlockAttack and !p.IgnoreBlockAttackReset then
 					p:SetBlockAttack(false)
 				end
 				p:SetRunSpeed(self.DesiredSpeed)

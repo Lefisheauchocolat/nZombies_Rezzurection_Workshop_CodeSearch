@@ -29,20 +29,19 @@ sound.Add(
     }
 })
 
-
--- Zombies
-util.PrecacheModel("models/moo/_codz_ports/moo_codz_anims_base.mdl")
-util.PrecacheModel("models/moo/_codz_ports/s2/zombie_island/moo_codz_s2_assassin.mdl")
-util.PrecacheModel("models/moo/_codz_ports/t8/escape/moo_codz_t8_mob_warden.mdl")
-util.PrecacheModel("models/moo/_codz_ports/t7/tomb/moo_codz_t7_tomb_mechz.mdl")
-util.PrecacheModel("models/moo/_codz_ports/t7/castle/moo_codz_t7_mechz.mdl")
-util.PrecacheModel("models/moo/_codz_ports/s2/zombie/moo_codz_s2_fireman.mdl")
-util.PrecacheModel("models/moo/_codz_ports/s2/zombie/moo_codz_s2_infantrya.mdl")
-util.PrecacheModel("models/moo/_codz_ports/s2/zombie/moo_codz_s2_snipera.mdl")
-util.PrecacheModel("models/moo/_codz_ports/t9/silver/moo_codz_t9_silver_honorguard.mdl")
-util.PrecacheModel("models/moo/_codz_ports/t9/silver/moo_codz_t9_silver_honorguard_ww1.mdl")
-util.PrecacheModel("models/moo/_codz_ports/t9/silver/moo_codz_t9_silver_honorguard_green.mdl")
-util.PrecacheModel("models/moo/_codz_ports/t9/silver/moo_codz_t9_silver_shirtless.mdl")
-util.PrecacheModel("models/moo/_codz_ports/t9/silver/moo_codz_t9_silver_shirtless_green.mdl")
-util.PrecacheModel("models/moo/_codz_ports/t9/silver/moo_codz_t9_silver_tanktop.mdl")
-util.PrecacheModel("models/moo/_codz_ports/t9/silver/moo_codz_t9_silver_tanktop_gore.mdl")
+sound.Add(
+{
+    name = "CoDZ_Barricade.Snap_ZHD",
+    channel = CHAN_AUTO,
+    volume = 1.50,
+    soundlevel = 100,
+    pitch = { 95, 105 },
+    sound = {
+        "nz_moo/barricade/snap/_zhd/snap_zhd_00.mp3",
+        "nz_moo/barricade/snap/_zhd/snap_zhd_01.mp3",
+        "nz_moo/barricade/snap/_zhd/snap_zhd_02.mp3",
+        "nz_moo/barricade/snap/_zhd/snap_zhd_03.mp3",
+        "nz_moo/barricade/snap/_zhd/snap_zhd_04.mp3",
+        "nz_moo/barricade/snap/_zhd/snap_zhd_05.mp3",
+    }
+})

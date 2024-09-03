@@ -56,6 +56,10 @@ hook.Add("PlayerShouldTakeDamage", "nzPlayerIgnoreDamage", function(ply, ent)
 	if nzPowerUps:IsPlayerPowerupActive(ply, "berzerk") then
 		return false
 	end
+	
+	if nzPowerUps:IsPlayerPowerupActive(ply, "godmode") then
+		return false
+	end
 
 	if ply:IsSpectating() then
 		return false
@@ -106,7 +110,22 @@ hook.Add("EntityTakeDamage", "nzPlayerTakeDamage", function(ply, dmginfo)
 		end
 	end
 
+	local gum = nzGum:GetActiveGum(ply)
+
+	if (gum and gum == "blood_debt") and ply:GetPoints() > 0 then
+		ply:TakePoints(math.min(ply:GetPoints(), math.floor(math.Clamp(dmginfo:GetDamage(), 10, 10000))))
+		dmginfo:ScaleDamage(0)
+		return false
+	end
+
 	if IsValid(ent) and ent:IsValidZombie() then
+		if nzPowerUps:IsPlayerAntiPowerupActive(ply, "berzerk") then
+			ply:ViewPunch(VectorRand():Angle() * 0.05)
+			if ply:IsOnGround() then
+				ply:SetVelocity((ply:GetPos() - ent:GetPos()) * 18 + Vector(0, 0, 12))
+			end
+		end
+
 		if ply:HasPerk("winters") and (nzRound:InState(ROUND_CREATE) or ply:GetNW2Int("nz.WailCount", 0) > 0) and ply:GetNW2Float("nz.WailDelay", 0) < CurTime() and ply:Health() < ply:GetMaxHealth() then
 			local upgrade = ply:HasUpgrade("winters")
 
@@ -268,6 +287,8 @@ hook.Add("PlayerSpawn", "nzPlayerSpawnVars", function(ply, trans)
 
 	ply:SetNW2Float("nz.WailDelay", 1)
 	ply:SetNW2Int("nz.WailCount", 3)
+
+	ply:SetNW2Int("nz.SoloReviveCount", #player.GetAll() <= 1 and (nzMapping.Settings.solorevive or 3) or 0)
 end)
 
 hook.Add("PlayerDowned", "nzPlayerDown", function(ply)

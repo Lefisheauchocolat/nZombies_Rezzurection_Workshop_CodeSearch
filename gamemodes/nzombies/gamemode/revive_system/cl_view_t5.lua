@@ -29,12 +29,6 @@ local color_red_50 = Color(255, 0, 0, 50)
 local color_green_50 = Color(0, 255, 0, 50)
 local color_revive = Color(150, 200, 255)
 
-local dahudz = {
-	["Black Ops 1"] = true,
-	["Industrial Estate"] = true,
-	["Snowglobe"] = true
-}
-
 local function DrawDownedPlayers_t5()
 	if not cl_drawhud:GetBool() then return end
 
@@ -109,7 +103,7 @@ local function DrawRevivalProgress_t5()
 			local downscale = 1 - math.Clamp((CurTime() - data.DownTime) / bleedtime, 0, 1)
 			surface.SetDrawColor(255, 180*downscale, 0)
 			surface.SetMaterial(t5_hud_revive)
-			surface.DrawTexturedRect(w/2 - 40*scale, h/2 - 40*scale, 80*scale, 80*scale)
+			surface.DrawTexturedRect(w/2 - 40*scale, h/2 - 46*scale, 80*scale, 80*scale)
 		end
 
 		surface.SetDrawColor(color_white)
@@ -117,7 +111,7 @@ local function DrawRevivalProgress_t5()
 			surface.SetDrawColor(color_revive)
 		end
 		surface.SetMaterial(t5_hud_revive)
-		surface.DrawTexturedRectUV(w/2 - 40*scale, h/2 - 40*scale, 80*scale, 80*revivescale*scale, 0, 0, 1, 1*revivescale)
+		surface.DrawTexturedRectUV(w/2 - 40*scale, h/2 - 46*scale, 80*scale, 80*revivescale*scale, 0, 0, 1, 1*revivescale)
 
 		surface.SetDrawColor(color_black_180)
 		surface.DrawRect(w/2 - 150*scale, h - 400*scale, 300*scale, 20*scale)
@@ -132,7 +126,7 @@ end
 
 -- Hooks
 hook.Add("HUDPaint", "nzHUDreviveswap_t5", function()
-	if dahudz[nzMapping.Settings.hudtype] then
+	if nzDisplay and nzDisplay.t5revive and nzDisplay.t5revive[nzMapping.Settings.hudtype] then
 		hook.Add("HUDPaint", "DrawDownedPlayers", DrawDownedPlayers_t5 )
 		hook.Add("HUDPaint", "DrawRevivalProgress", DrawRevivalProgress_t5 )
 	end

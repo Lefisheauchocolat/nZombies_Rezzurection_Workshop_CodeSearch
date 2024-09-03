@@ -21,7 +21,7 @@ local foginit = false
 
 function nzRound:EnableSpecialFog( bool )
 	local ent = ents.FindByClass("edit_color")[1]
-	
+
 	hook.Remove("Think", "nzFogThink")
 	
 	if bool and (!specialfog or !foginit) then
@@ -51,6 +51,7 @@ function nzRound:EnableSpecialFog( bool )
 		end
 		specialfog = false
 	end
+
 	-- Changed to always true because we now have defaults that apply if the entities don't exist
 	if true then
 		fade = 0
@@ -60,7 +61,7 @@ function nzRound:EnableSpecialFog( bool )
 		ofogcolor = fogcolor
 		hook.Add("Think", "nzFogFade", nzFogFade)
 		hook.Add("SetupWorldFog", "nzWorldFog", nzSetupWorldFog)
-		hook.Add("SetupSkyboxFog", "nzSkyboxFog", nzSetupSkyFog)
+		--hook.Add("SetupSkyboxFog", "nzSkyboxFog", nzSetupSkyFog)
 		foginit = true
 	else
 		hook.Remove("SetupWorldFog", "nzWorldFog")
@@ -91,6 +92,13 @@ function nzFogThink()
 	end]]
 
 	ent = ents.FindByClass("edit_color")[1]
+
+	if SERVER then
+		if !IsValid(fognewcontroller) then
+			fognewcontroller = ents.Create("env_fog_controller")
+		end
+	end
+
 	--print(ent)
 	if IsValid(ent) then
 		if specialfog then
@@ -108,7 +116,6 @@ function nzFogThink()
 end
 
 function nzSetupWorldFog()
-
 	render.FogMode( 1 ) 
 	render.FogStart( fogstart )
 	render.FogEnd( fogend )

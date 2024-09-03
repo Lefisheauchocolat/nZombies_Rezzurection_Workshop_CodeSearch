@@ -5,7 +5,8 @@ nzTools:CreateTool("suitcharger", {
 		return true
 	end,
 	PrimaryAttack = function(wep, ply, tr, data)
-		nzMapping:SuitCharger(tr.HitPos, Angle(0,(tr.HitPos - ply:GetPos()):Angle()[2] - 180,0), ply)
+		local ang = tr.HitNormal:Angle()
+		nzMapping:SuitCharger(tr.HitPos, Angle(ang[1],ang[2],0), data, ply)
 	end,
 	SecondaryAttack = function(wep, ply, tr, data)
 		if IsValid(tr.Entity) and tr.Entity:GetClass() == "item_suitcharger" then
@@ -27,8 +28,35 @@ nzTools:CreateTool("suitcharger", {
 		return true
 	end,
 	interface = function(frame, data)
-		
+		local valz = {}
+		valz["Row1"] = tonumber(data.spawnflag)
+
+		local DProperties = vgui.Create( "DProperties", frame )
+		DProperties:SetSize(500, 480)
+		DProperties:SetPos(0, 0)
+
+		function DProperties.CompileData()
+			data.spawnflag = tonumber(valz["Row1"])
+			return data
+		end
+
+		function DProperties.UpdateData(data)
+			nzTools:SendData(data, "suitcharger")
+		end
+
+		local Row1 = DProperties:CreateRow("Options", "Charger type")
+		Row1:Setup("Combo")
+		Row1:AddChoice("Default Charger (75)", 0, valz["Row1"] == 0)
+		Row1:AddChoice("Citadel Charger (500)", 8192, valz["Row1"] == 8192)
+		Row1:AddChoice("Kleiner's Lab Charger (25)", 16384, valz["Row1"] == 16384)
+		Row1.DataChanged = function( _, val ) valz["Row1"] = val DProperties.UpdateData(DProperties.CompileData()) end
+
+		return DProperties
 	end,
+
+	defaultdata = {
+		spawnflag = 0,
+	},
 })
 
 if SERVER then
@@ -39,13 +67,16 @@ if SERVER then
 				table.insert(chargers, {
 					pos = v:GetPos(),
 					angle = v:GetAngles(),
+					tab = {
+						spawnflag = (v:HasSpawnFlags(16384) and 16384) or (v:HasSpawnFlags(8192) and 8192) or 0
+					},
 				})
 			end
 			return chargers
 		end,
 		loadfunc = function(data)
 			for k,v in pairs(data) do
-				nzMapping:SuitCharger(v.pos, v.angle)
+				nzMapping:SuitCharger(v.pos, v.angle, v.tab)
 			end
 		end,
 		cleanents = {"item_suitcharger"},

@@ -6,7 +6,7 @@ SWEP.UseHands = true
 SWEP.Type_Displayed = "Misc"
 SWEP.Author = "FlamingFox"
 SWEP.Slot = 0
-SWEP.PrintName = "Perk Bottle (BO3)"
+SWEP.PrintName = "Perk Bottle"
 SWEP.DrawCrosshair = false
 SWEP.DrawCrosshairIronSights = false
 SWEP.AutoSwitchTo = false
@@ -95,17 +95,10 @@ SWEP.SpeedColaActivities = {
 
 SWEP.EventTable = {
 [ACT_VM_DRAW] = {
-{ ["time"] = 0, ["type"] = "lua", value = function(self)
-	if self:GetOwner():HasUpgrade("speed") then
-		self.SequenceRateOverride[ACT_VM_DRAW] = 45 / 30
-	else
-		self.SequenceRateOverride[ACT_VM_DRAW] = 30 / 30
-	end
-end, client = true, server = true},
 { ["time"] = 0, ["type"] = "lua", value = function(self) self:GetOwner():SetUsingSpecialWeapon(true) end, client = false, server = true},
 { ["time"] = 15 / 30, ["type"] = "sound", ["value"] = Sound("NZ.Bottle.Open") },
 { ["time"] = 25 / 30, ["type"] = "sound", ["value"] = Sound("NZ.Bottle.Drink") },
-{ ["time"] = 45 / 30, ["type"] = "lua", value = function(self) self:GetOwner():PerkBlur(0.8) end, client = false, server = true},
+{ ["time"] = 45 / 30, ["type"] = "lua", value = function(self) self:GetOwner():PerkBlur(0.65) end, client = false, server = true},
 { ["time"] = 50 / 30, ["type"] = "sound", ["value"] = Sound("NZ.Bottle.Belch") },
 { ["time"] = 60 / 30, ["type"] = "sound", ["value"] = Sound("NZ.Bottle.Break") },
 },
@@ -133,15 +126,24 @@ function SWEP:SetupDataTables(...)
 	self:NetworkVarTFA("String", "Perk")
 end
 
-function SWEP:PreDrawViewModel(...)
-	if self:VMIV() and self.GetPerk then
+function SWEP:Think2(...)
+	if IsFirstTimePredicted() and self.GetPerk and self:GetPerk() ~= "" and self.Skin ~= nzPerks:Get(self:GetPerk()).material then
 		self.Skin = tonumber(nzPerks:Get(self:GetPerk()).material)
+		self:ClearStatCache("Skin")
+
+		if SERVER and IsValid(self:GetOwner()) then
+			local fx = EffectData()
+			fx:SetEntity(self)
+			fx:SetFlags(nzPerks:Get(self:GetPerk()).material)
+
+			local filter = RecipientFilter()
+			filter:AddPVS(self:GetOwner():GetShootPos())
+			if filter:GetCount() > 0 then
+				util.Effect("tfa_perkbottle_3p_fix", fx, true, filter)
+			end
+		end
 	end
 
-	return BaseClass.PreDrawViewModel(self, ...)
-end
-
-function SWEP:Think2(...)
 	if SERVER then
 		local stat = self:GetStatus()
 		local statusend = CurTime() >= self:GetStatusEnd()

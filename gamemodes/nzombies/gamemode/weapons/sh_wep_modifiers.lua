@@ -2,6 +2,15 @@ local WeaponModificationFunctions = {}
 local WeaponModificationFunctionsDefaults = {}
 local WeaponModificationRevertDefaults = {}
 
+local function CreateReplConVar(cvarname, cvarvalue, description, ...)
+	return CreateConVar(cvarname, cvarvalue, CLIENT and {FCVAR_REPLICATED} or {FCVAR_REPLICATED, FCVAR_ARCHIVE, FCVAR_NOTIFY}, description, ...)
+end -- replicated only on clients, archive/notify on server
+
+if GetConVar("nz_tfa_attachments") == nil then
+	CreateReplConVar("nz_tfa_attachments", "0", "VERY FUCKED! enable at your own risk! some attachments (typically ones that change magazine size, or animations) are broken!")
+end
+local cvar_tfaattachments = GetConVar("nz_tfa_attachments")
+
 -- These work by modifying weapons in a special way - they are called via ApplyWeaponModifier with the event being the type of modification
 -- "speed" = Applied to all weapons when Speed Cola is owned
 -- "dtap" = Applied to all weapons when Double Tap 1 or 2 is owned
@@ -36,13 +45,23 @@ local function RecursiveDifferenceCheck(tbl1, tbl2)
 
 	for k, v in pairs(tbl1) do
 		if tbl2 and v != tbl2[k] then
-			if type(v) == "table" then
+			if v == nil then //the sin
+				diffs[k] = "nil"
+			elseif type(v) == "table" then
 				local t = RecursiveDifferenceCheck(v, tbl2[k])
 				if table.Count(t) > 0 then
 					diffs[k] = t
 				end
 			else
 				diffs[k] = v
+			end
+		end
+	end
+
+	if tbl2 then
+		for k, v in pairs(tbl2) do
+			if v and tbl1[k] == nil then
+				diffs[k] = "nil"
 			end
 		end
 	end
@@ -160,16 +179,29 @@ function wepmeta:RevertNZModifier_TFA(modifier, blocknetwork)
 
 		if olds then
 			for k, v in pairs(olds) do -- Shoot me in the head!
-				if type(v) == "table" then
+				if v == "nil" then //that time i got sent directly to hell for writing ungodly code
+					self[k] = nil
+					self:ClearStatCache(k)
+				elseif type(v) == "table" then
 					for stat, val in pairs(v) do
+						if val == "nil" then
+							self[k][stat] = nil
 
-						self[k][stat] = val
+							if string.find("Primary_TFA", k) then
+								self:ClearStatCache("Primary."..stat)
+							end
+							if string.find("Secondary_TFA", k) then
+								self:ClearStatCache("Secondary."..stat)
+							end
+						else
+							self[k][stat] = val
 
-						if string.find("Primary_TFA", k) then
-							self:ClearStatCache("Primary."..stat)
-						end
-						if string.find("Secondary_TFA", k) then
-							self:ClearStatCache("Secondary."..stat)
+							if string.find("Primary_TFA", k) then
+								self:ClearStatCache("Primary."..stat)
+							end
+							if string.find("Secondary_TFA", k) then
+								self:ClearStatCache("Secondary."..stat)
+							end
 						end
 					end
 				else
@@ -180,9 +212,7 @@ function wepmeta:RevertNZModifier_TFA(modifier, blocknetwork)
 
 			if self.NZStoredRPM then
 				self.Primary_TFA.RPM = self.NZStoredRPM
-				self.Primary_TFA.RPM_Displayed = self.NZStoredRPM
 				self:ClearStatCache("Primary.RPM")
-				self:ClearStatCache("Primary.RPM_Displayed")
 			end
 			if self.NZStoredRPM2 then
 				self.Secondary_TFA.RPM = self.NZStoredRPM2
@@ -224,9 +254,21 @@ nzWeps:AddWeaponModification("staminup_tfa", "staminup", function(wep) return we
 end)
 
 nzWeps:AddWeaponModification("deadshot_tfa", "deadshot", function(wep) return wep.IsTFAWeapon end, function(wep)
+	if not wep.NZSpecialCategory and wep:GetMuzzleAttachment() then
+		/*if SERVER then //no worky, look bad :(
+			TFA.Effects.Create("tfa_deadshot_laser", EffectData())
+		end*/
+
+		wep.LaserDistance = 1024
+		wep.LaserDistanceVisual = 64
+		wep.LaserBeamWidth = 1
+		wep.LaserSightAttachment = wep:GetMuzzleAttachment()
+		wep.LaserSightAttachmentWorld = wep:GetMuzzleAttachment()
+	end
+
 	wep.IronSightTime = wep.IronSightTime * 0.5
 	wep.IronRecoilMultiplier = wep.IronRecoilMultiplier * 0.5
-	
+
 	wep.Primary_TFA.Spread = wep.Primary_TFA.Spread * 0.5
 	wep.Primary_TFA.IronAccuracy = wep.Primary_TFA.IronAccuracy * 0.5
 
@@ -280,8 +322,8 @@ nzWeps:AddWeaponModification("dtap2_tfa", "dtap2", function(wep) return wep.IsTF
 
 		wep.Primary_TFA.RPM = math.floor(wep.NZStoredRPM * rate)
 		wep:ClearStatCache("Primary.RPM")
-		
-		wep.Primary_TFA.RPM_Displayed = wep.Primary_TFA.RPM
+
+		wep.Primary_TFA.RPM_Displayed = (wep.Primary_TFA.RPM_Displayed or wep.NZStoredRPM) * rate
 		wep:ClearStatCache("Primary.RPM_Displayed")
 	end
 
@@ -316,8 +358,8 @@ nzWeps:AddWeaponModification("dtap_tfa", "dtap", function(wep) return wep.IsTFAW
 
 		wep.Primary_TFA.RPM = math.floor(wep.NZStoredRPM * rate)
 		wep:ClearStatCache("Primary.RPM")
-		
-		wep.Primary_TFA.RPM_Displayed = wep.Primary_TFA.RPM
+
+		wep.Primary_TFA.RPM_Displayed = (wep.Primary_TFA.RPM_Displayed or wep.NZStoredRPM) * rate
 		wep:ClearStatCache("Primary.RPM_Displayed")
 	end
 
@@ -332,8 +374,22 @@ nzWeps:AddWeaponModification("dtap_tfa", "dtap", function(wep) return wep.IsTFAW
 end)
 
 nzWeps:AddWeaponModification("tfa_attachmentmod", "equip", function(wep) return wep.IsTFAWeapon end, function(wep)
+	if SERVER then
+		//owner is valid next tick
+		timer.Simple(0, function()
+			if !IsValid(wep) then return end
+			local ply = wep:GetOwner()
+			if !IsValid(ply) then return end
+
+			local gum = nzGum:GetActiveGumData(ply)
+			if gum and gum.modifier and !nzGum:IsUseBaseGum(ply) then
+				nzGum:ApplyGumModifier(ply, wep)
+			end
+		end)
+	end
+
 	wep.CanAttach = function()
-		return false
+		return cvar_tfaattachments:GetBool()
 	end
 end)
 
@@ -354,3 +410,9 @@ end
 
 nzWeps:AddWeaponModification("pap_tfa_attachments", "pap", cond, atts)
 nzWeps:AddWeaponModification("pap_tfa_attachments", "repap", cond, atts)
+
+//aats
+nzWeps:AddWeaponModification("repap_aat", "repap", function(wep) return wep.IsTFAWeapon end, function(wep)
+	if CLIENT then return end
+	wep:RandomizeAAT()
+end)

@@ -4,7 +4,7 @@ local function RegisterDefaultSpecialWeps()
 	nzSpecialWeapons:AddKnife( "nz_quickknife_stunstick", false, 0.4 )
 	nzSpecialWeapons:AddKnife( "nz_knife_butterfly", false, 0.65 )
 	nzSpecialWeapons:AddKnife( "nz_knife_bo1", false, 0.5 )
-	nzSpecialWeapons:AddKnife( "nz_knife_waw", false, 0.5 )
+	nzSpecialWeapons:AddKnife( "nz_knife_waw", false, 0.7 )
 	nzSpecialWeapons:AddKnife( "nz_knife_mw", false, 0.5 )
 	nzSpecialWeapons:AddKnife( "nz_knife_ghosts", false, 0.5 )
 	nzSpecialWeapons:AddKnife( "nz_knife_malice", false, 0.65 )
@@ -148,7 +148,7 @@ local function RegisterDefaultSpecialWeps()
 	end)
 
 	nzSpecialWeapons:AddDisplay("tfa_perk_bottle", false, function(wep)
-		return SERVER and (wep.nzDeployTime + (wep:GetOwner():HasUpgrade("speed") and 1.65 or 2.2)) < CurTime()
+		return SERVER and (wep.nzDeployTime + 2.2) < CurTime()
 	end)
 
 	nzSpecialWeapons:AddDisplay("tfa_paparms", false, function(wep)
@@ -157,6 +157,14 @@ local function RegisterDefaultSpecialWeps()
 
 	nzSpecialWeapons:AddDisplay("tfa_zomdeath", false, function(wep)
 		return SERVER and IsValid(wep:GetOwner()) and wep:GetOwner():GetNotDowned()
+	end)
+
+	nzSpecialWeapons:AddDisplay( "tfa_nz_gum", false, function(wep)
+		return SERVER and CurTime() > wep.nzDeployTime + 3
+	end)
+
+	nzSpecialWeapons:AddDisplay( "tfa_nz_bubble", false, function(wep)
+		return SERVER and CurTime() > wep.nzDeployTime + 3
 	end)
 
 	nzSpecialWeapons:AddDisplay("tfa_bo3_syrette", false, function(wep)
@@ -186,6 +194,19 @@ local function RegisterDefaultSpecialWeps()
 	end)
 
 	nzSpecialWeapons:AddDisplay("tfa_bo4_syrette", false, function(wep)
+		if SERVER then
+			local ply = wep:GetOwner()
+			local revive = ply:GetPlayerReviving()
+			local reviving = true
+			if ply.IsRevivingPlayer then //dont take away if reviving someone else
+				reviving = not ply:IsRevivingPlayer()
+			end
+
+			return reviving and (not IsValid(revive) or not revive:Alive() or revive:GetNotDowned()) or not wep:GetOwner():KeyDown(IN_USE)
+		end
+	end)
+	
+	nzSpecialWeapons:AddDisplay("nz_iw7_revive", false, function(wep)
 		if SERVER then
 			local ply = wep:GetOwner()
 			local revive = ply:GetPlayerReviving()

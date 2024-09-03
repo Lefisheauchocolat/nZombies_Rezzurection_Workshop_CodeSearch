@@ -5,7 +5,6 @@ ENT.PrintName = "flying space chicken"
 ENT.Category = "Brainz"
 ENT.Author = "Laby"
 
---GIGAAAAAAAAAAAAAAAN! RISE!
 game.AddParticles("particles/gigan_laser.pcf")
 	PrecacheParticleSystem("gigan_laser")
 
@@ -272,6 +271,35 @@ function ENT:StatsInitialize()
 	
 
 		self:SetRunSpeed(1)
+
+
+
+		for k,v in pairs(player.GetAll()) do
+			if IsValid(v) and v:Alive() and !self.DUCKS then
+				if (nzGum:GetActiveGum(v) and nzGum:GetActiveGumData(v).name == "Quacknarok") then
+					self.DUCKS = true
+				end
+			end
+		end
+
+		if !self.DUCKS then return end
+
+	    self.quack = ents.Create("nz_prop_effect_attachment")
+	    local mainroot = self:LookupBone("j_mainroot")
+
+	    if !isnumber(mainroot) then return end
+
+	    local pos = self:GetBonePosition(mainroot)
+
+	    self.quack:SetPos(pos)
+	    self.quack:SetAngles(self:GetAngles() - Angle(0,90,0))
+	    self.quack:SetParent(self, 9)
+	    self.quack:SetModel("models/moo/_codz_ports_props/t8/zm_red/p8_zm_red_floatie_duck.mdl")
+	    self.quack:SetCollisionGroup(COLLISION_GROUP_IN_VEHICLE)
+	    self.quack:SetModelScale(1.45, 0)
+	    self.quack:Spawn()
+
+	    self:DeleteOnRemove( self.quack )
 	end
 end
 
@@ -543,13 +571,7 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 
 		local visor = self:GetBonePosition(self:LookupBone("j_chin_jaw"))
 		local target = self:GetTarget()
-		local pos = self:WorldSpaceCenter()
-		local tr = {
-            	start = pos,
-            	filter = self,
-            	mask = MASK_NPCSOLID_BRUSHONLY
-        	}
-			
+
 		if IsValid(target) then
 				util.ParticleTracerEx("gigan_laser",
 				(visor - Vector(50,0,0)),(target:GetPos() - Vector(0,0,20)),
@@ -561,14 +583,19 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
                 if v == self then continue end
                 if v:EntIndex() == self:EntIndex() then continue end
                 if v:Health() <= 0 then continue end
-				tr.endpos = v:WorldSpaceCenter()
-                	local tr1 = util_traceline(tr)
-                	if tr1.HitWorld then continue end
+                --if !v:Alive() then continue end
+
+
                 local expdamage = DamageInfo()
                 expdamage:SetAttacker(self)
                 expdamage:SetInflictor(self)
                 expdamage:SetDamageType(DMG_BURN)
+
+                
                 expdamage:SetDamage(21)
+
+                --expdamage:SetDamageForce(1000)
+
                 v:TakeDamageInfo(expdamage)
             end
         end

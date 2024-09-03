@@ -73,15 +73,15 @@ SWEP.Primary.DisplayFalloff = false
 SWEP.DisplayFalloff = false
 
 --[Recoil]--
-SWEP.ViewModelPunchPitchMultiplier = 0.25 -- Default value is 0.5
+SWEP.ViewModelPunchPitchMultiplier = 0.3 -- Default value is 0.5
 SWEP.ViewModelPunchPitchMultiplier_IronSights = 0.25 -- Default value is 0.09
 
-SWEP.ViewModelPunch_MaxVertialOffset				= 0.25 -- Default value is 3
-SWEP.ViewModelPunch_MaxVertialOffset_IronSights		= 0.25 -- Default value is 1.95
-SWEP.ViewModelPunch_VertialMultiplier				= 0.25 -- Default value is 1
+SWEP.ViewModelPunch_MaxVertialOffset				= 1 -- Default value is 3
+SWEP.ViewModelPunch_MaxVertialOffset_IronSights		= 1 -- Default value is 1.95
+SWEP.ViewModelPunch_VertialMultiplier				= 1 -- Default value is 1
 SWEP.ViewModelPunch_VertialMultiplier_IronSights	= 0.25 -- Default value is 0.25
 
-SWEP.ViewModelPunchYawMultiplier = 0.25 -- Default value is 0.6
+SWEP.ViewModelPunchYawMultiplier = 6 -- Default value is 0.6
 SWEP.ViewModelPunchYawMultiplier_IronSights = 0.25 -- Default value is 0.25
 
 --[Spread Related]--

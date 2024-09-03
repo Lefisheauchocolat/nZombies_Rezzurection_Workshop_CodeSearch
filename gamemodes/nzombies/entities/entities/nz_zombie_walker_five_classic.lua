@@ -6,9 +6,9 @@ ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 ENT.Spawnable = true
 
-if CLIENT then 
+if CLIENT then
 	ENT.EyeColorTable = {
-		[0] = Material("models/moo/codz/t5_honorguard/mtl_c_ger_zombie_eyes.vmt"),
+		[0] = Material("models/moo/codz/t5_zombies/_common/mtl_c_ger_zombie_eyes.vmt"),
 	}
 	return 
 end -- Client doesn't really need anything beyond the basics
@@ -18,9 +18,7 @@ ENT.IsMooZombie = true
 ENT.RedEyes = true
 
 ENT.Models = {
-	{Model = "models/moo/_codz_ports/t5/pentagon/moo_codz_t5_worker.mdl", Skin = 0, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/t5/pentagon/moo_codz_t5_militarypolice.mdl", Skin = 0, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/t5/pentagon/moo_codz_t5_kleinist.mdl", Skin = 0, Bodygroups = {0,0}}, -- Hi Server, stop being Kleinist thanks ~Love Moo
+	{Model = "models/moo/_codz_ports/t5/pentagon/moo_codz_t5_usa_pentagon.mdl", Skin = 0, Bodygroups = {0,0}}, -- Hi Server, stop being Kleinist thanks ~Love Moo
 }
 
 local spawnslow = {"nz_spawn_ground_v1", "nz_spawn_ground_ad_v2", "nz_spawn_ground_v2", "nz_spawn_ground_v2_altb"}
@@ -45,11 +43,23 @@ ENT.DeathSequences = {
 	"nz_death_f_11",
 	"nz_death_f_12",
 	"nz_death_f_13",
-	"nz_death_fallback",
 	"nz_l4d_death_running_11a",
 	"nz_l4d_death_running_11g",
 	"nz_l4d_death_02a",
 	"nz_l4d_death_11_02d",
+	"nz_t9_dth_f_chest_lt_00",
+	"nz_t9_dth_f_chest_lt_01",
+	"nz_t9_dth_f_chest_lt_02",
+	"nz_t9_dth_f_chest_lt_03",
+	"nz_t9_dth_f_chest_lt_04",
+	"nz_t9_dth_f_chest_lt_05",
+	"nz_t9_dth_f_chest_lt_06",
+	"nz_t9_dth_f_chest_lt_07",
+	"nz_t9_dth_f_chest_lt_08",
+	"nz_t9_dth_f_chest_lt_09",
+	"nz_t9_dth_f_head_lt_00",
+	"nz_t9_dth_f_head_lt_01",
+	"nz_t9_dth_f_head_lt_02",
 }
 
 ENT.CrawlDeathSequences = {
@@ -259,9 +269,9 @@ ENT.SequenceTables = {
 			SpawnSequence = {spawnslow},
 			MovementSequence = {
 				"nz_walk_ad1",
-				"nz_walk_ad2",
+				"nz_s4_3arc_walk_ad_v2",
 				"nz_walk_ad3",
-				"nz_walk_ad4",
+				"nz_s4_3arc_walk_ad_v4",
 				"nz_walk_ad7",
 				"nz_walk_ad5",
 				"nz_walk_ad6",
@@ -272,13 +282,13 @@ ENT.SequenceTables = {
 				"nz_walk_ad23",
 				"nz_walk_ad24",
 				"nz_walk_ad25",
-				"nz_legacy_walk_v9",
 				--"nz_walk_au_goose",
 				--"nz_legacy_walk_dazed",
 				--"nz_legacy_jap_walk_v1",
 				--"nz_legacy_jap_walk_v2",
 				--"nz_legacy_jap_walk_v3",
 				--"nz_legacy_jap_walk_v4",
+				"nz_legacy_walk_v9",
 			},
 			LowgMovementSequence = {
 				"nz_walk_lowg_v1",
@@ -361,13 +371,13 @@ ENT.SequenceTables = {
 				"nz_walk_au20",
 				"nz_walk_au21",
 				"nz_walk_au23",
-				"nz_legacy_walk_v9",
 				--"nz_walk_au_goose", -- This is the goosestep walk aka marching anim that german soldier zombies use.
 				--"nz_legacy_walk_dazed",
 				--"nz_legacy_jap_walk_v1",
 				--"nz_legacy_jap_walk_v2",
 				--"nz_legacy_jap_walk_v3",
 				--"nz_legacy_jap_walk_v4",
+				"nz_legacy_walk_v9",
 			},
 			LowgMovementSequence = {
 				"nz_walk_lowg_v1",
@@ -539,9 +549,9 @@ ENT.SequenceTables = {
 				--"nz_legacy_jap_run_v5",
 				--"nz_legacy_jap_run_v6",
 				"nz_run_au1",
-				"nz_run_au2",
+				"nz_s4_3arc_run_au_v2",
 				"nz_run_au3",
-				"nz_run_au4",
+				"nz_s4_3arc_run_au_v4",
 				"nz_run_au5",
 				"nz_run_au9",
 				"nz_run_au11",
@@ -627,8 +637,8 @@ ENT.SequenceTables = {
 				"nz_t9_base_sprint_ad_v01",
 				"nz_t9_base_sprint_ad_v02",
 				"nz_t9_base_sprint_ad_v05",
-				"nz_t9_base_sprint_ad_v21",
-				"nz_t9_base_sprint_ad_v22",
+				"nz_s4_3arc_sprint_ad_v21",
+				"nz_s4_3arc_sprint_ad_v22",
 				"nz_t9_base_sprint_ad_v23",
 				"nz_sprint_ad3",
 				"nz_sprint_ad4",
@@ -784,7 +794,7 @@ ENT.SequenceTables = {
 		{
 			SpawnSequence = {spawnsuperfast},
 			MovementSequence = {
-				"nz_l4d_run_05",
+				--"nz_l4d_run_05",
 				"nz_pb_zombie_sprint_v7",
 				"nz_pb_zombie_sprint_v9",
 				"nz_supersprint_ad1",
@@ -842,8 +852,6 @@ ENT.SequenceTables = {
 				"nz_t9_base_player_sprint_v06",
 				"nz_t9_base_player_sprint_v07",
 				"nz_t9_base_player_sprint_v08",
-				"nz_l4d_run_03",
-				"nz_l4d_run_04",
 			},
 			AttackSequences = {SuperSprintAttackSequences},
 			StandAttackSequences = {AttackSequences},
@@ -866,7 +874,7 @@ ENT.SequenceTables = {
 		{
 			SpawnSequence = {spawnsuperfast},
 			MovementSequence = {
-				"nz_l4d_run_05",
+				--"nz_l4d_run_05",
 				"nz_pb_zombie_sprint_v7",
 				"nz_pb_zombie_sprint_v9",
 				"nz_supersprint_au1",
@@ -922,8 +930,6 @@ ENT.SequenceTables = {
 				"nz_t9_base_player_sprint_v06",
 				"nz_t9_base_player_sprint_v07",
 				"nz_t9_base_player_sprint_v08",
-				"nz_l4d_run_03",
-				"nz_l4d_run_04",
 			},
 			AttackSequences = {SuperSprintAttackSequences},
 			StandAttackSequences = {AttackSequences},

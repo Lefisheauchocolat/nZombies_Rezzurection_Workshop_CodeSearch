@@ -8,7 +8,7 @@ ENT.Spawnable = true
 
 if CLIENT then 
 	ENT.EyeColorTable = {
-		[0] = Material("models/moo/codz/t7_giant/mtl_char_ger_zombie_eyes.vmt"),
+		[0] = Material("models/moo/codz/t7_zombies/giant/mtl_char_ger_zombie_eyes.vmt"),
 	}
 	return 
 end -- Client doesn't really need anything beyond the basics
@@ -18,7 +18,8 @@ ENT.IsMooZombie = true
 ENT.RedEyes = true
 
 ENT.Models = {
-	{Model = "models/moo/_codz_ports/t7/_custommaps/leviathan/moo_codz_AJH_scubadiver.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t7/_custommaps/leviathan/moo_codz_AJH_suba_diver_1.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t7/_custommaps/leviathan/moo_codz_AJH_suba_diver_2.mdl", Skin = 0, Bodygroups = {0,0}},
 }
 
 local spawnslow = {"nz_spawn_ground_v1", "nz_spawn_ground_ad_v2", "nz_spawn_ground_v2", "nz_spawn_ground_v2_altb"}
@@ -43,11 +44,23 @@ ENT.DeathSequences = {
 	"nz_death_f_11",
 	"nz_death_f_12",
 	"nz_death_f_13",
-	"nz_death_fallback",
 	"nz_l4d_death_running_11a",
 	"nz_l4d_death_running_11g",
 	"nz_l4d_death_02a",
 	"nz_l4d_death_11_02d",
+	"nz_t9_dth_f_chest_lt_00",
+	"nz_t9_dth_f_chest_lt_01",
+	"nz_t9_dth_f_chest_lt_02",
+	"nz_t9_dth_f_chest_lt_03",
+	"nz_t9_dth_f_chest_lt_04",
+	"nz_t9_dth_f_chest_lt_05",
+	"nz_t9_dth_f_chest_lt_06",
+	"nz_t9_dth_f_chest_lt_07",
+	"nz_t9_dth_f_chest_lt_08",
+	"nz_t9_dth_f_chest_lt_09",
+	"nz_t9_dth_f_head_lt_00",
+	"nz_t9_dth_f_head_lt_01",
+	"nz_t9_dth_f_head_lt_02",
 }
 
 ENT.ElectrocutionSequences = {
@@ -78,59 +91,6 @@ local CrawlAttackSequences = {
 local CrawlJumpSequences = {
 	{seq = "nz_barricade_crawl_1"},
 	{seq = "nz_barricade_crawl_2"},
-}
-
-local SlowClimbUp36 = {
-	"nz_traverse_climbup36"
-}
-local SlowClimbUp48 = {
-	"nz_traverse_climbup48"
-}
-local SlowClimbUp72 = {
-	"nz_traverse_climbup72"
-}
-local SlowClimbUp96 = {
-	"nz_traverse_climbup96"
-}
-local SlowClimbUp128 = {
-	"nz_traverse_climbup128",
-	"nz_l4d_traverse_climbup132_01",
-	"nz_l4d_traverse_climbup132_02",
-	"nz_l4d_traverse_climbup132_03",
-}
-local SlowClimbUp160 = {
-	"nz_traverse_climbup160",
-	"nz_l4d_traverse_climbup156_01",
-	"nz_l4d_traverse_climbup156_02",
-	"nz_l4d_traverse_climbup156_03",
-}
-local FastClimbUp36 = {
-	"nz_traverse_fast_climbup36",
-	"nz_l4d_traverse_climbup36_01",
-	"nz_l4d_traverse_climbup36_02",
-	"nz_l4d_traverse_climbup36_03",
-}
-local FastClimbUp48 = {
-	"nz_traverse_fast_climbup48",
-	"nz_l4d_traverse_climbup48_01",
-	"nz_l4d_traverse_climbup48_02",
-	"nz_l4d_traverse_climbup48_03",
-	"nz_l4d_traverse_climbup48_04",
-}
-local FastClimbUp72 = {
-	"nz_traverse_fast_climbup72",
-	"nz_l4d_traverse_climbup72_01",
-	"nz_l4d_traverse_climbup72_02",
-	"nz_l4d_traverse_climbup72_03",
-}
-local FastClimbUp96 = {
-	"nz_traverse_fast_climbup96",
-	"nz_l4d_traverse_climbup96_01",
-	"nz_l4d_traverse_climbup96_02",
-	"nz_l4d_traverse_climbup96_03",
-}
-local ClimbUp200 = {
-	"nz_traverse_climbup200"
 }
 
 local AttackSequences = {
@@ -670,15 +630,14 @@ ENT.SequenceTables = {
 			MovementSequence = {
 				--"nz_legacy_sprint_v5",
 				--"nz_legacy_jap_run_v3",
-				"nz_sprint_ad1",
-				"nz_sprint_ad2",
+				"nz_t9_base_sprint_ad_v01",
+				"nz_t9_base_sprint_ad_v02",
+				"nz_t9_base_sprint_ad_v05",
+				"nz_t9_base_sprint_ad_v21",
+				"nz_t9_base_sprint_ad_v22",
+				"nz_t9_base_sprint_ad_v23",
 				"nz_sprint_ad3",
 				"nz_sprint_ad4",
-				"nz_sprint_ad5",
-				"nz_sprint_ad21",
-				"nz_sprint_ad22",
-				"nz_sprint_ad23",
-				"nz_sprint_ad24",
 				"nz_fast_sprint_v1",
 				"nz_fast_sprint_v2",
 			},
@@ -750,15 +709,15 @@ ENT.SequenceTables = {
 			MovementSequence = {
 				--"nz_legacy_sprint_v5",
 				--"nz_legacy_jap_run_v3",
-				"nz_sprint_au1",
-				"nz_sprint_au2",
+				"nz_t9_base_sprint_au_v01",
+				"nz_t9_base_sprint_au_v02",
+				"nz_t9_base_sprint_au_v20",
+				"nz_t9_base_sprint_au_v21",
+				"nz_t9_base_sprint_au_v22",
+				"nz_t9_base_sprint_au_v25",
 				"nz_sprint_au3",
 				"nz_sprint_au4",
-				"nz_sprint_au20",
-				"nz_sprint_au21",
-				"nz_sprint_au22",
-				"nz_sprint_au25",
-				"nz_fast_sprint_v1",
+				"nz_fast_sprint_v3",
 				"nz_fast_sprint_v2",
 			},
 			LowgMovementSequence = {

@@ -55,7 +55,7 @@ nzAATs:RegisterAAT("cryofreeze", {
 	cooldown = 15,
 	color = Color(160, 240, 255),
 	flash = Material("vgui/aat/t7_hud_cp_aat_cryofreeze.png", "smooth unlitgeneric"),
-	icon = Material("vgui/hud_wpn_aat_cryo.png", "smooth unlitgeneric"),
+	icon = Material("vgui/hud_wpn_aat_cryofreeze_alt.png", "smooth unlitgeneric"),
 	ent = "elemental_pop_effect_5",
 })
 
@@ -70,7 +70,7 @@ nzAATs:RegisterAAT("turned", {
 })
 
 nzAATs:RegisterAAT("blackhole", {
-	name = "Black Hole",
+	name = "Void Caster",
 	chance = 0.10,
 	cooldown = 35,
 	color = Color(180, 60, 255),

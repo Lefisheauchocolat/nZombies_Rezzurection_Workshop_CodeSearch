@@ -125,17 +125,9 @@ local function DrawRevivalProgress_t6()
 	end
 end
 
-local t6HUDs = {
-	["Buried"] = true,
-	["Mob of the Dead"] = true,
-	["Origins (Black Ops 2)"] = true,
-	["Tranzit (Black Ops 2)"] = true,
-	["Encampment"] = true
-}
-
 -- Hooks
 hook.Add("HUDPaint", "nzHUDreviveswap_t6", function()
-	if t6HUDs[nzMapping.Settings.hudtype] then
+	if nzDisplay and nzDisplay.t6revive and nzDisplay.t6revive[nzMapping.Settings.hudtype] then
 		hook.Add("HUDPaint", "DrawDownedPlayers", DrawDownedPlayers_t6 )
 		hook.Add("HUDPaint", "DrawRevivalProgress", DrawRevivalProgress_t6 )
 	end

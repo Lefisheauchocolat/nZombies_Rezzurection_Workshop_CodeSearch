@@ -1,49 +1,3 @@
-local storedwep, storedknife, storedgrenade, storedsyrette, storedpaparms, storedminigun, storedbottle, storedaat = nil, nil, nil, nil, nil, nil, 2
-local oldturnedlist = {
-	["Odious Individual"] = true,
-	["Laby after Taco Bell"] = true,
-	["Fucker.lua"] = true,
-	["Turned"] = true,
-	["Shitass"] = true,
-	["Miscellaneous Intent"] = true,
-	["The Imposter"] = true,
-	["Zobie"] = true,
-	["Creeper, aww man"] = true,
-	["Herbin"] = true,
-	["Category Five"] = true,
-	["TheRelaxingEnd"] = true,
-	["Zet0r"] = true,
-	["Dead By Daylight"] = true,
-	["Cave Johnson"] = true,
-	["Vinny Vincesauce"] = true,
-	["Who's Who?"] = true,
-	["MR ELECTRIC, KILL HIM!"] = true,
-	["Jerma985"] = true,
-	["Steve Jobs"] = true,
-	["BRAAAINS..."] = true,
-	["The False Shepherd"] = true,
-	["Timer Failed!"] = true,
-	["r_flushlod"] = true,
-	["Doctor Robotnik"] = true,
-	["Clown"] = true,
-	["Left 4 Dead 2"] = true,
-	["Squidward Tortellini"] = true,
-	["Five Nights at FNAF"] = true,
-	["Minecraft Steve"] = true,
-	["Wowee Zowee"] = true,
-	["Gorgeous Freeman"] = true,
-	["fog rolling in"] = true,
-	["Exotic Butters"] = true,
-	["Brain Rot"] = true,
-	["Team Fortress 2"] = true,
-	["Roblox"] = true,
-	["Cave1.ogg"] = true,
-	["Fin Fin"] = true,
-	["Jimmy Gibbs Jr."] = true,
-	["Brain Blast"] = true,
-	["Sheen"] = true
-}
-
 nzTools:CreateTool("settings", {
 	displayname = "Map Settings",
 	desc = "Use the Tool Interface and press Submit to save changes",
@@ -69,7 +23,7 @@ nzTools:CreateTool("settings", {
 	condition = function(wep, ply)
 		return true
 	end,
-	interface = function(frame, data)
+	interface = function(frame, tooldata)
 		local data = table.Copy(nzMapping.Settings)
 		local valz = {}
 		valz["Row1"] = data.startwep or "Select ..."
@@ -79,6 +33,7 @@ nzTools:CreateTool("settings", {
 		valz["Revive Syrette"] = data.syrette or "Select ..."
 		valz["PaP Arms"] = data.paparms or "Select ..."
 		valz["Death Machine"] = data.deathmachine or "Select ..."
+		valz["Shield"] = data.shield or "Select ..."
 		valz["Row2"] = data.startpoints or 500
 		valz["Row3"] = data.eeurl or ""
 		valz["Row4"] = data.script or false
@@ -86,9 +41,9 @@ nzTools:CreateTool("settings", {
 		valz["Row6"] = data.gamemodeentities or false
 		valz["Row7"] = data.specialroundtype or "Hellhounds"
 		valz["Row8"] = data.bosstype or "Panzer"
-		valz["Row9"] = data.startingspawns == nil and 4 or data.startingspawns
-		valz["Row10"] = data.spawnperround == nil and 1 or data.spawnperround
-		valz["Row11"] = data.maxspawns == nil and 24 or data.maxspawns
+		valz["Row9"] = data.startingspawns == nil and 35 or data.startingspawns
+		valz["Row10"] = data.spawnperround == nil and 0 or data.spawnperround
+		valz["Row11"] = data.maxspawns == nil and 35 or data.maxspawns
 		valz["Row13"] = data.zombiesperplayer == nil and 0 or data.zombiesperplayer
 		valz["Row14"] = data.spawnsperplayer == nil and 0 or data.spawnsperplayer
 		valz["SpawnDelay"] = data.spawndelay == nil and 2 or data.spawndelay
@@ -98,18 +53,6 @@ nzTools:CreateTool("settings", {
 		valz["Row18"] = data.perkmachinetype or "Original"
 		valz["Row19"] = data.boxtype or "Original"
 		valz["Row20"] = data.boxlightcolor == nil and Color(0,150,200,255) or data.boxlightcolor
-		valz["Row21"] = data.newwave1 or 20
-		valz["Row22"] = data.newtype1 or "Hellhounds"
-		valz["Row23"] = data.newratio1 or 0.5
-		valz["Row24"] = data.newwave2 or 0
-		valz["Row25"] = data.newtype2 or "None"
-		valz["Row26"] = data.newratio2 or 0
-		valz["Row27"] = data.newwave3 or 0
-		valz["Row28"] = data.newtype3 or "None"
-		valz["Row29"] = data.newratio3 or 0
-		valz["Row30"] = data.newwave4 or 0
-		valz["Row31"] = data.newtype4 or "None"
-		valz["Row32"] = data.newratio4 or 0
 		valz["Row33"] = data.mainfont or "Default NZR"
 		valz["Row34"] = data.smallfont or "Default NZR"
 		valz["Row35"] = data.mediumfont or "Default NZR"
@@ -124,64 +67,130 @@ nzTools:CreateTool("settings", {
 		valz["Row44"] = data.PAPcamo or "nz_classic"
 		valz["Row45"] = data.hp or 100
 		valz["Row46"] = data.range or 2000
-		valz["Row47"] = data.sharing or false
 		valz["Row48"] = data.eemdl or "Hula Doll"
 		valz["Row49"] = data.speedmulti or 4
 		valz["Row50"] = data.amountcap or 240
 		valz["HealthStart"] = data.healthstart or 75
 		valz["HealthIncrement"] = data.healthinc or 50
 		valz["HealthMultiplier"] = data.healthmult or 0.1
-		valz["HealthCap"] = data.healthcap or 666000
+		valz["HealthCap"] = data.healthcap or 60000
 		valz["Row51"] = data.navgroupbased or false
 		valz["Row52"] = data.sidestepping or false
 		valz["Row54"] = data.badattacks or false
-		valz["Row55"] = data.negative or false
 		valz["Row56"] = data.zct or false
 		valz["Row57"] = data.mutated or false
 		valz["Row58"] = data.aats or 2
-		valz["TurnedNames"] = data.turnedlist or oldturnedlist
+		valz["Row59"] = data.poweruptype or "Black Ops 1"
+		valz["Row60"] = data.mmohudtype or "World at War/ Black Ops 1"
+		valz["Row61"] = data.downsoundtype or "Black Ops 3"
+		valz["Row62"] = data.solorevive or 3
+		valz["Row63"] = data.modifierslot == nil and true or data.modifierslot
+		valz["Row64"] = data.dontkeepperks or false
+		valz["Row65"] = data.powerupstyle or "style_classic"
+		valz["Row66"] = data.antipowerups or false
+		valz["Row67"] = data.antipowerupchance or 40
+		valz["Row68"] = data.antipowerupstart or 2
+		valz["Row69"] = data.antipowerupdelay or 4
+		valz["Row70"] = data.powerupoutline or 0
+		valz["Row71"] = data.roundperkbonus == nil and true or data.roundperkbonus
+		valz["TurnedNames"] = data.turnedlist or {}
 		valz["RBoxWeps"] = data.RBoxWeps or {}
+		valz["PowerupColors"] = data.powerupcol or {
+			["global"] = {
+				[1] = Vector(0.196,1,0),
+				[2] = Vector(0.568,1,0.29),
+				[3] = Vector(0.262,0.666,0),
+			},
+			["local"] = {
+				[1] = Vector(0.372,1,0.951),
+				[2] = Vector(0.556,1,0.99),
+				[3] = Vector(0,0.64,0.666),
+			},
+			["mini"] = {
+				[1] = Vector(1,0.823,0),
+				[2] = Vector(1,0.854,0.549),
+				[3] = Vector(0.627,0.431,0),
+			},
+			["anti"] = {
+				[1] = Vector(1,0.156,0.156),
+				[2] = Vector(1,0.392,0.392),
+				[3] = Vector(0.705,0,0),
+			},
+			["tombstone"] = {
+				[1] = Vector(0.568,0,1),
+				[2] = Vector(0.705,0.392,1),
+				[3] = Vector(0.431,0,0.784),
+			}
+		}
+		valz["PAPMuzzle"] = data.papmuzzlecol or {
+			[1] = Vector(0.470,0,1),
+			[2] = Vector(0.431,0.156,1),
+			[3] = Vector(0.647,0.549,1),
+			[4] = Vector(0.196,0.078,0.431),
+			[5] = Vector(0.235,0.078,0.705),
+		}
+		valz["WallbuyColors"] = data.wallbuydata or {
+			["glow"] = (nzMapping.Settings.boxlightcolor or valz["Row20"] or Color(0,150,200,255)),
+			["chalk"] = Color(255,255,255,255),
+			["alpha"] = 30,
+			["material"] = "sprites/wallbuy_light.vmt",
+			["sizew"] = 128,
+			["sizeh"] = 42,
+		}
+		valz["GumRoundPrices"] = data.gumpricelist or nzGum.RoundPrices
+		valz["GumChanceMults"] = data.gummultipliers or nzGum.ChanceMultiplier
+		valz["GumResetRounds"] = data.gumcountresetrounds or nzGum.RollCountResetRounds
+
+		--[[
 		valz["ACRow1"] = data.ac == nil and false or data.ac
 		valz["ACRow2"] = data.acwarn == nil and true or data.acwarn
 		valz["ACRow3"] = data.acsavespot == nil and true or tobool(data.acsavespot)
 		valz["ACRow4"] = data.actptime == nil and 5 or data.actptime
 		valz["ACRow5"] = data.acpreventboost == nil and true or tobool(data.acpreventboost)
 		valz["ACRow6"] = data.acpreventcjump == nil and false or tobool(data.acpreventcjump)
+		]]
 
-		-- Catalyst/ZCT/Burning
-		valz["EnableBurningZombies"] = data.burning or false
-		valz["BurningChance"] = data.burningchance or 50
-		valz["BurningRnd"] = data.burningrnd or 13
+		valz["ColdWarPoints"] = data.cwpointssystem or false
 
-		valz["RedChance"] = data.redchance or 85
-		valz["RedRnd"] = data.redrnd or 2
+		valz["TimedGameplay"] = data.timedgame or false
+		valz["TimedGameplayTime"] = data.timedgametime or 120
+		valz["TimedGameplayMaxTime"] = data.timedgamemaxtime or 600
 
-		valz["BlueChance"] = data.bluechance or 85
-		valz["BlueRnd"] = data.bluernd or 6
+		-- Catalyst/ZCT/Burning --
+			valz["EnableBurningZombies"] = data.burning or false
+			valz["BurningChance"] = data.burningchance or 50
+			valz["BurningRnd"] = data.burningrnd or 13
 
-		valz["GreenChance"] = data.greenchance or 85
-		valz["GreenRnd"] = data.greenrnd or 14
+			valz["RedChance"] = data.redchance or 85
+			valz["RedRnd"] = data.redrnd or 2
 
-		valz["YellowChance"] = data.yellowchance or 85
-		valz["YellowRnd"] = data.yellowrnd or 12
+			valz["BlueChance"] = data.bluechance or 85
+			valz["BlueRnd"] = data.bluernd or 6
 
-		valz["PurpleChance"] = data.purplechance or 85
-		valz["PurpleRnd"] = data.purplernd or 16
+			valz["GreenChance"] = data.greenchance or 85
+			valz["GreenRnd"] = data.greenrnd or 14
 
-		valz["PinkChance"] = data.pinkchance or 85
-		valz["PinkRnd"] = data.pinkrnd or 26
+			valz["YellowChance"] = data.yellowchance or 85
+			valz["YellowRnd"] = data.yellowrnd or 12
 
-		valz["PoisonChance"] = data.poisonchance or 20
-		valz["PoisonRnd"] = data.poisonrnd or 10
+			valz["PurpleChance"] = data.purplechance or 85
+			valz["PurpleRnd"] = data.purplernd or 16
 
-		valz["FireChance"] = data.firechance or 15
-		valz["FireRnd"] = data.firernd or 14
+			valz["PinkChance"] = data.pinkchance or 85
+			valz["PinkRnd"] = data.pinkrnd or 26
 
-		valz["ElectricChance"] = data.electricchance or 10
-		valz["ElectricRnd"] = data.electricrnd or 16
+			valz["PoisonChance"] = data.poisonchance or 20
+			valz["PoisonRnd"] = data.poisonrnd or 10
 
-		valz["WaterChance"] = data.waterchance or 5
-		valz["WaterRnd"] = data.waterrnd or 12
+			valz["FireChance"] = data.firechance or 15
+			valz["FireRnd"] = data.firernd or 14
+
+			valz["ElectricChance"] = data.electricchance or 10
+			valz["ElectricRnd"] = data.electricrnd or 16
+
+			valz["WaterChance"] = data.waterchance or 5
+			valz["WaterRnd"] = data.waterrnd or 12
+		-- Catalyst/ZCT/Burning --
 
 		if (ispanel(sndFilePanel)) then sndFilePanel:Remove() end
 
@@ -194,40 +203,24 @@ nzTools:CreateTool("settings", {
 		end
 
 		valz["Wunderfizz"] = data.wunderfizzperklist == nil and wunderfizzlist or data.wunderfizzperklist
-		
+
 		local poweruplist = {}
 		for k,v in pairs(nzPowerUps:GetList()) do
 			poweruplist[k] = {true, v}
 		end
 
-		valz["PowerUps"] = data.poweruplist == nil and poweruplist or data.poweruplist
+		valz["PowerUps"] = data.poweruplist or poweruplist
+
+		local gumlist = {}
+		for k, v in pairs(nzGum.Gums) do
+			gumlist[k] = {true, nzGum.RollCounts[v.rare or nzGum.RareTypes.DEFAULT]}
+		end
+
+		valz["GumsList"] = data.gumlist or gumlist
 
 		-- More compact and less messy:
 		for k,v in pairs(nzSounds.struct) do
 			valz["SndRow" .. k] = data[v] or {}
-		end
-
-		//store selected combobox settings
-		if nzMapping.Settings.startwep and storedwep ~= nzMapping.Settings.startwep then
-			storedwep = nzMapping.Settings.startwep
-		end
-		if nzMapping.Settings.knife and storedknife ~= nzMapping.Settings.knife then
-			storedknife = nzMapping.Settings.knife
-		end
-		if nzMapping.Settings.grenade and storedgrenade ~= nzMapping.Settings.grenade then
-			storedgrenade = nzMapping.Settings.grenade
-		end
-		if nzMapping.Settings.deathmachine and storedminigun ~= nzMapping.Settings.deathmachine then
-			storedminigun = nzMapping.Settings.deathmachine
-		end
-		if nzMapping.Settings.syrette and storedsyrette ~= nzMapping.Settings.syrette then
-			storedsyrette = nzMapping.Settings.syrette
-		end
-		if nzMapping.Settings.bottle and storedbottle ~= nzMapping.Settings.bottle then
-			storedbottle = nzMapping.Settings.bottle
-		end
-		if nzMapping.Settings.aats and storedaat ~= nzMapping.Settings.aats then
-			storedaat = nzMapping.Settings.aats
 		end
 
 		local sheet = vgui.Create( "DPropertySheet", frame )
@@ -247,102 +240,55 @@ nzTools:CreateTool("settings", {
 			for k,v in pairs(weapons.GetList()) do
 				if !v.NZTotalBlacklist then
 					if v.Category and v.Category != "" then
-						Row1:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName or v.ClassName, v.ClassName, storedwep == v.ClassName)
+						Row1:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName or v.ClassName, v.ClassName, valz["Row1"] == v.ClassName)
 					else
-						Row1:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, storedwep == v.ClassName)
-					end
-				end
-			end
-			if data.startwep then
-				local wep = weapons.Get(data.startwep)
-				if !wep and weapons.Get(nzConfig.BaseStartingWeapons) and #weapons.Get(nzConfig.BaseStartingWeapons) >= 1 then wep = weapons.Get("robotnik_bo1_1911") end
-				if wep != nil then  
-					if wep.Category and wep.Category != "" then
-						Row1:AddChoice(wep.PrintName and wep.PrintName != "" and wep.Category.. " - "..wep.PrintName or wep.ClassName, wep.ClassName, storedwep == wep.ClassName)
-					else
-						Row1:AddChoice(wep.PrintName and wep.PrintName != "" and wep.PrintName or wep.ClassName, wep.ClassName, storedwep == wep.ClassName)
+						Row1:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, valz["Row1"] == v.ClassName)
 					end
 				end
 			end
 
-			Row1.DataChanged = function( _, val ) valz["Row1"] = val storedwep = val end
+			Row1.DataChanged = function( _, val ) valz["Row1"] = val end
 			local kniferow = DProperties:CreateRow( "Player Settings", "Knife" )
 			kniferow:Setup( "Combo" )
 			for k,v in pairs(weapons.GetList()) do
 				if v.Category and v.Category == "nZombies Knives" then
-					kniferow:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName or v.ClassName, v.ClassName, storedknife == v.ClassName)
+					kniferow:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName or v.ClassName, v.ClassName, valz["Knife"] == v.ClassName)
 				end
 			end
-			if data.knife then
-				local wep = weapons.Get(data.knife)
-				if !wep then wep = weapons.Get("tfa_bo1_knife") end
-				if wep != nil then  
-					if wep.Category and wep.Category == "nZombies Knives" then
-						kniferow:AddChoice(wep.PrintName and wep.PrintName != "" and wep.Category.. " - "..wep.PrintName or wep.ClassName, wep.ClassName, storedknife == wep.ClassName)
-					end
-				end
-			end
-			kniferow.DataChanged = function( _, val ) valz["Knife"] = val storedknife = val end
+			kniferow.DataChanged = function( _, val ) valz["Knife"] = val valz["Knife"] = val end
 			
 			local grenaderow = DProperties:CreateRow( "Player Settings", "Grenade" )
 			grenaderow:Setup( "Combo" )
 			for k,v in pairs(weapons.GetList()) do
 				if v.Category and v.Category == "nZombies Grenades" then
-					grenaderow:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName or v.ClassName, v.ClassName, storedgrenade == v.ClassName)
+					grenaderow:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName or v.ClassName, v.ClassName, valz["Grenade"] == v.ClassName)
 				end
 			end
-			if data.grenade then
-				local wep = weapons.Get(data.grenade)
-				if !wep  then wep = weapons.Get("tfa_bo1_m67") end
-				if wep != nil then  
-					if wep.Category and wep.Category == "nZombies Grenades" then
-						grenaderow:AddChoice(wep.PrintName and wep.PrintName != "" and wep.Category.. " - "..wep.PrintName or wep.ClassName, wep.ClassName, storedgrenade == wep.ClassName)
-					end
-				end
-			end
-			grenaderow.DataChanged = function( _, val ) valz["Grenade"] = val storedgrenade = val end
+			grenaderow.DataChanged = function( _, val ) valz["Grenade"] = val valz["Grenade"] = val end
 			
 			local syretterow = DProperties:CreateRow( "Player Settings", "Revive Syrette" )
 			syretterow:Setup( "Combo" )
 			for k,v in pairs(weapons.GetList()) do
 				if v.Category and v.Category == "nZombies Syrettes" then
-					syretterow:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName or v.ClassName, v.ClassName, storedsyrette == v.ClassName)
+					syretterow:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName or v.ClassName, v.ClassName, valz["Revive Syrette"] == v.ClassName)
 				end
 			end
-			if data.syrette then
-				local wep = weapons.Get(data.syrette)
-				if !wep  then wep = weapons.Get("tfa_bo2_syrette") end
-				if wep != nil then  
-					if wep.Category and wep.Category == "nZombies Syrettes" then
-						syretterow:AddChoice(wep.PrintName and wep.PrintName != "" and wep.Category.. " - "..wep.PrintName or wep.ClassName, wep.ClassName, storedsyrette == wep.ClassName)
-					end
-				end
-			end
-			syretterow.DataChanged = function( _, val ) valz["Revive Syrette"] = val storedsyrette = val end
-			
+			syretterow.DataChanged = function( _, val ) valz["Revive Syrette"] = val valz["Revive Syrette"] = val end
+
 			local paparmsrow = DProperties:CreateRow( "Player Settings", "PaP Arms" )
 			paparmsrow:Setup( "Combo" )
 			for k,v in pairs(weapons.GetList()) do
 				if v.Category and v.Category == "nZombies Knuckles" then
-					paparmsrow:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName or v.ClassName, v.ClassName, storedpaparms == v.ClassName)
+					paparmsrow:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName or v.ClassName, v.ClassName, valz["PaP Arms"] == v.ClassName)
 				end
 			end
-			if data.paparmsrow then
-				local wep = weapons.Get(data.paparmsrow)
-				if !wep  then wep = weapons.Get("tfa_paparms") end
-				if wep != nil then  
-					if wep.Category and wep.Category == "nZombies Knuckles" then
-						paparmsrow:AddChoice(wep.PrintName and wep.PrintName != "" and wep.Category.. " - "..wep.PrintName or wep.ClassName, wep.ClassName, storedpaparms == wep.ClassName)
-					end
-				end
-			end
-			paparmsrow.DataChanged = function( _, val ) valz["PaP Arms"] = val storedpaparms = val end
-			
+			paparmsrow.DataChanged = function( _, val ) valz["PaP Arms"] = val valz["PaP Arms"] = val end
+
 			local Row2 = DProperties:CreateRow( "Player Settings", "Starting Points" )
 			Row2:Setup( "Integer" )
 			Row2:SetValue( valz["Row2"] )
 			Row2.DataChanged = function( _, val ) valz["Row2"] = val end
-			
+
 			local Row45 = DProperties:CreateRow( "Player Settings", "Player Base Health" )
 			Row45:Setup( "Integer" )
 			Row45:SetValue( valz["Row45"] )
@@ -368,7 +314,7 @@ nzTools:CreateTool("settings", {
 			end
 			Row16.DataChanged = function( _, val ) valz["Row16"] = val end
 			Row16:SetTooltip("Sets the HUD players will see in your map")
-				
+
 			local Row41 = DProperties:CreateRow("Map Cosmetics", "Perk Icons")
 			Row41:Setup( "Combo" )
 			local found = false
@@ -382,7 +328,48 @@ nzTools:CreateTool("settings", {
 			end
 			Row41.DataChanged = function( _, val ) valz["Row41"] = val end
 			Row41:SetTooltip("Changes the style of the perk icons")
-				
+
+			local Row59 = DProperties:CreateRow("Map Cosmetics", "Powerup Icons")
+			Row59:Setup( "Combo" )
+			local found = false
+			for k, v in pairs(nzDisplay.PowerupHudData) do
+				if k == valz["Row59"] then
+					Row59:AddChoice(k, k, true)
+					found = true
+				else
+					Row59:AddChoice(k, k, false)
+				end
+			end
+			Row59.DataChanged = function( _, val ) valz["Row59"] = val end
+			Row59:SetTooltip("Changes the style of powerup icons")
+
+			local Row60 = DProperties:CreateRow("Map Cosmetics", "Perk Stats Icons")
+			Row60:Setup( "Combo" )
+			local found = false
+			for k, v in pairs(nzRound.IconSelectData) do
+				if k == valz["Row60"] then
+					Row60:AddChoice(k, k, true)
+					found = true
+				else
+					Row60:AddChoice(k, k, false)
+				end
+			end
+			Row60.DataChanged = function( _, val ) valz["Row60"] = val end
+			Row60:SetTooltip("Changes the style of the mini perk icons that display active perk stats")
+
+			local Row61 = DProperties:CreateRow("Map Cosmetics", "Downed Ambience")
+			Row61:Setup( "Combo" )
+			local found = false
+			for k, v in pairs(nzDisplay.HUDdowndata) do
+				if k == valz["Row61"] then
+					Row61:AddChoice(k, k, true)
+					found = true
+				else
+					Row61:AddChoice(k, k, false)
+				end
+			end
+			Row61.DataChanged = function( _, val ) valz["Row61"] = val end
+			Row61:SetTooltip("Changes downed sound, downed ambience, and revived sound")
 
 			local Row18 = DProperties:CreateRow("Map Cosmetics", "Perk Machine Skins")
 			Row18:Setup( "Combo" )
@@ -397,7 +384,7 @@ nzTools:CreateTool("settings", {
 			end
 			Row18.DataChanged = function( _, val ) valz["Row18"] = val end
 			Row18:SetTooltip("Sets the Perk Machines Appearance")
-				
+
 			local Row19 = DProperties:CreateRow("Map Cosmetics", "Mystery Box Skin")
 			Row19:Setup( "Combo" )
 			local found = false
@@ -411,26 +398,26 @@ nzTools:CreateTool("settings", {
 			end
 			Row19.DataChanged = function( _, val ) valz["Row19"] = val end
 			Row19:SetTooltip("Sets the Mystery Box Skin")
-				
+
+			if nzPowerUps.Styles then
+				local powerupstylerow = DProperties:CreateRow("Map Cosmetics", "Powerup Style")
+				powerupstylerow:Setup("Combo")
+				for k,v in pairs(nzPowerUps.Styles) do
+					powerupstylerow:AddChoice(v.name, k, k == valz["Row65"])
+				end
+				powerupstylerow.DataChanged = function( _, val ) valz["Row65"] = val valz["Row65"] = val end
+			end
+
 			local bottlerow = DProperties:CreateRow( "Map Cosmetics", "Bottle" )
 			bottlerow:Setup( "Combo" )
 			for k,v in pairs(weapons.GetList()) do
-					if v.Category and v.Category == "nZombies Bottles" then
-						bottlerow:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName or v.ClassName, v.ClassName, storedbottle == v.ClassName)
-					end
-			end
-			if data.bottle then
-				local wep = weapons.Get(data.bottle)
-				if !wep  then wep = weapons.Get("tfa_perk_bottle") end
-				if wep != nil then  
-					if wep.Category and wep.Category == "nZombies Bottles" then
-						bottlerow:AddChoice(wep.PrintName and wep.PrintName != "" and wep.Category.. " - "..wep.PrintName or wep.ClassName, wep.ClassName, storedbottle == wep.ClassName)
-					end
+				if v.Category and v.Category == "nZombies Bottles" then
+					bottlerow:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName or v.ClassName, v.ClassName, valz["Bottle"] == v.ClassName)
 				end
 			end
-			bottlerow.DataChanged = function( _, val ) valz["Bottle"] = val storedbottle = val end
-			
-			local Row43 = DProperties:CreateRow("Map Cosmetics", "Pack-A-Punch Skins")
+			bottlerow.DataChanged = function( _, val ) valz["Bottle"] = val valz["Bottle"] = val end
+
+			local Row43 = DProperties:CreateRow("Map Cosmetics", "Pack-A-Punch Skin")
 			Row43:Setup( "Combo" )
 			local found = false
 			for k,v in pairs(nzRound.PAPSelectData) do
@@ -443,7 +430,7 @@ nzTools:CreateTool("settings", {
 			end
 			Row43.DataChanged = function( _, val ) valz["Row43"] = val end
 			Row43:SetTooltip("Sets the Pack-A-Punch skin")
-				
+
 			local Row44 = DProperties:CreateRow("Map Cosmetics", "Pack-A-Punch Camo")
 			Row44:Setup( "Combo" )
 			local found = false
@@ -458,19 +445,13 @@ nzTools:CreateTool("settings", {
 			Row44.DataChanged = function( _, val ) valz["Row44"] = val end
 			Row44:SetTooltip("Sets the Global Pack-A-Punch Camo")
 
-			local Row48 = DProperties:CreateRow("Map Cosmetics", "Easter egg song Model")
-			Row48:Setup( "Combo" )
-			local found = false
-			for k,v in pairs(nzRound.eemodel) do
-				if k == valz["Row48"] then
-					Row48:AddChoice(k, k, true)
-					found = true
-				else
-					Row48:AddChoice(k, k, false)
-				end
-			end
-			Row48.DataChanged = function( _, val ) valz["Row48"] = val end
-			Row48:SetTooltip("Sets the model for the easteregg song")
+			local Row70 = DProperties:CreateRow("Map Cosmetics", "Powerup Outlines")
+			Row70:Setup("Combo")
+			Row70:AddChoice('Disabled', 0, valz["Row70"] == 0)
+			Row70:AddChoice('Enabled', 1, valz["Row70"] == 1)
+			Row70:AddChoice('Ignore Z', 2, valz["Row70"] == 2)
+			Row70.DataChanged = function( _, val ) valz["Row70"] = val end
+			Row70:SetTooltip("More of an accessibility option, enables a glowing halo around powerups, ignorez makes the outline show through walls.")
 		--[[-------------------------------------------------------------------------
 		Map Cosmetics
 		---------------------------------------------------------------------------]]
@@ -479,52 +460,127 @@ nzTools:CreateTool("settings", {
 		--[[-------------------------------------------------------------------------
 		Map Functionality
 		---------------------------------------------------------------------------]]
+			local Row62 = DProperties:CreateRow("Map Functionality", "Solo Revives Count")
+			Row62:Setup("Integer")
+			Row62:SetValue(valz["Row62"])
+			Row62:SetTooltip("How many solo revives the player gets in singleplayer. (SET TO 0 TO DISABLE)")
+			Row62.DataChanged = function( _, val ) valz["Row62"] = val end
+
 			local Row42 = DProperties:CreateRow( "Map Functionality", "Perk Upgrades" )
-			Row42:Setup( "Boolean" )
-			Row42:SetValue( valz["Row42"] )
+			Row42:Setup("Boolean")
+			Row42:SetValue(valz["Row42"])
 			Row42.DataChanged = function( _, val ) valz["Row42"] = val end
-			Row42:SetTooltip("Enable upgradeable perks on this config")
-				
-			local Row47 = DProperties:CreateRow( "Map Functionality", "Mystery Box Sharing" )
-			Row47:Setup( "Boolean" )
-			Row47:SetValue( valz["Row47"] )
-			Row47.DataChanged = function( _, val ) valz["Row47"] = val end
-			Row47:SetTooltip("To be a box communist or not to be a box communist")
+			Row42:SetTooltip("Enable for perk upgrades to be purchasable on this config.")
 
-			local Row55 = DProperties:CreateRow( "Map Functionality", "Laby Anti Powerups" )
-			Row55:Setup( "Boolean" )
-			Row55:SetValue( valz["Row55"] )
-			Row55.DataChanged = function( _, val ) valz["Row55"] = val end
-			Row55:SetTooltip("Enable this for comedy.")
+			local Row71 = DProperties:CreateRow("Map Functionality", "Perk Slot Rewards")
+			Row71:Setup("Boolean")
+			Row71:SetValue(valz["Row71"])
+			Row71.DataChanged = function( _, val) valz["Row71"] = val end
+			Row71:SetTooltip("Enable for all players to gain an additional perk slot by completing round 15 and 25 (Default On).")
 
-			local Row58 = DProperties:CreateRow( "Map Functionality", "Double PaP AATs" )
+			local Row63 = DProperties:CreateRow("Map Functionality", "Perk Modifier Slot")
+			Row63:Setup("Boolean")
+			Row63:SetValue(valz["Row63"])
+			Row63.DataChanged = function( _, val) valz["Row63"] = val end
+			Row63:SetTooltip("Enable for all players fourth perk always being upgraded (Default On).")
+
+			local Row64 = DProperties:CreateRow("Map Functionality", "Lose All Perks on Down")
+			Row64:Setup("Boolean")
+			Row64:SetValue(valz["Row64"])
+			Row64.DataChanged = function( _, val) valz["Row64"] = val end
+			Row64:SetTooltip("Enable for players to lose all perks on down, instead of only half.")
+
+			local CWPoints = DProperties:CreateRow( "Map Functionality", "Cold War Points System" )
+			CWPoints:Setup( "Boolean" )
+			CWPoints:SetValue( valz["ColdWarPoints"] )
+			CWPoints.DataChanged = function( _, val ) valz["ColdWarPoints"] = val end
+			CWPoints:SetTooltip("Enable for CW styled points earning. (Only rewards points on kills)")
+
+			local Row58 = DProperties:CreateRow( "Map Functionality", "Alternate Ammo Type System" )
 			Row58:Setup("Combo")
-			Row58:AddChoice("Disabled", 0, storedaat == 0)
-			Row58:AddChoice("Only when no OnRePaP", 1, storedaat == 1)
-			Row58:AddChoice("Always on (Default)", 2, storedaat == 2)
-			Row58.DataChanged = function( _, val ) valz["Row58"] = val storedaat = val end
-			Row58:SetTooltip("Enable for weapons to gain BO3 esque ammo mods on repaping.")
+			Row58:AddChoice("Disabled", 0, valz["Row58"] == 0)
+			Row58:AddChoice("Only when no SWEP:OnRePaP()", 1, valz["Row58"] == 1)
+			Row58:AddChoice("Always on (Default)", 2, valz["Row58"] == 2)
+			Row58.DataChanged = function( _, val ) valz["Row58"] = val valz["Row58"] = val end
+			Row58:SetTooltip("Enable for weapons to gain BO3-esque ammo mods when Pack-a-Punch'ed twice.")
 
 			local deathmachinerow = DProperties:CreateRow( "Map Functionality", "Death Machine" )
 			deathmachinerow:Setup( "Combo" )
 			for k,v in pairs(weapons.GetList()) do
 				if v.Category and v.Category == "nZombies Powerups" then
-					deathmachinerow:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName or v.ClassName, v.ClassName, storedminigun == v.ClassName)
+					deathmachinerow:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName or v.ClassName, v.ClassName, valz["Death Machine"] == v.ClassName)
 				end
 			end
-			if data.deathmachine then
-				local wep = weapons.Get(data.deathmachine)
-				if !wep  then wep = weapons.Get("tfa_nz_bo3_minigun") end
-				if wep != nil then  
-					if wep.Category and wep.Category == "nZombies Powerups" then
-						deathmachinerow:AddChoice(wep.PrintName and wep.PrintName != "" and wep.Category.. " - "..wep.PrintName or wep.ClassName, wep.ClassName, storedminigun == wep.ClassName)
-					end
+			deathmachinerow.DataChanged = function( _, val ) valz["Death Machine"] = val end
+
+			local shieldrow = DProperties:CreateRow("Map Functionality", "Shield" )
+			shieldrow:Setup( "Combo" )
+			for k,v in pairs(weapons.GetList()) do
+				if v.ShieldEnabled and v.NZSpecialCategory == "shield" then
+					shieldrow:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, valz["Shield"] == v.ClassName)
 				end
 			end
-			deathmachinerow.DataChanged = function( _, val ) valz["Death Machine"] = val storedminigun = val end
+			shieldrow.DataChanged = function( _, val ) valz["Shield"] = val end
+			shieldrow:SetTooltip("Sets a shield to be given to the player through means such as, Victorious Tortoise's upgrade ability, the 'Shield Up' Gobblegum, and potentially other addons.")
 		--[[-------------------------------------------------------------------------
 		Map Functionality
 		---------------------------------------------------------------------------]]
+
+
+		--[[-------------------------------------------------------------------------
+		Anti Powerups
+		---------------------------------------------------------------------------]]
+			local Row66 = DProperties:CreateRow("Anti Powerups", "Enable Anti Powerups")
+			Row66:Setup("Boolean")
+			Row66:SetValue(valz["Row66"])
+			Row66.DataChanged = function( _, val ) valz["Row66"] = val end
+			Row66:SetTooltip("Enable anti powerups spawning on this config")
+
+			local Row67 = DProperties:CreateRow("Anti Powerups", "Max Anti Powerups Chance")
+			Row67:Setup("Integer")
+			Row67:SetValue(valz["Row67"])
+			Row67.DataChanged = function( _, val ) valz["Row67"] = val end
+			Row67:SetTooltip("How many Powerups to spawn before having a 100% chance of an Anti Powerup. (Default 40)")
+
+			local Row68 = DProperties:CreateRow("Anti Powerups", "Powerup Count Before Anti Powerups")
+			Row68:Setup("Integer")
+			Row68:SetValue(valz["Row68"])
+			Row68.DataChanged = function( _, val ) valz["Row68"] = val end
+			Row68:SetTooltip("Amount of Powerups that must be picked up before Anti Powerups have a chance to start spawning. (Default is 2)")
+
+			local Row69 = DProperties:CreateRow("Anti Powerups", "Anti Powerup Spawn Delay")
+			Row69:Setup("Integer")
+			Row69:SetValue(valz["Row69"])
+			Row69.DataChanged = function( _, val ) valz["Row69"] = val end
+			Row69:SetTooltip("Time (in seconds) it takes for Anti Powerups to activate after spawning. (Default is 4)")
+		--[[-------------------------------------------------------------------------
+		Anti Powerups
+		---------------------------------------------------------------------------]]
+
+
+		--[[-------------------------------------------------------------------------
+		Timed Gameplay
+		---------------------------------------------------------------------------]]
+			local TimedPlay = DProperties:CreateRow( "Timed Gameplay", "Enable Timed Gameplay" )
+			TimedPlay:Setup( "Boolean" )
+			TimedPlay:SetValue( valz["TimedGameplay"] )
+			TimedPlay.DataChanged = function( _, val ) valz["TimedGameplay"] = val end
+			TimedPlay:SetTooltip("Enable for Timed Gameplay.(Rounds will automatically advance overtime.)")
+			
+			local TimedPlayTime = DProperties:CreateRow("Timed Gameplay", "Wait Time")
+			TimedPlayTime:Setup( "Integer" )
+			TimedPlayTime:SetValue( valz["TimedGameplayTime"] )
+			TimedPlayTime:SetTooltip("The amount time the Round will wait before transitioning to the next one.(Multiplied by the current round number.)")
+			TimedPlayTime.DataChanged = function( _, val ) valz["TimedGameplayTime"] = val end
+
+			local TimedPlayMaxTime = DProperties:CreateRow("Timed Gameplay", "Max Wait Time")
+			TimedPlayMaxTime:Setup( "Integer" )
+			TimedPlayMaxTime:SetValue( valz["TimedGameplayMaxTime"] )
+			TimedPlayMaxTime:SetTooltip("The maximum amount time the Round will wait before transitioning to the next one.")
+			TimedPlayMaxTime.DataChanged = function( _, val ) valz["TimedGameplayMaxTime"] = val end
+		--[[-------------------------------------------------------------------------
+		Timed Gameplay
+		---------------------------------------------------------------------------]]	
 
 
 		--[[-------------------------------------------------------------------------
@@ -650,6 +706,7 @@ nzTools:CreateTool("settings", {
 		--[[-------------------------------------------------------------------------
 		Anti Cheat
 		---------------------------------------------------------------------------]]
+			--[[
 			local ACRow1 = DProperties:CreateRow("Anti-Cheat Settings", "Enabled?")
 			ACRow1:Setup("Boolean")
 			ACRow1:SetValue(valz["ACRow1"])
@@ -684,6 +741,7 @@ nzTools:CreateTool("settings", {
 			ACRow4:SetValue(valz["ACRow4"])
 			ACRow4:SetTooltip("Amount of seconds before a cheating player is teleported.")
 			ACRow4.DataChanged = function(_, val) valz["ACRow4"] = val end
+			]]
 		--[[-------------------------------------------------------------------------
 		Anti Cheat
 		---------------------------------------------------------------------------]]
@@ -836,7 +894,6 @@ nzTools:CreateTool("settings", {
 				Row54:SetValue( valz["Row54"] )
 				Row54.DataChanged = function( _, val ) valz["Row54"] = val end
 				Row54:SetTooltip("Enable this if you want zombies to use their Bo3 attack animations as a posed to their Bo4 ones.")
-			
 
 				--[[-------------------------------------------------------------------------
 				Catalysts and ZCT and Burning
@@ -1020,6 +1077,7 @@ nzTools:CreateTool("settings", {
 			if !weapons.Get( valz["Revive Syrette"] ) then data.syrette = nil else data.syrette = valz["Revive Syrette"] end
 			if !weapons.Get( valz["PaP Arms"] ) then data.paparms = nil else data.paparms = valz["PaP Arms"] end
 			if !weapons.Get( valz["Death Machine"] ) then data.deathmachine = nil else data.deathmachine = valz["Death Machine"] end
+			if !weapons.Get( valz["Shield"] ) then data.shield = "tfa_bo2_tranzitshield" else data.shield = valz["Shield"] end
 			if !tonumber(valz["Row2"]) then data.startpoints = 500 else data.startpoints = tonumber(valz["Row2"]) end
 			if !valz["Row3"] or valz["Row3"] == "" then data.eeurl = nil else data.eeurl = valz["Row3"] end
 			if !valz["Row4"] then data.script = nil else data.script = valz["Row4"] end
@@ -1034,23 +1092,11 @@ nzTools:CreateTool("settings", {
 			if !tonumber(valz["Row14"]) then data.spawnsperplayer = 0 else data.spawnsperplayer = tonumber(valz["Row14"]) end
 			if !tonumber(valz["SpawnDelay"]) then data.spawndelay = 2 else data.spawndelay = tonumber(valz["SpawnDelay"]) end
 			if !valz["Row15"] then data.zombietype = "Kino der Toten" else data.zombietype = valz["Row15"] end
-			if !valz["Row16"] then data.hudtype = "Origins (Black Ops 2)" else data.hudtype = valz["Row16"] end
+			if !valz["Row16"] then data.hudtype = "Black Ops 1" else data.hudtype = valz["Row16"] end
 			if !istable(valz["Row17"]) then data.zombieeyecolor = Color(0, 255, 255, 255) else data.zombieeyecolor = valz["Row17"] end
 			if !valz["Row18"] then data.perkmachinetype = "Original" else data.perkmachinetype = valz["Row18"] end
 			if !valz["Row19"] then data.boxtype = "Original" else data.boxtype= valz["Row19"] end
 			if !istable(valz["Row20"]) then data.boxlightcolor = Color(0, 150,200,255) else data.boxlightcolor = valz["Row20"] end
-			if !tonumber(valz["Row21"]) then data.newwave1 = 20 else data.newwave1 = tonumber(valz["Row21"]) end
-			if !valz["Row22"] then data.newtype1 = "Hellhounds" else data.newtype1 = valz["Row22"] end
-			if !tonumber(valz["Row23"]) then data.newratio1 = 0.5 else data.newratio1 = tonumber(valz["Row23"]) end
-			if !tonumber(valz["Row24"]) then data.newwave2 = 0 else data.newwave2 = tonumber(valz["Row24"]) end
-			if !valz["Row25"] then data.newtype2 = "None" else data.newtype2 = valz["Row25"] end
-			if !tonumber(valz["Row26"]) then data.newratio2 = 0 else data.newratio2 = tonumber(valz["Row26"]) end
-			if !tonumber(valz["Row27"]) then data.newwave3 = 0 else data.newwave3 = tonumber(valz["Row27"]) end
-			if !valz["Row28"] then data.newtype3 = "None" else data.newtype3 = valz["Row28"] end
-			if !tonumber(valz["Row29"]) then data.newratio3 = 0 else data.newratio3 = tonumber(valz["Row29"]) end
-			if !tonumber(valz["Row30"]) then data.newwave4 = 0 else data.newwave4 = tonumber(valz["Row30"]) end
-			if !valz["Row31"] then data.newtype4 = "None" else data.newtype4 = valz["Row31"] end
-			if !tonumber(valz["Row32"]) then data.newratio4 = 0 else data.newratio4 = tonumber(valz["Row32"]) end
 			if !valz["Row33"] then data.mainfont = "Default NZR" else data.mainfont = valz["Row33"] end
 			if !valz["Row34"] then data.smallfont = "Default NZR" else data.smallfont = valz["Row34"] end
 			if !valz["Row35"] then data.mediumfont = "Default NZR" else data.mediumfont = valz["Row35"] end
@@ -1060,13 +1106,11 @@ nzTools:CreateTool("settings", {
 			if !istable(valz["Row39"]) then data.textcolor = Color(0, 255, 255, 255) else data.textcolor = valz["Row39"] end
 			if !tonumber(valz["Row40"]) then data.fontthicc  = 2 else data.fontthicc  = tonumber(valz["Row40"]) end
 			if !valz["Row41"] then data.icontype = "Rezzurrection" else data.icontype = valz["Row41"] end
-			if !valz["Row42"] then data.perkupgrades = nil else data.perkupgrades = valz["Row42"] end
+			if !valz["Row42"] then data.perkupgrades = false else data.perkupgrades = tobool(valz["Row42"]) end
 			if !valz["Row43"] then data.PAPtype = "Original" else data.PAPtype = valz["Row43"] end
 			if !valz["Row44"] then data.PAPcamo = "nz_classic" else data.PAPcamo = valz["Row44"] end
 			if !tonumber(valz["Row45"]) then data.hp = 100 else data.hp = tonumber(valz["Row45"]) end
 			if !tonumber(valz["Row46"]) then data.range = 0 else data.range = tonumber(valz["Row46"]) end
-			if !valz["Row47"] then data.sharing = nil else data.sharing = valz["Row47"] end
-			if !valz["Row48"] then data.eemdl = "Hula Doll" else data.eemdl = valz["Row48"] end
 			if !valz["Row49"] then data.speedmulti = 4 else data.speedmulti = tonumber(valz["Row49"]) end
 			if !valz["Row50"] then data.amountcap = 240 else data.amountcap = tonumber(valz["Row50"]) end -- world the change, my good evening message. final. :jack_o_lantern:
 			if !valz["HealthStart"] then data.healthstart = 75 else data.healthstart = tonumber(valz["HealthStart"]) end
@@ -1076,20 +1120,127 @@ nzTools:CreateTool("settings", {
 			if !valz["Row51"] then data.navgroupbased = nil else data.navgroupbased = valz["Row51"] end
 			if !valz["Row52"] then data.sidestepping = nil else data.sidestepping = valz["Row52"] end
 			if !valz["Row54"] then data.badattacks = nil else data.badattacks = valz["Row54"] end
-			if !valz["Row55"] then data.negative = nil else data.negative = valz["Row55"] end
 			if !valz["Row56"] then data.zct = nil else data.zct = valz["Row56"] end
 			if !valz["Row57"] then data.mutated = nil else data.mutated = valz["Row57"] end
 			if !valz["Row58"] then data.aats = 2 else data.aats = tonumber(valz["Row58"]) end
-			if !valz["TurnedNames"] then data.turnedlist = oldturnedlist else data.turnedlist = valz["TurnedNames"] end
+			if !valz["Row59"] then data.poweruptype = "Black Ops 1" else data.poweruptype = tostring(valz["Row59"]) end
+			if !valz["Row60"] then data.mmohudtype = "World at War/ Black Ops 1" else data.mmohudtype = tostring(valz["Row60"]) end
+			if !valz["Row61"] then data.downsoundtype = "Black Ops 3" else data.downsoundtype = tostring(valz["Row61"]) end
+			if !valz["Row62"] then data.solorevive = 3 else data.solorevive = tonumber(valz["Row62"]) end
+			if valz["Row63"] == nil then data.modifierslot = true else data.modifierslot = tobool(valz["Row63"]) end
+			if !valz["Row64"] then data.dontkeepperks = false else data.dontkeepperks = tobool(valz["Row64"]) end
+			if !valz["Row65"] then data.powerupstyle = "style_classic" else data.powerupstyle = tostring(valz["Row65"]) end
+			if !valz["Row66"] then data.antipowerups = false else data.antipowerups = tobool(valz["Row66"]) end
+			if !valz["Row67"] then data.antipowerupchance = 40 else data.antipowerupchance = tonumber(valz["Row67"]) end
+			if !valz["Row68"] then data.antipowerupstart = 2 else data.antipowerupstart = tonumber(valz["Row68"]) end
+			if !valz["Row69"] then data.antipowerupdelay = 4 else data.antipowerupdelay = tonumber(valz["Row69"]) end
+			if !valz["Row70"] then data.powerupoutline = 0 else data.powerupoutline = tonumber(valz["Row70"]) end
+			if valz["Row71"] == nil then data.roundperkbonus = true else data.roundperkbonus = tobool(valz["Row71"]) end
+			if !valz["TurnedNames"] then data.turnedlist = {} else data.turnedlist = valz["TurnedNames"] end
 			if !valz["RBoxWeps"] or table.Count(valz["RBoxWeps"]) < 1 then data.rboxweps = nil else data.rboxweps = valz["RBoxWeps"] end
+			if !valz["PowerupColors"] then
+				data.powerupcol = {
+					["global"] = {
+						[1] = Vector(0.196,1,0),
+						[2] = Vector(0.568,1,0.29),
+						[3] = Vector(0.262,0.666,0),
+					},
+					["local"] = {
+						[1] = Vector(0.372,1,0.951),
+						[2] = Vector(0.556,1,0.99),
+						[3] = Vector(0,0.64,0.666),
+					},
+					["mini"] = {
+						[1] = Vector(1,0.823,0),
+						[2] = Vector(1,0.854,0.549),
+						[3] = Vector(0.627,0.431,0),
+					},
+					["anti"] = {
+						[1] = Vector(1,0.156,0.156),
+						[2] = Vector(1,0.392,0.392),
+						[3] = Vector(0.705,0,0),
+					},
+					["tombstone"] = {
+						[1] = Vector(0.568,0,1),
+						[2] = Vector(0.705,0.392,1),
+						[3] = Vector(0.431,0,0.784),
+					}
+				}
+			else
+				data.powerupcol = valz["PowerupColors"]
+			end
+			if !valz["PAPMuzzle"] then
+				data.papmuzzlecol = {
+					[1] = Vector(0.470,0,1),
+					[2] = Vector(0.431,0.156,1),
+					[3] = Vector(0.647,0.549,1),
+					[4] = Vector(0.196,0.078,0.431),
+					[5] = Vector(0.235,0.078,0.705),
+				}
+			else
+				data.papmuzzlecol = valz["PAPMuzzle"]
+			end
+			if !valz["WallbuyColors"] then
+				data.wallbuydata = {
+					["glow"] = (nzMapping.Settings.boxlightcolor or valz["Row20"] or Color(0,150,200,255)),
+					["chalk"] = Color(255,255,255,255),
+					["alpha"] = 30,
+					["material"] = "sprites/wallbuy_light.vmt",
+					["sizew"] = 128,
+					["sizeh"] = 42,
+				}
+			else
+				data.wallbuydata = valz["WallbuyColors"]
+			end
 			if valz["Wunderfizz"] == nil then data.wunderfizzperklist = wunderfizzlist else data.wunderfizzperklist = valz["Wunderfizz"] end
-			if valz["PowerUps"] == nil then data.poweruplist = poweruplist else data.poweruplist = valz["PowerUps"] print("ass")end
+			if valz["PowerUps"] == nil then data.poweruplist = poweruplist else data.poweruplist = valz["PowerUps"] end
+			if valz["GumsList"] == nil then data.gumlist = gumlist else data.gumlist = valz["GumsList"] end
+			if valz["GumRoundPrices"] == nil then data.gumpricelist = nzGum.RoundPrices else data.gumpricelist = valz["GumRoundPrices"] end
+			if valz["GumChanceMults"] == nil then data.gummultipliers = nzGum.ChanceMultiplier else data.gummultipliers = valz["GumChanceMults"] end
+			if valz["GumResetRounds"] == nil then data.gumcountresetrounds = nzGum.RollCountResetRounds else data.gumcountresetrounds = valz["GumResetRounds"] end
+
+			--[[
 			if valz["ACRow1"] == nil then data.ac = false else data.ac = tobool(valz["ACRow1"]) end
 			if valz["ACRow2"] == nil then data.acwarn = nil else data.acwarn = tobool(valz["ACRow2"]) end
 			if valz["ACRow3"] == nil then data.acsavespot = nil else data.acsavespot = tobool(valz["ACRow3"]) end
 			if valz["ACRow4"] == nil then data.actptime = 5 else data.actptime = valz["ACRow4"] end
 			if valz["ACRow5"] == nil then data.acpreventboost = true else data.acpreventboost = tobool(valz["ACRow5"]) end
 			if valz["ACRow6"] == nil then data.acpreventcjump = false else data.acpreventcjump = tobool(valz["ACRow6"]) end
+			]]
+
+			if !valz["TimedGameplay"] then data.timedgame 					= nil else data.timedgame 			= valz["TimedGameplay"] end
+			if !valz["TimedGameplayTime"] then data.timedgametime 			= 120 else data.timedgametime 		= tonumber(valz["TimedGameplayTime"]) end
+			if !valz["TimedGameplayMaxTime"] then data.timedgamemaxtime 	= 600 else data.timedgamemaxtime 	= tonumber(valz["TimedGameplayMaxTime"]) end
+
+			if !valz["ColdWarPoints"] then data.cwpointssystem 				= nil else data.cwpointssystem 		= valz["ColdWarPoints"] end
+
+			-- Mixed Rounds --
+			if !valz["MixedSpawn1Enemy"] then data.mixedtype1 = "none" else data.mixedtype1 = valz["MixedSpawn1Enemy"] end
+			if !valz["MixedSpawn2Enemy"] then data.mixedtype2 = "none" else data.mixedtype2 = valz["MixedSpawn2Enemy"] end
+			if !valz["MixedSpawn3Enemy"] then data.mixedtype3 = "none" else data.mixedtype3 = valz["MixedSpawn3Enemy"] end
+			if !valz["MixedSpawn4Enemy"] then data.mixedtype4 = "none" else data.mixedtype4 = valz["MixedSpawn4Enemy"] end
+
+			if !valz["MixedSpawn1UseSpecial"] then data.mixedtype1usespecial 				= nil else data.mixedtype1usespecial 			= valz["MixedSpawn1UseSpecial"] end
+			if !valz["MixedSpawn2UseSpecial"] then data.mixedtype2usespecial 				= nil else data.mixedtype2usespecial 			= valz["MixedSpawn2UseSpecial"] end
+			if !valz["MixedSpawn3UseSpecial"] then data.mixedtype3usespecial 				= nil else data.mixedtype3usespecial 			= valz["MixedSpawn3UseSpecial"] end
+			if !valz["MixedSpawn4UseSpecial"] then data.mixedtype4usespecial 				= nil else data.mixedtype4usespecial 			= valz["MixedSpawn4UseSpecial"] end
+
+			if !valz["MixedSpawn1Chance"] 	then data.mixedtype1chance 						= 0 	else data.mixedtype1chance 			= tonumber(valz["MixedSpawn1Chance"]) 		end
+			if !valz["MixedSpawn1Rnd"] 		then data.mixedtype1rnd 						= 0 	else data.mixedtype1rnd 			= tonumber(valz["MixedSpawn1Rnd"]) 			end
+			if !valz["MixedSpawn1Mod"] 		then data.mixedtype1mod 						= 0.5 	else data.mixedtype1mod 			= tonumber(valz["MixedSpawn1Mod"]) 			end
+
+			if !valz["MixedSpawn2Chance"] 	then data.mixedtype2chance 						= 0 	else data.mixedtype2chance 			= tonumber(valz["MixedSpawn2Chance"]) 		end
+			if !valz["MixedSpawn2Rnd"] 		then data.mixedtype2rnd 						= 0 	else data.mixedtype2rnd 			= tonumber(valz["MixedSpawn2Rnd"]) 			end
+			if !valz["MixedSpawn2Mod"] 		then data.mixedtype2mod 						= 0.5 	else data.mixedtype2mod 			= tonumber(valz["MixedSpawn2Mod"]) 			end
+			
+			if !valz["MixedSpawn3Chance"] 	then data.mixedtype3chance 						= 0 	else data.mixedtype3chance 			= tonumber(valz["MixedSpawn3Chance"]) 		end
+			if !valz["MixedSpawn3Rnd"] 		then data.mixedtype3rnd 						= 0 	else data.mixedtype3rnd 			= tonumber(valz["MixedSpawn3Rnd"]) 			end
+			if !valz["MixedSpawn3Mod"] 		then data.mixedtype3mod 						= 0.5 	else data.mixedtype3mod 			= tonumber(valz["MixedSpawn3Mod"]) 			end
+			
+			if !valz["MixedSpawn4Chance"] 	then data.mixedtype4chance 						= 0 	else data.mixedtype4chance 			= tonumber(valz["MixedSpawn4Chance"]) 		end
+			if !valz["MixedSpawn4Rnd"] 		then data.mixedtype4rnd 						= 0 	else data.mixedtype4rnd 			= tonumber(valz["MixedSpawn4Rnd"]) 			end
+			if !valz["MixedSpawn4Mod"] 		then data.mixedtype4mod 						= 0.5 	else data.mixedtype4mod 			= tonumber(valz["MixedSpawn4Mod"]) 			end
+			-- Mixed Rounds --
 
 			-- Catalyst/ZCT --
 			if !valz["EnableBurningZombies"] then data.burning 				= nil else data.burning 			= valz["EnableBurningZombies"] end
@@ -1129,7 +1280,6 @@ nzTools:CreateTool("settings", {
 			if !valz["ElectricChance"] then data.electricchance 	= 10 else data.electricchance 		= tonumber(valz["ElectricChance"]) end
 			if !valz["ElectricRnd"] then data.electricrnd 			= 16 else data.electricrnd 			= tonumber(valz["ElectricRnd"]) end
 
-
 			for k,v in pairs(nzSounds.struct) do
 				if (valz["SndRow" .. k] == nil) then
 					data[v] = {}
@@ -1138,12 +1288,14 @@ nzTools:CreateTool("settings", {
 				end
 			end
 
-			--PrintTable(data)
-
 			nzMapping:SendMapData( data )
 		end
 
-			if (MapSDermaButton != nil) then
+		local color_grey_50 = Color(50, 50, 50)
+		local color_grey_200 = Color(200, 200, 200)
+		local color_red = Color(150, 50, 50)
+
+		if (MapSDermaButton != nil) then
 			MapSDermaButton:Remove()
 		end
 
@@ -1223,7 +1375,7 @@ nzTools:CreateTool("settings", {
 			colorChoose2:SetPalette(false)
 			colorChoose2:SetAlphaBar(false)
 			colorChoose2:Dock(TOP)
-			colorChoose2:SetSize(150, 150)
+			colorChoose2:SetSize(150, 220)
 			
 			local presets = vgui.Create("DComboBox", boxlightPanel)
 			presets:SetSize(60, 20)
@@ -1237,7 +1389,7 @@ nzTools:CreateTool("settings", {
 			presets:AddChoice("Infinite Warfare")
 			presets:AddChoice("WW2")
 			presets:AddChoice("No Light")
-			presets:AddChoice("PANK")
+			presets:AddChoice("Pink")			
 			presets.OnSelect = function(self, index, value)
 				if (value == "Default") then
 					colorChoose2:SetColor(Color(150,200,255))
@@ -1257,15 +1409,15 @@ nzTools:CreateTool("settings", {
 					colorChoose2:SetColor(Color(204, 102, 0))	
 				elseif (value == "No Light") then
 					colorChoose2:SetColor(Color(0, 0, 0))	
-				elseif (value == "PANK") then
-					colorChoose2:SetColor(Color(246, 255, 0))	
+				elseif (value == "Pink") then
+					colorChoose2:SetColor(Color(246, 0, 255))	
 				end
+
 				colorChoose2:ValueChanged(nil)
 			end
 
 			colorChoose2.ValueChanged = function(col)
 				valz["Row20"] = colorChoose2:GetColor()
-				print(valz["Row20"])
 			end
 		end
 		
@@ -1278,7 +1430,7 @@ nzTools:CreateTool("settings", {
 			fontColorChoice:SetPalette(false)
 			fontColorChoice:SetAlphaBar(false)
 			fontColorChoice:Dock(TOP)
-			fontColorChoice:SetSize(150, 150)
+			fontColorChoice:SetSize(150, 220)
 			
 			local presets = vgui.Create("DComboBox", fontPanel)
 			presets:SetSize(60, 20)
@@ -1294,10 +1446,718 @@ nzTools:CreateTool("settings", {
 
 			fontColorChoice.ValueChanged = function(col)
 				valz["Row39"] = fontColorChoice:GetColor()
-				print(valz["Row39"])
 			end
 		end
-				
+
+		local function AddWallbuyColors()
+			local wallbuyPanel = vgui.Create("DPanel", sheet)
+			sheet:AddSheet("Wallbuy Colors", wallbuyPanel, "icon16/palette.png", false, false, "Set the colors for wallbuy chalk outlines, and the wallbuy glow.")
+			wallbuyPanel:DockPadding(5, 5, 5, 5)
+
+			local textw1 = vgui.Create("DLabel", wallbuyPanel)
+			local textw2 = vgui.Create("DLabel", wallbuyPanel)
+			
+			local wallbuyColorGlow = vgui.Create("DColorMixer", wallbuyPanel)
+			local wallbuyColorChalk = vgui.Create("DColorMixer", wallbuyPanel)
+			local wallbuyColorAlpha = vgui.Create("DNumSlider", wallbuyPanel)
+			
+			local wallbuybar1 = vgui.Create("DImage", wallbuyPanel)
+			local wallbuyresetcol = vgui.Create("DButton", wallbuyPanel)
+			local wallbuyresetmat = vgui.Create("DButton", wallbuyPanel)
+			local wallbuybar2 = vgui.Create("DImage", wallbuyPanel)
+
+			local textw3 = vgui.Create("DLabel", wallbuyPanel)
+
+			local wallbuyColorSizeX = vgui.Create("DNumberWang", wallbuyPanel)
+			local wallbuyColorSizeY = vgui.Create("DNumberWang", wallbuyPanel)
+			local wallbuyColorMat = vgui.Create("DTextEntry", wallbuyPanel)
+
+			local textw = vgui.Create("DLabel", wallbuyColorSizeX)
+			local texth = vgui.Create("DLabel", wallbuyColorSizeY)
+
+			local wallbuyBack = vgui.Create("DImage", wallbuyPanel)
+			local wallbuyImage = vgui.Create("DImage", wallbuyPanel)
+			local wallbuyDrag = vgui.Create("DImage", wallbuyPanel)
+			local textw4 = vgui.Create("DLabel", wallbuyImage)
+
+			textw1:SetText("Wallbuy Glow Color")
+			textw1:SetFont("Trebuchet18")
+			textw1:SetTextColor(color_red)
+			textw1:SizeToContents()
+			textw1:SetPos(15, 0)
+
+			wallbuyColorGlow:SetColor(valz["WallbuyColors"]["glow"])
+			wallbuyColorGlow:SetPalette(false)
+			wallbuyColorGlow:SetAlphaBar(false)
+			wallbuyColorGlow:SetPos(10, 15)
+			wallbuyColorGlow:SetSize(200, 150)
+			wallbuyColorGlow.ValueChanged = function(col)
+				timer.Simple(0, function()
+					valz["WallbuyColors"]["glow"] = wallbuyColorGlow:GetColor()
+				end)
+			end
+
+			textw2:SetText("Wallbuy Chalk Color")
+			textw2:SetFont("Trebuchet18")
+			textw2:SetTextColor(color_red)
+			textw2:SizeToContents()
+			textw2:SetPos(260, 0)
+
+			wallbuyColorChalk:SetColor(valz["WallbuyColors"]["chalk"])
+			wallbuyColorChalk:SetPalette(false)
+			wallbuyColorChalk:SetAlphaBar(false)
+			wallbuyColorChalk:SetPos(255, 15)
+			wallbuyColorChalk:SetSize(200, 150)
+			wallbuyColorChalk.ValueChanged = function(col)
+				timer.Simple(0, function()
+					valz["WallbuyColors"]["chalk"] = wallbuyColorChalk:GetColor()
+				end)
+			end
+
+			wallbuyColorAlpha:SetText("Glow Alpha")
+			wallbuyColorAlpha:SetPos(10, 165)
+			wallbuyColorAlpha:SetSize(460, 30)
+			wallbuyColorAlpha.Label:SetTextColor(color_black)
+			wallbuyColorAlpha:SetMin(0)
+			wallbuyColorAlpha:SetMax(255)
+			wallbuyColorAlpha:SetDecimals(0)
+			wallbuyColorAlpha:SetValue(valz["WallbuyColors"]["alpha"])
+			wallbuyColorAlpha.OnValueChanged = function(val)
+				timer.Simple(0, function()
+					valz["WallbuyColors"]["alpha"] = wallbuyColorAlpha:GetValue()
+				end)
+			end
+
+			wallbuybar1:SetPos(0, 195)
+			wallbuybar1:SetImage("color")
+			wallbuybar1:SetImageColor(Color(200,200,200,255))
+			wallbuybar1:SetSize(470, 5)
+			
+			wallbuybar2:SetPos(0, 240)
+			wallbuybar2:SetImage("color")
+			wallbuybar2:SetImageColor(Color(200,200,200,255))
+			wallbuybar2:SetSize(470, 5)
+			
+			textw3:SetText("Wallbuy Glow Texture")
+			textw3:SetFont("Trebuchet18")
+			textw3:SetTextColor(color_red)
+			textw3:SizeToContents()
+			textw3:SetPos(150, 335)
+
+			wallbuyBack:SetPos(10, 250)
+			wallbuyBack:SetImage("color")
+			wallbuyBack:SetImageColor(color_black)
+			wallbuyBack:SetSize(96, 96)
+
+			wallbuyImage:SetPos(10, 250)
+			wallbuyImage:SetSize(96, 96)
+			wallbuyImage:SetImage(string.StripExtension(valz["WallbuyColors"]["material"]))
+
+			textw4:SetText("Previvew")
+			textw4:SetFont("Trebuchet18")
+			textw4:SetTextColor(color_red)
+			textw4:SizeToContents()
+			textw4:CenterHorizontal()
+
+			wallbuyDrag:SetMouseInputEnabled(true)
+			wallbuyDrag:Droppable("godhelpwhatfuck")
+			wallbuyDrag:SetPos(10, 250)
+			wallbuyDrag:SetImage("color")
+			wallbuyDrag:SetImageColor(color_transparent)
+			wallbuyDrag:SetSize(96, 96)
+			wallbuyDrag.Think = function()
+				if wallbuyDrag:IsDragging() then
+					local x, y = DProperties:CursorPos()
+					local maxx, maxy = sheet:GetSize()
+					x = math.Clamp(x, 0, maxx)
+					y = math.Clamp(y, 0, maxy-30)
+					x = x - 48
+					y = y - 48
+
+					wallbuyDrag:SetPos(x, y)
+					wallbuyImage:SetPos(x, y)
+					wallbuyBack:SetPos(x, y)
+					textw4:CenterHorizontal()
+				end
+			end
+
+			wallbuyColorSizeX:SetPos(10, 350)
+			wallbuyColorSizeX:SetSize(60, 30)
+			wallbuyColorSizeX:SetMin(0)
+			wallbuyColorSizeX:SetMax(512)
+			wallbuyColorSizeX:SetDecimals(0)
+			wallbuyColorSizeX:SetValue(valz["WallbuyColors"]["sizew"])
+			wallbuyColorSizeX.OnValueChanged = function(val)
+				timer.Simple(0, function()
+					valz["WallbuyColors"]["sizew"] = wallbuyColorSizeX:GetValue()
+				end)
+			end
+
+			wallbuyColorSizeY:SetPos(80, 350)
+			wallbuyColorSizeY:SetSize(60, 30)
+			wallbuyColorSizeY:SetMin(0)
+			wallbuyColorSizeY:SetMax(512)
+			wallbuyColorSizeY:SetDecimals(0)
+			wallbuyColorSizeY:SetValue(valz["WallbuyColors"]["sizeh"])
+			wallbuyColorSizeY.OnValueChanged = function(val)
+				timer.Simple(0, function()
+					valz["WallbuyColors"]["sizeh"] = wallbuyColorSizeY:GetValue()
+				end)
+			end
+
+			textw:SetText("(W)")
+			textw:SetFont("Trebuchet18")
+			textw:SetTextColor(color_red)
+			textw:SizeToContents()
+			textw:AlignRight(20)
+
+			texth:SetText("(H)")
+			texth:SetFont("Trebuchet18")
+			texth:SetTextColor(color_red)
+			texth:SizeToContents()
+			texth:AlignRight(20)
+
+			wallbuyColorMat:SetPlaceholderText("Glow Texture (VMT ONLY!!!!)")
+			wallbuyColorMat:SetPos(150, 350)
+			wallbuyColorMat:SetSize(255, 30)
+			wallbuyColorMat:SetValue(valz["WallbuyColors"]["material"])
+			wallbuyColorMat.OnTextChanged = function(val)
+				local cheatingtime = "nz-wallbuy_Colorer_"
+				local ourval = wallbuyColorMat:GetValue()
+				if ourval == "" then return end
+				if timer.Exists(cheatingtime) then timer.Remove(cheatingtime) end
+				timer.Create(cheatingtime, 0.65, 1, function()
+					if file.Exists("materials/"..ourval, "GAME") then
+						valz["WallbuyColors"]["material"] = ourval
+						wallbuyImage:SetImage(string.StripExtension(ourval))
+					end
+				end)
+			end
+
+			wallbuyresetcol:SetText("Reset Colors to Default")
+			wallbuyresetcol:SetPos(45, 205)
+			wallbuyresetcol:SetSize(180, 30)
+			wallbuyresetcol.DoClick = function()
+				valz["WallbuyColors"]["glow"] = nzMapping.Settings.boxlightcolor or Color(0,150,200,255)
+				valz["WallbuyColors"]["chalk"] = Color(255,255,255,255)
+				valz["WallbuyColors"]["alpha"] = 30
+				wallbuyColorGlow:SetColor(valz["WallbuyColors"]["glow"])
+				wallbuyColorChalk:SetColor(valz["WallbuyColors"]["chalk"])
+				wallbuyColorAlpha:SetValue(valz["WallbuyColors"]["alpha"])
+			end
+
+			wallbuyresetmat:SetText("Reset Material to Default")
+			wallbuyresetmat:SetPos(240, 205)
+			wallbuyresetmat:SetSize(180, 30)
+			wallbuyresetmat.DoClick = function()
+				valz["WallbuyColors"]["material"] = "sprites/wallbuy_light.vmt"
+				valz["WallbuyColors"]["sizew"] = 128
+				valz["WallbuyColors"]["sizeh"] = 42
+				wallbuyColorMat:SetValue(valz["WallbuyColors"]["material"])
+				wallbuyColorSizeX:SetValue(valz["WallbuyColors"]["sizew"])
+				wallbuyColorSizeY:SetValue(valz["WallbuyColors"]["sizeh"])
+			end
+		end
+
+		local function AddPowerupColors()
+			local powColPanel = vgui.Create("DPanel", sheet)
+			sheet:AddSheet("Powerup Colors", powColPanel, "icon16/palette.png", false, false, "Set the different glow colors for Powerups.")
+			powColPanel:DockPadding(5, 5, 5, 5)
+
+			local thefuckening = vgui.Create("DScrollPanel", powColPanel)
+			thefuckening:SetPos(0, 15)
+			thefuckening:SetSize(464, 376)
+			thefuckening:SetPaintBackground(true)
+			thefuckening:SetBackgroundColor(Color(225, 225, 225))
+
+			local textw1 = vgui.Create("DLabel", powColPanel)
+			textw1:SetText("Main")
+			textw1:SetFont("Trebuchet18")
+			textw1:SetTextColor(color_red)
+			textw1:SizeToContents()
+			textw1:SetPos(10, 0)
+
+			local textw2 = vgui.Create("DLabel", powColPanel)
+			textw2:SetText("Accent")
+			textw2:SetFont("Trebuchet18")
+			textw2:SetTextColor(color_red)
+			textw2:SizeToContents()
+			textw2:SetPos(165, 0)
+
+			local textw3 = vgui.Create("DLabel", powColPanel)
+			textw3:SetText("Extra")
+			textw3:SetFont("Trebuchet18")
+			textw3:SetTextColor(color_red)
+			textw3:SizeToContents()
+			textw3:SetPos(320, 0)
+
+			local globalstored = nzMapping.Settings.powerupcol and nzMapping.Settings.powerupcol["global"][1] or valz["PowerupColors"]["global"][1]
+			local colorChooseGlobal = vgui.Create("DColorMixer", thefuckening)
+			colorChooseGlobal:SetColor(Color(math.Round(globalstored[1]*255),math.Round(globalstored[2]*255),math.Round(globalstored[3]*255), 255))
+			colorChooseGlobal:SetPalette(false)
+			colorChooseGlobal:SetAlphaBar(false)
+			colorChooseGlobal:SetWangs(true)
+			colorChooseGlobal:SetPos(5, 30)
+			colorChooseGlobal:SetSize(150, 120)
+
+			colorChooseGlobal.ValueChanged = function(col)
+				timer.Simple(0, function()
+					local cum = colorChooseGlobal:GetColor()
+					valz["PowerupColors"]["global"][1] = Vector(cum.r/255, cum.g/255, cum.b/255)
+				end)
+			end
+
+			local globalstored2 = nzMapping.Settings.powerupcol and nzMapping.Settings.powerupcol["global"][2] or valz["PowerupColors"]["global"][2]
+			local colorChooseGlobal2 = vgui.Create("DColorMixer", thefuckening)
+			colorChooseGlobal2:SetColor(Color(math.Round(globalstored2[1]*255),math.Round(globalstored2[2]*255),math.Round(globalstored2[3]*255), 255))
+			colorChooseGlobal2:SetPalette(false)
+			colorChooseGlobal2:SetAlphaBar(false)
+			colorChooseGlobal2:SetWangs(true)
+			colorChooseGlobal2:SetPos(160, 30)
+			colorChooseGlobal2:SetSize(150, 120)
+
+			colorChooseGlobal2.ValueChanged = function(col)
+				timer.Simple(0, function()
+					local cum = colorChooseGlobal2:GetColor()
+					valz["PowerupColors"]["global"][2] = Vector(cum.r/255, cum.g/255, cum.b/255)
+				end)
+			end
+
+			local globalstored3 = nzMapping.Settings.powerupcol and nzMapping.Settings.powerupcol["global"][3] or valz["PowerupColors"]["global"][3]
+			local colorChooseGlobal3 = vgui.Create("DColorMixer", thefuckening)
+			colorChooseGlobal3:SetColor(Color(math.Round(globalstored3[1]*255),math.Round(globalstored3[2]*255),math.Round(globalstored3[3]*255), 255))
+			colorChooseGlobal3:SetPalette(false)
+			colorChooseGlobal3:SetAlphaBar(false)
+			colorChooseGlobal3:SetWangs(true)
+			colorChooseGlobal3:SetPos(315, 30)
+			colorChooseGlobal3:SetSize(150, 120)
+
+			colorChooseGlobal3.ValueChanged = function(col)
+				timer.Simple(0, function()
+					local cum = colorChooseGlobal3:GetColor()
+					valz["PowerupColors"]["global"][3] = Vector(cum.r/255, cum.g/255, cum.b/255)
+				end)
+			end
+
+			local ptype1 = vgui.Create("DLabel", thefuckening)
+			ptype1:SetText("Global Powerups")
+			ptype1:SetFont("Trebuchet18")
+			ptype1:SetTextColor(color_red)
+			ptype1:SizeToContents()
+			ptype1:SetPos(180, 15)
+
+			local globalreset = vgui.Create("DButton", thefuckening)
+			globalreset:SetText("Reset Global Colors")
+			globalreset:SetPos(5, 10)
+			globalreset:SizeToContents()
+			globalreset.DoClick = function()
+				colorChooseGlobal:SetColor(Color(math.Round(0.196*255),math.Round(1*255),0,255))
+				colorChooseGlobal2:SetColor(Color(math.Round(0.568*255),math.Round(1*255),math.Round(0.29*255),255))
+				colorChooseGlobal3:SetColor(Color(math.Round(0.262*255),math.Round(0.666*255),0,255))
+				valz["PowerupColors"]["global"][1] = Vector(0.196,1,0)
+				valz["PowerupColors"]["global"][2] = Vector(0.568,1,0.29)
+				valz["PowerupColors"]["global"][3] = Vector(0.262,0.666,0)
+			end
+
+			local localstored = nzMapping.Settings.powerupcol and nzMapping.Settings.powerupcol["local"][1] or valz["PowerupColors"]["local"][1]
+			local colorChooseLocal = vgui.Create("DColorMixer", thefuckening)
+			colorChooseLocal:SetColor(Color(math.Round(localstored[1]*255),math.Round(localstored[2]*255),math.Round(localstored[3]*255), 255))
+			colorChooseLocal:SetPalette(false)
+			colorChooseLocal:SetAlphaBar(false)
+			colorChooseLocal:SetPos(5, 180)
+			colorChooseLocal:SetSize(150, 120)
+
+			colorChooseLocal.ValueChanged = function(col)
+				timer.Simple(0, function()
+					local cum = colorChooseLocal:GetColor()
+					valz["PowerupColors"]["local"][1] = Vector(cum.r/255, cum.g/255, cum.b/255)
+				end)
+			end
+
+			local localstored2 = nzMapping.Settings.powerupcol and nzMapping.Settings.powerupcol["local"][2] or valz["PowerupColors"]["local"][2]
+			local colorChooseLocal2 = vgui.Create("DColorMixer", thefuckening)
+			colorChooseLocal2:SetColor(Color(math.Round(localstored2[1]*255),math.Round(localstored2[2]*255),math.Round(localstored2[3]*255), 255))
+			colorChooseLocal2:SetPalette(false)
+			colorChooseLocal2:SetAlphaBar(false)
+			colorChooseLocal2:SetPos(160, 180)
+			colorChooseLocal2:SetSize(150, 120)
+
+			colorChooseLocal2.ValueChanged = function(col)
+				timer.Simple(0, function()
+					local cum = colorChooseLocal2:GetColor()
+					valz["PowerupColors"]["local"][2] = Vector(cum.r/255, cum.g/255, cum.b/255)
+				end)
+			end
+
+			local localstored3 = nzMapping.Settings.powerupcol and nzMapping.Settings.powerupcol["local"][3] or valz["PowerupColors"]["local"][3]
+			local colorChooseLocal3 = vgui.Create("DColorMixer", thefuckening)
+			colorChooseLocal3:SetColor(Color(math.Round(localstored3[1]*255),math.Round(localstored3[2]*255),math.Round(localstored3[3]*255), 255))
+			colorChooseLocal3:SetPalette(false)
+			colorChooseLocal3:SetAlphaBar(false)
+			colorChooseLocal3:SetPos(315, 180)
+			colorChooseLocal3:SetSize(150, 120)
+
+			colorChooseLocal3.ValueChanged = function(col)
+				timer.Simple(0, function()
+					local cum = colorChooseLocal3:GetColor()
+					valz["PowerupColors"]["local"][3] = Vector(cum.r/255, cum.g/255, cum.b/255)
+				end)
+			end
+
+			local ptype2 = vgui.Create("DLabel", thefuckening)
+			ptype2:SetText("Local Powerups")
+			ptype2:SetFont("Trebuchet18")
+			ptype2:SetTextColor(color_red)
+			ptype2:SizeToContents()
+			ptype2:SetPos(180, 165)
+
+			local localreset = vgui.Create("DButton", thefuckening)
+			localreset:SetText("Reset Local Colors")
+			localreset:SetPos(5, 160)
+			localreset:SizeToContents()
+			localreset.DoClick = function()
+				colorChooseLocal:SetColor(Color(math.Round(0.372*255),math.Round(1*255),math.Round(0.951*255),255))
+				colorChooseLocal2:SetColor(Color(math.Round(0.556*255),math.Round(1*255),math.Round(0.99*255),255))
+				colorChooseLocal3:SetColor(Color(math.Round(0*255),math.Round(0.64*255),math.Round(0.666*255),255))
+				valz["PowerupColors"]["local"][1] = Vector(0.372,1,0.951)
+				valz["PowerupColors"]["local"][2] = Vector(0.556,1,0.99)
+				valz["PowerupColors"]["local"][3] = Vector(0,0.64,0.666)
+			end
+
+			local ministored = nzMapping.Settings.powerupcol and nzMapping.Settings.powerupcol["mini"][1] or valz["PowerupColors"]["mini"][1]
+			local colorChooseMini = vgui.Create("DColorMixer", thefuckening)
+			colorChooseMini:SetColor(Color(math.Round(ministored[1]*255),math.Round(ministored[2]*255),math.Round(ministored[3]*255), 255))
+			colorChooseMini:SetPalette(false)
+			colorChooseMini:SetAlphaBar(false)
+			colorChooseMini:SetPos(5, 330)
+			colorChooseMini:SetSize(150, 120)
+
+			colorChooseMini.ValueChanged = function(col)
+				timer.Simple(0, function()
+					local cum = colorChooseMini:GetColor()
+					valz["PowerupColors"]["mini"][1] = Vector(cum.r/255, cum.g/255, cum.b/255)
+				end)
+			end
+
+			local ministored2 = nzMapping.Settings.powerupcol and nzMapping.Settings.powerupcol["mini"][2] or valz["PowerupColors"]["mini"][2]
+			local colorChooseMini2 = vgui.Create("DColorMixer", thefuckening)
+			colorChooseMini2:SetColor(Color(math.Round(ministored2[1]*255),math.Round(ministored2[2]*255),math.Round(ministored2[3]*255), 255))
+			colorChooseMini2:SetPalette(false)
+			colorChooseMini2:SetAlphaBar(false)
+			colorChooseMini2:SetPos(160, 330)
+			colorChooseMini2:SetSize(150, 120)
+
+			colorChooseMini2.ValueChanged = function(col)
+				timer.Simple(0, function()
+					local cum = colorChooseMini2:GetColor()
+					valz["PowerupColors"]["mini"][2] = Vector(cum.r/255, cum.g/255, cum.b/255)
+				end)
+			end
+
+			local ministored3 = nzMapping.Settings.powerupcol and nzMapping.Settings.powerupcol["mini"][3] or valz["PowerupColors"]["mini"][3]
+			local colorChooseMini3 = vgui.Create("DColorMixer", thefuckening)
+			colorChooseMini3:SetColor(Color(math.Round(ministored3[1]*255),math.Round(ministored3[2]*255),math.Round(ministored3[3]*255), 255))
+			colorChooseMini3:SetPalette(false)
+			colorChooseMini3:SetAlphaBar(false)
+			colorChooseMini3:SetPos(315, 330)
+			colorChooseMini3:SetSize(150, 120)
+
+			colorChooseMini3.ValueChanged = function(col)
+				timer.Simple(0, function()
+					local cum = colorChooseMini3:GetColor()
+					valz["PowerupColors"]["mini"][3] = Vector(cum.r/255, cum.g/255, cum.b/255)
+				end)
+			end
+
+			local ptype3 = vgui.Create("DLabel", thefuckening)
+			ptype3:SetText("Mini Powerups")
+			ptype3:SetFont("Trebuchet18")
+			ptype3:SetTextColor(color_red)
+			ptype3:SizeToContents()
+			ptype3:SetPos(180, 315)
+
+			local minireset = vgui.Create("DButton", thefuckening)
+			minireset:SetText("Reset Mini Colors")
+			minireset:SetPos(5, 310)
+			minireset:SizeToContents()
+			minireset.DoClick = function()
+				colorChooseMini:SetColor(Color(math.Round(1*255),math.Round(0.823*255),math.Round(0*255),255))
+				colorChooseMini2:SetColor(Color(math.Round(1*255),math.Round(0.854*255),math.Round(0.549*255),255))
+				colorChooseMini3:SetColor(Color(math.Round(0.627*255),math.Round(0.431*255),math.Round(0*255),255))
+				valz["PowerupColors"]["mini"][1] = Vector(1,0.823,0)
+				valz["PowerupColors"]["mini"][2] = Vector(1,0.854,0.549)
+				valz["PowerupColors"]["mini"][3] = Vector(0.627,0.431,0)
+			end
+
+			local antistored = nzMapping.Settings.powerupcol and nzMapping.Settings.powerupcol["anti"][1] or valz["PowerupColors"]["anti"][1]
+			local colorChooseAnti = vgui.Create("DColorMixer", thefuckening)
+			colorChooseAnti:SetColor(Color(math.Round(antistored[1]*255),math.Round(antistored[2]*255),math.Round(antistored[3]*255), 255))
+			colorChooseAnti:SetPalette(false)
+			colorChooseAnti:SetAlphaBar(false)
+			colorChooseAnti:SetPos(5, 480)
+			colorChooseAnti:SetSize(150, 120)
+
+			colorChooseAnti.ValueChanged = function(col)
+				timer.Simple(0, function()
+					local cum = colorChooseAnti:GetColor()
+					valz["PowerupColors"]["anti"][1] = Vector(cum.r/255, cum.g/255, cum.b/255)
+				end)
+			end
+
+			local antistored2 = nzMapping.Settings.powerupcol and nzMapping.Settings.powerupcol["anti"][2] or valz["PowerupColors"]["anti"][2]
+			local colorChooseAnti2 = vgui.Create("DColorMixer", thefuckening)
+			colorChooseAnti2:SetColor(Color(math.Round(antistored2[1]*255),math.Round(antistored2[2]*255),math.Round(antistored2[3]*255), 255))
+			colorChooseAnti2:SetPalette(false)
+			colorChooseAnti2:SetAlphaBar(false)
+			colorChooseAnti2:SetPos(160, 480)
+			colorChooseAnti2:SetSize(150, 120)
+
+			colorChooseAnti2.ValueChanged = function(col)
+				timer.Simple(0, function()
+					local cum = colorChooseAnti2:GetColor()
+					valz["PowerupColors"]["anti"][2] = Vector(cum.r/255, cum.g/255, cum.b/255)
+				end)
+			end
+
+			local antistored3 = nzMapping.Settings.powerupcol and nzMapping.Settings.powerupcol["anti"][3] or valz["PowerupColors"]["anti"][3]
+			local colorChooseAnti3 = vgui.Create("DColorMixer", thefuckening)
+			colorChooseAnti3:SetColor(Color(math.Round(antistored3[1]*255),math.Round(antistored3[2]*255),math.Round(antistored3[3]*255), 255))
+			colorChooseAnti3:SetPalette(false)
+			colorChooseAnti3:SetAlphaBar(false)
+			colorChooseAnti3:SetPos(315, 480)
+			colorChooseAnti3:SetSize(150, 120)
+
+			colorChooseAnti3.ValueChanged = function(col)
+				timer.Simple(0, function()
+					local cum = colorChooseAnti3:GetColor()
+					valz["PowerupColors"]["anti"][3] = Vector(cum.r/255, cum.g/255, cum.b/255)
+				end)
+			end
+
+			local ptype4 = vgui.Create("DLabel", thefuckening)
+			ptype4:SetText("Anti Powerups")
+			ptype4:SetFont("Trebuchet18")
+			ptype4:SetTextColor(color_red)
+			ptype4:SizeToContents()
+			ptype4:SetPos(180, 465)
+
+			local antireset = vgui.Create("DButton", thefuckening)
+			antireset:SetText("Reset Anti Colors")
+			antireset:SetPos(5, 460)
+			antireset:SizeToContents()
+			antireset.DoClick = function()
+				colorChooseAnti:SetColor(Color(math.Round(1*255),math.Round(0.156*255),math.Round(0.156*255), 255))
+				colorChooseAnti2:SetColor(Color(math.Round(1*255),math.Round(0.392*255),math.Round(0.392*255), 255))
+				colorChooseAnti3:SetColor(Color(math.Round(0.705*255),math.Round(0*255),math.Round(0*255), 255))
+				valz["PowerupColors"]["anti"][1] = Vector(1,0.156,0.156)
+				valz["PowerupColors"]["anti"][2] = Vector(1,0.392,0.392)
+				valz["PowerupColors"]["anti"][3] = Vector(0.705,0,0)
+			end
+
+			local tombstonestored = nzMapping.Settings.powerupcol and nzMapping.Settings.powerupcol["tombstone"][1] or valz["PowerupColors"]["tombstone"][1]
+			local colorChooseTomb = vgui.Create("DColorMixer", thefuckening)
+			colorChooseTomb:SetColor(Color(math.Round(tombstonestored[1]*255),math.Round(tombstonestored[2]*255),math.Round(tombstonestored[3]*255), 255))
+			colorChooseTomb:SetPalette(false)
+			colorChooseTomb:SetAlphaBar(false)
+			colorChooseTomb:SetPos(5, 630)
+			colorChooseTomb:SetSize(150, 120)
+
+			colorChooseTomb.ValueChanged = function(col)
+				timer.Simple(0, function()
+					local cum = colorChooseTomb:GetColor()
+					valz["PowerupColors"]["tombstone"][1] = Vector(cum.r/255, cum.g/255, cum.b/255)
+				end)
+			end
+
+			local tombstonestored2 = nzMapping.Settings.powerupcol and nzMapping.Settings.powerupcol["tombstone"][2] or valz["PowerupColors"]["tombstone"][2]
+			local colorChooseTomb2 = vgui.Create("DColorMixer", thefuckening)
+			colorChooseTomb2:SetColor(Color(math.Round(tombstonestored2[1]*255),math.Round(tombstonestored2[2]*255),math.Round(tombstonestored2[3]*255), 255))
+			colorChooseTomb2:SetPalette(false)
+			colorChooseTomb2:SetAlphaBar(false)
+			colorChooseTomb2:SetPos(160, 630)
+			colorChooseTomb2:SetSize(150, 120)
+
+			colorChooseTomb2.ValueChanged = function(col)
+				timer.Simple(0, function()
+					local cum = colorChooseTomb2:GetColor()
+					valz["PowerupColors"]["tombstone"][2] = Vector(cum.r/255, cum.g/255, cum.b/255)
+				end)
+			end
+
+			local tombstonestored3 = nzMapping.Settings.powerupcol and nzMapping.Settings.powerupcol["tombstone"][3] or valz["PowerupColors"]["tombstone"][3]
+			local colorChooseTomb3 = vgui.Create("DColorMixer", thefuckening)
+			colorChooseTomb3:SetColor(Color(math.Round(tombstonestored3[1]*255),math.Round(tombstonestored3[2]*255),math.Round(tombstonestored3[3]*255), 255))
+			colorChooseTomb3:SetPalette(false)
+			colorChooseTomb3:SetAlphaBar(false)
+			colorChooseTomb3:SetPos(315, 630)
+			colorChooseTomb3:SetSize(150, 120)
+
+			colorChooseTomb3.ValueChanged = function(col)
+				timer.Simple(0, function()	
+					local cum = colorChooseTomb3:GetColor()
+					valz["PowerupColors"]["tombstone"][3] = Vector(cum.r/255, cum.g/255, cum.b/255)
+				end)
+			end
+
+			local ptype5 = vgui.Create("DLabel", thefuckening)
+			ptype5:SetText("Tombstone")
+			ptype5:SetFont("Trebuchet18")
+			ptype5:SetTextColor(color_red)
+			ptype5:SizeToContents()
+			ptype5:SetPos(180, 615)
+
+			local tombreset = vgui.Create("DButton", thefuckening)
+			tombreset:SetText("Reset Tombstone Colors")
+			tombreset:SetPos(5, 610)
+			tombreset:SizeToContents()
+			tombreset.DoClick = function()
+				colorChooseTomb:SetColor(Color(math.Round(0.568*255),math.Round(0*255),math.Round(1*255), 255))
+				colorChooseTomb2:SetColor(Color(math.Round(0.705*255),math.Round(0.392*255),math.Round(1*255), 255))
+				colorChooseTomb3:SetColor(Color(math.Round(0.431*255),math.Round(0*255),math.Round(0.784*255), 255))
+				valz["PowerupColors"]["tombstone"][1] = Vector(0.568,0,1)
+				valz["PowerupColors"]["tombstone"][2] = Vector(0.705,0.392,1)
+				valz["PowerupColors"]["tombstone"][3] = Vector(0.431,0,0.784)
+			end
+		end
+
+		local function AddMuzzleflashColors()
+			local papflashColPanel = vgui.Create("DPanel", sheet)
+			sheet:AddSheet("PaP Muzzleflash Colors", papflashColPanel, "icon16/palette.png", false, false, "Sets the muzzleflash colors for weapons that use the 'muz_pap' effect.")
+			papflashColPanel:DockPadding(5, 5, 5, 5)
+
+			local textw1 = vgui.Create("DLabel", papflashColPanel)
+			textw1:SetText("Core")
+			textw1:SetFont("Trebuchet18")
+			textw1:SetTextColor(color_red)
+			textw1:SizeToContents()
+			textw1:SetPos(10, 0)
+
+			local textw2 = vgui.Create("DLabel", papflashColPanel)
+			textw2:SetText("Cross")
+			textw2:SetFont("Trebuchet18")
+			textw2:SetTextColor(color_red)
+			textw2:SizeToContents()
+			textw2:SetPos(165, 0)
+
+			local textw3 = vgui.Create("DLabel", papflashColPanel)
+			textw3:SetText("Sparks")
+			textw3:SetFont("Trebuchet18")
+			textw3:SetTextColor(color_red)
+			textw3:SizeToContents()
+			textw3:SetPos(320, 0)
+
+			local textw4 = vgui.Create("DLabel", papflashColPanel)
+			textw4:SetText("Glow A")
+			textw4:SetFont("Trebuchet18")
+			textw4:SetTextColor(color_red)
+			textw4:SizeToContents()
+			textw4:SetPos(95, 145)
+
+			local textw5 = vgui.Create("DLabel", papflashColPanel)
+			textw5:SetText("Glow B")
+			textw5:SetFont("Trebuchet18")
+			textw5:SetTextColor(color_red)
+			textw5:SizeToContents()
+			textw5:SetPos(250, 145)
+
+			local papcolstored = nzMapping.Settings.papmuzzlecol and nzMapping.Settings.papmuzzlecol[1] or valz["PAPMuzzle"][1]
+			local colorChoosePAP1 = vgui.Create("DColorMixer", papflashColPanel)
+			colorChoosePAP1:SetColor(Color(math.Round(papcolstored[1]*255),math.Round(papcolstored[2]*255),math.Round(papcolstored[3]*255), 255))
+			colorChoosePAP1:SetPalette(false)
+			colorChoosePAP1:SetAlphaBar(false)
+			colorChoosePAP1:SetWangs(true)
+			colorChoosePAP1:SetPos(5, 15)
+			colorChoosePAP1:SetSize(150, 120)
+
+			colorChoosePAP1.ValueChanged = function(col)
+				timer.Simple(0, function()
+					local cum = colorChoosePAP1:GetColor()
+					valz["PAPMuzzle"][1] = Vector(cum.r/255, cum.g/255, cum.b/255)
+				end)
+			end
+
+			local papcolstored2 = nzMapping.Settings.papmuzzlecol and nzMapping.Settings.papmuzzlecol[2] or valz["PAPMuzzle"][2]
+			local colorChoosePAP2 = vgui.Create("DColorMixer", papflashColPanel)
+			colorChoosePAP2:SetColor(Color(math.Round(papcolstored2[1]*255),math.Round(papcolstored2[2]*255),math.Round(papcolstored2[3]*255), 255))
+			colorChoosePAP2:SetPalette(false)
+			colorChoosePAP2:SetAlphaBar(false)
+			colorChoosePAP2:SetWangs(true)
+			colorChoosePAP2:SetPos(160, 15)
+			colorChoosePAP2:SetSize(150, 120)
+
+			colorChoosePAP2.ValueChanged = function(col)
+				timer.Simple(0, function()
+					local cum = colorChoosePAP2:GetColor()
+					valz["PAPMuzzle"][2] = Vector(cum.r/255, cum.g/255, cum.b/255)
+				end)
+			end
+
+			local papcolstored3 = nzMapping.Settings.papmuzzlecol and nzMapping.Settings.papmuzzlecol[3] or valz["PAPMuzzle"][3]
+			local colorChoosePAP3 = vgui.Create("DColorMixer", papflashColPanel)
+			colorChoosePAP3:SetColor(Color(math.Round(papcolstored3[1]*255),math.Round(papcolstored3[2]*255),math.Round(papcolstored3[3]*255), 255))
+			colorChoosePAP3:SetPalette(false)
+			colorChoosePAP3:SetAlphaBar(false)
+			colorChoosePAP3:SetWangs(true)
+			colorChoosePAP3:SetPos(315, 15)
+			colorChoosePAP3:SetSize(150, 120)
+
+			colorChoosePAP3.ValueChanged = function(col)
+				timer.Simple(0, function()
+					local cum = colorChoosePAP3:GetColor()
+					valz["PAPMuzzle"][3] = Vector(cum.r/255, cum.g/255, cum.b/255)
+				end)
+			end
+
+			local papcolstored4 = nzMapping.Settings.papmuzzlecol and nzMapping.Settings.papmuzzlecol[4] or valz["PAPMuzzle"][4]
+			local colorChoosePAP4 = vgui.Create("DColorMixer", papflashColPanel)
+			colorChoosePAP4:SetColor(Color(math.Round(papcolstored4[1]*255),math.Round(papcolstored4[2]*255),math.Round(papcolstored4[3]*255), 255))
+			colorChoosePAP4:SetPalette(false)
+			colorChoosePAP4:SetAlphaBar(false)
+			colorChoosePAP4:SetWangs(true)
+			colorChoosePAP4:SetPos(90, 160)
+			colorChoosePAP4:SetSize(150, 120)
+
+			colorChoosePAP4.ValueChanged = function(col)
+				timer.Simple(0, function()
+					local cum = colorChoosePAP4:GetColor()
+					valz["PAPMuzzle"][4] = Vector(cum.r/255, cum.g/255, cum.b/255)
+				end)
+			end
+
+			local papcolstored5 = nzMapping.Settings.papmuzzlecol and nzMapping.Settings.papmuzzlecol[5] or valz["PAPMuzzle"][5]
+			local colorChoosePAP5 = vgui.Create("DColorMixer", papflashColPanel)
+			colorChoosePAP5:SetColor(Color(math.Round(papcolstored5[1]*255),math.Round(papcolstored5[2]*255),math.Round(papcolstored5[3]*255), 255))
+			colorChoosePAP5:SetPalette(false)
+			colorChoosePAP5:SetAlphaBar(false)
+			colorChoosePAP5:SetWangs(true)
+			colorChoosePAP5:SetPos(245, 160)
+			colorChoosePAP5:SetSize(150, 120)
+
+			colorChoosePAP5.ValueChanged = function(col)
+				timer.Simple(0, function()
+					local cum = colorChoosePAP5:GetColor()
+					valz["PAPMuzzle"][5] = Vector(cum.r/255, cum.g/255, cum.b/255)
+				end)
+			end
+
+			local papreset = vgui.Create("DButton", papflashColPanel)
+			papreset:SetText("Reset Colors to Default")
+			papreset:SetPos(160, 290)
+			papreset:SizeToContents()
+			papreset.DoClick = function()
+				colorChoosePAP1:SetColor(Color(math.Round(0.470*255), 0, 255, 255))
+				colorChoosePAP2:SetColor(Color(math.Round(0.431*255), math.Round(0.156*255), 255, 255))
+				colorChoosePAP3:SetColor(Color(math.Round(0.647*255), math.Round(0.549*255), 255, 255))
+				colorChoosePAP4:SetColor(Color(math.Round(0.196*255), math.Round(0.078*255), math.Round(0.431*255), 255))
+				colorChoosePAP5:SetColor(Color(math.Round(0.235*255), math.Round(0.078*255), math.Round(0.705*255), 255))
+				valz["PAPMuzzle"][1] = Vector(0.470,0,1)
+				valz["PAPMuzzle"][2] = Vector(0.431,0.156,1)
+				valz["PAPMuzzle"][3] = Vector(0.647,0.549,1)
+				valz["PAPMuzzle"][4] = Vector(0.196,0.078,0.431)
+				valz["PAPMuzzle"][5] = Vector(0.235,0.078,0.705)
+			end
+		end
+
 			local weplist = {}
 			local numweplist = 0
 
@@ -1309,7 +2169,7 @@ nzTools:CreateTool("settings", {
 			rbweplist:SetPos(0, 0)
 			rbweplist:SetSize(365, 350)
 			rbweplist:SetPaintBackground(true)
-			rbweplist:SetBackgroundColor( Color(200, 200, 200) )
+			rbweplist:SetBackgroundColor( color_grey_200 )
 
 			local function InsertWeaponToList(name, class, weight, tooltip)
 				weight = weight or 10
@@ -1676,6 +2536,16 @@ nzTools:CreateTool("settings", {
 					["ToolTip"] = "Sound that plays upon the Power being turned on.",
 					["Bind"] = valz["SndRow40"]
 				},
+				[12] = {
+					["Title"] = "Who's Who Looper",
+					["ToolTip"] = "Sound that plays when Who's Who teleport is used.",
+					["Bind"] = valz["SndRow41"]
+				},
+				[13] = {
+					["Title"] = "Kaboom Sound",
+					["ToolTip"] = "Sound that plays on all clients when a nuke powerup is picked up.",
+					["Bind"] = valz["SndRow44"]
+				},
 				--[[[10] = {
 					["Title"] = "Round Underscore Song",
 					["ToolTip"] = "Music that plays during normal rounds.(Can have multiple)",
@@ -1844,10 +2714,6 @@ nzTools:CreateTool("settings", {
 			sndPanel:SetSize(sndheight, (sndwidth - 50))
 			sheet:AddSheet("Custom Sounds", sndPanel, "icon16/sound_add.png", false, false, "Customize the sounds that play for certain events.")
 
-			AddEyeStuff()
-			AddBoxStuff()
-			AddFontColor()
-			
 			local wrapper = vgui.Create("DPanel", sndPanel)
 			wrapper:SetSize(500, 363)
 			wrapper:SetPos(0, 0)
@@ -2064,8 +2930,333 @@ nzTools:CreateTool("settings", {
 			end
 			AddCollapseCB(mainCat)
 			AddCollapseCB(powerupCat)
-			AddCollapseCB(boxCat)	
+			AddCollapseCB(boxCat)
+
 			------------------------------------------------------------------------
+			//Gums
+			------------------------------------------------------------------------
+			local function AddGumStuff()
+				local gumspanel = vgui.Create("DPanel", sheet)
+				sheet:AddSheet("Gobble Gums", gumspanel, "icon16/sport_8ball.png", false, false, "Set which powerups can be dropped from zombies.")
+				gumspanel.Paint = function() return end
+
+				local gumslistpanel = vgui.Create("DScrollPanel", gumspanel)
+				gumslistpanel:SetPos(0, 200)
+				gumslistpanel:SetSize(465, 195)
+				gumslistpanel:SetPaintBackground(true)
+				gumslistpanel:SetBackgroundColor( color_grey_200 )
+
+				local gumschecklist = vgui.Create( "DIconLayout", gumslistpanel )
+				gumschecklist:SetSize(465, 195)
+				gumschecklist:SetPos(2, 2)
+				gumschecklist:SetSpaceY( 5 )
+				gumschecklist:SetSpaceX( 5 )
+
+				local purpgum = {}
+				local greengum = {}
+				local oranggum = {}
+				local bluegum = {}
+				for k, v in SortedPairsByMemberValue(nzGum.Gums, "type", false) do
+					if v.type == nzGum.Types.USABLE or v.type == nzGum.Types.USABLE_WITH_TIMER then
+						purpgum[k] = (v.rare or nzGum.RareTypes.DEFAULT)
+					end
+					if v.type == nzGum.Types.TIME then
+						greengum[k] = (v.rare or nzGum.RareTypes.DEFAULT)
+					end
+					if v.type == nzGum.Types.SPECIAL then
+						oranggum[k] = (v.rare or nzGum.RareTypes.DEFAULT)
+					end
+					if v.type == nzGum.Types.ROUNDS then
+						bluegum[k] = (v.rare or nzGum.RareTypes.DEFAULT)
+					end
+				end
+
+				local sorted_gums = {}
+				for k, v in SortedPairsByValue(purpgum) do
+					sorted_gums[#sorted_gums + 1] = k
+				end
+				for k, v in SortedPairsByValue(greengum) do
+					sorted_gums[#sorted_gums + 1] = k
+				end
+				for k, v in SortedPairsByValue(oranggum) do
+					sorted_gums[#sorted_gums + 1] = k
+				end
+				for k, v in SortedPairsByValue(bluegum) do
+					sorted_gums[#sorted_gums + 1] = k
+				end
+
+				for _, id in pairs(sorted_gums) do
+					local data = nzGum.Gums[id]
+					if not data then continue end
+
+					local rarity = data.rare or nzGum.RareTypes.DEFAULT
+
+					local gumdesc = "("..id..") "..data.desc or "No Description Available"
+					if nzGum:GetHowActivatesText(id) ~= "" then
+						gumdesc = gumdesc.." ("..nzGum:GetHowActivatesText(id)..")"
+					end
+
+					local gumitem = gumschecklist:Add("DPanel")
+					gumitem:SetSize(145, 40)
+					gumitem:SetTooltip(gumdesc)
+
+					local check = gumitem:Add("DCheckBox")
+					check:SetPos(128,2)
+
+					if (nzMapping.Settings.gumlist and istable(nzMapping.Settings.gumlist[id]) and isbool(nzMapping.Settings.gumlist[id][1])) then
+						check:SetValue(nzMapping.Settings.gumlist[id][1])
+					else
+						nzMapping.Settings.gumlist[id] = {true, nzGum.RollCounts[rarity]}
+						check:SetValue(true)
+					end
+
+					check.OnChange = function(self, val)
+						if !valz["GumsList"][id] then
+							valz["GumsList"][id] = {true, nzGum.RollCounts[rarity]}
+						end
+						valz["GumsList"][id][1] = val
+					end
+
+					local name = gumitem:Add("DLabel")
+					name:SetTextColor(color_grey_50)
+					name:SetSize(88, 20)
+					name:SetPos(42,1)
+					name:SetText(data.name)
+
+					local text = gumitem:Add("DLabel")
+					text:SetText(nzGum.RarityNames[rarity])
+					text:SetFont("Trebuchet18")
+					text:SetTextColor(color_red)
+					text:SizeToContents()
+					text:SetPos(42, 20)
+
+					local icon = gumitem:Add("DImage")
+					icon:SetPos(2, 2)
+					icon:SetSize(38, 38)
+					icon:SetMaterial(data.icon)
+
+					local wang = gumitem:Add("DNumberWang")
+					wang:SetSize(23, 18)
+					wang:SetPos(120, 20)
+					wang:SetMin(0)
+					wang:SetMax(99)
+					wang:SetDecimals(0)
+					wang:SetValue(nzMapping.Settings.gumlist[id][2])
+					wang.OnValueChanged = function(val)
+						timer.Simple(0, function()
+							valz["GumsList"][id][2] = wang:GetValue()
+						end)
+					end
+				end
+
+				local gumproperties = vgui.Create( "DProperties", gumspanel )
+				gumproperties:SetSize(465, 200)
+				gumproperties:SetPos(0, 0)
+
+				-- Round Resets ---------------------------------------------------------------------
+				local gumrow1 = gumproperties:CreateRow("Gum refill round intervals", "Normal")
+				gumrow1:Setup("Int", { min = 1, max = 255 })
+				gumrow1:SetValue(valz["GumResetRounds"][nzGum.RareTypes.DEFAULT])
+				gumrow1.DataChanged = function( _, val ) valz["GumResetRounds"][nzGum.RareTypes.DEFAULT] = math.max(val, 1) end
+				gumrow1:SetTooltip("How many rounds it takes for a 'Normal' rarity gum to refill (DEFAULT: 4).")
+
+				local gumrow2 = gumproperties:CreateRow("Gum refill round intervals", "Mega")
+				gumrow2:Setup("Int", { min = 1, max = 255 })
+				gumrow2:SetValue(valz["GumResetRounds"][nzGum.RareTypes.MEGA])
+				gumrow2.DataChanged = function( _, val ) valz["GumResetRounds"][nzGum.RareTypes.MEGA] = math.max(val, 1) end
+				gumrow2:SetTooltip("How many rounds it takes for a 'Mega' rarity gum to refill (DEFAULT: 4).")
+
+				local gumrow3 = gumproperties:CreateRow("Gum refill round intervals", "Rare Mega")
+				gumrow3:Setup("Int", { min = 1, max = 255 })
+				gumrow3:SetValue(valz["GumResetRounds"][nzGum.RareTypes.RAREMEGA])
+				gumrow3.DataChanged = function( _, val ) valz["GumResetRounds"][nzGum.RareTypes.RAREMEGA] = math.max(val, 1) end
+				gumrow3:SetTooltip("How many rounds it takes for a 'Rare Mega' rarity gum to refill (DEFAULT: 6).")
+
+				local gumrow4 = gumproperties:CreateRow("Gum refill round intervals", "Ultra Rare Mega")
+				gumrow4:Setup("Int", { min = 1, max = 255 })
+				gumrow4:SetValue(valz["GumResetRounds"][nzGum.RareTypes.ULTRARAREMEGA])
+				gumrow4.DataChanged = function( _, val ) valz["GumResetRounds"][nzGum.RareTypes.ULTRARAREMEGA] = math.max(val, 1) end
+				gumrow4:SetTooltip("How many rounds it takes for a 'Ultra Rare Mega' rarity gum to refill (DEFAULT: 8).")
+
+				local gumrow5 = gumproperties:CreateRow("Gum refill round intervals", "Whimsical")
+				gumrow5:Setup("Int", { min = 1, max = 255 })
+				gumrow5:SetValue(valz["GumResetRounds"][nzGum.RareTypes.PINWHEEL])
+				gumrow5.DataChanged = function( _, val ) valz["GumResetRounds"][nzGum.RareTypes.PINWHEEL] = math.max(val, 1) end
+				gumrow5:SetTooltip("How many rounds it takes for a 'Whimsical' rarity gum to refill (DEFAULT: 2).")
+
+				local thefucker1 = gumproperties.Categories["Gum refill round intervals"]
+				local resetrounds = vgui.Create("DButton", thefucker1)
+				resetrounds:SetText("Reset")
+				resetrounds:SetPos(145, 2)
+				resetrounds:SetSize(40, 20)
+				resetrounds.DoClick = function()
+					valz["GumResetRounds"] = {
+						[nzGum.RareTypes.DEFAULT] = 4,
+						[nzGum.RareTypes.MEGA] = 4,
+						[nzGum.RareTypes.RAREMEGA] = 6,
+						[nzGum.RareTypes.ULTRARAREMEGA] = 8,
+						[nzGum.RareTypes.PINWHEEL] = 2,
+					}
+					gumrow1:SetValue(4)
+					gumrow2:SetValue(4)
+					gumrow3:SetValue(6)
+					gumrow4:SetValue(8)
+					gumrow5:SetValue(2)
+				end
+
+				-- Chance Modifiers ---------------------------------------------------------------------
+				local gumultrow1 = gumproperties:CreateRow("Gum chance multipliers", "Normal")
+				gumultrow1:Setup("Float", { min = 0.01, max = 1 })
+				gumultrow1:SetValue(valz["GumChanceMults"][nzGum.RareTypes.DEFAULT])
+				gumultrow1.DataChanged = function( _, val ) valz["GumChanceMults"][nzGum.RareTypes.DEFAULT] = val end
+				gumultrow1:SetTooltip("'Normal' rarity gum chances are multiplied by this value before rolling (DEFAULT: 1).")
+
+				local gumultrow2 = gumproperties:CreateRow("Gum chance multipliers", "Mega")
+				gumultrow2:Setup("Float", { min = 0.01, max = 1 })
+				gumultrow2:SetValue(valz["GumChanceMults"][nzGum.RareTypes.MEGA])
+				gumultrow2.DataChanged = function( _, val ) valz["GumChanceMults"][nzGum.RareTypes.MEGA] = val end
+				gumultrow2:SetTooltip("'Mega' rarity gum chances are multiplied by this value before rolling (DEFAULT: 0.4).")
+
+				local gumultrow3 = gumproperties:CreateRow("Gum chance multipliers", "Rare Mega")
+				gumultrow3:Setup("Float", { min = 0.01, max = 1 })
+				gumultrow3:SetValue(valz["GumChanceMults"][nzGum.RareTypes.RAREMEGA])
+				gumultrow3.DataChanged = function( _, val ) valz["GumChanceMults"][nzGum.RareTypes.RAREMEGA] = val end
+				gumultrow3:SetTooltip("'Rare Mega' rarity gum chances are multiplied by this value before rolling (DEFAULT: 0.2).")
+
+				local gumultrow4 = gumproperties:CreateRow("Gum chance multipliers", "Ultra Rare Mega")
+				gumultrow4:Setup("Float", { min = 0.01, max = 1 })
+				gumultrow4:SetValue(valz["GumChanceMults"][nzGum.RareTypes.ULTRARAREMEGA])
+				gumultrow4.DataChanged = function( _, val ) valz["GumChanceMults"][nzGum.RareTypes.ULTRARAREMEGA] = val end
+				gumultrow4:SetTooltip("'Ultra Rare Mega' rarity gum chances are multiplied by this value before rolling (DEFAULT: 0.1).")
+
+				local gumultrow5 = gumproperties:CreateRow("Gum chance multipliers", "Whimsical")
+				gumultrow5:Setup("Float", { min = 0.01, max = 1 })
+				gumultrow5:SetValue(valz["GumChanceMults"][nzGum.RareTypes.PINWHEEL])
+				gumultrow5.DataChanged = function( _, val ) valz["GumChanceMults"][nzGum.RareTypes.PINWHEEL] = val end
+				gumultrow5:SetTooltip("'Whimsical' rarity gum chances are multiplied by this value before rolling (DEFAULT: 0.2).")
+
+				local thefucker2 = gumproperties.Categories["Gum chance multipliers"]
+				local resetmults = vgui.Create("DButton", thefucker2)
+				resetmults:SetText("Reset")
+				resetmults:SetPos(135, 2)
+				resetmults:SetSize(40, 20)
+				resetmults.DoClick = function()
+					valz["GumChanceMults"] = {
+						[nzGum.RareTypes.DEFAULT] = 1,
+						[nzGum.RareTypes.MEGA] = 0.4,
+						[nzGum.RareTypes.RAREMEGA] = 0.2,
+						[nzGum.RareTypes.ULTRARAREMEGA] = 0.1,
+						[nzGum.RareTypes.PINWHEEL] = 0.1,
+					}
+					gumultrow1:SetValue(1)
+					gumultrow2:SetValue(0.4)
+					gumultrow3:SetValue(0.2)
+					gumultrow4:SetValue(0.1)
+					gumultrow5:SetValue(0.3)
+				end
+
+				-- Gum Prices ---------------------------------------------------------------------
+				local gumprice1 = gumproperties:CreateRow("Gum machine prices", "Rounds 1-9")
+				gumprice1:Setup("Int", { min = 1, max = 1024500 })
+				gumprice1:SetValue(valz["GumRoundPrices"][1])
+				gumprice1.DataChanged = function( _, val ) valz["GumRoundPrices"][1] = val end
+				gumprice1:SetTooltip("Gobbel Gum machine price for rounds 1-9 (DEFAULT: 1500).")
+
+				local gumprice2 = gumproperties:CreateRow("Gum machine prices", "Rounds 10-19")
+				gumprice2:Setup("Int", { min = 1, max = 1024500 })
+				gumprice2:SetValue(valz["GumRoundPrices"][2])
+				gumprice2.DataChanged = function( _, val ) valz["GumRoundPrices"][2] = val end
+				gumprice2:SetTooltip("Gobbel Gum machine price for rounds 10-19 (DEFAULT: 2500).")
+
+				local gumprice3 = gumproperties:CreateRow("Gum machine prices", "Rounds 20-29")
+				gumprice3:Setup("Int", { min = 1, max = 1024500 })
+				gumprice3:SetValue(valz["GumRoundPrices"][3])
+				gumprice3.DataChanged = function( _, val ) valz["GumRoundPrices"][3] = val end
+				gumprice3:SetTooltip("Gobbel Gum machine price for rounds 20-29 (DEFAULT: 4500).")
+
+				local gumprice4 = gumproperties:CreateRow("Gum machine prices", "Rounds 3-39")
+				gumprice4:Setup("Int", { min = 1, max = 1024500 })
+				gumprice4:SetValue(valz["GumRoundPrices"][4])
+				gumprice4.DataChanged = function( _, val ) valz["GumRoundPrices"][4] = val end
+				gumprice4:SetTooltip("Gobbel Gum machine price for rounds 30-39 (DEFAULT: 9500).")
+
+				local gumprice5 = gumproperties:CreateRow("Gum machine prices", "Rounds 40-49")
+				gumprice5:Setup("Int", { min = 1, max = 1024500 })
+				gumprice5:SetValue(valz["GumRoundPrices"][5])
+				gumprice5.DataChanged = function( _, val ) valz["GumRoundPrices"][5] = val end
+				gumprice5:SetTooltip("Gobbel Gum machine price for rounds 40-49 (DEFAULT: 16500).")
+
+				local gumprice6 = gumproperties:CreateRow("Gum machine prices", "Rounds 50-59")
+				gumprice6:Setup("Int", { min = 1, max = 1024500 })
+				gumprice6:SetValue(valz["GumRoundPrices"][6])
+				gumprice6.DataChanged = function( _, val ) valz["GumRoundPrices"][6] = val end
+				gumprice6:SetTooltip("Gobbel Gum machine price for rounds 50-59 (DEFAULT: 32500).")
+
+				local gumprice7 = gumproperties:CreateRow("Gum machine prices", "Rounds 60-69")
+				gumprice7:Setup("Int", { min = 1, max = 1024500 })
+				gumprice7:SetValue(valz["GumRoundPrices"][7])
+				gumprice7.DataChanged = function( _, val ) valz["GumRoundPrices"][7] = val end
+				gumprice7:SetTooltip("Gobbel Gum machine price for rounds 60-69 (DEFAULT: 64500).")
+
+				local gumprice8 = gumproperties:CreateRow("Gum machine prices", "Rounds 70-79")
+				gumprice8:Setup("Int", { min = 1, max = 1024500 })
+				gumprice8:SetValue(valz["GumRoundPrices"][8])
+				gumprice8.DataChanged = function( _, val ) valz["GumRoundPrices"][8] = val end
+				gumprice8:SetTooltip("Gobbel Gum machine price for rounds 70-79 (DEFAULT: 128500).")
+
+				local gumprice9 = gumproperties:CreateRow("Gum machine prices", "Rounds 80-89")
+				gumprice9:Setup("Int", { min = 1, max = 1024500 })
+				gumprice9:SetValue(valz["GumRoundPrices"][9])
+				gumprice9.DataChanged = function( _, val ) valz["GumRoundPrices"][9] = val end
+				gumprice9:SetTooltip("Gobbel Gum machine price for rounds 80-89 (DEFAULT: 256500).")
+
+				local gumprice10 = gumproperties:CreateRow("Gum machine prices", "Rounds 90-99")
+				gumprice10:Setup("Int", { min = 1, max = 1024500 })
+				gumprice10:SetValue(valz["GumRoundPrices"][10])
+				gumprice10.DataChanged = function( _, val ) valz["GumRoundPrices"][10] = val end
+				gumprice10:SetTooltip("Gobbel Gum machine price for rounds 90-99 (DEFAULT: 512500).")
+
+				local gumprice11 = gumproperties:CreateRow("Gum machine prices", "Rounds 100-255")
+				gumprice11:Setup("Int", { min = 1, max = 1024500 })
+				gumprice11:SetValue(valz["GumRoundPrices"][11])
+				gumprice11.DataChanged = function( _, val ) valz["GumRoundPrices"][11] = val end
+				gumprice11:SetTooltip("Gobbel Gum machine price for rounds 100-255 (DEFAULT: 1024500).")
+			
+				local thefucker3 = gumproperties.Categories["Gum machine prices"]
+				local resetprices = vgui.Create("DButton", thefucker3)
+				resetprices:SetText("Reset")
+				resetprices:SetPos(120, 2)
+				resetprices:SetSize(40, 20)
+				resetprices.DoClick = function()
+					valz["GumRoundPrices"] = {
+						[1] = 1500, //1-9
+						[2] = 2500, //10-19
+						[3] = 4500, //20-29
+						[4] = 9500, //30-39
+						[5] = 16500, //40-49
+						[6] = 32500, //50-59
+						[7] = 64500, //60-69
+						[8] = 128500, //70-79
+						[9] = 256500, //80-89
+						[10] = 512500, //90-99
+						[11] = 1024500, //100-255
+					}
+					gumprice1:SetValue(1500)
+					gumprice2:SetValue(2500)
+					gumprice3:SetValue(4500)
+					gumprice4:SetValue(9500)
+					gumprice5:SetValue(16500)
+					gumprice6:SetValue(32500)
+					gumprice7:SetValue(64500)
+					gumprice8:SetValue(128500)
+					gumprice9:SetValue(256500)
+					gumprice10:SetValue(512500)
+					gumprice11:SetValue(1024500)
+				end
+			end
+
+			------------------------------------------------------------------------
+			//Perks
 			------------------------------------------------------------------------
 			local perklist = {}
 
@@ -2077,22 +3268,18 @@ nzTools:CreateTool("settings", {
 			perklistpnl:SetPos(0, 0)
 			perklistpnl:SetSize(465, 450)
 			perklistpnl:SetPaintBackground(true)
-			perklistpnl:SetBackgroundColor( Color(200, 200, 200) )
+			perklistpnl:SetBackgroundColor( color_grey_200 )
 			
 			local perkchecklist = vgui.Create( "DIconLayout", perklistpnl )
 			perkchecklist:SetSize( 465, 450 )
 			perkchecklist:SetPos( 35, 10 )
 			perkchecklist:SetSpaceY( 5 )
 			perkchecklist:SetSpaceX( 5 )
-			
-			--for k,v in pairs(nzPerks:GetList()) do
-			--	if k != "wunderfizz" and k != "pap" then
-				for k,v in pairs(wunderfizzlist) do
-				--if (!valz["Wunderfizz"] || !valz["Wunderfizz"][k]) then return end
 
-				local perkitem = perkchecklist:Add( "DPanel" )
+			for k,v in pairs(wunderfizzlist) do
+				local perkitem = perkchecklist:Add("DPanel")
 				perkitem:SetSize( 130, 20 )
-				
+
 				local check = perkitem:Add("DCheckBox")
 				check:SetPos(2,2)
 
@@ -2102,24 +3289,23 @@ nzTools:CreateTool("settings", {
 					check:SetValue(true)
 				end
 
-				--if has then perklist[k] = true else perklist[k] = nil end
 				check.OnChange = function(self, val)
-					--if val then perklist[k] = true else perklist[k] = nil end
+					if !valz["Wunderfizz"][k] then
+						valz["Wunderfizz"][k] = {true, nzPerks:Get(k).name}
+					end
 					valz["Wunderfizz"][k][1] = val
-					--nzMapping:SendMapData( {wunderfizzperks = perklist} )
 				end
-				
+
 				local name = perkitem:Add("DLabel")
-				name:SetTextColor(Color(50,50,50))
+				name:SetTextColor(color_grey_50)
 				name:SetSize(105, 20)
 				name:SetPos(20,1)
 				name:SetText(v[2])
 			end
 
---------------------------------------------------------------------------------------------------------------------------------------
-			
-			--local poweruplist = {}
-
+			------------------------------------------------------------------------
+			//PowerUps
+			------------------------------------------------------------------------
 			local poweruppanel = vgui.Create("DPanel", sheet)
 			sheet:AddSheet( "Powerups", poweruppanel, "icon16/asterisk_orange.png", false, false, "Set which powerups can be dropped from zombies.")
 			poweruppanel.Paint = function() return end
@@ -2128,7 +3314,7 @@ nzTools:CreateTool("settings", {
 			poweruplistpnl:SetPos(0, 0)
 			poweruplistpnl:SetSize(465, 450)
 			poweruplistpnl:SetPaintBackground(true)
-			poweruplistpnl:SetBackgroundColor( Color(200, 200, 200) )
+			poweruplistpnl:SetBackgroundColor( color_grey_200 )
 
 			local powerupchecklist = vgui.Create( "DIconLayout", poweruplistpnl )
 			powerupchecklist:SetSize( 465, 450 )
@@ -2137,9 +3323,7 @@ nzTools:CreateTool("settings", {
 			powerupchecklist:SetSpaceX( 5 )
 
 			for k,v in pairs(poweruplist) do
-				if (!valz["PowerUps"] || !valz["PowerUps"][k]) then return end
-
-				local powerupitem = powerupchecklist:Add( "DPanel" )
+				local powerupitem = powerupchecklist:Add("DPanel")
 				powerupitem:SetSize( 130, 20 )
 
 				local check = powerupitem:Add("DCheckBox")
@@ -2151,35 +3335,31 @@ nzTools:CreateTool("settings", {
 					check:SetValue(true)
 				end
 
-				--if has then perklist[k] = true else perklist[k] = nil end
 				check.OnChange = function(self, val)
+					if !valz["PowerUps"][k] then
+						valz["PowerUps"][k] = {true, nzPowerUps:Get(k).name}
+					end
 					valz["PowerUps"][k][1] = val
 				end
 
 				local name = powerupitem:Add("DLabel")
-				name:SetTextColor(Color(50,50,50))
+				name:SetTextColor(color_grey_50)
 				name:SetSize(105, 20)
 				name:SetPos(20,1)
 				name:SetText(v[2])
 			end
 
-				--end
-			--end
-			--local text = vgui.Create("DLabel", DProperties)
-			--text:SetText("Enable this mode for broken stuff")
-			--text:SetFont("Trebuchet18")
-			--text:SetTextColor( Color(50, 50, 50) )
-			--text:SizeToContents()
-			--text:SetPos(0, 140)
-			--text:CenterHorizontal()
+			AddGumStuff()
+			AddEyeStuff()
+			AddBoxStuff()
+			AddPowerupColors()
+			AddMuzzleflashColors()
+			AddWallbuyColors()
+			AddFontColor()
 
 			------------------------------------------------------------------------
 			//Turned Names
 			------------------------------------------------------------------------
-
-			local color_grey_50 = Color(50, 50, 50)
-			local color_grey_200 = Color(200, 200, 200)
-			local color_red = Color(150, 50, 50)
 			local turnlist = {}
 			local numturnlist = 0
 
@@ -2258,7 +3438,7 @@ nzTools:CreateTool("settings", {
 			turnreset:SetPos(120, 360)
 			turnreset:SetSize(105, 30)
 			turnreset.DoClick = function()
-				for k, v in pairs(oldturnedlist) do
+				for k, v in pairs(nzPerks.oldturnedlist) do
 					InsertTurnedName(k)
 				end
 			end

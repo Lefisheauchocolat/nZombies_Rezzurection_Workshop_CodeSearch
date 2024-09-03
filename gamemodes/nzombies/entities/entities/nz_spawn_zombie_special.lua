@@ -29,4 +29,8 @@ function ENT:Initialize()
 
     self.CurrentSpawnType = "nil"
     self:UpdateSpawnType()
+    
+    if CLIENT then
+        self:SetLOD(8)
+    end
 end

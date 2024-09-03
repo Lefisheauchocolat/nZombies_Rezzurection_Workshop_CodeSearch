@@ -1,90 +1,88 @@
-// infinite warfare down anim
+-- bo3 down animations ported by Wavy
+-- coded by wavy & latte w/ help from ghostlymoo
+
+local downed = {}
+local ihavebeendowned = {}
+local revived = {}
+local ihavebeenrevived = {}
+
 hook.Add("CalcMainActivity", "nzDownedAnimation", function(ply, vel)
-	if !ply:GetNotDowned() then
-		local angle, angle2 = vel:Angle(), ply:GetAngles()
-		local ydif = math.abs(math.NormalizeAngle(angle.y - angle2.y))
+	
+    if downed[ply] == nil then downed[ply] = false end
+    if ihavebeendowned[ply] == nil then ihavebeendowned[ply] = false end
+    if revived[ply] == nil then revived[ply] = true end
+    if ihavebeenrevived[ply] == nil then ihavebeenrevived[ply] = true end
 
-		local seq1 = ply:LookupSequence("crawl_idle")
-		local seq2 = ply:LookupSequence("crawl_back")
-		local seq3 = ply:LookupSequence("crawl_forward")
+    if ply:GetNotDowned() and not revived[ply] and not ihavebeenrevived[ply] then
+        local seq, dur = ply:LookupSequence("bo3_revived")
+        ply:SetPlaybackRate(1)
+        revived[ply] = true
+        timer.Simple(dur, function()
+            if IsValid(ply) then
+                ihavebeenrevived[ply] = true
+            end
+        end)
+        ply:SetCycle(0)
+        ply:AddVCDSequenceToGestureSlot(6, seq, 0, true)
+    end
 
-		ply:SetPlaybackRate(0)
-		ply:SetCycle(CurTime())
+    if ply:GetNotDowned() and downed[ply] and ihavebeendowned[ply] then
+        downed[ply] = false
+        ihavebeendowned[ply] = false
+    end
+    
+    if not ply:GetNotDowned() then
+        if not downed[ply] then
+            downed[ply] = true
+            revived[ply] = false
+            ihavebeenrevived[ply] = false
+            local seq, dur = ply:LookupSequence("bo3_downed")
+            ply:SetPlaybackRate(1)
+            timer.Simple(dur - 1, function()
+                if IsValid(ply) then
+                    ihavebeendowned[ply] = true
+                end
+            end)
+            ply:AddVCDSequenceToGestureSlot(6, seq, 0, true)
+        end    
+    end
+        
+    if ihavebeendowned[ply] then
+        local angle, angle2 = vel:Angle(), ply:GetAngles()
+        local ydif = math.abs(math.NormalizeAngle(angle.y - angle2.y))
 
-		if vel:Length2D() < 1 then
-			return ACT_IDLE, seq1
-		elseif ydif < 90 then
-			return ACT_IDLE, seq3
-		else
-			return ACT_IDLE, seq2
-		end
-	end
+        local seq1 = ply:LookupSequence("bo3_crawl_idle")
+        local seq2 = ply:LookupSequence("bo3_crawl_back")
+        local seq3 = ply:LookupSequence("bo3_crawl_forward")
+
+        ply:SetPlaybackRate(1)
+
+        if vel:Length2D() < 1 then
+            return ACT_IDLE, seq1
+        elseif ydif < 90 then
+            return ACT_IDLE, seq3
+        else
+            return ACT_IDLE, seq2
+        end
+    end
 end)
 
-local cyclex, cycley = 0.6,0.65
+local cyclex, cycley = 0.6, 0.65
 hook.Add("UpdateAnimation", "nzDownedAnimation", function(ply, vel, seqspeed)
-	if !ply:GetNotDowned() then
-		local movement = 0
+    if not ply:GetNotDowned() then
+        local movement = 0
 
-		local len = vel:Length2D()
-		if len > 1 then
-			movement = len / seqspeed
-		else
-			local cycle = ply:GetCycle()
-			if cycle < cyclex or cycle > cycley then
-				movement = 5
-			end
-		end
+        local len = vel:Length2D()
+        if len > 1 then
+            movement = len / seqspeed
+        else
+            local cycle = ply:GetCycle()
+            if cycle < cyclex or cycle > cycley then
+                movement = 5
+            end
+        end
 
-		ply:SetPlaybackRate(movement)
-		return true
-	end
+        ply:SetPlaybackRate(1)
+        return true
+    end
 end)
-
-//nzu swimming down anim
-/*hook.Add("CalcMainActivity", "nzDownedAnimation", function(ply, vel)
-	if !ply:GetNotDowned() then
-		if vel:Length2D() > 1 then
-			ply.CalcIdeal = ACT_HL2MP_SWIM_REVOLVER
-		else
-			ply.CalcIdeal = ACT_HL2MP_SWIM_PISTOL
-		end
-
-		return ply.CalcIdeal, ply.CalcSeqOverride
-	end
-end)
-
-local cyclex, cycley = 0.6,0.65
-local loweredpos = Vector(0,0,-30)
-local rotate = Angle(0,0,-30)
-
-hook.Add("UpdateAnimation", "nzDownedAnimation", function(ply, vel, seqspeed)
-	if !ply:GetNotDowned() then
-		local movement = 0
-
-		local len = vel:Length2D()
-		if len > 1 then
-			movement = len / seqspeed
-		else
-			local cycle = ply:GetCycle()
-			if cycle < cyclex or cycle > cycley then
-				movement = 5
-			end
-		end
-
-		ply:SetPoseParameter("move_x", -1)
-		ply:SetPlaybackRate(movement)
-
-		if not ply.nzu_DownedAnim then
-			ply:ManipulateBonePosition(0, loweredpos)
-			ply:ManipulateBoneAngles(0, rotate)
-			ply.nzu_DownedAnim = true
-		end
-
-		return true
-	elseif ply.nzu_DownedAnim then
-		ply:ManipulateBonePosition(0, vector_origin)
-		ply:ManipulateBoneAngles(0, angle_zero)
-		ply.nzu_DownedAnim = false
-	end
-end)*/

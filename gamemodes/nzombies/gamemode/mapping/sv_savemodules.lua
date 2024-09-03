@@ -42,6 +42,8 @@ nzMapping:AddSaveModule("ZedSpawns", {
 				pos = v:GetPos(),
 				angle = v:GetAngles(),
 				link = v.link,
+				link2 = v.link2,
+				link3 = v.link3,
 				master = v:GetMasterSpawn(),
 				spawntype = v:GetSpawnType() or 0,
 				zombietype = v:GetZombieType() or "none",
@@ -53,7 +55,7 @@ nzMapping:AddSaveModule("ZedSpawns", {
 	end,
 	loadfunc = function(data)
 		for k,v in pairs(data) do
-			nzMapping:ZedSpawn(v.pos, v.angle, v.link, v.master, v.spawntype, v.zombietype, v.roundactive, v.spawnchance)
+			nzMapping:ZedSpawn(v.pos, v.angle, v.link, v.link2, v.link3, v.master, v.spawntype, v.zombietype, v.roundactive, v.spawnchance)
 		end
 	end,
 	cleanents = {"nz_spawn_zombie_normal"}, -- Simply clean entities of this type
@@ -67,6 +69,8 @@ nzMapping:AddSaveModule("ZedSpecialSpawns", {
 				pos = v:GetPos(),
 				angle = v:GetAngles(),
 				link = v.link,
+				link2 = v.link2,
+				link3 = v.link3,
 				master = v:GetMasterSpawn(),
 				spawntype = v:GetSpawnType() or 0,
 				zombietype = v:GetZombieType() or "none",
@@ -78,7 +82,7 @@ nzMapping:AddSaveModule("ZedSpecialSpawns", {
 	end,
 	loadfunc = function(data)
 		for k,v in pairs(data) do
-			nzMapping:ZedSpecialSpawn(v.pos,v.angle , v.link, v.master, v.spawntype, v.zombietype, v.roundactive, v.spawnchance)
+			nzMapping:ZedSpecialSpawn(v.pos,v.angle , v.link, v.link2, v.link3, v.master, v.spawntype, v.zombietype, v.roundactive, v.spawnchance)
 		end
 	end,
 	cleanents = {"nz_spawn_zombie_special"},
@@ -92,14 +96,16 @@ nzMapping:AddSaveModule("ZedBossSpawn", {
 			pos = v:GetPos(),
 			angle = v:GetAngles(),
 			link = v.link,
-			roundactive = v:GetActiveRound() or 0,	 
+			link2 = v.link2,
+			link3 = v.link3,
+			roundactive = v:GetActiveRound() or 0,
 			})
 		end
 		return zed_boss_spawns
 	end,
 	loadfunc = function(data)
 		for k,v in pairs(data) do
-			nzMapping:ZedBossSpawn(v.pos, v.angle, v.link, v.roundactive)
+			nzMapping:ZedBossSpawn(v.pos, v.angle, v.link, v.link2, v.link3, v.roundactive)
 		end
 	end,
 	cleanents = {"nz_spawn_zombie_boss"},
@@ -205,7 +211,7 @@ nzMapping:AddSaveModule("ZedExtraSpawn4", {
 	end,
 	cleanents = {"nz_spawn_zombie_extra4"},
 })
-]]  
+]]
 
 nzMapping:AddSaveModule("PlayerSpawns", {
 	savefunc = function()
@@ -294,24 +300,31 @@ nzMapping:AddSaveModule("Teleporter", {
 		local teleporters = {}
 		for _, v in pairs(ents.FindByClass("nz_teleporter")) do
 			table.insert(teleporters, {
-			pos = v:GetPos(),
-			angle = v:GetAngles(),
-			desti = v:GetDestination(),
-			id = v:GetID(),
-			price = v:GetPrice(),
-			mdltype = v:GetModelType(),
-			gif = v:GetGifType(),
-			cd = v:GetCooldownTime(),
-			kino = v:GetKino(),
-			delay = v:GetKinodelay(),
-			buyable = v:GetUsable()
+				pos = v:GetPos(),
+				angles = v:GetAngles(),
+				flag = v:GetFlag(),
+				destination = v:GetDestination(),
+				requiresdoor = v:GetRequiresDoor(),
+				door = v:GetDoor(),
+				price = v:GetPrice(),
+				mdltype = v:GetModelType(),
+				mdlcollisions = v:GetModelCollisions(),
+				visible = v:GetModelVisible(),
+				useable = v:GetUseable(),
+				gif = v:GetGifType(),
+				teleportertime = v:GetTeleporterTime(),
+				cooldown = v:GetCooldownTime(),
+				tpback = v:GetTPBack(),
+				tpbackdelay = v:GetTPBackDelay(),
+				activatestrap = v:GetActivatesTrap(),
+				trap = v:GetTrap()
 			})
 		end
 		return teleporters
 	end,
 	loadfunc = function(data)
-		for k,v in pairs(data) do
-			nzMapping:Teleporter(v.pos,v.angle, v.desti, v.id, v.price, v.mdltype, v.gif, v.cd, v.kino, v.delay,v.buyable)
+		for _,v in pairs(data) do
+			nzMapping:Teleporter(v)
 		end
 	end,
 	cleanents = {"nz_teleporter"},
@@ -387,6 +400,7 @@ nzMapping:AddSaveModule("BuyablePropSpawns", {
 
 			-- Convert the table to a flag string - if it even has any
 			local data = v:GetDoorData()
+			if istable(data) then PrintTable(data) end
 			local flagstr
 			if data then
 				flagstr = ""
@@ -437,26 +451,6 @@ nzMapping:AddSaveModule("PropEffects", {
 	cleanents = {"nz_prop_effect", "nz_prop_effect_attachment"},
 })
 
-nzMapping:AddSaveModule("EasterEggs", {
-	savefunc = function()
-		local easter_eggs = {}
-		for _, v in pairs(ents.FindByClass("easter_egg")) do
-			table.insert(easter_eggs, {
-			pos = v:GetPos(),
-			angle = v:GetAngles(),
-			model = v:GetModel(),
-			})
-		end
-		return easter_eggs
-	end,
-	loadfunc = function(data)
-		for k,v in pairs(data) do
-			nzMapping:EasterEgg(v.pos, v.angle, v.model)
-		end
-	end,
-	cleanents = {"easter_egg"},
-})
-
 nzMapping:AddSaveModule("AmmoBox", {
 	savefunc = function()
 		local ammoboxes = {}
@@ -475,26 +469,6 @@ nzMapping:AddSaveModule("AmmoBox", {
 		end
 	end,
 	cleanents = {"ammo_box"},
-})
-
-nzMapping:AddSaveModule("SufferingMachine", {
-	savefunc = function()
-		local machines = {}
-		for _, v in pairs(ents.FindByClass("stinky_lever")) do
-			table.insert(machines, {
-			pos = v:GetPos(),
-			angle = v:GetAngles(),
-
-			})
-		end
-		return machines
-	end,
-	loadfunc = function(data)
-		for k,v in pairs(data) do
-			nzMapping:StinkyLever(v.pos, v.angle)
-		end
-	end,
-	cleanents = {"stinky_lever"},
 })
 
 nzMapping:AddSaveModule("ElecSpawns", {
@@ -548,27 +522,6 @@ nzMapping:AddSaveModule("BlockSpawns", {
 		end
 	end,
 	cleanents = {"wall_block"},
-})
-
-nzMapping:AddSaveModule("JumpBlockSpawns", {
-	savefunc = function()
-		local jump_block_spawns = {}
-		for _, v in pairs(ents.FindByClass("jumptrav_block")) do
-			
-			table.insert(jump_block_spawns, {
-			pos = v:GetPos(),
-			angle = v:GetAngles(),
-			model = v:GetModel(),
-			})
-		end
-		return jump_block_spawns
-	end,
-	loadfunc = function(data)
-		for k,v in pairs(data) do
-			nzMapping:JumpBlockSpawn(v.pos, v.angle, v.model)
-		end
-	end,
-	cleanents = {"jumptrav_block"},
 })
 
 nzMapping:AddSaveModule("RandomBoxSpawns", {
@@ -692,11 +645,17 @@ nzMapping:AddSaveModule("BreakEntry", {
 		for k,v in pairs(data) do
 			if not v.prop then v.prop = 0 end 
 			if not v.jumptype then v.jumptype = 0 end
-			if v.plycollision == nil then print("duck") v.plycollision = true end
+			if v.plycollision == nil then v.plycollision = true end
 			nzMapping:BreakEntry(v.pos, v.angle, v.planks, v.jump, v.boardtype, v.prop, v.jumptype, v.plycollision)
 		end
 	end,
-	cleanents = {"breakable_entry", "breakable_entry_plank", "breakable_entry_bar", "breakable_entry_ventslat"},
+	cleanents = {
+		"breakable_entry", 
+		"breakable_entry_plank", 
+		"breakable_entry_bar", 
+		"breakable_entry_ventslat", 
+		"breakable_entry_plank_zhd"
+	},
 	postrestorefunc = function(data)
 		-- Now we respawn them! :D
 		for k,v in pairs(ents.FindByClass("breakable_entry")) do

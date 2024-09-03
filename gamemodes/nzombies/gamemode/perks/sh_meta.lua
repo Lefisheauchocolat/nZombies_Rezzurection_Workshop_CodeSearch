@@ -15,13 +15,12 @@ if SERVER then
 			nzPerks:SendSync(self)
 			hook.Call("OnPlayerGetPerk", nil, self, id, machine)
 
-			if #self:GetPerks() == 4 then
+			local modslot = nzMapping.Settings.modifierslot
+			if #self:GetPerks() == 4 and (modslot == nil or tobool(modslot)) then
 				self:GiveUpgrade(id)
-				if id == "gin" then
-					self:SetNW2Bool("nz.GinMod", true)
-				end
 			end
 		end
+
 		perkData.func(id, self, machine)
 	end
 
@@ -57,11 +56,37 @@ if SERVER then
 	
 		if nzPerks.Players[self] == nil then nzPerks.Players[self] = {} end
 		if self:HasPerk(id) then
+			if self:HasUpgrade(id) then
+				self:RemoveUpgrade(id)
+			end
+
 			perkData.lostfunc(id, self)
 			table.RemoveByValue( nzPerks.Players[self], id )
 			hook.Call("OnPlayerLostPerk", nil, self, id, forced)
 		end
 		nzPerks:SendSync(self)
+	end
+
+	function playerMeta:RemoveUpgrade(id, forced, nosync)
+		local block = hook.Call("OnPlayerRemoveUpgrade", nil, self, id, forced)
+		if nosync == nil then nosync = false end
+
+		if (self.PreventPerkLoss and !exceptionperks[id] or block) and !forced then return end
+		local perkData = nzPerks:Get(id)
+		if perkData == nil then return end
+	
+		if nzPerks.PlayerUpgrades[self] == nil then nzPerks.PlayerUpgrades[self] = {} end
+		if self:HasUpgrade(id) then
+			if perkData.lostupgradefunc then
+				perkData.lostupgradefunc(id, self)
+			end
+			table.RemoveByValue(nzPerks.PlayerUpgrades[self], id)
+			hook.Call("OnPlayerLostUpgrade", nil, self, id, forced)
+		end
+
+		if !nosync then
+			nzPerks:SendUpgradeSync(self)
+		end
 	end
 
 	function playerMeta:RemovePerks()

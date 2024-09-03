@@ -57,6 +57,7 @@ if SERVER then
 
 	hook.Add("PlayerPostThink", "nzSpeedColaMod", function(ply)
 		if not ply:HasUpgrade("speed") then return end
+
 		for _, wep in ipairs(ply:GetWeapons()) do
 			if wep:IsSpecial() then continue end
 			if wep.NZDontRegen then continue end
@@ -79,7 +80,9 @@ if SERVER then
 				local ammo1count = ply:GetAmmoCount(ammo1)
 				if clip1 > 0 and clip1 < wep.Primary.ClipSize and ammo1count > 0 then
 					ply:RemoveAmmo(1, ammo1)
+					wep.NZSpeedRegenerating = true
 					wep:SetClip1(math.min(clip1 + 1, wep.Primary.ClipSize))
+					wep.NZSpeedRegenerating = nil
 				end
 			end
 
@@ -89,7 +92,9 @@ if SERVER then
 					local ammo1count = ply:GetAmmoCount(ammo1)
 					if clip2 > 0 and clip2 < wep.Secondary.ClipSize and ammo1count > 0 then
 						ply:RemoveAmmo(1, ammo1)
+						wep.NZSpeedRegenerating = true
 						wep:SetClip2(math.min(clip2 + 1, wep.Secondary.ClipSize))
+						wep.NZSpeedRegenerating = nil
 					end
 				end
 			else
@@ -99,7 +104,9 @@ if SERVER then
 					local clip2 = wep:Clip2()
 					if clip2 > 0 and clip2 < wep.Secondary.ClipSize and ammo2count > 0 then
 						ply:RemoveAmmo(1, ammo2)
+						wep.NZSpeedRegenerating = true
 						wep:SetClip2(math.min(clip2 + 1, wep.Secondary.ClipSize))
+						wep.NZSpeedRegenerating = nil
 					end
 				end
 			end
@@ -249,36 +256,13 @@ hook.Add("SetupMove", "nzPHDEffects", function(ply, mv, cmd)
 	end
 end)
 
-hook.Add("PlayerRevived", "nzReviveEffects", function(ply, revivor)
-    local count = 0
-    for k, v in RandomPairs(ply.OldPerks) do
-        if IsValid(revivor) and revivor:HasUpgrade("revive") then
-            if revivor == ply and v == "revive" then continue end
-            ply:GivePerk(v)
-
-            continue
-        elseif ply:GetNW2Bool("nz.GinMod") then
-            if v == "gin" then continue end
-            ply:GivePerk(v)
-
-            continue
-        elseif ply.FightersFizz then
-            if v == "tombstone" then continue end
-            ply:GivePerk(v)
-            
-            continue
-        else
-            if count >= math.floor(#ply.OldPerks/2) then break end
-            if ply.DownedWithSoloRevive and v == "revive" then continue end
-            if ply.DownedWithSoloRevive and v == "tombstone" then continue end
-
-            ply:GivePerk(v)
-            count = count + 1
-        end
-    end
-        if ply:GetNW2Bool("nz.GinMod") then
-        ply:SetNW2Bool("nz.GinMod", false)
-    end
+hook.Add("EntityTakeDamage", "nzTortoiseBuildables", function(ent, dmginfo)
+	if ent.GetTrapClass and not ent.NZIgnoreTortoiseBuff then
+		local ply = ent:GetOwner()
+		if IsValid(ply) and ply:IsPlayer() and ply:HasPerk("tortoise") then
+			dmginfo:SetDamage(dmginfo:GetDamage() * 0.5)
+		end
+	end
 end)
 
 hook.Add("OnZombieKilled", "nzTombstoneModifierWavy", function(ent, dmginfo)
@@ -286,14 +270,11 @@ hook.Add("OnZombieKilled", "nzTombstoneModifierWavy", function(ent, dmginfo)
 	if IsValid(ply) and ply:IsPlayer() and ply.FightersFizz and !ply:GetNotDowned() then
 		if not IsValid(ent) or not ent:IsValidZombie() then return end
 		ply:RevivePlayer(ply)
-	--[[for k, v in RandomPairs(ply.OldPerks) do
-		if v == "tombstone" then continue end
-		ply:GivePerk(v)
-		end]]
 	end
 end)
 
-hook.Add("TFA_SecondaryAttack", "nzDeadshotMod", function(wep)
+//removed, but the code for finding head pos is usefull for reference
+/*hook.Add("TFA_SecondaryAttack", "nzDeadshotMod", function(wep)
 	local ply = wep:GetOwner()
 	if not IsValid(ply) or not ply:IsPlayer() then return end
 
@@ -325,7 +306,7 @@ hook.Add("TFA_SecondaryAttack", "nzDeadshotMod", function(wep)
 			end
 		end
 	end
-end)
+end)*/
 
 hook.Add("TFA_CompleteReload", "nzCherryBool", function(wep)
 	if wep.NZSpecialCategory then return end
@@ -380,18 +361,6 @@ hook.Add("TFA_Reload", "nzCherryEffects", function(wep)
 				if ply:HasUpgrade("cherry") and !v.IsMooBossZombie then
 					damage:SetDamage(v:Health() + 666)
 				end
-				
-				if v.TempBehaveThread and v.SparkySequences then
-				if v.PlaySound and v.ElecSounds then
-					v:PlaySound(v.ElecSounds[math.random(#v.ElecSounds)], v.SoundVolume or SNDLVL_NORM, math.random(v.MinSoundPitch, v.MaxSoundPitch), 1, 2)
-				end
-
-				v:TempBehaveThread(function(v)
-					local seq = v.SparkySequences[math.random(#v.SparkySequences)]
-					local id, time = v:LookupSequence(seq)
-					v:PlaySequenceAndWait(seq)
-				end)
-				end
 
 				if damage:GetDamage() > v:Health() and IsFirstTimePredicted() and !v.DoCherryShock then
 					ParticleEffectAttach("bo3_waffe_electrocute", PATTACH_POINT_FOLLOW, v, 2)
@@ -405,6 +374,18 @@ hook.Add("TFA_Reload", "nzCherryEffects", function(wep)
 				end
 
 				if SERVER then
+					if v.TempBehaveThread and v.SparkySequences then
+						if v.PlaySound and v.ElecSounds then
+							v:PlaySound(v.ElecSounds[math.random(#v.ElecSounds)], v.SoundVolume or SNDLVL_NORM, math.random(v.MinSoundPitch, v.MaxSoundPitch), 1, 2)
+						end
+
+						v:TempBehaveThread(function(v)
+							local seq = v.SparkySequences[math.random(#v.SparkySequences)]
+							local id, time = v:LookupSequence(seq)
+							v:PlaySequenceAndWait(seq)
+						end)
+					end
+
 					v.MarkedByCherry = true
 					v:TakeDamageInfo(damage)
 
@@ -443,7 +424,7 @@ hook.Add("TFA_Reload", "nzCherryEffects", function(wep)
 end)
 
 if CLIENT then
-	local zmhud_icon_headshot = Material("vgui/hud_cp_aat_splat.png", "smooth unlitgeneric")
+	local zmhud_icon_headshot = Material("nz_moo/icons/hud_headshoticon.png", "smooth unlitgeneric")
 	local zmhud_icon_marker = Material("nz_moo/icons/marker.png", "smooth unlitgeneric")
 
 	local blur_mat = Material("pp/bokehblur")

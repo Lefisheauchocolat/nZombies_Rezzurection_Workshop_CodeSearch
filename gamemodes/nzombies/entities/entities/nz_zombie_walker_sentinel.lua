@@ -8,7 +8,7 @@ ENT.Spawnable = true
 
 if CLIENT then 
 	ENT.EyeColorTable = {
-		[0] = Material("models/moo/codz/t7_stalingrad/mtl_c_zom_dlc3_sentinel_eyes.vmt"),
+		[0] = Material("models/moo/codz/t7_zombies/stalingrad/mtl_c_zom_dlc3_sentinel_eyes.vmt"),
 	}
 	return 
 end -- Client doesn't really need anything beyond the basics
@@ -18,7 +18,7 @@ ENT.IsMooZombie = true
 ENT.RedEyes = true
 
 ENT.Models = {
-	{Model = "models/moo/_codz_ports/t7/stalingrad/moo_codz_t7_sentinel_zombie.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t7/stalingrad/moo_codz_t7_sentinel.mdl", Skin = 0, Bodygroups = {0,0}},
 }
 
 local spawnslow = {"nz_spawn_ground_v1", "nz_spawn_ground_ad_v2", "nz_spawn_ground_v2", "nz_spawn_ground_v2_altb"}
@@ -43,11 +43,23 @@ ENT.DeathSequences = {
 	"nz_death_f_11",
 	"nz_death_f_12",
 	"nz_death_f_13",
-	"nz_death_fallback",
 	"nz_l4d_death_running_11a",
 	"nz_l4d_death_running_11g",
 	"nz_l4d_death_02a",
 	"nz_l4d_death_11_02d",
+	"nz_t9_dth_f_chest_lt_00",
+	"nz_t9_dth_f_chest_lt_01",
+	"nz_t9_dth_f_chest_lt_02",
+	"nz_t9_dth_f_chest_lt_03",
+	"nz_t9_dth_f_chest_lt_04",
+	"nz_t9_dth_f_chest_lt_05",
+	"nz_t9_dth_f_chest_lt_06",
+	"nz_t9_dth_f_chest_lt_07",
+	"nz_t9_dth_f_chest_lt_08",
+	"nz_t9_dth_f_chest_lt_09",
+	"nz_t9_dth_f_head_lt_00",
+	"nz_t9_dth_f_head_lt_01",
+	"nz_t9_dth_f_head_lt_02",
 }
 
 ENT.ElectrocutionSequences = {

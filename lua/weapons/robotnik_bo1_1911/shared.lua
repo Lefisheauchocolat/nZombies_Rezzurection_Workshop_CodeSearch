@@ -22,7 +22,7 @@ SWEP.Purpose				= ""
 SWEP.Instructions				= ""
 SWEP.MuzzleAttachment			= "1" 	-- Should be "1" for CSS models or "muzzle" for hl2 models
 SWEP.ShellEjectAttachment			= "2" 	-- Should be "2" for CSS models or "1" for hl2 models
-SWEP.PrintName				= "M1911"		-- Weapon name (Shown on HUD)	
+SWEP.PrintName				= "PLACEHOLDER PISTOL"		-- Weapon name (Shown on HUD)	
 SWEP.Slot				= 1				-- Slot in the weapon selection menu
 SWEP.SlotPos				= 21			-- Position in the slot
 SWEP.DrawAmmo				= true		-- Should draw the default HL2 ammo counter
@@ -53,9 +53,9 @@ SWEP.Primary.RPM			= 555			-- This is in Rounds Per Minute
 SWEP.Primary.ClipSize			= 8		-- Size of a clip
 SWEP.Primary.ClipSize_XM		= 16		-- Size of a clip
 SWEP.Primary.DefaultClip		= 80		-- Bullets you start with
-SWEP.Primary.KickUp				= 0.3		-- Maximum up recoil (rise)
-SWEP.Primary.KickDown			= 0.3		-- Maximum down recoil (skeet)
-SWEP.Primary.KickHorizontal		= 0.3		-- Maximum up recoil (stock)
+SWEP.Primary.KickUp				= 4.3		-- Maximum up recoil (rise)
+SWEP.Primary.KickDown			= 4.3		-- Maximum down recoil (skeet)
+SWEP.Primary.KickHorizontal		= 4.3		-- Maximum up recoil (stock)
 SWEP.Primary.Automatic			= false		-- Automatic = true; Semi Auto = false
 SWEP.Primary.Ammo			= "pistol"			-- pistol, 357, smg1, ar2, buckshot, slam, SniperPenetratedRound, AirboatGun
 -- Pistol, buckshot, and slam always ricochet. Use AirboatGun for a light metal peircing shotgun pellets
@@ -66,8 +66,8 @@ SWEP.data 				= {}				--The starting firemode
 SWEP.data.ironsights			= 1
 
 SWEP.Primary.NumShots	= 1		-- How many bullets to shoot per trigger pull
-SWEP.Primary.Damage		= 9	-- Base damage per bullet
-SWEP.Primary.Spread		= .015	-- Define from-the-hip accuracy 1 is terrible, .0001 is exact)
+SWEP.Primary.Damage		= 0	-- Base damage per bullet
+SWEP.Primary.Spread		= .9	-- Define from-the-hip accuracy 1 is terrible, .0001 is exact)
 SWEP.Primary.IronAccuracy = .005 -- Ironsight accuracy, should be the same for shotguns
 
 SWEP.Ispackapunched = 0

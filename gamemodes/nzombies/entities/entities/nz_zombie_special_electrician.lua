@@ -32,7 +32,7 @@ ENT.IsMooZombie = true
 ENT.IsMooSpecial = true
 ENT.MooSpecialZombie = true -- They're a Special Zombie, but is still close enough to a normal zombie to be able to do normal zombie things.
 --ENT.IsMooBossZombie = true
---ENT.IsMiniBoss = true
+ENT.IsMiniBoss = true
 
 ENT.AttackRange = 60
 ENT.DamageRange = 150 
@@ -60,6 +60,14 @@ local JumpSequences = {
 	{seq = "nz_barricade_trav_walk_1"},
 	{seq = "nz_barricade_trav_walk_2"},
 	{seq = "nz_barricade_trav_walk_3"},
+}
+
+local AttackSequences = {
+	{seq = "nz_legacy_attack_v3"},
+	{seq = "nz_legacy_attack_v6"},
+	{seq = "nz_legacy_attack_v4"},
+	{seq = "nz_legacy_attack_v11"},
+	{seq = "nz_legacy_attack_v12"},
 }
 
 local walksounds = {
@@ -97,7 +105,7 @@ ENT.SequenceTables = {
 			PassiveSounds = {walksounds},
 		},
 	}},
-	{Threshold = 70, Sequences = {
+	{Threshold = 71, Sequences = {
 		{
 			MovementSequence = {
 				"nz_pentagonthief_run2",
@@ -120,58 +128,80 @@ ENT.SequenceTables = {
 			JumpSequences = {JumpSequences},
 			PassiveSounds = {runsounds},
 		},
+	}},
+	{Threshold = 155, Sequences = {
+		{
+			MovementSequence = {
+				"nz_pentagonthief_run2",
+			},
+			BlackholeMovementSequence = {
+				"nz_blackhole_1",
+				"nz_blackhole_2",
+				"nz_blackhole_3",
+			},
+			AttackSequences = {AttackSequences},
+			JumpSequences = {JumpSequences},
+			PassiveSounds = {runsounds},
+		},
 	}}
 }
 
 ENT.DeathSounds = {
-	"wavy_zombie/octogonal_robber/death/death_00.mp3",
-	"wavy_zombie/octogonal_robber/death/death_01.mp3",
-	"wavy_zombie/octogonal_robber/death/death_02.mp3",
-	"wavy_zombie/octogonal_robber/death/death_03.mp3"
+	Sound("wavy_zombie/octogonal_robber/death/death_00.mp3"),
+	Sound("wavy_zombie/octogonal_robber/death/death_01.mp3"),
+	Sound("wavy_zombie/octogonal_robber/death/death_02.mp3"),
+	Sound("wavy_zombie/octogonal_robber/death/death_03.mp3")
 }
 
 ENT.AngerSounds = {
-	"wavy_zombie/octogonal_robber/anger/anger_00.mp3",
-	"wavy_zombie/octogonal_robber/anger/anger_01.mp3",
-	"wavy_zombie/octogonal_robber/anger/anger_02.mp3",
-	"wavy_zombie/octogonal_robber/anger/anger_03.mp3"
+	Sound("wavy_zombie/octogonal_robber/anger/anger_00.mp3"),
+	Sound("wavy_zombie/octogonal_robber/anger/anger_01.mp3"),
+	Sound("wavy_zombie/octogonal_robber/anger/anger_02.mp3"),
+	Sound("wavy_zombie/octogonal_robber/anger/anger_03.mp3")
 }
 
 ENT.StealSounds = {
-	"wavy_zombie/octogonal_robber/steal/steal_00.mp3",
-	"wavy_zombie/octogonal_robber/steal/steal_01.mp3",
-	"wavy_zombie/octogonal_robber/steal/steal_02.mp3",
-	"wavy_zombie/octogonal_robber/steal/steal_03.mp3"
+	Sound("wavy_zombie/octogonal_robber/steal/steal_00.mp3"),
+	Sound("wavy_zombie/octogonal_robber/steal/steal_01.mp3"),
+	Sound("wavy_zombie/octogonal_robber/steal/steal_02.mp3"),
+	Sound("wavy_zombie/octogonal_robber/steal/steal_03.mp3")
 }
 
 ENT.CustomWalkFootstepsSounds = {
-	"nz_moo/zombies/vox/_astro/fly_step/step_00.mp3",
-	"nz_moo/zombies/vox/_astro/fly_step/step_01.mp3",
-	"nz_moo/zombies/vox/_astro/fly_step/step_02.mp3",
-	"nz_moo/zombies/vox/_astro/fly_step/step_03.mp3",
-	"nz_moo/zombies/vox/_astro/fly_step/step_04.mp3",
-	"nz_moo/zombies/vox/_astro/fly_step/step_05.mp3",
-	"nz_moo/zombies/vox/_astro/fly_step/step_06.mp3",
-	"nz_moo/zombies/vox/_astro/fly_step/step_07.mp3",
-	"nz_moo/zombies/vox/_astro/fly_step/step_08.mp3",
-	"nz_moo/zombies/vox/_astro/fly_step/step_09.mp3"
+	Sound("nz_moo/zombies/vox/_astro/fly_step/step_00.mp3"),
+	Sound("nz_moo/zombies/vox/_astro/fly_step/step_01.mp3"),
+	Sound("nz_moo/zombies/vox/_astro/fly_step/step_02.mp3"),
+	Sound("nz_moo/zombies/vox/_astro/fly_step/step_03.mp3"),
+	Sound("nz_moo/zombies/vox/_astro/fly_step/step_04.mp3"),
+	Sound("nz_moo/zombies/vox/_astro/fly_step/step_05.mp3"),
+	Sound("nz_moo/zombies/vox/_astro/fly_step/step_06.mp3"),
+	Sound("nz_moo/zombies/vox/_astro/fly_step/step_07.mp3"),
+	Sound("nz_moo/zombies/vox/_astro/fly_step/step_08.mp3"),
+	Sound("nz_moo/zombies/vox/_astro/fly_step/step_09.mp3")
 }
 
 ENT.CustomRunFootstepsSounds = {
-	"nz_moo/zombies/vox/_astro/fly_step/step_00.mp3",
-	"nz_moo/zombies/vox/_astro/fly_step/step_01.mp3",
-	"nz_moo/zombies/vox/_astro/fly_step/step_02.mp3",
-	"nz_moo/zombies/vox/_astro/fly_step/step_03.mp3",
-	"nz_moo/zombies/vox/_astro/fly_step/step_04.mp3",
-	"nz_moo/zombies/vox/_astro/fly_step/step_05.mp3",
-	"nz_moo/zombies/vox/_astro/fly_step/step_06.mp3",
-	"nz_moo/zombies/vox/_astro/fly_step/step_07.mp3",
-	"nz_moo/zombies/vox/_astro/fly_step/step_08.mp3",
-	"nz_moo/zombies/vox/_astro/fly_step/step_09.mp3"
+	Sound("nz_moo/zombies/vox/_astro/fly_step/step_00.mp3"),
+	Sound("nz_moo/zombies/vox/_astro/fly_step/step_01.mp3"),
+	Sound("nz_moo/zombies/vox/_astro/fly_step/step_02.mp3"),
+	Sound("nz_moo/zombies/vox/_astro/fly_step/step_03.mp3"),
+	Sound("nz_moo/zombies/vox/_astro/fly_step/step_04.mp3"),
+	Sound("nz_moo/zombies/vox/_astro/fly_step/step_05.mp3"),
+	Sound("nz_moo/zombies/vox/_astro/fly_step/step_06.mp3"),
+	Sound("nz_moo/zombies/vox/_astro/fly_step/step_07.mp3"),
+	Sound("nz_moo/zombies/vox/_astro/fly_step/step_08.mp3"),
+	Sound("nz_moo/zombies/vox/_astro/fly_step/step_09.mp3")
+}
+
+ENT.CustomTauntAnimV3Sounds = {
+	Sound("wavy_zombie/octogonal_robber/anger/anger_00.mp3"),
+	Sound("wavy_zombie/octogonal_robber/anger/anger_01.mp3"),
+	Sound("wavy_zombie/octogonal_robber/anger/anger_02.mp3"),
+	Sound("wavy_zombie/octogonal_robber/anger/anger_03.mp3")
 }
 
 ENT.CustomAttackImpactSounds = {
-	"nz_moo/zombies/vox/mute_00.wav"
+	Sound("nz_moo/zombies/vox/mute_00.wav")
 }
 
 ENT.BehindSoundDistance = 0 -- When the zombie is within 200 units of a player, play these sounds instead
@@ -194,11 +224,19 @@ function ENT:StatsInitialize()
 			end
 		end
 
+		self:SetTargetCheckRange(60000)
 		self:SetRunSpeed(35)
 
 		self.criminal = false
 		malding = false
+
 		self.SprintCooldown = CurTime() + 4
+
+
+		self.RobbedPlayers = {}
+		self.RobbedEveryone = false
+		self.FleeingToSpecialSpawn = false
+		self.LeaveCountdown = 5
 	end
 end
 
@@ -216,24 +254,59 @@ function ENT:PerformDeath(dmginfo)
 
 	local damagetype = dmginfo:GetDamageType()
 	
+	if damagetype == DMG_REMOVENORAGDOLL then
+		if IsValid(dmginfo) then
+			self:Remove(dmginfo)
+		else
+			self:Remove()
+		end
+	end
+
 	if self.DeathRagdollForce == 0 or self:GetSpecialAnimation() or damagetype == DMG_MISSILEDEFENSE or damagetype == DMG_ENERGYBEAM then
 		self:BecomeRagdoll(dmginfo)
 	else
 		self:DoDeathAnimation(self.DeathSequences[math.random(#self.DeathSequences)])
 	end
 	self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 500, math.random(95, 105), 1, 2)
-	if self.criminal then
+
+	if self.criminal and !self.RemovedSelf then
 		nzPowerUps:SpawnPowerUp(self:GetPos(), "firesale")
-		local class
-		if dmginfo:GetAttacker():IsPlayer() then
-			class = nzRandomBox.DecideWep(dmginfo:GetAttacker())
-		else
-			class = nzRandomBox.DecideWep(self:GetTarget())
+		for k,v in pairs(self.RobbedPlayers) do
+			PrintTable(self.RobbedPlayers)
+			if IsValid(k) and k.GotRobbed then
+				local ply = k
+				local weapon = self.RobbedPlayers[ply].gun
+				local packapunch = self.RobbedPlayers[ply].pap
+
+				ply.GotRobbed = false
+				--print("Unrob this person")
+				--print(weapon)
+				--print(packapunch)
+				ply:Give(weapon)
+
+				--[[timer.Simple(0, function()
+					if packapunch then
+						local abuser = weapons.Get(weapon)
+						print("pap")
+						abuser:ApplyNZModifier("pap")
+					end
+				end)]]
+			end
 		end
-	local wep = ents.Create("nz_powerup_drop_weapon")
-		wep:SetGun(class)
-		wep:SetPos(self:GetPos() + Vector(0,0,48))
-		wep:Spawn()
+		for k,v in pairs(player.GetAll()) do
+			if IsValid(v) and v.GotRobbed then
+				v.GotRobbed = false
+				table.remove(self.RobbedPlayers, k)
+			end
+		end
+	elseif self.criminal and self.RemovedSelf then
+		self.FoundPlayer = false
+		for k,v in pairs(player.GetAll()) do
+			if IsValid(v) and !self.FoundPlayer then
+				self.FoundPlayer = true
+				nzPowerUps:SpawnPowerUp(v:GetPos(), "firesale")
+			end
+		end
 	else
 		local chance = math.random(100)
 		if chance < 50 then
@@ -245,13 +318,9 @@ function ENT:PerformDeath(dmginfo)
 	self:StopParticles()
 end
 
-function ENT:OnRemove()
-	self:StopParticles()
-end
-
 function ENT:IsValidTarget( ent )
 	if !ent then return false end
-	return IsValid(ent) and ent:GetTargetPriority() ~= TARGET_PRIORITY_NONE and ent:GetTargetPriority() ~= TARGET_PRIORITY_MONSTERINTERACT and ent:GetTargetPriority() ~= TARGET_PRIORITY_SPECIAL and ent:GetTargetPriority() ~= TARGET_PRIORITY_FUNNY
+	return IsValid(ent) and ent:GetTargetPriority() ~= TARGET_PRIORITY_NONE and ent:GetTargetPriority() ~= TARGET_PRIORITY_MONSTERINTERACT and ent:GetTargetPriority() ~= TARGET_PRIORITY_SPECIAL and ent:GetTargetPriority() ~= TARGET_PRIORITY_FUNNY and !ent.GotRobbed
 	-- Won't go for special targets (Monkeys), but still MAX, ALWAYS and so on
 end
 
@@ -263,156 +332,201 @@ function ENT:OnThink()
 end
 
 function ENT:Attack()
-	print("RUN YO SHIT")
-	if IsValid(self:GetTarget()) and self:GetTarget():IsPlayer() then
-		self:GetTarget():NZAstroSlow(1.5)
-	end
+	if self:GetTarget():IsPlayer() then
+		print("RUN YO SHIT")
+		if IsValid(self:GetTarget()) and self:GetTarget():IsPlayer() then
+			self:GetTarget():NZAstroSlow(1.5)
+		end
 
-	self:PlaySequenceAndWait("nz_pentagonthief_grab", 1, self.FaceEnemy)
-	if malding then
-		--print("He's no longer malding.")
-		self:SetRunSpeed(35)
-		self:SpeedChanged()
-		malding = false
-		self.SprintCooldown = CurTime() + 6
+		if malding then
+			self:SetRunSpeed(35)
+			self:SpeedChanged()
+			malding = false
+			self.SprintCooldown = CurTime() + 6
+		end
+
+		self:PlaySequenceAndWait("nz_pentagonthief_grab", 1, self.FaceEnemy)
+	else
+		self:TimeOut(1)
 	end
 end
 
 function ENT:AI()
 	local tar = self:GetTarget()
-	if IsValid(tar) then
-		if self:TargetInRange(950) and !self:IsAttackBlocked() and CurTime() > self.SprintCooldown and !malding then
-			
+	if IsValid(tar) and tar:IsPlayer() then
+		if self:TargetInRange(950) and !self:IsAttackBlocked() and CurTime() > self.SprintCooldown and !malding then	
 			malding = true
-			self:SetRunSpeed(70)
+
+			self:DoSpecialAnimation("nz_taunt_v3")
+
+			self:SetRunSpeed(71)
 			self:SpeedChanged()
-			self:EmitSound(self.AngerSounds[math.random(#self.AngerSounds)], 500, math.random(95, 105), 1, 2)
 		end
 	end
 end
 
-function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how sad I am that I didn't know about this sooner.
-	if e == "step_right_small" or e == "step_left_small" then
-		if self.CustomWalkFootstepsSounds then
-			self:EmitSound(self.CustomWalkFootstepsSounds[math.random(#self.CustomWalkFootstepsSounds)], 75)
-		else
-			self:EmitSound("CoDZ_Zombie.StepWalk")
+function ENT:TeleportToSpecialSpawn()
+
+	local pos = self:FindSpecialSpawn()
+
+	self:SolidMaskDuringEvent(MASK_NPCSOLID_BRUSHONLY)
+
+	self:SetPos(pos)
+	self:EmitSound("nz_moo/effects/teleport_in_01.mp3", 500, 100, 1, 0)
+	ParticleEffectAttach("bo3_qed_explode_3", 4, self, 1)
+
+	self:FleeToSpecialSpawn()
+end
+
+function ENT:FleeToSpecialSpawn()
+	if !self.WasAbleToSteal then return end
+	self:TempBehaveThread(function(self)
+		if !self.FleeingToSpecialSpawn then
+			local pos = self:FindSpecialSpawn()
+			self.FleeingToSpecialSpawn = true
+
+			self:SetRunSpeed(155)
+			self:SpeedChanged()
+
+			self:MoveToPos(pos, {
+				lookahead = 1,
+				tolerance = 10,
+				draw = false,
+				maxage = 8,
+				repath = 3,
+			})
+
+			ParticleEffect("bo3_qed_explode_3", pos, Angle(0,0,0), nil)
+
+			self:Goodbye()
+			self.FleeingToSpecialSpawn = false
+			self:TeleportToSpecialSpawn()
 		end
+
+	end)
+end
+
+function ENT:Goodbye()
+	if self.LeaveCountdown < 1 then
+		self.RemovedSelf = true
+
+		local dmginfo = DamageInfo()
+		dmginfo:SetAttacker( self )
+		dmginfo:SetDamage( self:Health() + 666 )
+		dmginfo:SetDamageType( DMG_REMOVENORAGDOLL )
+
+		self:TakeDamageInfo(dmginfo)
+	else
+		self.LeaveCountdown = self.LeaveCountdown - 1
 	end
-	if e == "step_right_large" or e == "step_left_large" then
-		if self.CustomRunFootstepsSounds then
-			self:EmitSound(self.CustomRunFootstepsSounds[math.random(#self.CustomRunFootstepsSounds)], 75)
-		else
-			self:EmitSound("CoDZ_Zombie.StepRun")
-		end
-	end
-	if e == "crawl_hand" then
-		if self.CustomCrawlImpactSounds then
-			self:EmitSound(self.CrawlImpactSounds[math.random(#self.CrawlImpactSounds)], 70)
-		else
-			self:EmitSound("CoDZ_Zombie.StepCrawl")
-		end
-	end
-	if e == "melee" or e == "melee_heavy" then
-		if self:BomberBuff() and self.GasAttack then
-			self:EmitSound(self.GasAttack[math.random(#self.GasAttack)], 100, math.random(95, 105), 1, 2)
-		else
-			if self.AttackSounds then
-				self:EmitSound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(85, 105), 1, 2)
+end
+
+function ENT:FindSpecialSpawn()
+	local available = ents.FindByClass("nz_spawn_zombie_special")
+	local pos = self:GetPos()
+	local spawns = {}
+
+	if IsValid(available[1]) then
+		for k, v in ipairs(available) do
+			if (v.link == nil or nzDoors:IsLinkOpened(v.link) or nzDoors:IsLinkOpened(v.link2) or nzDoors:IsLinkOpened(v.link3)) and !v:GetMasterSpawn() then
+				if v:IsSuitable() then
+					table.insert(spawns, v)
+				end
 			end
 		end
-		if e == "melee_heavy" then
-			self.HeavyAttack = true
+		if !IsValid(spawns[1]) then
+			local pspawns = ents.FindByClass("nz_spawn_zombie_normal")
+			if !IsValid(pspawns[1]) then
+				print("Octogonal Robber couldn't find an escape for some reason.")
+			else
+				pos = pspawns[math.random(#pspawns)]:GetPos()
+			end
+		else
+			pos = spawns[math.random(#spawns)]:GetPos()
 		end
-		self:DoAttackDamage()
-	end
-	if e == "base_ranged_rip" then
-		ParticleEffectAttach("ins_blood_dismember_limb", 4, self, 5)
-		self:EmitSound("nz_moo/zombies/gibs/gib_0"..math.random(0,3)..".mp3", 100, math.random(95,105))
-		self:EmitSound("nz_moo/zombies/gibs/head/head_explosion_0"..math.random(4)..".mp3", 65, math.random(95,105))
-	end
-	if e == "base_ranged_throw" then
-		self:EmitSound("nz_moo/zombies/fly/attack/whoosh/zmb_attack_med_0"..math.random(0,2)..".mp3", 95)
-
-		local larmfx_tag = self:LookupBone("j_wrist_le")
-
-		self.Guts = ents.Create("nz_gib")
-		self.Guts:SetPos(self:GetBonePosition(larmfx_tag))
-		self.Guts:Spawn()
-
-		local phys = self.Guts:GetPhysicsObject()
-		local target = self:GetTarget()
-		local movementdir
-		if IsValid(phys) and IsValid(target) then
-			--[[if target:IsPlayer() then
-				movementdir = target:GetVelocity():Normalize()
-				print(movementdir)
-			end]]
-			phys:SetVelocity(self.Guts:getvel(target:EyePos() - Vector(0,0,7), self:EyePos(), 0.95))
+	else
+		local pspawns = ents.FindByClass("player_spawns")
+		if IsValid(pspawns[1]) then
+			pos = pspawns[math.random(#pspawns)]:GetPos()
 		end
 	end
-	if e == "death_ragdoll" then
-		self:BecomeRagdoll(DamageInfo())
-	end
-	if e == "start_traverse" then
-		--print("starttraverse")
-		self.TraversalAnim = true
-	end
-	if e == "finish_traverse" then
-		--print("finishtraverse")
-		self.TraversalAnim = false
-	end
-	if e == "pull_plank" then
-		if IsValid(self) and self:Alive() then
-			if IsValid(self.BarricadePlankPull) and IsValid(self.Barricade) then
-				self.Barricade:RemovePlank(self.BarricadePlankPull)
+	return pos
+end
+
+function ENT:OnNoTarget()
+	if !self.FleeingToSpecialSpawn and self.RobbedEveryone then
+		self:TimeOut(0.1) -- Instead of being brain dead for a second, just search for a new target sooner.
+		self:FleeToSpecialSpawn()
+	elseif !self.FleeingToSpecialSpawn and !self.RobbedEveryone then
+		self:TimeOut(0.1)
+		local newtarget = self:Retarget()
+		if self:IsValidTarget(newtarget) then
+			self.CancelCurrentPath = true
+		else
+			if !self:IsInSight() and nzRound:InProgress() and !nzRound:InState( ROUND_GO ) then
+				self:RespawnZombie()
+			else
+				if nzRound:InState( ROUND_GO ) then
+					self:OnGameOver()
+				end
 			end
 		end
+	else
+		self:TimeOut(1)
 	end
+end
 
+function ENT:CustomAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how sad I am that I didn't know about this sooner.
+	
 	if e == "pentagon_steal" then
-	local guygettingrobbed = self:GetTarget()
-	if IsValid(self) and guygettingrobbed:IsPlayer() and guygettingrobbed:GetPos():Distance( self:GetPos()) < 150 then
-	self:EmitSound(self.StealSounds[math.random(#self.StealSounds)], 500, math.random(95, 105), 1, 2)
-	guygettingrobbed:Give("tfa_bo3_wepsteal")
-	guygettingrobbed:SelectWeapon("tfa_bo3_wepsteal")
-	self.criminal = true
-	print("give me your wallet")
-	end
+		local guygettingrobbed = self:GetTarget()
+		if IsValid(self) and !guygettingrobbed.GotRobbed and guygettingrobbed:IsPlayer() and guygettingrobbed:GetPos():Distance( self:GetPos()) < 150 and !self:IsAttackBlocked() then
+			local wep = guygettingrobbed:GetActiveWeapon()
+
+			if !wep:IsSpecial() and !guygettingrobbed:GetUsingSpecialWeapon() then
+				guygettingrobbed.GotRobbed = true
+
+				self.WasAbleToSteal = true
+
+				-- Store the target's current gun and if it was upgraded or not.
+				self.RobbedPlayers[guygettingrobbed] = {gun = wep:GetClass(), pap = wep:HasNZModifier("pap")}
+
+				if nzRound:InState(ROUND_CREATE) then
+					guygettingrobbed:StripWeapon(wep:GetClass())
+				end
+
+				self.criminal = true
+				print("give me your wallet")
+
+				PrintTable(self.RobbedPlayers)
+				print(table.Count(self.RobbedPlayers))
+
+				guygettingrobbed:Give("tfa_bo3_wepsteal")
+				guygettingrobbed:SelectWeapon("tfa_bo3_wepsteal")
+
+				self:EmitSound(self.StealSounds[math.random(#self.StealSounds)], 500, math.random(95, 105), 1, 2)
+
+				if !self.RobbedEveryone and table.Count(self.RobbedPlayers) >= #player.GetAllPlaying() then 
+					self.RobbedEveryone = true
+				end
+			else
+				self.WasAbleToSteal = false
+				print("Not allowed to steal this weapon or it isn't a weapon at all.")
+			end
+		end
 	end
 	
 	if e == "pentagon_teleport" then
-		local available = ents.FindByClass("nz_spawn_zombie_special")
-		local pos = self:GetPos()
-		local spawns = {}
+		self:TeleportToSpecialSpawn()
+	end
+end
 
-		if IsValid(available[1]) then
-			for k, v in ipairs(available) do
-				if v.link == nil or nzDoors:IsLinkOpened(v.link) then
-					if v:IsSuitable() then
-						table.insert(spawns, v)
-					end
-				end
-			end
-			if !IsValid(spawns[1]) then
-				local pspawns = ents.FindByClass("nz_spawn_zombie_normal")
-				if !IsValid(pspawns[1]) then
-					print("Octogonal Robber couldn't find an escape for some reason.")
-				else
-					pos = pspawns[math.random(#pspawns)]:GetPos()
-				end
-			else
-				pos = spawns[math.random(#spawns)]:GetPos()
-			end
-		else
-			local pspawns = ents.FindByClass("player_spawns")
-			if IsValid(pspawns[1]) then
-				pos = pspawns[math.random(#pspawns)]:GetPos()
-			end
+function ENT:OnRemove()
+	self:StopParticles()
+	for k,v in pairs(player.GetAll()) do
+		if IsValid(v) and v.GotRobbed then
+			v.GotRobbed = false
+			table.remove(self.RobbedPlayers, k)
 		end
-
-		self:SetPos(pos)
-		self:EmitSound("nz_moo/effects/teleport_in_01.mp3", 500, 100, 1, 0)
-		ParticleEffectAttach("bo3_qed_explode_3", 4, self, 1)
 	end
 end

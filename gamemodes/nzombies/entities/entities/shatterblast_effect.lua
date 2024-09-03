@@ -66,8 +66,8 @@ function ENT:Initialize()
 				damage:SetDamageForce(v:GetUp()*math.random(8000,12000) + (v:EyePos() - self:GetPos()):GetNormalized()*math.random(12000,14000))
 				damage:SetDamagePosition(v:EyePos())
 
-			if v.NZBossType then
-				damage:SetDamage(v:GetMaxHealth()/3)
+			if v.NZBossType and v.IsMooBossZombie then
+				damage:SetDamage(v:GetMaxHealth()/5)
 			end
 				v:TakeDamageInfo(damage)
 			end

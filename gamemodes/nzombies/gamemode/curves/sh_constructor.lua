@@ -20,15 +20,15 @@ if SERVER then
 			hp = hpcap
 		end
 
-		local nextround = 163
-		if round >= 163 and round == nextround then -- Forced insta kill rounds.
+		--[[local nextround = 163 -- This shit doesn't work as intended rn lmao.
+		if round > 162 and round == nextround then -- Forced insta kill rounds.
 			hp = 1
 			if round > 185 then
 				nextround = round + math.random(5) -- Literally just mimicking insta-kill rounds down to the slight randomness past round 185 :wind_blowing_face:
 			else
 				nextround = round + 2 -- Every other round until past 185.
 			end
-		end
+		end]]
 
 		return hp
 	end

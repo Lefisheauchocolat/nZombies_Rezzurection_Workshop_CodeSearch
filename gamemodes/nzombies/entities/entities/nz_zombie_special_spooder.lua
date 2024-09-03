@@ -256,7 +256,7 @@ end
 function ENT:PerformDeath(dmgInfo)
 	self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
 	self:DoDeathAnimation("nz_spider_death")
-	if IsValid(self) then ParticleEffectAttach("baby_dead2", 3, self, 5) end
+	if IsValid(self) then ParticleEffectAttach("spit_impact_orange", 3, self, 5) end
 end
 
 function ENT:DoDeathAnimation(seq)

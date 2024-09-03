@@ -21,6 +21,8 @@ end
 function ENT:SetupDataTables()
     self:NetworkVar("String", 0, "Link")
     self:NetworkVar("String", 1, "ZombieType")
+    self:NetworkVar("String", 2, "Link2")
+    self:NetworkVar("String", 3, "Link3")
 	self:NetworkVar("Bool", 0, "Skip")
     self:NetworkVar("Bool", 1, "MasterSpawn")
     self:NetworkVar("Int", 0, "SpawnType")
@@ -53,6 +55,12 @@ function ENT:Initialize()
 
     self.CurrentSpawnType = "nil"
     self:UpdateSpawnType()
+
+    self.NukeDelay = false
+    
+    if CLIENT then
+        self:SetLOD(8)
+    end
 end
 
 function ENT:UpdateSpawnType()
@@ -68,6 +76,13 @@ function ENT:UpdateSpawnType()
         [9] = "Ground Wall",
         [10] = "Wall Emerge(CW)",
         [11] = "Portal Spawn",
+        [12] = "Elevator Spawn(Floor)",
+        [13] = "Elevator Spawn(Ceiling)",
+        [14] = "Crawl Spawn",
+        [15] = "Under Bed",
+        [16] = "Alcove Spawn 40",
+        [17] = "Alcove Spawn 56",
+        [18] = "Alcove Spawn 96",
     }
     self.CurrentSpawnType = types[self:GetSpawnType()]
 end
@@ -124,7 +139,6 @@ function ENT:IsSuitable(ent) --OOOOoooo nZu Code Port!
     end
 end
 
-
 -- Moo Mark 7/24/23: Moved a bunch of code from "sv_spawner.lua" and put here, also tweaked it a ton too.
 -- Basically I'ved reworked the spawn system to be less shitty and not spawn ALL of the zombies at one spawn when there like 20 other spawns to use.
 -- This never really happened in solo, but in multiplayer games with around 4+ players... It got really bad to the point where the zombie industry crashed.
@@ -137,9 +151,28 @@ end
 
 function ENT:Think()
     if SERVER then
+
+        -- This may not be needed right now.. But Justin Case told me to keep it here for now.
+        
+        if nzRound:InState( ROUND_PROG ) and self:GetMasterSpawn() then
+            debugoverlay.Text(self:GetPos() + Vector(0,0,75), "Zombies Left: "..tostring(self:GetZombiesToSpawn()), 0.25, false)
+            debugoverlay.Text(self:GetPos() + Vector(0,0,85), "Zombies Total: "..tostring(nzRound:GetZombiesMax()), 0.25, false)
+            if self:GetZombiesToSpawn() <= 0 and nzRound:GetZombiesKilled() + nzEnemies:TotalAlive() < nzRound:GetZombiesMax() then
+                print("--Possible Underspawn--")
+                self:SetZombiesToSpawn(nzRound:GetZombiesMax() - (nzRound:GetZombiesKilled() + nzEnemies:TotalAlive()))
+            end
+        end
+        
+
         if nzRound:InState( ROUND_PROG ) and self:GetZombiesToSpawn() > 0 and self:GetMasterSpawn() then
 
             if (nzRound:GetZombiesKilled() + nzEnemies:TotalAlive()) + 1 > nzRound:GetZombiesMax() then --[[print("--Possible Overflow--")]] return end
+
+            -- Delay the spawning if a Nuke just went off.
+            if IsValid(self:GetSpawner()) and self:GetMasterSpawn() and self.NukeDelay then
+                self.NukeDelay = false
+                self:GetSpawner():SetNextSpawn(CurTime() + 8)
+            end
 
             if self:GetSpawner() and self:GetSpawner():GetNextSpawn() < CurTime() and self:GetNextSpawn() < CurTime() then
                 local maxspawns = NZZombiesMaxAllowed != nil and NZZombiesMaxAllowed or 24
@@ -158,7 +191,7 @@ function ENT:Think()
                         for k,v in nzLevel.GetZombieSpawnArray() do -- You get an array now.
                             if v:GetClass() == self:GetClass() then
                                 if !v:GetMasterSpawn() 
-                                    and (v.link == nil or nzDoors:IsLinkOpened(v.link)) 
+                                    and (v.link == nil or nzDoors:IsLinkOpened(v.link) or nzDoors:IsLinkOpened(v.link2) or nzDoors:IsLinkOpened(v.link3) ) 
                                     and (nzElec:IsOn() and v:GetActiveRound() == -1 or nzRound:GetNumber() >= v:GetActiveRound() and v:GetActiveRound() ~= -1) then
 
                                     if nzMapping.Settings.navgroupbased == 1 then
@@ -272,11 +305,28 @@ if CLIENT then
                     draw.SimpleTextOutlined("Link: "..self:GetLink().."", displayfont, 0, 0, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 3, outline)
                 cam.End3D2D()
             end
-            if self:GetPos():DistToSqr(LocalPlayer():WorldSpaceCenter()) < drawdistance^2 and self.CurrentSpawnType then
+            if self:GetPos():DistToSqr(LocalPlayer():WorldSpaceCenter()) < drawdistance^2 then
                 local angle = EyeAngles()
                 angle:RotateAroundAxis( angle:Up(), -90 )
                 angle:RotateAroundAxis( angle:Forward(), 90 )
                 cam.Start3D2D(self:GetPos() + Vector(0,0,85), angle, size)
+                    draw.SimpleTextOutlined("Link2: "..self:GetLink2().."", displayfont, 0, 0, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 3, outline)
+                cam.End3D2D()
+            end
+            if self:GetPos():DistToSqr(LocalPlayer():WorldSpaceCenter()) < drawdistance^2 then
+                local angle = EyeAngles()
+                angle:RotateAroundAxis( angle:Up(), -90 )
+                angle:RotateAroundAxis( angle:Forward(), 90 )
+                cam.Start3D2D(self:GetPos() + Vector(0,0,90), angle, size)
+                    draw.SimpleTextOutlined("Link3: "..self:GetLink3().."", displayfont, 0, 0, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 3, outline)
+                cam.End3D2D()
+            end
+
+            if self:GetPos():DistToSqr(LocalPlayer():WorldSpaceCenter()) < drawdistance^2 and self.CurrentSpawnType then
+                local angle = EyeAngles()
+                angle:RotateAroundAxis( angle:Up(), -90 )
+                angle:RotateAroundAxis( angle:Forward(), 90 )
+                cam.Start3D2D(self:GetPos() + Vector(0,0,100), angle, size)
                     draw.SimpleTextOutlined("Spawn Type: "..self.CurrentSpawnType.."", displayfont, 0, 0, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 3, outline)
                 cam.End3D2D()
             end
@@ -284,7 +334,7 @@ if CLIENT then
                 local angle = EyeAngles()
                 angle:RotateAroundAxis( angle:Up(), -90 )
                 angle:RotateAroundAxis( angle:Forward(), 90 )
-                cam.Start3D2D(self:GetPos() + Vector(0,0,90), angle, size)
+                cam.Start3D2D(self:GetPos() + Vector(0,0,105), angle, size)
                     draw.SimpleTextOutlined("Master Spawn", displayfont, 0, 0, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 3, outline)
                 cam.End3D2D()
             end
@@ -292,7 +342,7 @@ if CLIENT then
                 local angle = EyeAngles()
                 angle:RotateAroundAxis( angle:Up(), -90 )
                 angle:RotateAroundAxis( angle:Forward(), 90 )
-                cam.Start3D2D(self:GetPos() + Vector(0,0,95), angle, size)
+                cam.Start3D2D(self:GetPos() + Vector(0,0,110), angle, size)
                     draw.SimpleTextOutlined("Type: "..self:GetZombieType().."", displayfont, 0, 0, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 3, outline)
                 cam.End3D2D()
             end
@@ -300,7 +350,7 @@ if CLIENT then
                 local angle = EyeAngles()
                 angle:RotateAroundAxis( angle:Up(), -90 )
                 angle:RotateAroundAxis( angle:Forward(), 90 )
-                cam.Start3D2D(self:GetPos() + Vector(0,0,100), angle, size)
+                cam.Start3D2D(self:GetPos() + Vector(0,0,115), angle, size)
                     draw.SimpleTextOutlined("Round: "..self:GetActiveRound().."", displayfont, 0, 0, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 3, outline)
                 cam.End3D2D()
             end
@@ -308,7 +358,7 @@ if CLIENT then
                 local angle = EyeAngles()
                 angle:RotateAroundAxis( angle:Up(), -90 )
                 angle:RotateAroundAxis( angle:Forward(), 90 )
-                cam.Start3D2D(self:GetPos() + Vector(0,0,105), angle, size)
+                cam.Start3D2D(self:GetPos() + Vector(0,0,120), angle, size)
                     draw.SimpleTextOutlined("Chance: "..self:GetSpawnChance().."", displayfont, 0, 0, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 3, outline)
                 cam.End3D2D()
             end

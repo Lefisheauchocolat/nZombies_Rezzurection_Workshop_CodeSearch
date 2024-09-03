@@ -66,10 +66,6 @@ function ENT:Initialize()
 	self:SetMoveType(MOVETYPE_NONE)
 	self:SetSolid(SOLID_VPHYSICS)
 	
-	--[[if (nzMapping.Settings.boxtype == "UGX Coffin") then
-		ParticleEffectAttach("zmb_zct_fire_yellow",PATTACH_POINT_FOLLOW,self,1)
-	end]]
-
 	if CLIENT then return end
 	self:SetTrigger(true)
 end

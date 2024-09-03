@@ -45,6 +45,21 @@ function GM:PlayerDeathThink( ply )
 		if ply:GetSpectatingID() <= 0 then ply:SetSpectatingID( #players ) end
 		ply:SpectateEntity( players[ ply:GetSpectatingID() ] )
 	end
+
+	//evil
+	if ply:KeyPressed(IN_WALK) and IsValid(ply:GetObserverTarget()) and ply:GetObserverTarget() ~= ply and (!ply.NextSpectatorScare or ply.NextSpectatorScare < CurTime()) then
+		local s_ent = ply:GetObserverTarget()
+		if ply.LastSpectatorUse and ply.LastSpectatorUse + 0.15 > CurTime() then
+			local snd = "nz_moo/zombies/vox/_zhd/behind/behind_0"..math.random(0,3)..".mp3"
+			if s_ent:IsPlayer() and file.Exists("sound/"..snd, "GAME") then
+				local msg = "surface.PlaySound('"..snd.."')"
+				ply:SendLua(msg)
+				s_ent:SendLua(msg)
+			end
+			ply.NextSpectatorScare = CurTime() + 120
+		end
+		ply.LastSpectatorUse = CurTime()
+	end
 end
 
 local function disableDeadUse( ply, ent )
@@ -65,12 +80,12 @@ local function disableDeadPickups( ply, ent )
 		return false
 	else
 		-- This will allow pickups even if the weapon can't holster
-		local wep = ply:GetActiveWeapon()
+		/*local wep = ply:GetActiveWeapon()
 		if IsValid(wep) and !wep:IsSpecial() then
 			local holster = wep.Holster
 			wep.Holster = function() return true end
 			timer.Simple(0, function() wep.Holster = holster end)
-		end
+		end*/
 		return true
 	end
 end

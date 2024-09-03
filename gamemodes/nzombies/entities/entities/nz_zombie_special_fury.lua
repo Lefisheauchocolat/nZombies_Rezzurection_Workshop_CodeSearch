@@ -6,7 +6,37 @@ ENT.Category = "Brainz"
 ENT.Author = "Loonicity"
 ENT.Spawnable = true
 
-if CLIENT then return end -- Client doesn't really need anything beyond the basics
+
+if CLIENT then
+
+	ENT.EyeColorTable = {
+		[0] = Material("models/kate/codz/t7_zombies/genesis/mtl_c_zom_dlc4_apothicon_fury_arms.vmt"),
+		[1] = Material("models/kate/codz/t7_zombies/genesis/mtl_c_zom_dlc4_apothicon_fury_arms_dissolve.vmt"),
+		[2] = Material("models/kate/codz/t7_zombies/genesis/mtl_c_zom_dlc4_apothicon_fury_body.vmt"),
+		[3] = Material("models/kate/codz/t7_zombies/genesis/mtl_c_zom_dlc4_apothicon_fury_body_dissolve.vmt"),
+		[4] = Material("models/kate/codz/t7_zombies/genesis/mtl_c_zom_dlc4_apothicon_fury_head.vmt"),
+		[5] = Material("models/kate/codz/t7_zombies/genesis/mtl_c_zom_dlc4_apothicon_fury_head_dissolve.vmt"),
+	}
+
+	function ENT:Draw() //Runs every frame
+		self:DrawModel()
+		self:PostDraw()
+
+		if self.EyeColorTable then
+			-- Go through every material given and set the color.
+			local eyecolor = nzMapping.Settings.zombieeyecolor
+			local col = Color(eyecolor.r,eyecolor.g,eyecolor.b):ToVector()
+
+			for k,v in pairs(self.EyeColorTable) do
+				v:SetVector("$emissiveblendtint", col)
+			end
+		end
+		if GetConVar( "nz_zombie_debug" ):GetBool() then
+			render.DrawWireframeBox(self:GetPos(), Angle(0,0,0), self:OBBMins(), self:OBBMaxs(), Color(255,0,0), true)
+		end
+	end
+	return 
+end -- Client doesn't really need anything beyond the basics
 
 ENT.SpeedBasedSequences = true
 ENT.IsMooZombie = true

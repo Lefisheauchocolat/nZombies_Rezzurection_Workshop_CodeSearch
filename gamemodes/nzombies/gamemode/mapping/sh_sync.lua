@@ -35,6 +35,24 @@ if CLIENT then
 		if !EEAudioChannel or (oldeeurl != nzMapping.Settings.eeurl and nzMapping.Settings.eeurl) then
 			EasterEggData.ParseSong()
 		end
+
+		//register display type of starting pistol, for reasons
+		local class = nzMapping.Settings.startwep
+		if class then
+			local wep = weapons.Get(class)
+			if wep then
+				if nzSpecialWeapons:ModifyWeapon(wep, "display", {DrawFunction = false, ToHolsterFunction = function(wep) return false end}) then
+					wep.Category = "Other"
+					wep.StoredNZAmmo = wep.Primary.ClipSize*4
+					wep.NZSpecialShowHUD = true
+					wep.NZTotalBlacklist = true
+					wep.NZCamoBlacklist = true
+					wep.NZSpecialCategory = "display"
+					wep.NZSpecialWeaponData = {MaxAmmo = wep.Primary.ClipSize*4, AmmoType = wep.Primary.Ammo}
+					weapons.Register(wep, class.."_display")
+				end
+			end
+		end
 		
 		-- Precache all random box weapons in the list
 		if nzMapping.Settings.rboxweps then

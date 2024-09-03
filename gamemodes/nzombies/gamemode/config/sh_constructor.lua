@@ -25,6 +25,8 @@ if not ConVarExists("nz_oldwallbuys") then CreateConVar("nz_oldwallbuys", 0, {FC
 if not ConVarExists("nz_weapon_auto_reload") then CreateConVar("nz_weapon_auto_reload", 1, {FCVAR_USERINFO, FCVAR_ARCHIVE}) end
 
 if not ConVarExists("nz_zombie_eye_trails") then CreateConVar("nz_zombie_eye_trails", 0, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
+--if not ConVarExists("nz_oldtunes") then CreateConVar("nz_oldtunes", 0, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
+if not ConVarExists("nz_difficulty_zombie_stumble") then CreateConVar("nz_difficulty_zombie_stumble", 1, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
 
 local zombieconfig = {
 	"walker",
@@ -34,16 +36,22 @@ local zombieconfig = {
 	"walker_haus",
 	"walker_hazmat",
 	"walker_jup",
-	"walker_motd",
+	"walker_jup_charred",
+	"walker_jup_heavy",
+	"walker_escape",
+	"walker_hellcatraz",
 	"walker_moon",
 	"walker_moon_guard",
 	"walker_moon_tech",
 	"walker_eisendrache",
+	--"walker_exo", "OUT DEMON OUT" - Owlie
+	"walker_exo_brg",
 	"walker_origins",
 	"walker_origins_classic",
 	"walker_origins_soldier",
 	"walker_origins_templar",
 	"walker_origins_templar_classic",
+	"walker_outbreak",
 	"walker_shangrila",
 	"walker_shangrila_classic",
 	"walker_sumpf",
@@ -55,12 +63,13 @@ local zombieconfig = {
 	"walker_greenrun",
 	"walker_deathtrooper",
 	"walker_skeleton",
+	"walker_genesis",
 	"walker_gorodkrovi",
-	"walker_soemale",
-	"walker_zetsubou",
+	"walker_zod",
 	"walker_zetsubou",
 	"walker_necromorph",
 	"walker_xeno",
+	--"walker_fredricks", Har har har har
 	"walker_former",
 	"walker_kleiner",
 	"walker_cheaple",
@@ -72,11 +81,15 @@ local zombieconfig = {
 	"walker_greenflu_hospital",
 	"walker_greenflu_riot",
 	"walker_greenflu",
+	--"walker_dierise", Duh Duh Duh Die Riseeeee
 	"walker_prototype",
 	"walker_derriese",
+	"walker_prototype_enhanced",
+	"walker_derriese_enhanced",
 	"walker_ascension_classic",
 	"walker_classic",
 	"walker_moon_classic",
+	"walker_moon_classic_guard",
 	"walker_five_classic",
 	"walker_orange",
 	"walker_diemachine",
@@ -92,10 +105,16 @@ local zombieconfig = {
 	"walker_park",
 	"walker_blud",
 	"walker_elf",
-	"walker_escape",
-	"walker_exo_brg",
 	"walker_headcrab",
 
+	"special_alien_scout",
+	"special_alien_scorpion",
+	"special_alien_seeker",
+	"walker_floodbrute",
+	"walker_floodunsc",
+	"walker_floodunsc3",
+	"walker_floodelite",
+	"walker_floodelite3",
 	"special_bomba",
 	"special_bot",
 	--"special_cosmo_monkey",
@@ -106,11 +125,13 @@ local zombieconfig = {
 	"special_chestburster",
 	"special_cloaker",
 	"special_crawler",
+	"special_disciple",
 	"special_dog",
 	"special_dog_zhd",
 	"special_dog_gas",
 	"special_dog_fire",
 	"special_facehugger",
+	"special_follower",
 	"special_frog",
 	"special_fury",
 	"special_grenade",
@@ -118,7 +139,9 @@ local zombieconfig = {
 	"special_husk",
 	"special_keeper",
 	"special_licker",
+	--"special_leaper", Duh Duh Duh Die Riseeeee
 	--"special_l4d_hunter",
+	"special_mimic",
 	"special_nemacyte",
 	"special_nova",
 	"special_nova_electric",
@@ -126,11 +149,13 @@ local zombieconfig = {
 	"special_pack",
 	"special_raptor",
 	"special_roach",
+	"special_screamer",
 	"special_spooder",
 	"special_sprinter",
 	"special_sire",
 	"special_siz",
 	"special_ss_fire",
+	"special_terrorist",
 	"special_tempest",
 	"special_ticker",
 	"special_wildticker",
@@ -142,12 +167,10 @@ local zombieconfig = {
 	"special_deathclaw",
 	"special_glowingone",
 	"special_electrician",
-	"special_ghost",	
-	"special_juggernaut",
+	"special_ghost",
 	"special_spook",
-	"special_alien_scorpion",
-	"special_alien_scout",
-	"special_alien_seeker",
+	"special_juggernaut",
+	"special_cloverfield",
 }
 
 
@@ -210,6 +233,11 @@ nzConfig.AddWeaponToBlacklist( "fas2_ifak" )
 nzConfig.AddWeaponToBlacklist( "nz_multi_tool" )
 nzConfig.AddWeaponToBlacklist( "nz_grenade" )
 nzConfig.AddWeaponToBlacklist( "nz_perk_bottle" )
+nzConfig.AddWeaponToBlacklist( "nz_quickknife_crowbar" )
+nzConfig.AddWeaponToBlacklist( "nz_knife_butterfly" )
+nzConfig.AddWeaponToBlacklist( "nz_knife_boring" )
+nzConfig.AddWeaponToBlacklist( "nz_knife_lukewarmconflict" )
+nzConfig.AddWeaponToBlacklist( "nz_knife_wrench" )
 nzConfig.AddWeaponToBlacklist( "nz_tool_base" )
 nzConfig.AddWeaponToBlacklist( "nz_one_inch_punch" ) -- Nope! You gotta give this with special map scripts
 

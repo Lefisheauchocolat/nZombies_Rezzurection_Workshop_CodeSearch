@@ -47,7 +47,7 @@ function ENT:Initialize()
 	self:SetModelScale(1.2)
 
 	if SERVER then
-		self:SetModel("models/nzprops/zapper_coil.mdl")
+		self:SetModel("models/moo/_codz_ports_props/t4/zombie/zombie_zapper_tesla_coil/moo_codz_p4_zombie_zapper_tesla_coil.mdl")
 		self:DrawShadow( false )
 	end
 

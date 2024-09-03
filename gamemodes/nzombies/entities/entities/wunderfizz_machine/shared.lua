@@ -135,12 +135,21 @@ function ENT:Use(activator, caller)
 					if (nzMapping.Settings.bottle == "tfa_bo1_bottle") then
 						self.Bottle:SetPos(self:GetPos() + Vector(0,0,50))
 						self.Bottle:SetAngles(self:GetAngles() + Angle(0,90,0))
+					elseif (nzMapping.Settings.bottle == "tfa_bo2_bottle") then
+						self.Bottle:SetPos(self:GetPos() + Vector(0,0,50))
+						self.Bottle:SetAngles(self:GetAngles() + Angle(0,90,0))	
 					elseif (nzMapping.Settings.bottle == "tfa_perk_can") then
 						self.Bottle:SetPos(self:GetPos() + Vector(0,0,50))
 						self.Bottle:SetAngles(self:GetAngles() + Angle(0,180,0))		
 					elseif (nzMapping.Settings.bottle == "tfa_perk_gum") then
 						self.Bottle:SetPos(self:GetPos() + Vector(0,0,55))
 						self.Bottle:SetAngles(self:GetAngles() + Angle(0,180,0))
+					elseif (nzMapping.Settings.bottle == "tfa_bo3_nana") then
+						self.Bottle:SetPos(self:GetPos() + Vector(0,0,55))
+						self.Bottle:SetAngles(self:GetAngles() + Angle(0,-90,0))
+					elseif (nzMapping.Settings.bottle == "tfa_perk_candy") then
+						self.Bottle:SetPos(self:GetPos() + Vector(0,0,50))
+						self.Bottle:SetAngles(self:GetAngles() + Angle(0,0,0))
 					else	
 						self.Bottle:SetPos(self:GetPos() + Vector(0,0,50))
 						self.Bottle:SetAngles(self:GetAngles() + Angle(0,140,0))
@@ -184,7 +193,7 @@ function ENT:Use(activator, caller)
 					self:SetUser(nil)
 					self.Bottle:Remove()
 					self:SetSharing(false)
-					self:EmitSound("nz_moo/perkacolas/wonderfizz_sting_1.mp3", 75, math.random(97, 103))																	 
+					self:EmitSound("nz_moo/perkacolas/wonderfizz_sting_1.mp3", 75, math.random(97, 103))
 				end
 			else
 				if activator == self:GetUser() then	
@@ -199,7 +208,7 @@ function ENT:Use(activator, caller)
 					self:SetUser(nil)
 					self.Bottle:Remove()
 					self:SetSharing(false)
-					self:EmitSound("nz_moo/perkacolas/wonderfizz_sting_1.mp3", 75, math.random(97, 103))																	 
+					self:EmitSound("nz_moo/perkacolas/wonderfizz_sting_1.mp3", 75, math.random(97, 103))
 				else
 					activator:PrintMessage( HUD_PRINTTALK, "This is " .. self:GetUser():Nick() .. "'s perk. You cannot take it." )
 				end

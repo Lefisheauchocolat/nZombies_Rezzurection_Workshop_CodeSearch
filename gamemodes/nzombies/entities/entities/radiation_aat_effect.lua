@@ -38,10 +38,10 @@ function ENT:Initialize()
 
 	ParticleEffectAttach("bo3_aat_fallout_loop", PATTACH_ABSORIGIN_FOLLOW, self, 0)
 
-	self.killtime = CurTime() + self.Delay
-	print(self.Delay)
 	self:SetParent(nil)
+
 	if CLIENT then return end
+	self.killtime = CurTime() + self.Delay
 	self:SetTrigger(true)
 end
 
@@ -55,7 +55,7 @@ function ENT:Think()
 			if (v:IsNPC() or v:IsNextBot()) and v:Health() > 0 then
 				time = math.Rand(2,6)
 
-				v:AATRadiation(time, self:GetAttacker(), self:GetInflictor())
+				v:AATRadiation(time, self:GetAttacker(), self:GetInflictor(), true)
 				self.Kills = self.Kills + 1
 			end
 		end

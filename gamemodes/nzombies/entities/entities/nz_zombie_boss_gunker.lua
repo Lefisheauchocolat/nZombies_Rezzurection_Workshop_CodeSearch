@@ -6,9 +6,7 @@ ENT.Category = "Brainz"
 ENT.Author = "Laby and GhostlyMoo"
 
 --KILL HOMINID
-game.AddParticles("particles/gearsofwar_effects.pcf")
-PrecacheParticleSystem("obj_gearsofwar_gunk_tracer")
-PrecacheParticleSystem("obj_gearsofwar_gunk_explosion")
+
 if CLIENT then return end -- Client doesn't really need anything beyond the basics
 
 ENT.SpeedBasedSequences = true

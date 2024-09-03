@@ -1,41 +1,125 @@
+-- Copyright (c) 2018-2020 TFA Base Devs
+
+-- Permission is hereby granted, free of charge, to any person obtaining a copy
+-- of this software and associated documentation files (the "Software"), to deal
+-- in the Software without restriction, including without limitation the rights
+-- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+-- copies of the Software, and to permit persons to whom the Software is
+-- furnished to do so, subject to the following conditions:
+
+-- The above copyright notice and this permission notice shall be included in all
+-- copies or substantial portions of the Software.
+
+-- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+-- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+-- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+-- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+-- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+-- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+-- SOFTWARE.
+
 AddCSLuaFile()
 
-ENT.Base = "base_entity"
-ENT.Type = "anim"
-ENT.Author = "GhostlyMoo"
-ENT.PrintName = "GLOWSTICKS! Find them at your nearest Party-City."
-ENT.Contact = "No fuck off"
+--[Info]--
+ENT.Base = "tfa_exp_base"
+ENT.PrintName = "Contact Explosive"
+ENT.HasTrail = true 
 
-function ENT:Initialize()
+--[Sounds]--
+ENT.LoopSound = Sound("ambient/energy/electric_loop.wav")
+ENT.ExplodeSound = {
+    Sound("ambient/energy/ion_cannon_shot1.wav"),
+    Sound("ambient/energy/ion_cannon_shot2.wav"),
+    Sound("ambient/energy/ion_cannon_shot3.wav"),
+}
+
+--[Parameters]--
+ENT.Impacted = false
+ENT.IsDetonated = false
+ENT.TriggerSphere = false
+
+ENT.StartLP = false
+
+local nzombies = engine.ActiveGamemode() == "nzombies"
+
+DEFINE_BASECLASS(ENT.Base)
+
+function ENT:UpdateTransmitState()
+    return TRANSMIT_ALWAYS
+end
+
+function ENT:PhysicsCollide(data, phys)
+    if data.HitEntity.IsMooZombie then return end
+    if self:GetNW2Bool("Impacted") then return end
+
+    if data.HitEntity:IsPlayer() then 
+        self:Explode()
+        self:SetNW2Bool("Impacted", true) 
+    end
+
+    --self:Explode()
+    phys:EnableMotion(false)
+    phys:Sleep()
+    self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+    self:SetNW2Bool("Impacted", true)
+end
+
+function ENT:CreateRocketTrail()
+    self:SetNoDraw(true)
+    ParticleEffectAttach("bo3_panzer_elec_nade",PATTACH_ABSORIGIN_FOLLOW,self,0)
     if SERVER then
-        self:SetModel("models/weapons/w_eq_fraggrenade.mdl")
-        ParticleEffectAttach("bo3_panzer_elec_nade",PATTACH_ABSORIGIN_FOLLOW,self,0)
-        self:SetNoDraw(false)
-        self:SetModelScale(1.25)
-        self:PhysicsInit(SOLID_VPHYSICS)
-        self:SetTrigger(true)
-        self:UseTriggerBounds(true, 0)
-        self:GetPhysicsObject():SetMaterial("bloodyflesh")
-
-        local gibLife = 3
-        if gibLife >= 0 then
-            timer.Simple(gibLife,function()
-                if IsValid(self) then
-                    self:GoBOOM()
-                end
-            end)
-        end
-        util.SpriteTrail(self, 0, Color(255, 255, 255, 255), false, 25, 15, 0.5, 1 / 40 * 0.3, "trails/electric")
+        util.SpriteTrail(self, 0, Color(100, 100, 255, 255), false, 25, 15, 0.15, 1 / 40 * 0.3, "trails/electric")
     end
 end
 
-function ENT:StartTouch(ent)
-    if !ent:IsPlayer() and ent.IsMooZombie then return end
-    self:GoBOOM()
+function ENT:Initialize(...)
+    BaseClass.Initialize(self, ...)
+
+    if self.HasTrail then
+        self:CreateRocketTrail()
+    end
+
+    self.ExplodeTime = CurTime() + 2.5
 end
 
-function ENT:GoBOOM()
+function ENT:Think()
+    local ply = self:GetOwner()
+    if SERVER then
+        if !self.StartLP and !self:GetNW2Bool("Impacted") then
+            self.StartLP = true
+            self:EmitSound(self.LoopSound, 70, math.random(95,105))
+        end
+        
+        if CurTime() > self.ExplodeTime and !self.GoneBoom then
+            self.GoneBoom = true
+            self:Explode()
+        end
+    end
+    
+    if not self:GetNW2Bool("Impacted") then
+        self:NextThink(CurTime())
+    else
+        self:NextThink( CurTime() + math.Rand( 0.75, 0.9 ) )
+    end
+    return true
+end
 
+function ENT:DoExplosionEffect()
+    self:SetNoDraw(true)
+    self:DrawShadow(false)
+    self:StopParticles()
+
+    local effectdata = EffectData()
+    effectdata:SetOrigin(self:GetPos())
+
+    util.Effect("Explosion", effectdata)
+    util.ScreenShake(self:GetPos(), 20, 255, 0.5, 100)
+
+    self:StopSound(self.LoopSound)
+    self:EmitSound(self.ExplodeSound[math.random(#self.ExplodeSound)], SNDLVL_GUNFIRE)
+end
+
+function ENT:Explode(ent)
     local dmg = 90
 
     if SERVER then
@@ -49,7 +133,7 @@ function ENT:GoBOOM()
 
         for k, v in pairs(ents.FindInSphere(pos, 50)) do
             local expdamage = DamageInfo()
-            expdamage:SetDamageType(DMG_SHOCK)
+            expdamage:SetDamageType(DMG_ENERGYBEAM)
 
             local distfac = pos:Distance(v:WorldSpaceCenter())
             distfac = 1 - math.Clamp((distfac/50), 0, 1)
@@ -60,17 +144,12 @@ function ENT:GoBOOM()
 
             if v:IsPlayer() then
                 v:TakeDamageInfo(expdamage)
-                v:NZSonicBlind(2)
+                v:NZSonicBlind(1)
             end
         end
 
-        local effectdata = EffectData()
-        effectdata:SetOrigin(self:GetPos())
-
-        util.Effect("Explosion", effectdata)
-        util.ScreenShake(self:GetPos(), 20, 255, 0.5, 100)
-
-        self:Remove()
+        self:DoExplosionEffect()
+        SafeRemoveEntity(self)
     end
 end
 
@@ -97,8 +176,6 @@ function ENT:LaunchArc(pos, pos2, time, t)  -- target, starting point, time to g
     return pos2 + Vector(x, y, z)
 end
 
-function ENT:Draw()
-    if CLIENT then
-        self:DrawModel()
-    end
+function ENT:OnRemove()
+    self:StopSound(self.LoopSound)
 end

@@ -71,7 +71,7 @@ end
 
 function ENT:Initialize()
 	BaseClass.Initialize(self)
-	self:SetModel("models/weapons/w_grenade.mdl")
+	self:SetModel("models/weapons/w_eq_fraggrenade_thrown.mdl")
 	self:PhysicsInit(SOLID_VPHYSICS)
 	self:SetSolid(SOLID_VPHYSICS)
 	self:SetCollisionGroup(COLLISION_GROUP_WEAPON)
@@ -80,8 +80,6 @@ function ENT:Initialize()
 	self.spawntime = CurTime()
 	self.RangeSqr = self.Range*self.Range
 	self:SetMoveType(MOVETYPE_VPHYSICS)
-	
-	self:EmitSound("npc/scanner/scanner_siren2.wav")
 
 	if CLIENT then return end
 	self:SetTrigger(true)
@@ -137,12 +135,11 @@ function ENT:Explode()
 		tr.endpos = v:WorldSpaceCenter()
 		local tr1 = util.TraceLine(tr)
 		if tr1.HitWorld then continue end
-		v:NZSonicBlind(1)
 
 		local dist = self:GetPos():DistToSqr(v:GetPos())
 		dist = 1 - math.Clamp(dist/self.RangeSqr, 0, 0.5)
 
-		damage:SetDamage(105 * dist)
+		damage:SetDamage(95 * dist)
 
 		damage:SetDamageForce(v:GetUp()*500 + (v:GetPos() - self:GetPos()):GetNormalized()*500)
 
@@ -155,10 +152,6 @@ function ENT:Explode()
 
 	self:DoExplosionEffect()
 	self:Remove()
-end
-
-function ENT:OnRemove()
-	self:StopSound("npc/scanner/scanner_siren2.wav")
 end
 
 function ENT:getvel(pos, pos2, time)	-- target, starting point, time to get there

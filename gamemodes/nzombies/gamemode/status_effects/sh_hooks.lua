@@ -107,11 +107,79 @@ if SERVER then
             mv:SetVelocity(velocity - math.max(1, ply:GetGravity()) * physenv.GetGravity() * halfTickInterval)
         end
     end)
+
+    --[[hook.Add("Move", "nz.MimicMove", function(ply, mv)
+		if not nzombies then hook.Remove("Move", "nz.MimicMove") end
+        if ply:NZIsMimicGrab() and ply.MimicParent and IsValid(ply.MimicParent) then
+
+            local ent = ply.MimicParent
+            local velocity = ent:GetVelocity()
+
+            local attach = ent:GetAttachment(ent:LookupAttachment("player_attach"))
+            local eyeattach = ent:GetAttachment(ent:LookupAttachment("jaw_fx_tag"))
+
+            local halfTickInterval = engine.TickInterval() * 0.5
+            velocity = velocity * halfTickInterval
+
+            mv:SetOrigin(attach.Pos - Vector(0,0,30))
+            ply:SetEyeAngles((eyeattach.Pos - ply:GetShootPos()):Angle())
+            mv:SetVelocity(velocity - math.max(1, ply:GetGravity()) * physenv.GetGravity() * halfTickInterval)
+        end
+    end)]]
+    hook.Add("Move", "nz.MimicMove", function(ply, mv)
+		if not nzombies then hook.Remove("Move", "nz.MimicMove") end
+        if ply:NZIsMimicGrab() and ply.MimicParent and IsValid(ply.MimicParent) then
+        	local ent = ply.MimicParent
+
+	        if ent:GetMoveType() == MOVETYPE_NONE then
+	            return
+	        end
+
+	        local velocity = ent:GetVelocity()
+
+	        local attach = ent:GetAttachment(ent:LookupAttachment("player_attach"))
+	        local eyeattach = ent:GetAttachment(ent:LookupAttachment("jaw_fx_tag"))
+
+	        local pos = attach.Pos - Vector(0,0,30)
+
+	        if not ply:Alive() or ply:GetMoveType() ~= MOVETYPE_WALK then
+	            mv:SetVelocity(velocity)
+	            return
+	        end
+
+	        local halfTickInterval = engine.TickInterval() * 0.5
+	        velocity = velocity * halfTickInterval
+
+	        local mins, maxs = ply:GetCollisionBounds()
+	        mins[3] = maxs[3]/2
+
+	        if util.TraceHull({start = pos, endpos = pos - velocity, filter = {ply, ent}, mins = mins, maxs = maxs}).HitWorld then
+	            ply:Fire("ignorefalldamage","",0)
+	            return
+	        end
+
+	        mv:SetOrigin(pos)
+            ply:SetEyeAngles((eyeattach.Pos - ply:GetShootPos()):Angle())
+	        mv:SetVelocity(velocity - math.max(1, ply:GetGravity()) * physenv.GetGravity() * halfTickInterval)
+	    end
+    end)
 end
 
 hook.Add("StartCommand", "nz.TrasherBlockCMD", function(ply, cmd)
 	if not nzombies then hook.Remove("StartCommand", "nz.TrasherBlockCMD") end
     if ply:NZIsThrasherVictim() then
+        cmd:RemoveKey(IN_SPEED)
+        cmd:RemoveKey(IN_JUMP)
+        cmd:RemoveKey(IN_DUCK)
+        cmd:RemoveKey(IN_ATTACK)
+        cmd:RemoveKey(IN_ATTACK2)
+        cmd:ClearMovement()
+    end
+end)
+
+hook.Add("StartCommand", "nz.MimicBlockCMD", function(ply, cmd)
+	if not nzombies then hook.Remove("StartCommand", "nz.MimicBlockCMD") end
+    if ply:NZIsMimicGrab() then
         cmd:RemoveKey(IN_SPEED)
         cmd:RemoveKey(IN_JUMP)
         cmd:RemoveKey(IN_DUCK)

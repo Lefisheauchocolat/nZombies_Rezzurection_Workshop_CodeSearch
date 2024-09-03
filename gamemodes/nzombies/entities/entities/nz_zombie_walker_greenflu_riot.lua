@@ -1057,25 +1057,25 @@ ENT.MonkeySounds = {
 }
 
 ENT.CustomWalkFootstepsSounds = {
-	"nz_moo/zombies/footsteps/_l4d/walk/concrete1.mp3",
-	"nz_moo/zombies/footsteps/_l4d/walk/concrete2.mp3",
-	"nz_moo/zombies/footsteps/_l4d/walk/concrete3.mp3",
-	"nz_moo/zombies/footsteps/_l4d/walk/concrete4.mp3",
+	"nz_moo/zombies/footsteps/_l4d/walk/concrete1.wav",
+	"nz_moo/zombies/footsteps/_l4d/walk/concrete2.wav",
+	"nz_moo/zombies/footsteps/_l4d/walk/concrete3.wav",
+	"nz_moo/zombies/footsteps/_l4d/walk/concrete4.wav",
 }
 
 ENT.CustomRunFootstepsSounds = {
-	"nz_moo/zombies/footsteps/_l4d/run/concrete1.mp3",
-	"nz_moo/zombies/footsteps/_l4d/run/concrete2.mp3",
-	"nz_moo/zombies/footsteps/_l4d/run/concrete3.mp3",
-	"nz_moo/zombies/footsteps/_l4d/run/concrete4.mp3",
+	"nz_moo/zombies/footsteps/_l4d/run/concrete1.wav",
+	"nz_moo/zombies/footsteps/_l4d/run/concrete2.wav",
+	"nz_moo/zombies/footsteps/_l4d/run/concrete3.wav",
+	"nz_moo/zombies/footsteps/_l4d/run/concrete4.wav",
 }
 
 ENT.CustomAttackImpactSounds = {
-	"nz_moo/zombies/plr_impact/_l4d/punch_boxing_bodyhit03.mp3",
-	"nz_moo/zombies/plr_impact/_l4d/punch_boxing_bodyhit04.mp3",
-	"nz_moo/zombies/plr_impact/_l4d/punch_boxing_facehit4.mp3",
-	"nz_moo/zombies/plr_impact/_l4d/punch_boxing_facehit5.mp3",
-	"nz_moo/zombies/plr_impact/_l4d/punch_boxing_facehit6.mp3",
+	"nz_moo/zombies/plr_impact/_l4d/punch_boxing_bodyhit03.wav",
+	"nz_moo/zombies/plr_impact/_l4d/punch_boxing_bodyhit04.wav",
+	"nz_moo/zombies/plr_impact/_l4d/punch_boxing_facehit4.wav",
+	"nz_moo/zombies/plr_impact/_l4d/punch_boxing_facehit5.wav",
+	"nz_moo/zombies/plr_impact/_l4d/punch_boxing_facehit6.wav",
 }
 
 ENT.BehindSoundDistance = 200 -- When the zombie is within 200 units of a player, play these sounds instead

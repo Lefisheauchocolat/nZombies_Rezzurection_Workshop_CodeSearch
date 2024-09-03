@@ -36,13 +36,14 @@ ENT.IsMooZombie = true
 ENT.IsMooSpecial = true
 ENT.MooSpecialZombie = true -- They're a Special Zombie, but is still close enough to a normal zombie to be able to do normal zombie things.
 ENT.IsMooBossZombie = true
+ENT.IsMiniBoss = true
 
 ENT.AttackRange = 72
 
 ENT.TraversalCheckRange = 40
 
 ENT.Models = {
-	{Model = "models/moo/_codz_ports/t7/temple/moo_codz_t7_sonic_napalm.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t5/temple/moo_codz_t5_viet_special_zombie.mdl", Skin = 1, Bodygroups = {0,0}},
 }
 
 ENT.DeathSequences = {
@@ -148,7 +149,6 @@ ENT.SequenceTables = {
 				"nz_sonic_run_01",
 				"nz_sonic_run_02",
 				"nz_sonic_run_03",
-				"nz_l4d_run_04",
 			},
 			BlackholeMovementSequence = {
 				"nz_blackhole_1",
@@ -222,6 +222,7 @@ function ENT:StatsInitialize()
 		self:SetRunSpeed(71)
 
 		self:SetBodygroup(0,1)
+		self:SetBodygroup(1,1)
 
 		self.Cooldown = CurTime() + 7 -- Won't be allowed to explode right after spawning, so they'll attack normally until then.
 		self.Screaming = false

@@ -104,6 +104,8 @@ ENT.AttackRange = 115
 
 ENT.TraversalCheckRange = 100
 
+ENT.CanPanzerLift = true
+
 ENT.Models = {
 	{Model = "models/moo/_codz_ports/t7/castle/moo_codz_t7_mechz.mdl", Skin = 0, Bodygroups = {0,0}},
 }
@@ -439,7 +441,7 @@ function ENT:AI()
 
 							local phys = self.GlowStick:GetPhysicsObject()
 							if IsValid(phys) then
-			 					phys:SetVelocity(self.GlowStick:getvel(target:GetPos(), self:EyePos(), 1.2))
+			 					phys:SetVelocity(self.GlowStick:getvel(target:GetPos() + target:GetVelocity() * math.Clamp(target:GetVelocity():Length2D(),0,1.2), self:EyePos(), 1.2))
 			 				end
 						end
 
@@ -528,9 +530,9 @@ function ENT:OnInjured( dmgInfo )
 		local bone = self:GetBonePosition(self:LookupBone("j_head"))
 		
 		if hitpos:DistToSqr(bone) < 150 then
-			-- No damage scaling on headshot, we keep it at 1x
+			dmgInfo:ScaleDamage(1.25)
 		else
-			dmgInfo:ScaleDamage(0.5) -- When the helmet is lost, a non-headshot still only deals 50%
+			dmgInfo:ScaleDamage(0.85) -- When the helmet is lost, a non-headshot still only deals 85%
 		end
 	end
 end

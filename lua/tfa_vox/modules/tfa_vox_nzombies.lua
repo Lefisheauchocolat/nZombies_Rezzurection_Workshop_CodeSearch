@@ -21,6 +21,7 @@ hook.Add("TFAVOX_InitializePlayer","TFAVOX_nZombiesIP",function(ply)
 				ply.TFAVOX_Sounds['nzombies'].boss = mdtbl.nzombies.boss -- Not implemented yet
 				ply.TFAVOX_Sounds['nzombies'].powerup = mdtbl.nzombies.powerup
 				ply.TFAVOX_Sounds['nzombies'].facility = mdtbl.nzombies.facility
+                ply.TFAVOX_Sounds['nzombies'].monkeybomb = mdtbl.nzombies.monkeybomb
 				ply.TFAVOX_Sounds.murder = mdtbl.murder
 			end
 
@@ -261,17 +262,6 @@ hook.Add( "OnPlayerBuyBox", "TFAVOX_nZombies_Box", function(ply, gun)
 	end
 end)
 
-hook.Add( "OnPlayerBuyBox", "TFAVOX_nZombies_Box", function(ply, gun)
-	if IsValid(ply) and TFAVOX_IsValid(ply) then
-		if ply.TFAVOX_Sounds and ply.TFAVOX_Sounds.nzombies then
-			local sndtbl = ply.TFAVOX_Sounds['nzombies'].facility
-			if sndtbl and sndtbl['randombox'] then
-				TFAVOX_PlayVoicePriority( ply, sndtbl['randombox'], 0 )
-			end
-		end
-	end
-end)
-
 hook.Add( "OnPlayerBuyWunderfizz", "TFAVOX_nZombies_Wunderfizz", function(ply, perk)
 	if IsValid(ply) and TFAVOX_IsValid(ply) then
 		if ply.TFAVOX_Sounds and ply.TFAVOX_Sounds.nzombies then
@@ -295,22 +285,33 @@ hook.Add( "OnPlayerBuyPackAPunch", "TFAVOX_nZombies_Packapunch", function(ply, g
 end)
 
 hook.Add("OnZombieKilled", "TFAVOX_nZombies_Kill", function(zombie, dmgi)
-	local ply = dmgi:GetAttacker()
-	if ply:IsPlayer() then
-	if IsValid(ply) and TFAVOX_IsValid(ply) then
-		if ply.TFAVOX_Sounds then
-			local sndtbl = ply.TFAVOX_Sounds.murder
-			if !sndtbl then return end
+    local ply = dmgi:GetAttacker()
+    if ply:IsPlayer() then
+        if IsValid(ply) and TFAVOX_IsValid(ply) then
+            if ply.TFAVOX_Sounds then
+                local sndtbl = ply.TFAVOX_Sounds.murder
+                if not sndtbl then return end
 
-			if dmgi then		
-				if math.random(1, 4) == 3 then
-					TFAVOX_PlayVoicePriority(ply, sndtbl['zombie'], 100, 10)
-				end
-			end
-		end
-	end
-	end
+                -- Check if Instakill is active
+                if nzPowerUps:IsPowerupActive("insta") then
+                    if sndtbl['instakill'] then
+                        if math.random(1, 4) == 3 then
+                            TFAVOX_PlayVoicePriority(ply, sndtbl['instakill'], 100, 10)
+                        end
+                    end
+                else
+                    -- Normal kill sound when Instakill is not active
+                    if dmgi then
+                        if math.random(1, 4) == 3 then
+                            TFAVOX_PlayVoicePriority(ply, sndtbl['zombie'], 100, 10)
+                        end
+                    end
+                end
+            end
+        end
+    end
 end)
+
 
 -- Surrounded sounds added by Ethorbit and requested by DoorMatt
 local nextsearch = 0
@@ -334,3 +335,27 @@ hook.Add("PlayerTick", "NZSurroundedSounds", function(ply)
 		end
 	end
 end)
+
+-- Pretty self explanatory but this adds support for voice lines relating to throwing monkey bombs
+local function CheckMonkeyBombCreation()
+    for _, ent in ipairs(ents.GetAll()) do
+        if ent.MonkeyBomb and not ent.TFAVOX_SoundPlayed then
+            local ply = ent:GetOwner()
+            if IsValid(ply) then
+                if ply.TFAVOX_Sounds and ply.TFAVOX_Sounds.nzombies then
+                    local sndtbl = ply.TFAVOX_Sounds['nzombies'].monkeybomb
+                    if sndtbl then
+                        TFAVOX_PlayVoicePriority(ply, sndtbl, 0)
+                        ent.TFAVOX_SoundPlayed = true -- Ensure the sound is played only once
+                    end
+                end
+            end
+        end
+    end
+end
+
+hook.Add("Think", "TFAVOX_nZombies_MonkeyBombThink", function()
+    CheckMonkeyBombCreation()
+end)
+
+--

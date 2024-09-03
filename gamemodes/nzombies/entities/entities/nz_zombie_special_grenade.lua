@@ -535,10 +535,10 @@ function ENT:OnSpawn(animation, grav, dirt)
 	end
 end
 
-function ENT:OnTakeDamage(dmginfo)
+function ENT:PostTookDamage(dmginfo)
 	local insta = nzPowerUps:IsPowerupActive("insta") -- Don't apply the damage reduction if insta kill is active.
 	if resist[dmginfo:GetDamageType()] and !insta then
-		dmginfo:ScaleDamage(0.5)
+		dmginfo:ScaleDamage(0.25)
 	end
 end
 
@@ -548,7 +548,7 @@ function ENT:PostAdditionalZombieStuff()
 	if CurTime() > self.Cooldown and !self.CanThrow then
 		self.CanThrow = true
 	end
-	if self:TargetInRange(600) and !self:IsAttackBlocked() and self.CanThrow and !self.IsTurned and !nzPowerUps:IsPowerupActive("timewarp") then
+	if self:TargetInRange(600) and !self:IsAttackBlocked() and self.CanThrow and !self.IsTurned and !self:GetCrawler() and !nzPowerUps:IsPowerupActive("timewarp") then
 		if !self:GetTarget():IsPlayer() then return end
 		if self:TargetInRange(150) then return end
 		self:ThrowGrenade()
@@ -556,7 +556,7 @@ function ENT:PostAdditionalZombieStuff()
 end
 
 function ENT:PostDeath(dmginfo)
-	if math.random(3) == 1 then
+	if math.random(4) == 1 then
 	local grenade = ents.Create("bomber_grenade")
 	grenade:SetPos(self:WorldSpaceCenter())
 	grenade:SetOwner(self:GetOwner())
@@ -629,7 +629,16 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 	if e == "base_ranged_throw" then
 		self:EmitSound("TFA.BO1.M67.Throw")
 		local larmfx_tag = self:LookupBone("j_spineupper")
-		self.Grenade = ents.Create("bomber_grenade")
+		local chance = math.random(3)
+		
+		if chance == 1 then
+			self.Grenade = ents.Create("bomber_grenade")
+		elseif chance == 2 then
+			self.Grenade = ents.Create("bomber_thermite")
+		elseif chance == 3 then
+			self.Grenade = ents.Create("bomber_flashbang")
+		end
+		
 		self.Grenade:SetPos(self:GetBonePosition(larmfx_tag))
 		self.Grenade:SetOwner(self:GetOwner())
 		self.Grenade:Spawn()

@@ -25,7 +25,7 @@ ENT.Models = {
 
 local spawnslow = {"nz_spawn_ground_v1", "nz_spawn_ground_ad_v2", "nz_spawn_ground_v2", "nz_spawn_ground_v2_altb"}
 local spawnrun = {"nz_spawn_ground_v1_run"}
-local spawnfast = {"nz_spawn_ground_climbout_fast"}
+local spawnfast = {"nz_spawn_ground_climbout_fast", "nz_s4_3arc_traverse_riser"}
 local spawnsuperfast = {"nz_ent_ground_01", "nz_ent_ground_02"}
 
 ENT.DeathSequences = {
@@ -73,6 +73,7 @@ ENT.ElectrocutionSequences = {
 	"nz_death_elec_2",
 	"nz_death_elec_3",
 	"nz_death_elec_4",
+	"nz_zombie_tesla_death_e",
 }
 
 ENT.BarricadeTearSequences = {
@@ -373,6 +374,7 @@ ENT.SequenceTables = {
 				"nz_crawl_sprint_v1",
 				"nz_crawl_on_hands",
 				"nz_crawl_on_hands_c",
+				"nz_s4_3arc_crawl_sprint",
 				"nz_iw7_cp_zom_prone_shamble_forward_01",
 				"nz_iw7_cp_zom_prone_shamble_forward_02",
 			},
@@ -480,6 +482,7 @@ ENT.SequenceTables = {
 				"nz_crawl_sprint_v1",
 				"nz_crawl_on_hands",
 				"nz_crawl_on_hands_c",
+				"nz_s4_3arc_crawl_sprint",
 				"nz_iw7_cp_zom_prone_shamble_forward_01",
 				"nz_iw7_cp_zom_prone_shamble_forward_02",
 			},
@@ -591,6 +594,7 @@ ENT.SequenceTables = {
 				"nz_crawl_sprint_v1",
 				"nz_crawl_on_hands",
 				"nz_crawl_on_hands_c",
+				"nz_s4_3arc_crawl_sprint",
 				"nz_iw7_cp_zom_prone_run_forward_01",
 				"nz_iw7_cp_zom_prone_run_forward_02",
 			},
@@ -669,6 +673,7 @@ ENT.SequenceTables = {
 				"nz_crawl_sprint_v1",
 				"nz_crawl_on_hands",
 				"nz_crawl_on_hands_c",
+				"nz_s4_3arc_crawl_sprint",
 				"nz_iw7_cp_zom_prone_run_forward_01",
 				"nz_iw7_cp_zom_prone_run_forward_02",
 			},

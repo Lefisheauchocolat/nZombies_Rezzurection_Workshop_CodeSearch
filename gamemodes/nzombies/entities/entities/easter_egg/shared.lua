@@ -14,8 +14,10 @@ end
 
 function ENT:Initialize()
 
-	self:SetModel(nzRound:GetSongType(nzMapping.Settings.eemdl))
-	--self:SetModel( "models/props_lab/huladoll.mdl" )
+	local mdl = self:GetModel()
+	if not mdl or mdl == "" or mdl == "models/error.mdl" then
+		self:SetModel( "models/props_lab/huladoll.mdl" )
+	end
 	self:SetMoveType( MOVETYPE_NONE )
 	self:SetSolid( SOLID_VPHYSICS )
 	self:SetCollisionGroup( COLLISION_GROUP_WEAPON )
@@ -36,7 +38,6 @@ function ENT:MeteorAffirm()
 		self:EmitSound("nz_moo/ee/affirm.mp3",85,math.random(95, 105))
 
 		self.Used = true
-		self:SetActivated(true)
 		nzEE:ActivateEgg( self, activator )
 	end
 end
@@ -47,6 +48,21 @@ function ENT:OnRemove()
 			self:StopSound(self.IdleAmbience)
 		end
 	end
+end
+
+function ENT:Think()
+
+	if SERVER then
+		if self.Used then
+			self:SetActivated(true)
+		else
+			self:SetActivated(false)
+		end
+	end
+
+	self:NextThink( CurTime() )
+
+	return true
 end
 
 if CLIENT then

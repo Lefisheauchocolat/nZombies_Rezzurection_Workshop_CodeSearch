@@ -24,7 +24,7 @@ local nz_bleedouttime = GetConVar("nz_downtime")
 local nz_betterscaling = GetConVar("nz_hud_better_scaling")
 local nz_bloodoverlay = GetConVar("nz_bloodoverlay")
 
-local zmhud_icon_revive = Material("materials/Revive.png", "unlitgeneric smooth")
+local zmhud_icon_revive = Material("nz_moo/huds/cod5/waypoint_revive.png", "unlitgeneric smooth")
 local zmhud_blood_overlay = Material("materials/nz_moo/huds/t7/i_blood_damage_c.png", "unlitgeneric smooth")
 local zmhud_blood_highlight = Material("materials/nz_moo/huds/t7/i_blood_highlights_c.png", "unlitgeneric smooth")
 
@@ -34,12 +34,6 @@ local color_black_100 = Color(0, 0, 0, 100)
 local color_black_180 = Color(0, 0, 0, 180)
 local color_red_200 = Color(200, 0, 0, 255)
 local color_revive = Color(150, 200, 255)
-
-local SyretteClass = {
-	["tfa_bo2_syrette"] = true,
-	["tfa_bo3_syrette"] = true,
-	["tfa_bo4_syrette"] = true,
-}
 
 -- Useful ToScreen replacement for better directional
 function XYCompassToScreen(pos, boundary)
@@ -138,7 +132,9 @@ local function DrawDownedPlayers()
 
 		if ply == pply then continue end
 		if not data.DownTime then continue end
+		
 		local revivor = data.RevivePlayer
+		if IsValid(revivor) and revivor == pply then continue end
 
 		local ppos = ply:GetPos()
 		local posxy = (ppos + vector_up_35):ToScreen()
@@ -150,7 +146,7 @@ local function DrawDownedPlayers()
 		local downscale = 1 - math.Clamp((CurTime() - data.DownTime) / bleedtime, 0, 1)
 		surface.SetDrawColor(255, 180*downscale, 0)
 		surface.SetMaterial(zmhud_icon_revive)
-		surface.DrawTexturedRect(posxy.x - 32*scale, posxy.y - 32*scale, 64*scale, 48*scale)
+		surface.DrawTexturedRect(posxy.x - 32*scale, posxy.y - 32*scale, 64*scale, 64*scale)
 
 		if IsValid(revivor) and data.ReviveTime then
 			local hasrevive = revivor:HasPerk("revive")
@@ -162,7 +158,7 @@ local function DrawDownedPlayers()
 				surface.SetDrawColor(color_revive)
 			end
 			surface.SetMaterial(zmhud_icon_revive)
-			surface.DrawTexturedRectUV(posxy.x - 32*scale, posxy.y - 32*scale, 64*scale, 48*revivescale*scale, 0, 0, 1, 1*revivescale)
+			surface.DrawTexturedRectUV(posxy.x - 32*scale, posxy.y - 32*scale, 64*scale, 64*revivescale*scale, 0, 0, 1, 1*revivescale)
 		end
 	end
 end
@@ -181,6 +177,7 @@ local function DrawRevivalProgress()
 
 	local hasrevive = ply:HasPerk("revive")
 	local revtime = hasrevive and 2 or 4
+	local bleedtime = nz_bleedouttime:GetFloat()
 	local w, h = ScrW(), ScrH()
 	local pscale = 1
 	if nz_betterscaling:GetBool() then
@@ -190,6 +187,20 @@ local function DrawRevivalProgress()
 	local data = nzRevive.Players[id]
 	if data and data.RevivePlayer == ply then
 		local revivescale = math.Clamp((CurTime() - data.ReviveTime) / revtime, 0, 1)
+
+		if data.DownTime then
+			local downscale = 1 - math.Clamp((CurTime() - data.DownTime) / bleedtime, 0, 1)
+			surface.SetDrawColor(255, 180*downscale, 0)
+			surface.SetMaterial(zmhud_icon_revive)
+			surface.DrawTexturedRect(w/2 - 40*pscale, h/2 - 46*pscale, 80*pscale, 80*pscale)
+		end
+
+		surface.SetDrawColor(color_white)
+		if hasrevive then
+			surface.SetDrawColor(color_revive)
+		end
+		surface.SetMaterial(zmhud_icon_revive)
+		surface.DrawTexturedRectUV(w/2 - 40*pscale, h/2 - 46*pscale, 80*pscale, 80*revivescale*pscale, 0, 0, 1, 1*revivescale)
 
 		surface.SetDrawColor(color_black_180)
 		surface.DrawRect(w/2 - 150, h - 400*pscale, 300, 20)
@@ -207,7 +218,7 @@ local downdelay = 0
 
 local function DrawDownedNotify()
 	if not cl_drawhud:GetBool() then return end
-	local hudtype = nzMapping.Settings.hudtype
+	local hudtype = nzMapping.Settings.downsoundtype
 	local ply = LocalPlayer()
 	/*if IsValid(ply:GetObserverTarget()) then
 		ply = ply:GetObserverTarget()
@@ -468,13 +479,14 @@ hook.Add("TFA_DrawCrosshair", "ReviveBlockCrosshair", function(wep)
 	if IsValid(ply:GetObserverTarget()) then ply = ply:GetObserverTarget() end
 
 	local reviving = ply:GetPlayerReviving()
-	if IsValid(reviving) and reviving:IsPlayer() and not reviving:GetNotDowned() and SyretteClass[wep:GetClass()] then
+	if IsValid(reviving) and reviving:IsPlayer() and not reviving:GetNotDowned() and wep:GetClass() == nzMapping.Settings.syrette then
 		return true
 	end
 end)
 
 hook.Add("HUDPaint", "nzHUDreviveswap", function()
-	if not nzDisplay or ((nzDisplay and nzDisplay.reworkedHUDs) and not nzDisplay.reworkedHUDs[nzMapping.Settings.hudtype]) then
+	local hudtype = nzMapping.Settings.hudtype
+	if not nzDisplay or ((nzDisplay and nzDisplay.reworkedHUDs) and (!nzDisplay.reworkedHUDs[hudtype]) or nzDisplay.classicrevive[hudtype]) then
 		hook.Add("HUDPaint", "DrawDownedPlayers", DrawDownedPlayers )
 		hook.Add("HUDPaint", "DrawRevivalProgress", DrawRevivalProgress )
 	end

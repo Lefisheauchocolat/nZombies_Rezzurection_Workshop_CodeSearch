@@ -543,12 +543,3 @@ properties.Add( "Disintegrate", {
 	end
 
 } )
-
-AddEntFunctionProperty( "rb655_dissolve", "Disintegrate", 657, function( ent, ply )
-	if ( ent:GetModel() && ent:GetModel():StartWith( "*" ) ) then return false end
-	if ( ent:IsPlayer() ) then return false end
-
-	return true
-end, function( ent )
-	rb655_dissolve( ent )
-end, "icon16/wand.png" )

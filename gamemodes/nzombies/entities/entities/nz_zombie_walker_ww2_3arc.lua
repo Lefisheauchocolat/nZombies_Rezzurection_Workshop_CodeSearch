@@ -6,7 +6,96 @@ ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 ENT.Spawnable = true
 
-if CLIENT then 
+if CLIENT then
+
+	ENT.EyeColorTable = {
+		[0] = Material("models/moo/codz/s2_zombies/gen/mtl_zom_eye_fdr03.vmt"),
+		[1] = Material("models/moo/codz/s2_zombies/gen/mtl_zom_eye_fdr04_org1.vmt"),
+		[2] = Material("models/moo/codz/s2_zombies/gen/mtl_zom_head_fdr02_gore.vmt"),
+	}
+
+	function ENT:Draw() //Runs every frame
+		self:DrawModel()
+		self:PostDraw()
+
+		if self.RedEyes == true and self:Alive() and !self:GetDecapitated() and !self:GetMooSpecial() and !self.IsMooSpecial then
+			self:DrawEyeGlow() 
+		end
+
+		if self:WaterBuff() and !self:BomberBuff() and self:Alive() then
+			local elight = DynamicLight( self:EntIndex(), true )
+			if ( elight ) then
+				local bone = self:LookupBone("j_spineupper")
+				local pos = self:GetBonePosition(bone)
+				pos = pos 
+				elight.pos = pos
+				elight.r = 0
+				elight.g = 50
+				elight.b = 255
+				elight.brightness = 10
+				elight.Decay = 1000
+				elight.Size = 40
+				elight.DieTime = CurTime() + 1
+				elight.style = 0
+				elight.noworld = true
+			end
+		elseif self:BomberBuff() and !self:WaterBuff() and self:Alive() then
+			local elight = DynamicLight( self:EntIndex(), true )
+			if ( elight ) then
+				local bone = self:LookupBone("j_spineupper")
+				local pos = self:GetBonePosition(bone)
+				pos = pos 
+				elight.pos = pos
+				elight.r = 150
+				elight.g = 255
+				elight.b = 75
+				elight.brightness = 10
+				elight.Decay = 1000
+				elight.Size = 40
+				elight.DieTime = CurTime() + 1
+				elight.style = 0
+				elight.noworld = true
+			end
+		elseif self:WaterBuff() and self:BomberBuff() and self:Alive() then
+			local elight = DynamicLight( self:EntIndex(), true )
+			if ( elight ) then
+				local bone = self:LookupBone("j_spineupper")
+				local pos = self:GetBonePosition(bone)
+				pos = pos 
+				elight.pos = pos
+				elight.r = 255
+				elight.g = 0
+				elight.b = 0
+				elight.brightness = 10
+				elight.Decay = 1000
+				elight.Size = 40
+				elight.DieTime = CurTime() + 1
+				elight.style = 0
+				elight.noworld = true
+			end
+		end
+
+		self:ZCTFire()
+		if GetConVar( "nz_zombie_debug" ):GetBool() then
+			render.DrawWireframeBox(self:GetPos(), Angle(0,0,0), self:OBBMins(), self:OBBMaxs(), Color(255,0,0), true)
+		end
+	end
+
+	function ENT:DrawEyeGlow()
+		local eyeColor = nzMapping.Settings.zombieeyecolor
+		local nocolor = Color(0,0,0)
+
+		if self.EyeColorTable then
+			-- Go through every material given and set the color.
+			local eyecolor = nzMapping.Settings.zombieeyecolor
+			local col = Color(eyecolor.r,eyecolor.g,eyecolor.b):ToVector()
+
+			for k,v in pairs(self.EyeColorTable) do
+				v:SetVector("$emissiveblendtint", col)
+			end
+		end
+	end
+
 	return 
 end -- Client doesn't really need anything beyond the basics
 
@@ -45,11 +134,23 @@ ENT.DeathSequences = {
 	"nz_death_f_11",
 	"nz_death_f_12",
 	"nz_death_f_13",
-	"nz_death_fallback",
 	"nz_l4d_death_running_11a",
 	"nz_l4d_death_running_11g",
 	"nz_l4d_death_02a",
 	"nz_l4d_death_11_02d",
+	"nz_t9_dth_f_chest_lt_00",
+	"nz_t9_dth_f_chest_lt_01",
+	"nz_t9_dth_f_chest_lt_02",
+	"nz_t9_dth_f_chest_lt_03",
+	"nz_t9_dth_f_chest_lt_04",
+	"nz_t9_dth_f_chest_lt_05",
+	"nz_t9_dth_f_chest_lt_06",
+	"nz_t9_dth_f_chest_lt_07",
+	"nz_t9_dth_f_chest_lt_08",
+	"nz_t9_dth_f_chest_lt_09",
+	"nz_t9_dth_f_head_lt_00",
+	"nz_t9_dth_f_head_lt_01",
+	"nz_t9_dth_f_head_lt_02",
 }
 
 ENT.CrawlDeathSequences = {
@@ -861,9 +962,9 @@ ENT.SequenceTables = {
 			SpawnSequence = {spawnslow},
 			MovementSequence = {
 				"nz_walk_ad1",
-				"nz_walk_ad2",
+				"nz_s4_3arc_walk_ad_v2",
 				"nz_walk_ad3",
-				"nz_walk_ad4",
+				"nz_s4_3arc_walk_ad_v4",
 				"nz_walk_ad7",
 				"nz_walk_ad5",
 				"nz_walk_ad6",
@@ -881,6 +982,10 @@ ENT.SequenceTables = {
 				"nz_iw7_cp_zom_shamble_forward_02",
 				"nz_iw7_cp_zom_shamble_forward_03",
 				"nz_iw7_cp_zom_shamble_forward_04",
+				"nz_s2_core_walk_v1",
+				"nz_s2_core_walk_v2",
+				"nz_s2_core_walk_v3",
+				"nz_s2_core_walk_v4",
 				--"nz_walk_au_goose",
 				--"nz_legacy_jap_walk_v2",
 				--"nz_legacy_jap_walk_v3",
@@ -975,6 +1080,10 @@ ENT.SequenceTables = {
 				"nz_iw7_cp_zom_shamble_forward_02",
 				"nz_iw7_cp_zom_shamble_forward_03",
 				"nz_iw7_cp_zom_shamble_forward_04",
+				"nz_s2_core_walk_v1",
+				"nz_s2_core_walk_v2",
+				"nz_s2_core_walk_v3",
+				"nz_s2_core_walk_v4",
 				--"nz_walk_au_goose", -- This is the goosestep walk aka marching anim that german soldier zombies use.
 				--"nz_legacy_jap_walk_v2",
 				--"nz_legacy_jap_walk_v3",
@@ -1059,6 +1168,8 @@ ENT.SequenceTables = {
 				"nz_run_ad2",
 				"nz_run_ad3",
 				"nz_run_ad4",
+				"nz_s4_3arc_run_ad_v13",
+				"nz_base_zombie_hunted_dazed_walk_c_limp",
 				--"nz_legacy_run_v1",
 				--"nz_legacy_run_v3",
 				--"nz_legacy_jap_run_v2",
@@ -1149,10 +1260,12 @@ ENT.SequenceTables = {
 				"nz_legacy_jap_run_v6",
 				"nz_iw7_cp_zom_run_forward_04",
 				"nz_iw7_cp_zom_run_forward_05",
-				"nz_run_au1",
+				"nz_s4_3arc_run_au_v1",
 				"nz_s4_3arc_run_au_v2",
 				"nz_run_au3",
 				"nz_s4_3arc_run_au_v4",
+				"nz_s4_3arc_run_au_v12",
+				"nz_base_zombie_hunted_dazed_walk_c_limp",
 				--"nz_legacy_run_v1",
 				--"nz_legacy_run_v3",
 				--"nz_legacy_jap_run_v2",
@@ -1239,8 +1352,8 @@ ENT.SequenceTables = {
 				"nz_t9_base_sprint_ad_v01",
 				"nz_t9_base_sprint_ad_v02",
 				"nz_t9_base_sprint_ad_v05",
-				"nz_t9_base_sprint_ad_v21",
-				"nz_t9_base_sprint_ad_v22",
+				"nz_s4_3arc_sprint_ad_v21",
+				"nz_s4_3arc_sprint_ad_v22",
 				"nz_t9_base_sprint_ad_v23",
 				"nz_sprint_ad3",
 				"nz_sprint_ad4",
@@ -1980,6 +2093,12 @@ function ENT:OnSpawn(animation, grav, dirt)
 			if IsValid(self) then ParticleEffect("wwii_spawn_blood", self:GetPos() + Vector(0,0,0), Angle(0,0,0), self) end
 			if IsValid(self) then ParticleEffect("wwii_spawn_elec", self:GetPos() + Vector(0,0,20), Angle(0,0,0), self) end
 		end
+	end
+
+	if IsValid(self.quack) then 
+	    local pos = self:GetBonePosition(self:LookupBone("j_mainroot"))
+	    self.quack:SetPos(pos - Vector(0,5,0))
+		self.quack:SetAngles(self:GetAngles() + Angle(90,0,0)) 
 	end
 
 	if animation then

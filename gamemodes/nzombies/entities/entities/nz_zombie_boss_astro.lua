@@ -170,7 +170,7 @@ ENT.AstronautNames = {
 	"KILLA_GLISCORPION75","iServerOutVibes","Lester","Mello","Gabe Newell","Jeff Kaplan","TheNumberOneFan",
 	"Slogo_Marmite","John F. Kennedy","DeaJay98","A Friend!","Cosmonaut","Spaceman","Scuba Steve","Cyclops",
 	"Jack S.","Mike Hunt","Ben Dover","A Foe!","Mouth Breather","Yanoss","Tim Hansen","Noah J.","The One.",
-	":)",":D",">:(","Tired Bread","Black Ops 1 Guy","Owl Boy","Licky Lee","Dioxazine","SimplySerdna22","SimplyAwesome22",
+	":)",":D",">:(","Tired Bread","Black Ops 3 Guy","Owl Boy","Licky Lee","Dioxazine","SimplySerdna22","SimplyAwesome22",
 	"Renaissance Man","Ahmed_K","Doodoocacaballsdick","nZombies 3","The Thing","Average CoD Player","FatManGangster",
 	"AwesomePieMan","Ege115","RedSpace200","StevieWonder08","FearXReaper666","FlamingFox5","Ghostlycreep434","HarryDivorceCount21",
 	"JBird632","APlatypus","Bloxotrot","shippuden1592","25 Cent","tom_bmx","HitmanVere","MakeCents","ZK","Anthony","GooB","ZCTxCHAOSx",
@@ -187,9 +187,9 @@ ENT.AstronautNames = {
 	"Kuro","Mario","Wario","McAfee","OJ Simpson","Saddam Hussein","ENA","The Two.","Dr.Pepper","House M.D.","Herobrine","Herobrin","King Tut",
 	"Ra God of The Sun","Orenthal James Simpson","Rand Ridley","Mordecai","Rigby","Skips","Benson","Bo Narr","Wir Suchen Dich!","Flapjack",
 	"Captain K'nuckles","mf doom","Eugene Krabs","John Bone","Red Skeleton","Gray Grayson","InkNoodleSoup","Dr.Kleiner","Morgan Friedman","Saltine Cracker",
-	"MoistCr1TiKaL","Jonesey the First","NickEh30","Ronald Raygun","S.Gojo","E.Yeager","M.Ackerman","Raven Team Leader","S.Geto",
+	"MoistCr1TiKaL","Jonesey the First","NickEh30","Ronald Raygun","S.Gojo","E.Yeager","M.Ackerman","S.Geto",
 	"Demonless1","KellDoStuff","The Professional","TheGraveKeeper","Timka Kidala","Simian Smasher","Spunchbop","Pumpkin Spice","Mauga Main",
-	"MrStealYoPerks", "Devious Lick",
+	"MrStealYoPerks",
 }
 
 ENT.BehindSoundDistance = 0 -- When the zombie is within 200 units of a player, play these sounds instead

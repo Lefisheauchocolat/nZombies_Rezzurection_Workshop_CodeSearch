@@ -19,6 +19,7 @@ ENT.SpeedBasedSequences = true
 ENT.IsMooZombie = true
 ENT.IsMooSpecial = true
 ENT.MooSpecialZombie = true -- They're a Special Zombie, but is still close enough to a normal zombie to be able to do normal zombie things.
+ENT.IsMiniBoss = true
 
 ENT.AttackRange = 80
 ENT.DamageRange = 80 
@@ -125,11 +126,11 @@ function ENT:StatsInitialize()
 			self:SetMaxHealth(1000)
 		else
 			if nzRound:InState( ROUND_PROG ) then
-				self:SetHealth(math.Clamp(zhealth * 4 + (1000 * count), 3000, 60000))
-				self:SetMaxHealth(math.Clamp(zhealth * 4 + (1000 * count), 3000, 60000))
+				self:SetHealth(math.Clamp(zhealth * 4 + (1000 * count), 6000, 90000))
+				self:SetMaxHealth(math.Clamp(zhealth * 4 + (1000 * count), 6000, 90000))
 			else
-				self:SetHealth(3000)
-				self:SetMaxHealth(3000)	
+				self:SetHealth(6000)
+				self:SetMaxHealth(6000)	
 			end
 		end
 
@@ -185,7 +186,7 @@ function ENT:PostTookDamage(dmginfo)
 	local insta = nzPowerUps:IsPowerupActive("insta") -- Don't apply the damage reduction if insta kill is active.
 	
 	if resist[dmginfo:GetDamageType()] and !insta then
-		dmginfo:ScaleDamage(0.5)
+		dmginfo:ScaleDamage(0.25)
 	end
 	
 end

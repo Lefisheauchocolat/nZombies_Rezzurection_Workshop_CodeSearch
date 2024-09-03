@@ -43,23 +43,31 @@ end
 function ENT:CreatePapWeapon()
 	local ass = weapons.Get(self:GetWeaponClass())
 
+	local pos = self:GetPos()
+	local ang = self:GetAngles()
+
+	if self.Pap:GetModel() == "models/moo/_codz_ports_props/t10/jup_zm_pap_fxanim/moo_codz_jup_zm_vending_packapunch.mdl" then
+		pos = self:GetPos() + self:GetRight() * 1.5
+		ang = self:GetAngles() + Angle(0,-90,0)
+	end
+
 	local model = (ass and ass.WM or ass.WorldModel) or "models/weapons/w_rif_ak47.mdl"
 	if !util.IsValidModel(model) then model = "models/weapons/w_rif_ak47.mdl" end
 
 	self.GunEnt = ents.Create("nz_prop_effect_attachment")
 	self.GunEnt:SetModel(model)
-	self.GunEnt:SetAngles(self:GetAngles())
-	self.GunEnt:SetPos(self:GetPos())
+	self.GunEnt:SetAngles(ang)
+	self.GunEnt:SetPos(pos)
 	self.GunEnt:Spawn()
 	self.GunEnt:SetParent(self)
-			
+
 	self.GunEnt:FollowBone(self, 1)
 	self.GunEnt:DeleteOnRemove(self)
 end
 
 function ENT:WeaponEject()	
 	self:ResetSequence("eject_gun")
-	self:EmitSound("nz_moo/perkacolas/pap/ready.mp3", 90, math.random(97, 103))
+	--self:EmitSound("nz_moo/perkacolas/pap/ready.mp3", 90, math.random(97, 103))
 
 	local assreplacement = weapons.Get(self:GetWeaponClass())
 

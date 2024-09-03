@@ -40,7 +40,7 @@ SWEP.Primary.ClipSize		= -1
 SWEP.Primary.DefaultClip	= -1
 SWEP.Primary.Automatic		= false
 SWEP.Primary.Ammo			= "nz_specialgrenade"
-SWEP.Primary.Sound			= Sound("robotnik_bo1_law.Single")	
+SWEP.Primary.Sound			= Sound("weapons/NZRPG/rpg.fire")	
 
 SWEP.Secondary.ClipSize		= -1
 SWEP.Secondary.DefaultClip	= -1
@@ -89,7 +89,7 @@ function SWEP:FireShot()
 
 		self.Owner:SetAnimation(PLAYER_ATTACK1)
 		self:SendWeaponAnim(ACT_VM_PRIMARYATTACK)
-		self:EmitSound("weapons/robotnik_bo1_rpg/fire.wav")
+		self:EmitSound("weapons/NZRPG/rpg.fire")
 		local SelfPos=self.Owner:GetShootPos()+self:GetUp()*-6+self:GetForward()*80+self:GetRight()*33
 		local Vec=(SelfPos)
 		local Dir=Vec:GetNormalized()

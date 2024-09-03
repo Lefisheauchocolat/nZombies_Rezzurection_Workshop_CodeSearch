@@ -24,13 +24,13 @@ end
 ENT.BarricadeTearPositions = {
 	Front = {
 		Vector(-31,0,0),
-		Vector(-31,28,0),
-		Vector(-31,-28,0),
+		Vector(-31,27,0),
+		Vector(-31,-27,0),
 	},
 	Back = {
 		Vector(31,0,0),
-		Vector(31,28,0),
-		Vector(31,-28,0),
+		Vector(31,27,0),
+		Vector(31,-27,0),
 	}
 }
 
@@ -126,11 +126,11 @@ function ENT:FullBreak()
 	end
 end
 
-function ENT:AddPlank(plank)
+function ENT:AddPlank(plank, ent)
 	if !self:GetHasPlanks() then return end
 	if self:GetNumPlanks() < 6 then
 		--self:SetNumPlanks( (self:GetNumPlanks() or 0) + 1 )
-		self:PlankCheck(plank)
+		self:PlankCheck(plank, ent)
 	end
 end
 
@@ -182,7 +182,7 @@ function ENT:RemovePlank(plank)
 	
 	self.ZombieUsing = nil
 	
-	self.NextPlank = CurTime() + 4
+	self.NextPlank = CurTime() + 1
 end
 
 function ENT:ResetPlanks(nosoundoverride)
@@ -218,8 +218,10 @@ function ENT:GetPlankPositionAvailable(plank)
 	return rplank
 end
 
-function ENT:PlankCheck(plank)
+function ENT:PlankCheck(plank, ent)
+	--print(ent)
 	if !IsValid(plank) then plank = self:GetTornPlank() end
+
 	--print(plank.Torn)
 	if plank.Torn then
 		self:SetNumPlanks( (self:GetNumPlanks() or 0) + 1 )
@@ -237,8 +239,22 @@ function ENT:PlankCheck(plank)
 				local bone = plank:GetBonePosition(plank:LookupBone("tag_origin"))
 				util.ScreenShake(self:GetPos(), 5, 15, 0.3, 200)
 
+				if plank.Enhanced then
+					self:EmitSound("nz_moo/barricade/slam/board_upgrd_0"..math.random(0,3)..".mp3", 85, math.random(95,105))
+					for k,v in nzLevel.GetZombieArray() do
+						if IsValid(v) and (!v.IsMooSpecial or !v.IsMooBossZombie or !v.NZBossType) then
+							if v:GetPos():DistToSqr(self:GetPos()) <= 2000 then
+								if IsValid(ent) and ent:IsPlayer() and (ent:HasPerk("amish") and math.random(100) < 15 or ent:HasUpgrade("amish") and math.random(100) < 50) then
+									v:EmitSound("weapons/tfa_bo2/raketrap/rake_hit_0"..math.random(0,2)..".wav", 85, math.random(95,105))
+									v:TakeDamage(v:Health() + 666, ent, ent)
+								end
+							end
+						end
+					end
+				end
+
 				for i = 1, 3 do
-					ParticleEffect(self:GetBoardType() >= 2 and "impact_metal" or "impact_wood", bone, Angle(0,0,0))
+					ParticleEffect(self:GetBoardType() == 2 and self:GetBoardType() == 3 and"impact_metal" or "impact_wood", bone, Angle(0,0,0))
 				end
 			end
 		end)
@@ -246,10 +262,10 @@ function ENT:PlankCheck(plank)
 end
 
 function ENT:SpawnPlank()
-	local plank = self:GetBoardType() == 1 and ents.Create("breakable_entry_plank") or self:GetBoardType() == 2 and ents.Create("breakable_entry_bar") or self:GetBoardType() == 3 and ents.Create("breakable_entry_ventslat")
+	local plank = self:GetBoardType() == 1 and ents.Create("breakable_entry_plank") or self:GetBoardType() == 2 and ents.Create("breakable_entry_bar") or self:GetBoardType() == 3 and ents.Create("breakable_entry_ventslat") or self:GetBoardType() == 4 and ents.Create("breakable_entry_plank_zhd")
 	plank:SetParent(self)
-	if self:GetBoardType() == 1 then
-		plank:SetLocalPos( Vector(32,0,29))
+	if self:GetBoardType() == 1 or self:GetBoardType() == 4 then
+		plank:SetLocalPos( Vector(32,0,34))
 		plank:SetLocalAngles( Angle(0,180,0))
 	elseif self:GetBoardType() == 2 or self:GetBoardType() == 3 then
 		plank:SetLocalPos( Vector(32,0,29))
@@ -263,6 +279,10 @@ function ENT:SpawnPlank()
 	table.insert(self.Planks, plank)
 
 	self:PlankCheck(plank)
+
+	if IsValid(plank) and (self:GetBoardType() == 1 or self:GetBoardType() == 4) then
+		plank:SetBodygroup(0, plank:GetFlags() - 1)
+	end
 
 	return plank
 end
@@ -424,25 +444,44 @@ else
 			local pos = self:GetPos()
 			local p = nextPlayer()
 			if IsValid(p) then
-				local isamish = p:HasPerk("amish")
+				local isamish = p:HasUpgrade("amish")
+				local oncrack = p:HasPerk("speed")
+				local time = p:HasPerk("speed") and 0.5 or 1
 				local fuck = p:KeyDown(IN_USE)
+
+				if isamish and oncrack then
+					time = 0.4
+				elseif isamish then
+					time = 0.75
+				end
 
 				local wep = p:GetActiveWeapon()
 				if IsValid(wep) and wep:IsSpecial() then
 					fuck = false
 				end
 
-				if (isamish or fuck) and p:GetPos():DistToSqr(pos) < (isamish and 25600 or 2500) then
+				if (isamish or fuck) and p:GetPos():DistToSqr(pos) < (isamish and 5000 or 2500) then
 					if self.NextPlank and self.NextPlank < CurTime() then
 						local plank = self:GetTornPlank()
 						if IsValid(plank) then
-							self:AddPlank(plank)
+							self:AddPlank(plank, p)
 
-							local time = p:HasPerk("speed") and 0.5 or 1
+							if !IsValid(p) then return end
+							if p:HasPerk("amish") then
+								plank.Enhanced = true
+								if self:GetBoardType() == 1 then
+									plank:SetBodygroup(1,1)
+								end
+							else
+								plank.Enhanced = false
+								if self:GetBoardType() == 1 then
+									plank:SetBodygroup(1,0)
+								end
+							end
+
 							timer.Simple(time, function()
 								if not IsValid(p) then return end
-								p:GivePoints(p:HasPerk("amish") and (math.random(1,5) * 10) or 10)
-								p:EmitSound("nz/effects/buy.wav")
+								p:GivePoints(p:HasPerk("amish") and (math.random(1,5) * 10) or 10, false, true)
 							end)
 
 							self.NextPlank = CurTime() + time

@@ -6,267 +6,354 @@ ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 ENT.Spawnable = true
 
-if CLIENT then return end -- Client doesn't really need anything beyond the basics
+if CLIENT then 
+	ENT.EyeColorTable = {
+		[0] = Material("models/moo/codz/t7_zombies/cosmodrome/mtl_c_zom_dlchd_monkey_eyes.vmt"),
+	}
+	return 
+end -- Client doesn't really need anything beyond the basics
+
+ENT.AttackRange 			= 80
+ENT.DamageRange 			= 80
+
+ENT.AttackDamage 			= 25
+ENT.HeavyAttackDamage 		= 50 
 
 ENT.SpeedBasedSequences = true
 ENT.IsMooZombie = true
-ENT.RedEyes = false
 ENT.IsMooSpecial = true
-
-ENT.AttackRange = 65
-ENT.DamageRange = 65
-
-ENT.AttackDamage = 30
-ENT.HeavyAttackDamage = 50
+ENT.RedEyes = true
 
 ENT.Models = {
-	{Model = "models/moo/_codz_ports/t5/cosmo/moo_codz_t5_cosmo_monkey.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t7/cosmodrome/moo_codz_t7_cosmodrome_monkey.mdl", Skin = 0, Bodygroups = {0,0}},
 }
+
+local spawn = {"idle"}
 
 ENT.DeathSequences = {
-	"nz_monkey_death_01",
-	"nz_monkey_death_02",
-	"nz_monkey_death_03",
+	"nz_base_monkey_death_v1",
+	"nz_base_monkey_death_v2",
 }
-
-ENT.BarricadeTearSequences = {
-	--Leave this empty if you don't intend on having a special enemy use tear anims.
-	"nz_monkey_attack_06",
-	"nz_monkey_attack_07",
-}
-
-local SpawnSequences = {"nz_monkey_taunt_02"}
 
 local AttackSequences = {
-	{seq = "nz_monkey_attack_01"},
-	{seq = "nz_monkey_attack_02"},
-	{seq = "nz_monkey_attack_03"},
-	{seq = "nz_monkey_attack_04"},
-	{seq = "nz_monkey_attack_05"},
-	{seq = "nz_monkey_attack_06"},
-	{seq = "nz_monkey_attack_07"},
+	{seq = "nz_base_monkey_attack_v1"},
+	{seq = "nz_base_monkey_attack_v2"},
+	{seq = "nz_base_monkey_attack_v3"},
+	{seq = "nz_base_monkey_attack_v4"},
+	{seq = "nz_base_monkey_attack_v5"},
+	{seq = "nz_base_monkey_attack_v6"},
+	{seq = "nz_base_monkey_attack_v7"},
+}
+
+local WalkAttackSequences = {
+	{seq = "nz_base_monkey_attack_v1"},
+	{seq = "nz_base_monkey_attack_v2"},
+	{seq = "nz_base_monkey_attack_v3"},
+	{seq = "nz_base_monkey_attack_v4"},
+	{seq = "nz_base_monkey_attack_v5"},
+	{seq = "nz_base_monkey_attack_v6"},
+	{seq = "nz_base_monkey_attack_v7"},
 }
 
 local JumpSequences = {
-	{seq = "nz_monkey_portal_jump_01"},
+	{seq = "nz_base_monkey_mantle_over"},
 }
 
 local walksounds = {
-	--Sound("nz_moo/zombies/vox/_quad/amb/amb_00.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/amb/vox_monkey_ambient_00.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/amb/vox_monkey_ambient_01.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/amb/vox_monkey_ambient_02.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/amb/vox_monkey_ambient_03.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/amb/vox_monkey_ambient_04.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/amb/vox_monkey_ambient_05.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/amb/vox_monkey_ambient_06.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/amb/vox_monkey_ambient_07.mp3"),
+	
 }
 
-ENT.IdleSequence = "nz_monkey_idle"
-
+-- This is a very large and messy looking table... But it gets the job done.
 ENT.SequenceTables = {
 	{Threshold = 0, Sequences = {
 		{
+			SpawnSequence = {spawn},
 			MovementSequence = {
-				"nz_monkey_run_01",
-				"nz_monkey_run_02",
+				"nz_base_monkey_run_v1",
+				"nz_base_monkey_run_v2",
 			},
-			SpawnSequence = {SpawnSequences},
-			AttackSequences = {AttackSequences},
-			JumpSequences = {JumpSequences},
-			PassiveSounds = {walksounds},
-		},
-	}},
-	{Threshold = 71, Sequences = {
-		{
-			MovementSequence = {
-				"nz_monkey_sprint_01",
-				"nz_monkey_sprint_02",
-				"nz_monkey_sprint_03",
-				"nz_monkey_sprint_04",
-			},
-			SpawnSequence = {SpawnSequences},
-			AttackSequences = {AttackSequences},
+			
+			AttackSequences = {WalkAttackSequences},
+			StandAttackSequences = {AttackSequences},
+
 			JumpSequences = {JumpSequences},
 			PassiveSounds = {walksounds},
 		},
 	}}
 }
 
+ENT.IdleSequence = "nz_base_monkey_idle_v1"
+ENT.IdleSequenceAU = "nz_base_monkey_idle_v2" 
+ENT.NoTargetIdle = "nz_base_monkey_idle_v1"
+
+ENT.ZombieLandSequences = {
+	"nz_base_monkey_jump_land",
+}
+
+ENT.TauntSequences = {
+	"nz_base_monkey_taunt_v1",
+	"nz_base_monkey_taunt_v2",
+	"nz_base_monkey_taunt_v3",
+	"nz_base_monkey_taunt_v4",
+	"nz_base_monkey_taunt_v5",
+}
+
+ENT.ThundergunRollSequences = {
+	"nz_base_monkey_thundergun_roll_v1",
+	"nz_base_monkey_thundergun_roll_v2",
+	"nz_base_monkey_thundergun_roll_v3",
+	"nz_base_monkey_thundergun_roll_v4",
+}
+
+ENT.ThrowGrenadeSequences = {
+	"nz_base_monkey_grenade_throwback_v1",
+	"nz_base_monkey_grenade_throwback_v2",
+	"nz_base_monkey_grenade_throwback_v3",
+	"nz_base_monkey_grenade_throwback_v4",
+}
+
+ENT.FreakedSequences = {
+	"nz_base_monkey_freaked_v1",
+	"nz_base_monkey_freaked_v2",
+	"nz_base_monkey_freaked_v3",
+	"nz_base_monkey_freaked_v4",
+}
+
+ENT.GroundPoundSequences = {
+	"nz_base_monkey_groundpound_v1",
+	"nz_base_monkey_groundpound_v2",
+	"nz_base_monkey_groundpound_v3",
+	"nz_base_monkey_groundpound_v4",
+}
+
 ENT.DeathSounds = {
-	"nz_moo/zombies/vox/_quad/death/death_00.mp3",
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/death/death_00.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/death/death_01.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/death/death_02.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/death/death_03.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/death/death_04.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/death/death_05.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/death/death_06.mp3"),
 }
 
 ENT.AttackSounds = {
-	"nz_moo/zombies/vox/_quad/attack/attack_00.mp3",
+	Sound("nz_moo/zombies/vox/_monkey/attack/vox_monkey_attack_00.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/attack/vox_monkey_attack_01.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/attack/vox_monkey_attack_02.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/attack/vox_monkey_attack_03.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/attack/vox_monkey_attack_04.mp3"),
+}
+
+ENT.LandSounds = {
+	Sound("nz_moo/zombies/fly/jumpland_heavy/bodyfall_heavy_00.mp3"),
+	Sound("nz_moo/zombies/fly/jumpland_heavy/bodyfall_heavy_01.mp3"),
+	Sound("nz_moo/zombies/fly/jumpland_heavy/bodyfall_heavy_02.mp3"),
+	Sound("nz_moo/zombies/fly/jumpland_heavy/bodyfall_heavy_03.mp3"),
+	Sound("nz_moo/zombies/fly/jumpland_heavy/bodyfall_heavy_04.mp3"),
+	Sound("nz_moo/zombies/fly/jumpland_heavy/bodyfall_heavy_05.mp3"),
+}
+
+ENT.FreakoutSounds = {
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/attack/attack_00.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/attack/attack_01.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/attack/attack_02.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/attack/attack_03.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/attack/attack_04.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/attack/attack_05.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/attack/attack_06.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/attack/attack_07.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/attack/attack_08.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/attack/attack_09.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/attack/attack_10.mp3"),
+}
+
+ENT.TauntSounds = {
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/amb/ambient_00.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/amb/ambient_01.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/amb/ambient_02.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/amb/ambient_03.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/amb/ambient_04.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/amb/ambient_05.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/amb/ambient_06.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/amb/ambient_07.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/amb/ambient_08.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/_bo1/amb/ambient_09.mp3"),
+}
+
+ENT.MonkeyStepSounds = {
+	Sound("nz_moo/zombies/vox/_monkey/steps/fly_cosmo_monkey_step_00.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/steps/fly_cosmo_monkey_step_01.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/steps/fly_cosmo_monkey_step_02.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/steps/fly_cosmo_monkey_step_03.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/steps/fly_cosmo_monkey_step_04.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/steps/fly_cosmo_monkey_step_05.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/steps/fly_cosmo_monkey_step_06.mp3"),
+}
+
+ENT.ChestpoundSounds = {
+	Sound("nz_moo/zombies/vox/_monkey/chestpound/fly_monkey_chest_pound_00.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/chestpound/fly_monkey_chest_pound_01.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/chestpound/fly_monkey_chest_pound_02.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/chestpound/fly_monkey_chest_pound_03.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/chestpound/fly_monkey_chest_pound_04.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/chestpound/fly_monkey_chest_pound_05.mp3"),
+}
+
+ENT.GroundpoundSounds = {
+	Sound("nz_moo/zombies/vox/_monkey/groundpound/ground_pound_sweet_00.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/groundpound/ground_pound_sweet_01.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/groundpound/ground_pound_sweet_02.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/groundpound/ground_pound_sweet_03.mp3"),
+}
+
+ENT.CustomMeleeWhooshSounds = {
+	Sound("nz_moo/zombies/vox/_monkey/swing/fly_monkey_swing_00.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/swing/fly_monkey_swing_01.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/swing/fly_monkey_swing_02.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/swing/fly_monkey_swing_03.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/swing/fly_monkey_swing_04.mp3"),
+	Sound("nz_moo/zombies/vox/_monkey/swing/fly_monkey_swing_05.mp3"),
 }
 
 ENT.BehindSoundDistance = 0 -- When the zombie is within 200 units of a player, play these sounds instead
 
 function ENT:StatsInitialize()
 	if SERVER then
-		self:SetMooSpecial(true)
 		if nzRound:GetNumber() == -1 then
-			self:SetRunSpeed( math.random(20, 105) )
+			self:SetRunSpeed( math.random(25, 220) )
 			self:SetHealth( math.random(100, 1500) )
 		else
-			local speeds = nzRound:GetZombieSpeeds()
+			local speeds = nzRound:GetZombieCoDSpeeds()
 			if speeds then
-				self:SetRunSpeed( nzMisc.WeightedRandom(speeds) )
+				self:SetRunSpeed( nzMisc.WeightedRandom(speeds) + math.random(0,35) )
 			else
 				self:SetRunSpeed( 100 )
 			end
 			self:SetHealth( nzRound:GetZombieHealth() or 75 )
 		end
+
+		self.GrenadeThrowCoolDown = CurTime() + 1
+		self.GroundPoundCoolDown = CurTime() + 1
+
+		self.Enraged = false
 	end
 end
 
-function ENT:OnSpawn()
-	
-	--if IsValid(self) then ParticleEffectAttach("novagas_trail", 4, self, 2) end
-	--self:EmitSound("nz_moo/zombies/vox/_quad/spawn/spawn_0"..math.random(3)..".mp3", 511, math.random(95, 105), 1, 2)
+function ENT:OnSpawn(animation, grav, dirt)
+	animation = animation or self:SelectSpawnSequence()
+	grav = grav
+	dirt = dirt
 
-	self:SetCollisionBounds(Vector(-12,-12, 0), Vector(12, 12, 26))
+	if IsValid(self) then
+		self:EmitSound("nz_moo/effects/teleport_in_00.mp3", 100)
+		ParticleEffect("panzer_spawn_tp", self:GetPos() + Vector(0,0,18), Angle(0,0,0), self)
+	end
 
-	self:SolidMaskDuringEvent(MASK_PLAYERSOLID)
+	if animation then
+		self:SolidMaskDuringEvent(MASK_PLAYERSOLID)
+		self:SetSpecialAnimation(true)
+		self:SetIsBusy(true)
+		
+		self:PlaySequenceAndMove(animation, {gravity = grav})
 
-	self:SetSpecialAnimation(true)
-	self:SetIsBusy(true)
-	self:SetNoDraw(false)
-
-	local seq = self:SelectSpawnSequence()
-
-	ParticleEffect("bo3_zombie_spawn",self:GetPos()+Vector(0,0,1),self:GetAngles(),self)
-	self:EmitSound("nz_moo/zombies/spawn/_generic/dirt/dirt_0"..math.random(0,2)..".mp3",100,math.random(95,105))
-
-	if seq then
-		self:PlaySequenceAndMove(seq, {gravity = true})
 		self:SetSpecialAnimation(false)
 		self:SetIsBusy(false)
 		self:CollideWhenPossible()
 	end
 end
 
-function ENT:PerformDeath(dmginfo)
-	local damagetype = dmginfo:GetDamageType()
-
-	self:PostDeath(dmginfo)
-
-	if damagetype == DMG_MISSILEDEFENSE or damagetype == DMG_ENERGYBEAM then
-		self:BecomeRagdoll(dmginfo) -- Only Thundergun and Wavegun Ragdolls constantly.
+function ENT:AI()
+	local target = self.Target
+	if self:Health() <= self:GetMaxHealth() * 0.5 and !self.Enraged then
+		self.Enraged = true
 	end
-	if damagetype == DMG_REMOVENORAGDOLL then
-		self:Remove(dmginfo)
+	if self.Enraged and !self.BecomeEnraged then
+		self.BecomeEnraged = true
+		self:DoSpecialAnimation(self.TauntSequences[math.random(#self.TauntSequences)])
 	end
-	if self.DeathRagdollForce == 0 or self:GetSpecialAnimation() then
-		if self.DeathSounds then
-			self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
+	if IsValid(target) and target:IsPlayer() and !self:IsAttackBlocked() then
+		if self:TargetInRange(self.AttackRange + 75) and CurTime() > self.GroundPoundCoolDown then
+			self:DoSpecialAnimation(self.GroundPoundSequences[math.random(#self.GroundPoundSequences)])
+			self.GroundPoundCoolDown = CurTime() + 4
 		end
-		self:BecomeRagdoll(dmginfo)
-	else
-		if self:RagdollForceTest(dmginfo:GetDamageForce()) then
-			if self.DeathSounds then
-				self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
-			end
-			self:BecomeRagdoll(dmginfo)
-		else
-			if self.DeathSounds then
-				self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
-			end
-			self:DoDeathAnimation(self.DeathSequences[math.random(#self.DeathSequences)])
-		end
+	end
+	if IsValid(target) and target:IsPlayer() and !self:TargetInRange(100) and self:TargetInRange(750) and !self:IsAttackBlocked() and CurTime() > self.GrenadeThrowCoolDown and self.Enraged then
+		self.GrenadeThrowCoolDown = CurTime() + math.Rand(2,6)
+		self:DoSpecialAnimation(self.ThrowGrenadeSequences[math.random(#self.ThrowGrenadeSequences)])
 	end
 end
 
-function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how sad I am that I didn't know about this sooner.
-	if e == "step_right_small" or e == "step_left_small" then
-		if self.CustomWalkFootstepsSounds then
-			self:EmitSound(self.CustomWalkFootstepsSounds[math.random(#self.CustomWalkFootstepsSounds)], 65)
-		else
-			self:EmitSound("CoDZ_Zombie.StepWalk")
-		end
+function ENT:CustomAnimEvent(a,b,c,d,e) 
+	if e == "evt_monkey_step" then
+		self:EmitSound(self.MonkeyStepSounds[math.random(#self.MonkeyStepSounds)], 75, math.random(95,105))
 	end
-	if e == "step_right_large" or e == "step_left_large" then
-		if self.CustomRunFootstepsSounds then
-			self:EmitSound(self.CustomRunFootstepsSounds[math.random(#self.CustomRunFootstepsSounds)], 65)
-		else
-			self:EmitSound("CoDZ_Zombie.StepRun")
-		end
+	if e == "evt_monkey_land" then
+		self:EmitSound(self.LandSounds[math.random(#self.LandSounds)], 75, math.random(95,105))
 	end
-	if e == "crawl_hand" then
-		if self.CustomCrawlImpactSounds then
-			self:EmitSound(self.CrawlImpactSounds[math.random(#self.CrawlImpactSounds)], 70)
-		else
-			self:EmitSound("CoDZ_Zombie.StepCrawl")
-		end
-	end
-	if e == "melee" or e == "melee_heavy" then
-		if self:BomberBuff() and self.GasAttack then
-			self:EmitSound(self.GasAttack[math.random(#self.GasAttack)], 100, math.random(95, 105), 1, 2)
-		else
-			if self.AttackSounds then
-				self:EmitSound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(85, 105), 1, 2)
+	if e == "evt_monkey_slam" then
+		self:EmitSound(self.GroundpoundSounds[math.random(#self.GroundpoundSounds)], 100, math.random(95,105))
+		ParticleEffect("bo3_panzer_landing",self:LocalToWorld(Vector(0,20,0)),Angle(0,0,0),nil)
+		util.ScreenShake(self:GetPos(),100000,500000,0.1,500)
+
+		for k,v in nzLevel.GetTargetableArray() do
+			if IsValid(v) and v:IsPlayer() and !self:IsAttackEntBlocked(v) then
+				if self:GetRangeTo( v:GetPos() ) < self.AttackRange + 75 then
+					local perks = v:GetPerks()
+					if not table.IsEmpty(perks) then
+						--[[if v:HasPerk("phd") then
+							v:RemovePerk("phd", true)
+						elseif v:HasPerk("jugg") then
+							v:RemovePerk("jugg", true)
+						elseif v:HasPerk("mask") then
+							v:RemovePerk("mask", true)
+						else
+							v:RemovePerk(perks[math.random(#perks)], true)
+						end]]
+						v:RemovePerk(perks[math.random(#perks)], true)
+					end
+
+					v:TakeDamage(self.HeavyAttackDamage, self, nil)
+					v:NZSonicBlind(2)
+				end
 			end
 		end
-		if e == "melee_heavy" then
-			self.HeavyAttack = true
-		else
-			self.HeavyAttack = false
-		end
-		self:DoAttackDamage()
 	end
-	if e == "monkey_mario" then
-		if math.random(50) == 1 then
-			self:EmitSound("nz_moo/effects/mario_jump.mp3", 100)
-		end
-	end
-	if e == "generic_taunt" then
-		if self.TauntSounds then
-			self:EmitSound(self.TauntSounds[math.random(#self.TauntSounds)], 100, math.random(85, 105), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		end
-	end
-	if e == "special_taunt" then
-		if self.TauntSounds then
-			self:EmitSound("nz_moo/zombies/vox/_classic/taunt/spec_taunt.mp3", 100, math.random(85, 105), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		end
-	end
-	if e == "base_ranged_rip" then
-		ParticleEffectAttach("ins_blood_dismember_limb", 4, self, 5)
-		self:EmitSound("nz_moo/zombies/gibs/gib_0"..math.random(0,3)..".mp3", 100, math.random(95,105))
-		self:EmitSound("nz_moo/zombies/gibs/head/head_explosion_0"..math.random(4)..".mp3", 65, math.random(95,105))
-	end
-	if e == "base_ranged_throw" then
-		self:EmitSound("nz_moo/zombies/fly/attack/whoosh/zmb_attack_med_0"..math.random(0,2)..".mp3", 95)
+	if e == "evt_monkey_throw_grenade" then
+		self:EmitSound("TFA.BO1.M67.Throw")
 
-		local larmfx_tag = self:LookupBone("j_wrist_le")
+		local chance = math.random(50)
+		local shit = ents.Create("bomber_grenade")
 
-		self.Guts = ents.Create("nz_gib")
-		self.Guts:SetPos(self:GetBonePosition(larmfx_tag))
-		self.Guts:Spawn()
-
-		local phys = self.Guts:GetPhysicsObject()
-		local target = self:GetTarget()
-		local movementdir
-		if IsValid(phys) and IsValid(target) then
-			--[[if target:IsPlayer() then
-				movementdir = target:GetVelocity():Normalize()
-				print(movementdir)
-			end]]
-			phys:SetVelocity(self.Guts:getvel(target:EyePos() - Vector(0,0,7), self:EyePos(), 0.95))
+		if chance <= 1 then
+			shit = ents.Create("bomber_flashbang")
 		end
-	end
-	if e == "death_ragdoll" then
-		self:BecomeRagdoll(DamageInfo())
-	end
-	if e == "start_traverse" then
-		--print("starttraverse")
-		self.TraversalAnim = true
-	end
-	if e == "finish_traverse" then
-		--print("finishtraverse")
-		self.TraversalAnim = false
-	end
 
-	-- WW2 Zobies	
-	if e == "s2_gen_step" then
-		self:EmitSound(self.StepSounds[math.random(#self.StepSounds)], 60, math.random(95, 105))
+
+		shit:SetPos(self:GetAttachment(self:LookupAttachment("rarm_fx_tag")).Pos)
+		shit:SetOwner(self:GetOwner())
+		shit:Spawn()
+		local phys = shit:GetPhysicsObject()
+        local target = self:GetTarget()
+
+        if IsValid(phys) and IsValid(target) then
+             phys:SetVelocity(shit:getvel(target:GetPos() + target:GetVelocity() * math.Clamp(target:GetVelocity():Length2D(),0,1.2), self:EyePos(), 0.85))
+        end
 	end
-	if e == "s2_taunt_vox" then
-		self:PlaySound(self.TauntSounds[math.random(#self.TauntSounds)],95, math.random(95, 105), 1, 2)
+	if e == "evt_monkey_chestbeat" then
+		self:EmitSound(self.ChestpoundSounds[math.random(#self.ChestpoundSounds)], 75, math.random(95,105))
+	end
+	if e == "vox_monkey_taunt" then
+		self:EmitSound(self.TauntSounds[math.random(#self.TauntSounds)], 80, math.random(95,105), 1, 2)
+	end
+	if e == "vox_monkey_freakout" then
+		self:EmitSound(self.FreakoutSounds[math.random(#self.FreakoutSounds)], 80, math.random(95,105), 1, 2)
 	end
 end

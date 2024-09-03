@@ -13,6 +13,15 @@ nzLevel.JumpTravCache = {}
 nzLevel.TargetCache = {}
 nzLevel.HudEntityCache = {}
 nzLevel.BrutusEntityCache = {}
+nzLevel.GrenadeCache = {}
+nzLevel.SpecialGrenadeCache = {}
+
+nzLevel.HudEntityClass = {}
+nzLevel.BrutusEntityClass = {}
+nzLevel.ToggleClass = {}
+nzLevel.ShieldClass = {}
+nzLevel.GrenadeClass = {}
+nzLevel.SpecialGrenadeClass = {}
 
 nzLevel.PSpawnCache = {}
 nzLevel.ZSpawnCache = {}
@@ -53,23 +62,135 @@ local scripttriggers = {
 	["nz_script_triggerzone"] = true,
 }
 
+function nzLevel:RebuildSENTCache()
+	for class, ent in pairs(scripted_ents.GetList()) do
+		if ent.t.NZThrowIcon or ent.t.NZNadeRethrow then
+			nzLevel.HudEntityClass[class] = true
+		end
+		if ent.t.bIsShield then
+			nzLevel.ShieldClass[class] = true
+		end
+		if (ent.t.TurnOff and ent.t.TurnOn) then
+			nzLevel.ToggleClass[class] = true
+		end
+		if ent.t.BrutusDestructable then
+			nzLevel.BrutusEntityClass[class] = true
+		end
+	end
+end
+
+function nzLevel:RebuildSWEPCache()
+	for k, wep in pairs(weapons.GetList()) do
+		if wep.Primary and wep.NZSpecialCategory then
+			local projectile = wep.Primary.Projectile or wep.Primary.Round or wep.ProjectileEntity
+			if nzLevel and projectile and wep.NZSpecialCategory == "grenade" then
+				nzLevel.GrenadeClass[projectile] = true
+			end
+
+			local projectile = wep.Primary.Projectile or wep.Primary.Round or wep.ProjectileEntity
+			if nzLevel and projectile and wep.NZSpecialCategory == "specialgrenade" then
+				nzLevel.SpecialGrenadeClass[projectile] = true
+			end
+		end
+	end
+end
+
+function nzLevel:RebuildENTCache()
+	for k, ent in pairs(ents.GetAll()) do
+		if not IsValid(ent) then continue end
+
+		local class = ent:GetClass()
+
+		timer.Simple(engine.TickInterval(), function()
+			if not IsValid(ent) then return end
+			if ent:IsValidZombie() then
+				if ent.NZBossType or string.find(class, "zombie_boss") then
+					table.insert(nzLevel.ZBossCache, ent)
+				else
+					table.insert(nzLevel.ZombieCache, ent)
+				end
+			end
+		end)
+
+		if ent:IsPlayer() and ent:GetTargetPriority() > 0 then
+			table.insert(nzLevel.TargetCache, ent)
+		end
+
+		if nzLevel.HudEntityClass[class] then
+			table.insert(nzLevel.HudEntityCache, ent)
+		end
+		if nzLevel.ShieldClass[class] then
+			table.insert(nzLevel.ShieldCache, ent)
+		end
+		if nzLevel.ToggleClass[class] then
+			table.insert(nzLevel.ToggleCache, ent)
+		end
+		if nzLevel.BrutusEntityClass[class] then
+			table.insert(nzLevel.BrutusEntityCache, ent)
+		end
+		if nzPerks and nzPerks.VultureClass[class] then
+			table.insert(nzLevel.VultureCache, ent)
+		end
+
+		if class == "jumptrav_block" then
+			table.insert(nzLevel.JumpTravCache, ent)
+		end
+		if class == "player_spawns" then
+			table.insert(nzLevel.PSpawnCache, ent)
+		end
+
+		if scripttriggers[class] then
+			table.insert(nzLevel.TriggerCache, ent)
+		end
+		if barricadeclasses[class] then
+			table.insert(nzLevel.BarricadeCache, ent)
+		end
+		if zspawnerclasses[class] then
+			table.insert(nzLevel.ZSpawnCache, ent)
+		end
+		if espawnerclasses[class] then
+			table.insert(nzLevel.ESpawnCache, ent)
+		end
+		if sspawnerclasses[class] then
+			table.insert(nzLevel.SSpawnCache, ent)
+		end
+	end
+end
+
+//these will do nothing on first run, but are here for when you edit code
+//and the gamemode needs to rebuild tables
+//only runs if in singleplayer or hosting a listen server
+
+if game.SinglePlayer() or (IsValid(Entity(1)) and Entity(1):IsListenServerHost()) then
+	nzLevel:RebuildSENTCache()
+	nzLevel:RebuildSWEPCache()
+	nzLevel:RebuildENTCache()
+end
+
+hook.Add("PreRegisterSENT", "nzLevel.SHENT", function(ent, class)
+	if ent.NZThrowIcon or ent.NZNadeRethrow then
+		nzLevel.HudEntityClass[class] = true
+	end
+	if ent.bIsShield then
+		nzLevel.ShieldClass[class] = true
+	end
+	if (ent.TurnOff and ent.TurnOn) then
+		nzLevel.ToggleClass[class] = true
+	end
+	if ent.BrutusDestructable then
+		nzLevel.BrutusEntityClass[class] = true
+	end
+end)
+
 hook.Add("OnEntityCreated", "nzLevel.Iterator", function(ent)
 	local class = ent:GetClass()
 
+	if SERVER and ent:IsValidZombie() then
+		SetGlobal2Int("AliveZombies", GetGlobal2Int("AliveZombies", 0) + 1)
+	end
+
 	timer.Simple(engine.TickInterval(), function()
 		if not IsValid(ent) then return end
-		if (ent.TurnOff and ent.TurnOn) then
-			table.insert(nzLevel.ToggleCache, ent)
-		end
-		if ent.NZThrowIcon or ent.NZNadeRethrow then
-			table.insert(nzLevel.HudEntityCache, ent)
-		end
-		if ent.bIsShield then
-			table.insert(nzLevel.ShieldCache, ent)
-		end
-		if ent.BrutusDestructable then
-			table.insert(nzLevel.BrutusEntityCache, ent)
-		end
 		if ent:IsValidZombie() then
 			if ent.NZBossType or string.find(class, "zombie_boss") then
 				table.insert(nzLevel.ZBossCache, ent)
@@ -79,37 +200,97 @@ hook.Add("OnEntityCreated", "nzLevel.Iterator", function(ent)
 		end
 	end)
 
-	if barricadeclasses[class] then
-		table.insert(nzLevel.BarricadeCache, ent)
-	end
+	if IsValid(ent) then
+		if SERVER and nzLevel.GrenadeClass[class] then
+			timer.Simple(engine.TickInterval(), function()
+				if not IsValid(ent) then return end
+				local ply = ent:GetOwner()
+				if not IsValid(ply) or not ply:IsPlayer() then return end
+				if not ply:HasPerk("mask") then return end
 
-	if class == "jumptrav_block" then
-		table.insert(nzLevel.JumpTravCache, ent)
-	end
+				ent:CallOnRemove("mask_gasnade"..ent:EntIndex(), function(old)
+					if old.NadeRethrown then return end
 
-	if nzPerks.VultureClass[class] then
-		table.insert(nzLevel.VultureCache, ent)
-	end
-	if class == "player_spawns" then
-		table.insert(nzLevel.PSpawnCache, ent)
-	end
-	if zspawnerclasses[class] then
-		table.insert(nzLevel.ZSpawnCache, ent)
-	end
-	if espawnerclasses[class] then
-		table.insert(nzLevel.ESpawnCache, ent)
-	end
-	if sspawnerclasses[class] then
-		table.insert(nzLevel.SSpawnCache, ent)
-	end
+					local ply = old:GetOwner()
+					local tr = util.QuickTrace(old:GetPos(), vector_up*-1024, old)
+					if IsValid(ply) and tr.Hit then
+						local wep = (old.Inflictor and IsValid(old.Inflictor)) and old.Inflictor or ply:GetActiveWeapon()
+						if ply.NZSpecialWeapons and ply.NZSpecialWeapons["grenade"] then
+							wep = ply.NZSpecialWeapons["grenade"]
+						end
 
-	if scripttriggers[class] then
-		table.insert(nzLevel.TriggerCache, ent)
+						local gas = ents.Create("mask_toxic_effect")
+						gas:SetPos(tr.HitPos)
+						gas:SetOwner(ply)
+						gas:SetAttacker(ply)
+						gas:SetInflictor(wep)
+						gas:SetAngles(angle_zero)
+
+						gas:Spawn()
+
+						gas:SetOwner(ply)
+						gas.Inflictor = wep
+					end
+				end)
+			end)
+		end
+
+		if nzLevel.HudEntityClass[class] then
+			table.insert(nzLevel.HudEntityCache, ent)
+		end
+		if nzLevel.ShieldClass[class] then
+			table.insert(nzLevel.ShieldCache, ent)
+		end
+		if nzLevel.ToggleClass[class] then
+			table.insert(nzLevel.ToggleCache, ent)
+		end
+		if nzLevel.BrutusEntityClass[class] then
+			table.insert(nzLevel.BrutusEntityCache, ent)
+		end
+		if nzPerks.VultureClass[class] then
+			table.insert(nzLevel.VultureCache, ent)
+		end
+
+		if class == "jumptrav_block" then
+			table.insert(nzLevel.JumpTravCache, ent)
+		end
+		if class == "player_spawns" then
+			table.insert(nzLevel.PSpawnCache, ent)
+		end
+
+		if scripttriggers[class] then
+			table.insert(nzLevel.TriggerCache, ent)
+		end
+		if barricadeclasses[class] then
+			table.insert(nzLevel.BarricadeCache, ent)
+		end
+		if zspawnerclasses[class] then
+			table.insert(nzLevel.ZSpawnCache, ent)
+		end
+		if espawnerclasses[class] then
+			table.insert(nzLevel.ESpawnCache, ent)
+		end
+		if sspawnerclasses[class] then
+			table.insert(nzLevel.SSpawnCache, ent)
+		end
 	end
 end)
 
+if SERVER then
+	hook.Add("OnZombieKilled", "nzLevel.ZedCounter", function(ent)
+		if ent:IsValidZombie() and not ent.ZedKillCounted then
+			ent.ZedKillCounted = true
+			SetGlobal2Int("AliveZombies", math.max(GetGlobal2Int("AliveZombies", 0) - 1), 0)
+		end
+	end)
+end
+
 hook.Add("EntityRemoved", "nzLevel.Iterator", function(ent)
 	local class = ent:GetClass()
+
+	if SERVER and ent:IsValidZombie() and not ent.ZedKillCounted then
+		SetGlobal2Int("AliveZombies", math.max(GetGlobal2Int("AliveZombies", 0) - 1, 0))
+	end
 
 	if (ent.TurnOff and ent.TurnOn) then
 		for i = 1, #nzLevel.ToggleCache do

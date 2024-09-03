@@ -80,7 +80,7 @@ nzTools:CreateTool("barricade", {
 		Row3:AddChoice("Wooden Boards", 1)
         Row3:AddChoice("Metal Rebar", 2)
         Row3:AddChoice("Vent Slats", 3)
-        Row3:AddChoice("Wooden Boards(ZHD Sounds)", 4)
+        Row3:AddChoice("Wooden Boards(BO4/BOCW)", 4)
 		Row3.DataChanged = function( _, val ) valz["Row3"] = val DProperties.UpdateData(DProperties.CompileData()) end
 		Row3:SetSelected(valz["Row3"])
 
@@ -99,15 +99,18 @@ nzTools:CreateTool("barricade", {
 
 		local Row5 = DProperties:CreateRow( "Settings", "Jump Type" )
 		Row5:Setup( "Combo" )
-		Row5:AddChoice("Normal(Default)",0)
-        Row5:AddChoice("Mantle Over: 128 Units",1)
-        Row5:AddChoice("Mantle Over: 96 Units",2)
-        Row5:AddChoice("Mantle Over: 72 Units",3)
-        Row5:AddChoice("Mantle Over: 48 Units",4)
-        Row5:AddChoice("Jump Up: 128 Units",5)
-        Row5:AddChoice("Jump Up Fast: 128 Units",6)
-        Row5:AddChoice("Jump Down: 128 Units",7)
-        Row5:AddChoice("Jump Through: Closet Door",8)
+		Row5:AddChoice("Mantle Over: Barricade(Default)",0)
+        Row5:AddChoice("Mantle Over: 128 Units"			,1)
+        Row5:AddChoice("Mantle Over: 96 Units"			,2)
+        Row5:AddChoice("Mantle Over: 72 Units"			,3)
+        Row5:AddChoice("Mantle Over: 48 Units"			,4)
+        Row5:AddChoice("Jump Up: 128 Units"				,5)
+        Row5:AddChoice("Jump Up Fast: 128 Units"		,6)
+        Row5:AddChoice("Jump Down: 128 Units"			,7)
+        Row5:AddChoice("Jump Through: Closet Door"		,8)
+        Row5:AddChoice("Crawl Through: Car Slow"		,9)
+        Row5:AddChoice("Crawl Through: Car Fast"		,10)
+        Row5:AddChoice("Crawl Through: Car Super Fast"	,11)
 		Row5.DataChanged = function( _, val ) valz["Row5"] = val DProperties.UpdateData(DProperties.CompileData()) end
 		
 		local Row6 = DProperties:CreateRow( "Misc", "Player Collision" )

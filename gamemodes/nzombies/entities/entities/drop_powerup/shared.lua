@@ -13,9 +13,12 @@ ENT.NextDraw = 0
 
 function ENT:SetupDataTables()
 	self:NetworkVar("String", 0, "PowerUp")
+	self:NetworkVar("String", 1, "HintString")
 
 	self:NetworkVar("Bool", 0, "Activated")
 	self:NetworkVar("Bool", 1, "Blinking")
+	self:NetworkVar("Bool", 2, "Anti")
+	self:NetworkVar("Bool", 3, "PressUse")
 
 	self:NetworkVar("Float", 0, "ActivateTime")
 	self:NetworkVar("Float", 1, "BlinkTime")
@@ -23,7 +26,63 @@ function ENT:SetupDataTables()
 end
 
 function ENT:Draw()
-	self:DrawModel()
+	if not self.GetActivated then return end
+
+	if self:GetActivated() then
+		self:DrawModel()
+		if self.introglow and IsValid(self.introglow)then
+			self.introglow:StopEmission()
+		end
+		if !self.loopglow or !IsValid(self.loopglow) then
+			local global = nzPowerUps:Get(self:GetPowerUp()).global
+			local colorvec1 = self:GetAnti() and nzMapping.Settings.powerupcol["anti"][1] or global and nzMapping.Settings.powerupcol["global"][1] or nzMapping.Settings.powerupcol["local"][1]
+			local colorvec2 = self:GetAnti() and nzMapping.Settings.powerupcol["anti"][2] or global and nzMapping.Settings.powerupcol["global"][2] or nzMapping.Settings.powerupcol["local"][2]
+			local colorvec3 = self:GetAnti() and nzMapping.Settings.powerupcol["anti"][3] or global and nzMapping.Settings.powerupcol["global"][3] or nzMapping.Settings.powerupcol["local"][3]
+
+			if nzMapping.Settings.powerupstyle then
+				local style = nzPowerUps:GetStyle(nzMapping.Settings.powerupstyle)
+				self.loopglow = CreateParticleSystem(self, style.loop, PATTACH_ABSORIGIN_FOLLOW)
+				self.loopglow:SetControlPoint(2, colorvec1)
+				self.loopglow:SetControlPoint(3, colorvec2)
+				self.loopglow:SetControlPoint(4, colorvec3)
+				self.loopglow:SetControlPoint(1, Vector(1,1,1))
+			else
+				self.loopglow = CreateParticleSystem(self, "nz_powerup_classic_loop", PATTACH_ABSORIGIN_FOLLOW)
+				self.loopglow:SetControlPoint(2, colorvec1)
+				self.loopglow:SetControlPoint(3, colorvec2)
+				self.loopglow:SetControlPoint(4, colorvec3)
+				self.loopglow:SetControlPoint(1, Vector(1,1,1))
+			end
+		end
+	else
+		if !self.introglow or !IsValid(self.introglow)then
+			local global = nzPowerUps:Get(self:GetPowerUp()).global
+			local colorvec1 = self:GetAnti() and nzMapping.Settings.powerupcol["anti"][1] or global and nzMapping.Settings.powerupcol["global"][1] or nzMapping.Settings.powerupcol["local"][1]
+			local colorvec2 = self:GetAnti() and nzMapping.Settings.powerupcol["anti"][2] or global and nzMapping.Settings.powerupcol["global"][2] or nzMapping.Settings.powerupcol["local"][2]
+			local colorvec3 = self:GetAnti() and nzMapping.Settings.powerupcol["anti"][3] or global and nzMapping.Settings.powerupcol["global"][3] or nzMapping.Settings.powerupcol["local"][3]
+
+			if nzMapping.Settings.powerupstyle then
+				local style = nzPowerUps:GetStyle(nzMapping.Settings.powerupstyle)
+				self.introglow = CreateParticleSystem(self, style.intro, PATTACH_ABSORIGIN_FOLLOW)
+				self.introglow:SetControlPoint(2, colorvec1)
+				self.introglow:SetControlPoint(3, colorvec2)
+				self.introglow:SetControlPoint(4, colorvec3)
+				self.introglow:SetControlPoint(1, Vector(1,1,1))
+			else
+				self.introglow = CreateParticleSystem(self, "nz_powerup_classic_intro", PATTACH_ABSORIGIN_FOLLOW)
+				self.introglow:SetControlPoint(2, colorvec1)
+				self.introglow:SetControlPoint(3, colorvec2)
+				self.introglow:SetControlPoint(4, colorvec3)
+				self.introglow:SetControlPoint(1, Vector(1,1,1))
+			end
+		elseif self.introglow and IsValid(self.introglow) then
+			local max = (self:GetActivateTime() - self:GetCreationTime())
+			local cur = (self:GetActivateTime() - CurTime())
+			local ratio = 1 - math.Clamp(cur/max, 0, 1)
+
+			self.introglow:SetControlPoint(5, Vector(ratio,ratio,ratio))
+		end
+	end
 end
 
 function ENT:Initialize()
@@ -33,13 +92,16 @@ function ENT:Initialize()
 
 	local pdata = nzPowerUps:Get(self:GetPowerUp())
 	self:SetModelScale(pdata.scale, 0)
-	self:PhysicsInitSphere(60, "default_silent")
-	self:SetRenderMode(RENDERMODE_TRANSALPHA)
+
+	self:PhysicsInit(SOLID_NONE)
 	self:SetMoveType(MOVETYPE_NONE)
 	self:SetSolid(SOLID_NONE)
-	self:UseTriggerBounds(true, 1)
+	self:SetCollisionGroup(COLLISION_GROUP_DEBRIS_TRIGGER)
+
+	self:UseTriggerBounds(true, 8)
 	self:DrawShadow(false)
 
+	self.GlobalPowerup = nzPowerUps:Get(self:GetPowerUp()).global
 	self.LoopSound =  "nz_moo/powerups/powerup_lp_zhd.wav"
 	self.GrabSound = "nz_moo/powerups/powerup_pickup_zhd.mp3"
 	self.SpawnSound = "nz_moo/powerups/powerup_spawn_zhd_"..math.random(1,3)..".mp3"
@@ -54,24 +116,9 @@ function ENT:Initialize()
 		self.SpawnSound = tostring(nzSounds.Sounds.Custom.Spawn[math.random(#nzSounds.Sounds.Custom.Spawn)])
 	end
 
-	timer.Simple(0, function()
-		if not IsValid(self) then return end
-		ParticleEffectAttach(nzPowerUps:Get(self:GetPowerUp()).global and "nz_powerup_global_intro" or "nz_powerup_local_intro", 1, self, 0)
-	end)
-
 	self:EmitSound("nz_moo/powerups/powerup_intro_start.mp3")
 	self:EmitSound("nz_moo/powerups/powerup_intro_lp.wav",100, 100, 1, 2)
 
-	self:SetMaterial("null")
-
-	local distfac = 0.1
-	local nearest = self:FindNearestPlayer(self:GetPos())
-	if IsValid(nearest) then
-		local dist = self:GetPos():DistToSqr(nearest:GetPos())
-		distfac = 1 - math.Clamp(dist / 40000, 0, 1) //200^2
-	end
-
-	self:SetActivateTime(CurTime() + (3 * distfac))
 	self:SetBlinkTime(CurTime() + 25)
 	self:SetKillTime(CurTime() + 30)
 
@@ -79,8 +126,29 @@ function ENT:Initialize()
 	self:SetBlinking(false)
 
 	if CLIENT then return end
+	local distfac = 0
+	local nearest = self:FindNearestPlayer(self:GetPos())
+	if IsValid(nearest) then
+		local dist = self:GetPos():DistToSqr(nearest:GetPos())
+		distfac = 1 - math.Clamp(dist / 40000, 0, 1) //200^2
+	end
+
+	if self:GetAnti() then
+		self:SetActivateTime(CurTime() + (nzMapping.Settings.antipowerupdelay or 4))
+	else
+		self:SetActivateTime(CurTime() + (3 * distfac))
+	end
+
+	self:SetPressUse(pdata.pressuse and tobool(pdata.pressuse) or false)
+	nzPowerUps:PowerupHudSync(self)
+
 	self:SetTrigger(true)
 	self:SetUseType(SIMPLE_USE)
+
+	if pdata.spawnfunc then
+		pdata.spawnfunc(self:GetPowerUp(), self)
+	end
+
 	if IsValid(nearest) then
 		self:OOBTest(nearest)
 	end
@@ -109,10 +177,11 @@ function ENT:OOBTest(ply)
 			local normal = (ply:GetPos() - barricade:GetPos()):GetNormalized()
 			local fwd = barricade:GetForward()
 			local dot = fwd:Dot(normal)
+
 			if 0 < dot then
-				self:SetPos(barricade:WorldSpaceCenter() + fwd*50)
+				self:SetPos(barricade:GetPos() + vector_up*50 + fwd*50)
 			else
-				self:SetPos(barricade:WorldSpaceCenter() + fwd*-50)
+				self:SetPos(barricade:GetPos() + vector_up*50 + fwd*-50)
 			end
 			return
 		end
@@ -127,9 +196,9 @@ function ENT:OOBTest(ply)
 			local dot = fwd:Dot(normal)
 
 			if 0 < dot then
-				self:SetPos(v:WorldSpaceCenter() + fwd*50)
+				self:SetPos(v:GetPos() + vector_up*50 + fwd*50)
 			else
-				self:SetPos(v:WorldSpaceCenter() + fwd*-50)
+				self:SetPos(v:GetPos() + vector_up*50 + fwd*-50)
 			end
 			return
 		end
@@ -140,18 +209,20 @@ function ENT:OOBTest(ply)
 		if v:GetClass() == "breakable_entry" then
 			//print('Powerup3, Barricade too close')
 			local ply2 = self:FindNearestPlayer(v:GetPos())
-			local normal = (self:GetPos() - v:GetPos()):GetNormalized()
-			local normal2 = (ply2:GetPos() - v:GetPos()):GetNormalized()
-			local fwd = v:GetForward()
-			local dot = fwd:Dot(normal)
-			local dot2 = fwd:Dot(normal2)
+			if ply2 and IsValid(ply2) then
+				local normal = (self:GetPos() - v:GetPos()):GetNormalized()
+				local normal2 = (ply2:GetPos() - v:GetPos()):GetNormalized()
+				local fwd = v:GetForward()
+				local dot = fwd:Dot(normal)
+				local dot2 = fwd:Dot(normal2)
 
-			if 0 < dot2 and dot > 0 then
-				self:SetPos(v:WorldSpaceCenter() + fwd*50)
-			elseif 0 > dot2 and dot < 0 then
-				self:SetPos(v:WorldSpaceCenter() + fwd*-50)
+				if 0 < dot2 and dot > 0 then
+					self:SetPos(v:GetPos() + vector_up*50 + fwd*50)
+				elseif 0 > dot2 and dot < 0 then
+					self:SetPos(v:GetPos() + vector_up*50 + fwd*-50)
+				end
+				return
 			end
-			return
 		end
 	end
 end
@@ -170,7 +241,7 @@ function ENT:FindNearestPlayer(pos)
 
 	if table.IsEmpty(nearbyents) then return end
 	if #nearbyents > 1 then
-		table.sort(nearbyents, function(a, b) return a:GetPos():DistToSqr(self:GetPos()) < b:GetPos():DistToSqr(pos) end)
+		table.sort(nearbyents, function(a, b) return tobool(a:GetPos():DistToSqr(pos) < b:GetPos():DistToSqr(pos)) end)
 	end
 	return nearbyents[1]
 end
@@ -189,24 +260,39 @@ function ENT:FindNearestBarricade(pos)
 
 	if table.IsEmpty(nearbyents) then return end
 	if #nearbyents > 1 then
-		table.sort(nearbyents, function(a, b) return a:GetPos():DistToSqr(self:GetPos()) < b:GetPos():DistToSqr(pos) end)
+		table.sort(nearbyents, function(a, b) return tobool(a:GetPos():DistToSqr(pos) < b:GetPos():DistToSqr(pos)) end)
 	end
 	return nearbyents[1]
+end
+
+function ENT:Use(ply)
+	if self:GetActivated() and self:GetPressUse() and !self:GetAnti() and IsValid(ply) and ply:IsPlayer() then
+		nzPowerUps:Activate(self:GetPowerUp(), ply, self)
+		ply:EmitSound(nzPowerUps:Get(self:GetPowerUp()).collect or self.GrabSound)
+		self:Remove()
+	end
 end
 
 function ENT:StartTouch(ent)
 	if not IsValid(ent) then return end
 
-	if self:GetActivated() and ent:IsPlayer() then
-		nzPowerUps:Activate(self:GetPowerUp(), ent, self)
-
-		local GLOBAL = nzPowerUps:Get(self:GetPowerUp()).global
-		ent:EmitSound(nzPowerUps:Get(self:GetPowerUp()).collect or self.GrabSound)
-
-		self:Remove()
+	if self:GetActivated() then
+		if self:GetAnti() then
+			if ent:IsValidZombie() then
+				nzPowerUps:ActivateAnti(self:GetPowerUp(), ent, self)
+				ent:EmitSound(nzPowerUps:Get(self:GetPowerUp()).collect or self.GrabSound)
+				self:Remove()
+			end
+		elseif ent:IsPlayer() and not self:GetPressUse() then
+			nzPowerUps:Activate(self:GetPowerUp(), ent, self)
+			ent:EmitSound(nzPowerUps:Get(self:GetPowerUp()).collect or self.GrabSound)
+			self:Remove()
+		end
 	end
 end
 
+local LAST_PULL_VEC = Vector(0,0,0)
+local CURRENT_PUSH = 0
 local PUSH_STRENGTH = 5
 
 local PUSH = {
@@ -229,28 +315,36 @@ function ENT:Think()
 
 		self:SetNoDraw(not self:GetNoDraw())
 		self.NextDraw = CurTime() + math.Clamp(1 * final, 0.1, 1)
-
-		if not self:GetNoDraw() and final > 0.35 then
-			local global = nzPowerUps:Get(self:GetPowerUp()).global
-			ParticleEffectAttach(global and "nz_powerup_global" or "nz_powerup_local", 1, self, 0)
-		end
 	end
 
 	if not self:GetActivated() and self:GetActivateTime() < CurTime() then
-		self:StopParticles()
 		self:DrawShadow(true)
 
-		local global = nzPowerUps:Get(self:GetPowerUp()).global
-		local att = self:GetAttachment(1)
-		ParticleEffect(global and "nz_powerup_global_poof" or "nz_powerup_local_poof", att and att.Pos or self:WorldSpaceCenter(), angle_zero)
-		ParticleEffectAttach(global and "nz_powerup_global" or "nz_powerup_local", 1, self, 0)
-
-		self:SetMaterial("")
-
-		self:EmitSound(self.LoopSound,75, 100, 1, 3)
-		self:EmitSound(self.SpawnSound,100)
+		self:EmitSound(self.LoopSound, 75, 100, 1, 3)
+		self:EmitSound(self.SpawnSound, 100)
 		self:StopSound("nz_moo/powerups/powerup_intro_lp.wav")
-		self:SetActivated(true)
+
+		if SERVER then
+			self:SetSolid(SOLID_OBB)
+			if self:GetAnti() then
+				self:SetTargetPriority(TARGET_PRIORITY_PLAYER)
+				UpdateAllZombieTargets(self)
+			end
+
+			local fx = EffectData()
+			fx:SetOrigin(self:GetPos()) //position
+			fx:SetAngles(angle_zero) //angle
+			fx:SetNormal(Vector(1,1,1)) //size (dont ask why its a vector)
+			fx:SetFlags(self:GetAnti() and 4 or self.GlobalPowerup and 1 or 2) //powerup type, see nzPowerUps.PowerUpGlowTypes in gamemode/powerups/sh_constructor
+
+			local filter = RecipientFilter()
+			filter:AddPVS(self:GetPos())
+			if filter:GetCount() > 0 then
+				util.Effect("nz_powerup_poof", fx, true, filter)
+			end
+
+			self:SetActivated(true)
+		end
 	end
 
 	if not self:GetBlinking() and self:GetBlinkTime() < CurTime() then
@@ -258,6 +352,39 @@ function ENT:Think()
 	end
 
 	if SERVER then
+		if self:GetActivated() and !self:GetAnti() then
+			local vulturetargets = {}
+			for _, ply in ipairs(player.GetAll()) do
+				if ply:HasUpgrade("vulture") then
+					table.insert(vulturetargets, ply)
+				end
+			end
+
+			if next(vulturetargets) ~= nil then
+				if #vulturetargets > 1 then
+					table.sort(vulturetargets, function(a, b) return tobool(a:GetPos():DistToSqr(self:GetPos()) < b:GetPos():DistToSqr(self:GetPos())) end)
+				end
+
+				local vtarget = vulturetargets[1]
+				if IsValid(vtarget) and vtarget:Visible(self) then
+					local angle = 1 - math.cos(math.rad(40))
+					local dir = vtarget:EyeAngles():Forward()
+					local facingdir = (vtarget:EyePos() - self:GetPos()):GetNormalized()
+
+					local faceing = !((facingdir:Dot(dir) + 1) / 2 > angle)
+					local eyesight = (vtarget:GetEyeTrace().Entity == self)
+
+					local ratio = (1/engine.TickInterval())*(0.1*engine.TickInterval()) //0.1 taking into account tps
+					local maxspeed = (eyesight and 24) or (faceing and 12) or 6
+					local CURRENT_PUSH = Lerp(ratio, CURRENT_PUSH, maxspeed) //smooth out speed
+					local targetpos = vtarget:OnGround() and (vtarget:GetPos() + vector_up*50) or vtarget:GetPos()
+
+					LAST_PULL_VEC = LerpVector(ratio*0.5, LAST_PULL_VEC, (self:GetPos() - targetpos):GetNormalized()) //smooth out turning
+					self:SetPos(self:GetPos() - LAST_PULL_VEC*CURRENT_PUSH)
+				end
+			end
+		end
+
 		local pdata = nzPowerUps:Get(self:GetPowerUp())
 		if not pdata.nopush then
 			for k, v in pairs(ents.FindInSphere(self:GetPos(), pdata.pusharea or 12)) do --powerups are too close to each other!
@@ -274,20 +401,46 @@ function ENT:Think()
 		end
 	end
 
+	if CLIENT then
+		self:SetNextClientThink(CurTime())
+	end
 	self:NextThink(CurTime())
 	return true
+end
+
+if CLIENT then
+	function ENT:GetNZTargetText()
+		local hint = self:GetHintString()
+		if hint ~= "" then
+			if self:GetPressUse() then
+				return "Press "..string.upper(input.LookupBinding("+USE")).." - "..hint
+			else
+				return hint
+			end
+		end
+	end
 end
 
 function ENT:OnRemove()
 	if IsValid(self) then
 		self:StopParticles()
-
-		local global = nzPowerUps:Get(self:GetPowerUp()).global
-		local att = self:GetAttachment(1)
-		ParticleEffect(global and "nz_powerup_global_poof" or "nz_powerup_local_poof", att and att.Pos or self:WorldSpaceCenter(), angle_zero)
-
 		self:StopSound("nz_moo/powerups/powerup_intro_lp.wav")
-		self:StopSound("nz_moo/powerups/powerup_lp_zhd.wav")
 		self:StopSound(self.LoopSound)
+
+		if SERVER then
+			nzPowerUps:PowerupHudRemove(self)
+
+			local fx = EffectData()
+			fx:SetOrigin(self:GetPos()) //position
+			fx:SetAngles(angle_zero) //angle
+			fx:SetNormal(Vector(1,1,1)) //size (dont ask why its a vector)
+			fx:SetFlags(self:GetAnti() and 4 or self.GlobalPowerup and 1 or 2) //powerup type, see nzPowerUps.PowerUpGlowTypes in gamemode/powerups/sh_constructor
+
+			local filter = RecipientFilter()
+			filter:AddPVS(self:GetPos())
+			if filter:GetCount() > 0 then
+				util.Effect("nz_powerup_poof", fx, true, filter)
+			end
+		end
 	end
 end

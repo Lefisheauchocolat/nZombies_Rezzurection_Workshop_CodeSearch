@@ -33,7 +33,8 @@ local function DrawColorModulation()
 	local ply = LocalPlayer()
 	if IsValid(ply:GetObserverTarget()) then ply = ply:GetObserverTarget() end
 
-	if nzPowerUps:IsPlayerPowerupActive(ply, "zombieblood") then
+	local gum = nzGum:GetActiveGum(ply)
+	if nzPowerUps:IsPlayerPowerupActive(ply, "zombieblood") or (gum and gum == "in_plain_sight" and nzGum:IsWorking(ply)) then
 		zbtab["$pp_colour_mulr"] = 1
 		zbtab["$pp_colour_mulg"] = 0
 		zbtab["$pp_colour_addr"] = 0.15
@@ -56,7 +57,9 @@ end
 
 local function CalcZombieBloodView(ply, pos, ang, fov, znear, zfar)
 	if IsValid(ply:GetObserverTarget()) then ply = ply:GetObserverTarget() end
-	if nzPowerUps:IsPlayerPowerupActive(ply, "zombieblood") then
+	
+	local gum = nzGum:GetActiveGum(ply)
+	if nzPowerUps:IsPlayerPowerupActive(ply, "zombieblood") or (gum and gum == "in_plain_sight" and nzGum:IsWorking(ply)) then
 		local fov = fov + 12
 		return {origin = pos, angles = ang, fov = fov, znear = znear, zfar = zfar, drawviewer = false }
 	end
@@ -68,7 +71,21 @@ local function DrawZombieBlood()
 	local ply = LocalPlayer()
 	if IsValid(ply:GetObserverTarget()) then ply = ply:GetObserverTarget() end
 
-	if nzPowerUps:IsPlayerPowerupActive(ply, "zombieblood") then
+	local gum = nzGum:GetActiveGum(ply)
+	local gumworking = (gum and gum == "in_plain_sight" and nzGum:IsWorking(ply)) or false
+	if gumworking then
+		if not ply.gum_in_plain_sight_looper then --Haven't cached yet
+			ply.gum_in_plain_sight_looper = CreateSound(ply, "nz_moo/powerups/zombieblood_loop.wav")
+		end
+
+		if ply.gum_in_plain_sight_looper then
+			ply.gum_in_plain_sight_looper:Play()
+		end
+	elseif ply.gum_in_plain_sight_looper then
+		ply.gum_in_plain_sight_looper:Stop()
+	end
+
+	if nzPowerUps:IsPlayerPowerupActive(ply, "zombieblood") or gumworking then
 		local w, h = ScrW(), ScrH()
 		local scale = (w/1920 + 1)/2
 

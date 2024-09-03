@@ -11,8 +11,12 @@ if CLIENT then
 		[0] = Material("models/moo/codz/s4_zombies/zod/mtl_c_s4_zom_ger_eyeglow.vmt"),
 		[1] = Material("models/moo/codz/s4_zombies/zod/mtl_c_s4_zom_ger_head_01.vmt"),
 		[2] = Material("models/moo/codz/s4_zombies/zod/mtl_c_s4_zom_ger_head_02.vmt"),
-		[3] = Material("models/moo/codz/s4_zombies/zod/mtl_c_s4_zom_ger_head_04.vmt"),
-		[4] = Material("models/moo/codz/s4_zombies/zod/mtl_c_s4_zmb_rus_f_head2.vmt"),
+		[4] = Material("models/moo/codz/s4_zombies/zod/mtl_c_s4_zom_ger_head_03.vmt"),
+		[5] = Material("models/moo/codz/s4_zombies/zod/mtl_c_s4_zom_ger_head_04.vmt"),
+		[6] = Material("models/moo/codz/s4_zombies/zod/mtl_c_s4_zom_ger_head_05.vmt"),
+		[7] = Material("models/moo/codz/s4_zombies/zod/mtl_c_s4_zmb_rus_f_head1.vmt"),
+		[7] = Material("models/moo/codz/s4_zombies/zod/mtl_c_s4_zmb_rus_f_head2.vmt"),
+		[7] = Material("models/moo/codz/s4_zombies/zod/mtl_c_s4_zmb_rus_f_head3.vmt"),
 	}
 	return 
 end -- Client doesn't really need anything beyond the basics
@@ -22,21 +26,23 @@ ENT.IsMooZombie = true
 ENT.RedEyes = true
 
 ENT.Models = {
-	-- Two cuz theres not any other german zombies past the two WW2 re-uses.
-	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zom_infantrya.mdl", Skin = 0, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zom_infantrya.mdl", Skin = 0, Bodygroups = {0,0}},
-	--{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zom_sniper.mdl", Skin = 0, Bodygroups = {0,0}}, -- And this model refuses to cooperate.
-
-	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zom_shirtless.mdl", Skin = 0, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zom_shirtless_fabric.mdl", Skin = 0, Bodygroups = {0,0}},
-
-	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zom_afr_2.mdl", Skin = 0, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zom_afr_3.mdl", Skin = 0, Bodygroups = {0,0}},
-
-	-- Russian Zombie population is booming.
-	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zom_rus_soldier.mdl", Skin = 0, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zom_rus_soldier_2.mdl", Skin = 0, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zom_rus_soldier_female.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zod_ger_1.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zod_ger_2.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zod_ger_3.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zod_ger_4.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zod_ger_5.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zod_rus_1.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zod_rus_2.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zod_rus_3.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zod_rus_4.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zod_rus_5.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zod_shirtless_1.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zod_shirtless_2.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zod_shirtless_4.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zod_shirtless_5.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zod_rus_fem_1.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zod_rus_fem_2.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/s4/zod/moo_codz_s4_zod_rus_fem_3.mdl", Skin = 0, Bodygroups = {0,0}},
 }
 
 local spawnslow = {"nz_spawn_ground_v1", "nz_spawn_ground_ad_v2", "nz_spawn_ground_v2", "nz_spawn_ground_v2_altb"}
@@ -61,11 +67,23 @@ ENT.DeathSequences = {
 	"nz_death_f_11",
 	"nz_death_f_12",
 	"nz_death_f_13",
-	"nz_death_fallback",
 	"nz_l4d_death_running_11a",
 	"nz_l4d_death_running_11g",
 	"nz_l4d_death_02a",
 	"nz_l4d_death_11_02d",
+	"nz_t9_dth_f_chest_lt_00",
+	"nz_t9_dth_f_chest_lt_01",
+	"nz_t9_dth_f_chest_lt_02",
+	"nz_t9_dth_f_chest_lt_03",
+	"nz_t9_dth_f_chest_lt_04",
+	"nz_t9_dth_f_chest_lt_05",
+	"nz_t9_dth_f_chest_lt_06",
+	"nz_t9_dth_f_chest_lt_07",
+	"nz_t9_dth_f_chest_lt_08",
+	"nz_t9_dth_f_chest_lt_09",
+	"nz_t9_dth_f_head_lt_00",
+	"nz_t9_dth_f_head_lt_01",
+	"nz_t9_dth_f_head_lt_02",
 }
 
 ENT.CrawlDeathSequences = {
@@ -355,9 +373,9 @@ ENT.SequenceTables = {
 			SpawnSequence = {spawnslow},
 			MovementSequence = {
 				"nz_walk_ad1",
-				"nz_walk_ad2",
+				"nz_s4_3arc_walk_ad_v2",
 				"nz_walk_ad3",
-				"nz_walk_ad4",
+				"nz_s4_3arc_walk_ad_v4",
 				"nz_walk_ad7",
 				"nz_walk_ad5",
 				"nz_walk_ad6",
@@ -555,6 +573,7 @@ ENT.SequenceTables = {
 				"nz_run_ad22",
 				"nz_run_ad23",
 				"nz_run_ad24",
+				"nz_base_zombie_hunted_dazed_walk_c_limp",
 			},
 			LowgMovementSequence = {
 				"nz_run_lowg_v1",
@@ -646,6 +665,7 @@ ENT.SequenceTables = {
 				"nz_run_au22",
 				"nz_run_au23",
 				"nz_run_au24",
+				"nz_base_zombie_hunted_dazed_walk_c_limp",
 			},
 			LowgMovementSequence = {
 				"nz_run_lowg_v1",
@@ -715,8 +735,6 @@ ENT.SequenceTables = {
 		{
 			SpawnSequence = {spawnfast},
 			MovementSequence = {
-				"nz_legacy_sprint_v5",
-				--"nz_legacy_jap_run_v3",
 				"nz_t9_base_sprint_ad_v01",
 				"nz_t9_base_sprint_ad_v02",
 				"nz_t9_base_sprint_ad_v05",
@@ -725,8 +743,6 @@ ENT.SequenceTables = {
 				"nz_t9_base_sprint_ad_v23",
 				"nz_sprint_ad3",
 				"nz_sprint_ad4",
-				"nz_fast_sprint_v1",
-				"nz_fast_sprint_v2",
 			},
 			LowgMovementSequence = {
 				"nz_sprint_lowg_v1",
@@ -794,8 +810,6 @@ ENT.SequenceTables = {
 		{
 			SpawnSequence = {spawnfast},
 			MovementSequence = {
-				"nz_legacy_sprint_v5",
-				--"nz_legacy_jap_run_v3",
 				"nz_t9_base_sprint_au_v01",
 				"nz_t9_base_sprint_au_v02",
 				"nz_t9_base_sprint_au_v20",
@@ -804,8 +818,6 @@ ENT.SequenceTables = {
 				"nz_t9_base_sprint_au_v25",
 				"nz_sprint_au3",
 				"nz_sprint_au4",
-				"nz_fast_sprint_v1",
-				"nz_fast_sprint_v2",
 			},
 			LowgMovementSequence = {
 				"nz_sprint_lowg_v1",
@@ -1686,38 +1698,4 @@ ENT.CustomTauntAnimV9Sounds = {
 	Sound("nz_moo/zombies/vox/_2k20/taunt/series_3/taunt_06.mp3"),
 	Sound("nz_moo/zombies/vox/_2k20/taunt/series_3/taunt_07.mp3"),
 	Sound("nz_moo/zombies/vox/_2k20/taunt/series_3/taunt_08.mp3"),
-}
-
-ENT.CustomWalkFootstepsSounds = {
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_0.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_1.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_2.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_3.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_4.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_5.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_6.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_7.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_8.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_9.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_10.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_11.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_12.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_13.mp3"),
-}
-
-ENT.CustomRunFootstepsSounds = {
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_0.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_1.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_2.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_3.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_4.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_5.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_6.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_7.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_8.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_9.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_10.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_11.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_12.mp3"),
-	Sound("nz_moo/zombies/footsteps/_2k20/gore_step_13.mp3"),
 }

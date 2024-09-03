@@ -8,11 +8,8 @@ ENT.Spawnable = true
 
 if CLIENT then 
 	ENT.EyeColorTable = {
-		[0] = Material("models/moo/codz/t6_nuketown/mtl_c_zom_dlc0_zombie_hazmat_head_mask_u.vmt"),
-		[1] = Material("models/moo/codz/t6_nuketown/mtl_c_zom_dlc0_zombie_hazmat_head_1_u.vmt"),
-		[2] = Material("models/moo/codz/t6_nuketown/mtl_c_zom_dlc0_zombie_hazmat_head_2_u.vmt"),
-		[3] = Material("models/moo/codz/t6_nuketown/mtl_c_zom_dlc0_zombie_hazmat_head_3_u.vmt"),
-		[4] = Material("models/moo/codz/t6_nuketown/mtl_c_zom_dlc0_zombie_hazmat_head_4_u.vmt"),
+		[0] = Material("models/moo/codz/t6_zombies/nuketown/mtl_c_zom_dlc0_zombie_hazmat_head_mask_u.vmt"),
+		[1] = Material("models/moo/codz/t6_zombies/nuketown/mtl_c_zom_dlc0_zombie_hazmat_head_1_u.vmt"),
 	}
 	return 
 end -- Client doesn't really need anything beyond the basics
@@ -22,7 +19,8 @@ ENT.IsMooZombie = true
 ENT.RedEyes = true
 
 ENT.Models = {
-	{Model = "models/moo/_codz_ports/t6/nuketown/moo_codz_t6_nuketown_hazmat2.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t6/nuketown/moo_codz_t6_dlc0_haz_1.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t6/nuketown/moo_codz_t6_dlc0_haz_2.mdl", Skin = 0, Bodygroups = {0,0}},
 }
 
 local spawnslow = {"nz_spawn_ground_v1", "nz_spawn_ground_ad_v2", "nz_spawn_ground_v2", "nz_spawn_ground_v2_altb"}
@@ -47,11 +45,23 @@ ENT.DeathSequences = {
 	"nz_death_f_11",
 	"nz_death_f_12",
 	"nz_death_f_13",
-	"nz_death_fallback",
 	"nz_l4d_death_running_11a",
 	"nz_l4d_death_running_11g",
 	"nz_l4d_death_02a",
 	"nz_l4d_death_11_02d",
+	"nz_t9_dth_f_chest_lt_00",
+	"nz_t9_dth_f_chest_lt_01",
+	"nz_t9_dth_f_chest_lt_02",
+	"nz_t9_dth_f_chest_lt_03",
+	"nz_t9_dth_f_chest_lt_04",
+	"nz_t9_dth_f_chest_lt_05",
+	"nz_t9_dth_f_chest_lt_06",
+	"nz_t9_dth_f_chest_lt_07",
+	"nz_t9_dth_f_chest_lt_08",
+	"nz_t9_dth_f_chest_lt_09",
+	"nz_t9_dth_f_head_lt_00",
+	"nz_t9_dth_f_head_lt_01",
+	"nz_t9_dth_f_head_lt_02",
 }
 
 ENT.CrawlDeathSequences = {
@@ -785,7 +795,7 @@ ENT.SequenceTables = {
 		{
 			SpawnSequence = {spawnsuperfast},
 			MovementSequence = {
-				"nz_l4d_run_05",
+				--"nz_l4d_run_05",
 				"nz_pb_zombie_sprint_v7",
 				"nz_pb_zombie_sprint_v9",
 				"nz_supersprint_ad1",
@@ -867,7 +877,7 @@ ENT.SequenceTables = {
 		{
 			SpawnSequence = {spawnsuperfast},
 			MovementSequence = {
-				"nz_l4d_run_05",
+				--"nz_l4d_run_05",
 				"nz_pb_zombie_sprint_v7",
 				"nz_pb_zombie_sprint_v9",
 				"nz_supersprint_au1",

@@ -216,3 +216,11 @@ end
 function nzRound:ResetZombiesRemaining()
 	self.NumberZombies = 0
 end
+
+function nzRound:SetTimedRoundTime( num )
+	self.TimedRoundTime = num
+end
+
+function nzRound:GetTimedRoundTime()
+	return self.TimedRoundTime
+end

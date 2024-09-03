@@ -1,5 +1,6 @@
 function nzPerks:UpdateQuickRevive()
-	if #player.GetAllPlaying() <= 1 then
+	local maxrevives = (nzMapping.Settings.solorevive or 3)
+	if #player.GetAllPlaying() <= 1 and maxrevives > 0 then
 		for k,v in pairs(ents.FindByClass("perk_machine")) do
 			if v:GetPerkID() == "revive" then
 				v:SetPrice(500) -- Price is 500 for Solo variant and always on

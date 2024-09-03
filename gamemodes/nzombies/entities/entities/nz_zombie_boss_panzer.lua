@@ -27,6 +27,9 @@ end
 AccessorFunc( ENT, "fLastToast", "LastToast", FORCE_NUMBER)
 
 if CLIENT then 
+	ENT.EyeColorTable = {
+		[0] = Material("models/moo/codz/t6_zombies/tomb/mtl_c_zom_mech_head_unlit.vmt"),
+	}
 	function ENT:Draw()
 		self:DrawModel()
 
@@ -41,31 +44,6 @@ if CLIENT then
 
 		if GetConVar( "nz_zombie_debug" ):GetBool() then
 			render.DrawWireframeBox(self:GetPos(), Angle(0,0,0), self:OBBMins(), self:OBBMaxs(), Color(255,0,0), true)
-		end
-	end
-
-	function ENT:DrawEyeGlow()
-		local eyeglow = Material("nz/zlight")
-		local eyeColor = Color(255, 150, 50, 255)
-		local latt = self:LookupAttachment("lefteye")
-		local ratt = self:LookupAttachment("righteye")
-
-		if latt == nil then return end
-		if ratt == nil then return end
-
-		local leye = self:GetAttachment(latt)
-		local reye = self:GetAttachment(ratt)
-
-		if leye == nil then return end
-		if reye == nil then return end
-
-		local righteyepos = leye.Pos + leye.Ang:Forward()*1.5
-		local lefteyepos = reye.Pos + reye.Ang:Forward()*1.5
-
-		if lefteyepos and righteyepos then
-			render.SetMaterial(eyeglow)
-			render.DrawSprite(lefteyepos, 6, 6, eyeColor)
-			render.DrawSprite(righteyepos, 6, 6, eyeColor)
 		end
 	end
 
@@ -120,12 +98,15 @@ ENT.IsMooSpecial = true
 ENT.IsMooBossZombie = true
 
 ENT.AttackRange = 115
+ENT.DamageRange = 115
 
 ENT.TraversalCheckRange = 100
 ENT.CrawlerForce = 9400
 
+ENT.CanPanzerLift = true
+
 ENT.Models = {
-	{Model = "models/moo/_codz_ports/t7/tomb/moo_codz_t7_tomb_mechz.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t6/tomb/moo_codz_t6_tomb_mechz.mdl", Skin = 0, Bodygroups = {0,0}},
 }
 
 local spawn = {"nz_soldat_arrive_fast"}
@@ -212,7 +193,7 @@ ENT.SequenceTables = {
 				"nz_soldat_walk_basic",
 			},
 			FlameMovementSequence = {
-				"nz_soldat_ft_walk",
+				"nz_soldat_flamethrower_stand_aim",
 			},
 			FlyMovementSequence = {
 				"nz_soldat_launch_pad_move_loop",
@@ -233,7 +214,7 @@ ENT.SequenceTables = {
 				"nz_soldat_run",
 			},
 			FlameMovementSequence = {
-				"nz_soldat_ft_walk",
+				"nz_soldat_ft_run",
 			},
 			FlyMovementSequence = {
 				"nz_soldat_launch_pad_move_loop",
@@ -254,7 +235,7 @@ ENT.SequenceTables = {
 				"nz_soldat_sprint",
 			},
 			FlameMovementSequence = {
-				"nz_soldat_ft_walk",
+				"nz_soldat_ft_run",
 			},
 			FlyMovementSequence = {
 				"nz_soldat_launch_pad_move_loop",
@@ -324,6 +305,30 @@ ENT.ServoSounds = {
 	Sound("nz_moo/zombies/vox/_mechz/servo/anim_ratc_srvo_02.mp3"),
 }
 
+ENT.MetalImpactSounds = {
+	Sound("physics/metal/metal_solid_impact_bullet1.wav"),
+	Sound("physics/metal/metal_solid_impact_bullet2.wav"),
+	Sound("physics/metal/metal_solid_impact_bullet3.wav"),
+	Sound("physics/metal/metal_solid_impact_bullet4.wav"),
+}
+
+ENT.ArmorBreakSounds = {
+	Sound("nz_moo/zombies/fly/armor_break/break_00.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_01.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_02.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_03.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_04.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_05.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_06.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_07.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_08.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_09.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_10.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_11.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_12.mp3"),
+	Sound("nz_moo/zombies/fly/armor_break/break_13.mp3"),
+}
+
 function ENT:StatsInitialize()
 	if SERVER then
 		local count = #player.GetAllPlaying()
@@ -344,8 +349,8 @@ function ENT:StatsInitialize()
 		bosshealth = math.Round(playerhpmod * (basehealth + (healthincrease * nzRound:GetNumber())))
 
 		if nzRound:InState( ROUND_CREATE ) then
-			self:SetHealth(basehealth)
-			self:SetMaxHealth(basehealth)
+			self:SetHealth(6900)
+			self:SetMaxHealth(6900)
 		else
 			if nzRound:InState( ROUND_PROG ) then
 				self:SetHealth(math.Clamp(bosshealth, basehealth, basehealthmax * playerhpmod))
@@ -356,7 +361,10 @@ function ENT:StatsInitialize()
 			end
 		end
 
-		self.HelmetHP = self:GetMaxHealth() * 0.1
+		self.HelmetHP = self:GetMaxHealth() * 0.25
+
+		self.HasPSupply = true
+		self.PowerSupplyHP = self:GetMaxHealth() * 0.1
 
 		self.SpawnProtection = true -- Zero Health Zombies tend to be created right as they spawn.
 		self.SpawnProtectionTime = CurTime() + 5 -- So this is an experiment to see if negating any damage they take for a second will stop this.
@@ -369,7 +377,10 @@ function ENT:StatsInitialize()
 		-- It is a 100% known fact that bools control at least 90% of the world... This comment is now false.
 		self.UsingFlamethrower = false
 		self.DisallowFlamethrower = false
+		self.StandingFlamethrower = false
 		self:SetLastToast(CurTime())
+
+		self.VariantChance = math.random(1,2)
 
 		self.UsingGlowstick = false
 		self.Enraged = false
@@ -378,8 +389,11 @@ function ENT:StatsInitialize()
 
 		self.UsingClaw = false
 		self.WaitForClaw = false
-		self.NextShootTime = math.random(5, 25) -- The initial chances of shooting glowsticks can vary. We love math random.
-		
+		self.NextShootTime = math.random(5, 25)
+
+		self.UsingGlowstick = false
+		self.LastGlowstick = CurTime() + 3 
+
 		self.TheComedy = false
 		self.AutoStopComedy = 0
 
@@ -388,6 +402,8 @@ function ENT:StatsInitialize()
 		self:SetHelmet(true)
 		self:SetStop(false)
 		self.CanCancelAttack = true
+
+		self.LastStun = CurTime() + 1
 
 		self:SetCollisionBounds(Vector(-14,-14, 0), Vector(14, 14, 72))
 		self:SetSurroundingBounds(Vector(-45, -45, 0), Vector(45, 45, 100))
@@ -425,6 +441,16 @@ function ENT:OnSpawn()
 
 	self:EmitSound("nz_moo/zombies/vox/_mechz/v2/incoming_alarm.mp3",511)
 	self:SetBodygroup(1,0)
+	self:SetBodygroup(2,0)
+	self:SetBodygroup(4,0)
+
+	if self.VariantChance == 1 then
+		self.Variant = "claw"
+		self:SetBodygroup(3,1)
+	elseif self.VariantChance == 2 then
+		self.Variant = "taser"
+		self:SetBodygroup(3,2)
+	end
 
 	self:TimeOut(2)
 
@@ -453,17 +479,6 @@ function ENT:OnGameOver()
 	end
 end
 
-function ENT:PerformDeath(dmgInfo)
-	self:StopToasting()
-	if IsValid(self.Claw) then self.Claw:Remove() end
-	self:EmitSound("nz_moo/zombies/vox/_mechz/v2/death/rise.mp3", 100, math.random(85,105))
-	self:EmitSound("nz_moo/zombies/vox/_mechz/v2/death/killshot.mp3", 100, math.random(85,105))
-	self:EmitSound("nz_moo/zombies/vox/_mechz/vox/death/death_00.mp3", 100, math.random(85,105))
-
-	self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
-	self:DoDeathAnimation(self.DeathSequences[math.random(#self.DeathSequences)])
-end
-
 function ENT:OnTargetInAttackRange()
 	if self.Jetpacking then
 		self:EndJetpack()
@@ -480,24 +495,42 @@ function ENT:OnTargetInAttackRange()
 	end
 end
 
+-- ulx luarun "Entity(1):GetEyeTrace().Entity:PanzerDGLift(5)"
+
 function ENT:AI()
 	local target = self:GetTarget()
 	if IsValid(target) and target:IsPlayer() then
 
-		if !self:Alive() or self:GetIsBusy() then return end -- Not allowed to do anything.
+		if !self:Alive() or self:GetIsBusy() or self.PanzerDGLifted and self:PanzerDGLifted() then return end -- Not allowed to do anything.
 
+		-- ENRAGE
+		if angering and !self.Enraged then
+			self.Enraged = true
+			self:DoSpecialAnimation("nz_soldat_berserk_1")
+
+			self:SetRunSpeed(71)
+			self:SpeedChanged()
+		end
+		
 		-- FLAMETHROWER
-		if !self:GetSpecialAnimation() and !self:IsAttackBlocked() and self:TargetInRange(250) and !self:TargetInRange(self.AttackRange) then
+		if !self:GetSpecialAnimation() and !self:IsAttackBlocked() and self:TargetInRange(300) and !self:TargetInRange(self.AttackRange) then
 			if self.Jetpacking then return end
 			if self.UsingGlowstick then return end
 			if self.DisallowFlamethrower then return end
 			self:StartToasting()
+			if !self:TargetInRange(200) and self:IsFacingTarget() then
+				self.StandingFlamethrower = true
+				self:DoSpecialAnimation("nz_soldat_flamethrower_stand_aim")
+			else
+				self.StandingFlamethrower = false
+			end
 		else
+			self.StandingFlamethrower = false
 			self:StopToasting()
 		end
 
 		-- CLAW
-		if CurTime() > self.NextShootTime and self:TargetInRange(850) and !self:TargetInRange(350) then
+		if CurTime() > self.NextShootTime and self:TargetInRange(850) and !self:TargetInRange(350) and self.Variant == "claw" then
 			if self:IsAttackBlocked() then return end
 			if self:GetSpecialAnimation() then return end
 			if self.Jetpacking then return end
@@ -507,15 +540,17 @@ function ENT:AI()
 
 				self:Retarget()
 
+				self:FaceTowards(self.Target:GetPos())
+
 				self.UsingClaw = true
 				self:SetSpecialAnimation(true)
-				self:PlaySequenceAndMove("nz_soldat_chaingun_intro_sprint_to_aim", 1, self.FaceEnemy)
+				self:PlaySequenceAndMove("nz_soldat_weapon_intro_to_aim", 1)
 
 				self.KillClaw = CurTime() + 4
 				self.NextShootTime = CurTime() + math.random(5, 12)
 
 
-				local shootpos = self:GetBonePosition(self:LookupBone("tag_claw"))
+				local pos = self:GetAttachment(self:LookupAttachment("tag_claw")).Pos
 		
 				if IsValid(self.Target) and self.Target:IsPlayer() then
 					local tr = util_traceline({
@@ -536,10 +571,10 @@ function ENT:AI()
 
 					if IsValid(self.Target) then
 						self.Claw = ents.Create("nz_panzer_claw")
-						self.Claw:SetPos(shootpos)
+						self.Claw:SetPos(pos)
 						self.Claw:Spawn()
 						self.Claw:SetPanzer(self)
-						self.Claw:Launch(((self.Target:GetPos() + Vector(0,0,50)) - self.Claw:GetPos()):GetNormalized())
+						self.Claw:Launch(((target:GetPos() + Vector(0,0,50) + target:GetVelocity() * math.Clamp(target:GetVelocity():Length2D(),0,0.5)) - self.Claw:GetPos()):GetNormalized())
 					end
 				end
 
@@ -569,31 +604,91 @@ function ENT:AI()
 				self:DeleteOnRemove(self.ClawGlow)
 
 
-				self:SetBodygroup(1,1)
+				self:SetBodygroup(3,0)
 				self:Stop()
-				self:PlaySequenceAndMove("nz_soldat_chaingun_fire")
+				self:PlaySequenceAndMove("nz_soldat_weapon_fire")
+
+				self:EmitSound(self.AngrySounds[math.random(#self.AngrySounds)], 95, math.random(95, 105))
 			end)
 		end
 
-		-- ENRAGE
-		if angering and !self.Enraged then
-			self.Enraged = true
-			self:DoSpecialAnimation("nz_soldat_berserk_1")
+		-- GLOWSTICK
+		if !self:IsAttackBlocked() and self:TargetInRange(1250) and !self:TargetInRange(350) and self.Variant == "taser" then
+			if CurTime() > self.LastGlowstick then
+				if self:GetSpecialAnimation() then return end
+				if self.Jetpacking then return end
+				if !self:IsFacingTarget() then return end
+				if self.UsingFlamethrower then return end
 
-			self:SetRunSpeed(71)
-			self:SpeedChanged()
+				self:TempBehaveThread(function(self)
+					self.UsingGlowstick = true
+					self:SetSpecialAnimation(true)
+					self:PlaySequenceAndMove("nz_soldat_weapon_intro_to_aim", 1)
+					for i = 1, 3 do 
+						local pos = self:GetAttachment(self:LookupAttachment("tag_gun_spin")).Pos
+
+						local target = self:GetTarget()
+						if IsValid(target) then
+							if self:IsAttackBlocked() then 
+								self.UsingGlowstick = false
+								self:SetSpecialAnimation(false)
+								return 
+							end
+
+							self.GlowStick = ents.Create("nz_glowstick")
+							self.GlowStick:SetPos(pos)
+							self.GlowStick:Spawn()
+
+							local phys = self.GlowStick:GetPhysicsObject()
+							if IsValid(phys) then
+			 					phys:SetVelocity(self.GlowStick:getvel(target:GetPos() + target:GetVelocity() * math.Clamp(target:GetVelocity():Length2D(),0,1.2), self:EyePos(), 1.2))
+			 				end
+						end
+
+						self:EmitSound("weapons/ar2/ar2_reload_rotate.wav", 75, math.random(95,105))
+						self:EmitSound("weapons/ar2/ar2_altfire.wav", 100, math.random(95,105))
+						self:EmitSound("weapons/ar2/npc_ar2_altfire.wav", 85, math.random(95,105))
+
+						ParticleEffectAttach("bo3_panzer_elec_blast",PATTACH_POINT,self,8)
+						self:PlaySequenceAndMove("nz_soldat_weapon_fire", 1)
+					end
+					self.LastGlowstick = CurTime() + math.random(5,12)
+					self.UsingGlowstick = false
+					self:SetSpecialAnimation(false)
+					self:EmitSound(self.AngrySounds[math.random(#self.AngrySounds)], 95, math.random(95, 105))
+				end)
+			end
 		end
 	end
 end
 
 function ENT:OnThink()
 	if not IsValid(self) then return end
+	local target = self.Target
+
+	-- DG4/DG5 Lift
+	if self.PanzerDGLifted and self:PanzerDGLifted() and !self.DGLift then
+		self.DGLift = true
+		self:DoSpecialAnimation("nz_soldat_tesla_intro")
+	elseif !self:PanzerDGLifted() and self.DGLift then
+		self.DGLift = false
+		self:DoSpecialAnimation("nz_soldat_tesla_outro")
+	end
+
 	--print(self.WaitForClaw)
-	if self.UsingFlamethrower and self:GetLastToast() + 0.1 < CurTime() then -- This controls how offten the trace for the flamethrower updates it's position. This shit is very costly so I wanted to try limit how much it does it.
+	if self.UsingFlamethrower and (self.Dying or self.IsBeingStunned) then
+		self:StopToasting()
+	end
+	if self.UsingFlamethrower and self:GetLastToast() + 0.125 < CurTime() and !self.Dying then -- This controls how offten the trace for the flamethrower updates it's position. This shit is very costly so I wanted to try limit how much it does it.
 		self:StartToasting()
+
+		-- Stop toasting if any of these pass.
+		if IsValid(target) and self.StandingFlamethrower and (self:IsAttackBlocked() or !self:IsFacingTarget() or !self:TargetInRange(400)) then
+			self.CancelCurrentAction = true
+		end
 	end
 	if self.WaitForClaw and self:GetStop() then
-		self:SetBodygroup(1,0)
+		self:SetBodygroup(3,1)
 
 		self:SetStop(false)
 		self:SetSpecialAnimation(false)
@@ -606,42 +701,33 @@ function ENT:OnThink()
 		self:FinishGrab()
 	end
 	if !self.UsingFlamethrower then
+		self.CancelCurrentAction = false
 		self:StopSound("nz_moo/zombies/vox/_mechz/v2/flame/loop.wav")
 	end
 	if self.TheComedy and self.WaitForClaw and CurTime() > self.AutoStopComedy then
 		self.TheComedy = false
 	end
-end
 
-function ENT:OnInjured( dmgInfo )
-	local hitpos = dmgInfo:GetDamagePosition()
-	
-	if self:GetHelmet() then
-		local bone = self:GetBonePosition(self:LookupBone("j_faceplate"))
-		
-		if hitpos:DistToSqr(bone) < 200 then
-			if self.HelmetHP <= 0 and self:GetHelmet() then
-				self:SetHelmet(false)
-				self:DeflateBones({
-					"j_faceplate",
-				})
-				self:EmitSound("enemies/bosses/newpanzer/mechz_faceplate.ogg",511, 100)
-				if !self:Alive() then return end
-				self:DoSpecialAnimation("nz_soldat_pain_faceplate")
-				angering = true
-			else
-				self.HelmetHP = self.HelmetHP - dmgInfo:GetDamage()
+	-- Allows the Panzer to "aim" in your general direction.
+	if self.UsingFlamethrower or self.UsingClaw or self.UsingGlowstick then
+		if IsValid(self:GetTarget()) then
+			local blend_bot_dist = 625
+			local blend_top_dist = 1250 - blend_bot_dist
+
+			if !self:TargetInRange(450) then
+				blend_bot_dist = 750
+				blend_top_dist = 1500 - blend_bot_dist
 			end
-		end
-		
-		dmgInfo:ScaleDamage(0.25) -- When the helmet isn't lost, all damage only deals 25%
-	else
-		local bone = self:GetBonePosition(self:LookupBone("j_head"))
-		
-		if hitpos:DistToSqr(bone) < 150 then
-			-- No damage scaling on headshot, we keep it at 1x
-		else
-			dmgInfo:ScaleDamage(0.5) -- When the helmet is lost, a non-headshot still only deals 50%
+
+
+			local diff = self:WorldToLocal(self:GetTarget():GetPos())
+			local pose_p = ((diff.y - blend_bot_dist)/blend_top_dist) * 2 + 2
+			--print(pose_p)
+			--print(pose_r)
+
+
+			self:SetPoseParameter("aim_leftright", pose_p)
+			self:SetPoseParameter("aim_updown", -1)
 		end
 	end
 end
@@ -650,6 +736,8 @@ function ENT:ResetMovementSequence()
 	if self.UsingFlamethrower then
 		self:ResetSequence(self.FlameMovementSequence)
 		self.CurrentSeq = self.FlameMovementSequence
+	elseif self.DGLift then
+		self:ResetSequence(self.TeslaSequence)
 	else
 		self:ResetSequence(self.MovementSequence)
 		self.CurrentSeq = self.MovementSequence
@@ -669,21 +757,12 @@ function ENT:PerformIdle()
 		end
 		if self.Jetpacking then
 			self:ResetSequence(self.JetPackIdleSequence)
-		elseif self.PanzerDGLifted and self:PanzerDGLifted() then
+		elseif self.DGLift then
 			self:ResetSequence(self.TeslaSequence)
 		else
 			self:ResetSequence(self.IdleSequence)
 		end
 	end
-end
-
-function ENT:DoDeathAnimation(seq)
-	self.BehaveThread = coroutine.create(function()
-		self:PlaySequenceAndWait(seq)
-		self:EmitSound("enemies/bosses/newpanzer/explode.ogg", 511)
-   		self:Explode(50, false)
-		self:BecomeRagdoll(DamageInfo())
-	end)
 end
 
 function ENT:StartToasting()
@@ -714,10 +793,28 @@ function ENT:StartToasting()
 				mins = mins,
 				maxs = maxs,
 			})
+			local tr2 = util.TraceHull({
+				start = pos,
+				endpos = pos + bone.Ang:Forward()*500,
+				filter = self,
+				mask = MASK_PLAYERSOLID,
+				collisiongroup = COLLISION_GROUP_PLAYER,
+				ignoreworld = true,
+				mins = mins,
+				maxs = maxs,
+			})
 		
+			local target = tr.Entity
+			local target2 = tr2.Entity
+
+			--print(target)
+
 			debugoverlay.BoxAngles(pos, mins, maxs, bone.Ang, 1, Color( 255, 255, 255, 10))
-					
-			if self:IsValidTarget(tr.Entity) then
+			
+			if IsValid(target2) and target2:IsNextBot() and target2.IsMooZombie and !target2.ZombieIgnited and !target2.IsMooSpecial then
+				target2:Flames(true)
+			end
+			if IsValid(target) and target:IsPlayer() and target:Alive() then
 				local dmg = DamageInfo()
 				dmg:SetAttacker(self)
 				dmg:SetInflictor(self)
@@ -745,6 +842,127 @@ function ENT:StopToasting()
 	end
 end
 
+function ENT:PostTookDamage(dmginfo)
+	local attacker = dmginfo:GetAttacker()
+	local inflictor = dmginfo:GetInflictor()
+
+	local dmgtype = dmginfo:GetDamageType()
+	local damage = dmginfo:GetDamage()
+
+	local hitpos = dmginfo:GetDamagePosition()
+	local hitgroup = util.QuickTrace(hitpos, hitpos).HitGroup
+	local hitforce = dmginfo:GetDamageForce()
+
+	local damagemod = 0.95
+
+	local headpos = self:GetBonePosition(self:LookupBone("j_faceplate"))
+	local powerpos = self:GetAttachment(self:LookupAttachment("tag_powersupply")).Pos
+
+	--print(hitforce:Length2D())
+	--print(dmgtype)
+
+	--[[ Armor ]]--
+
+	-- The Faceplate(Helmet) and Powersupply will both contribute as damage reductors.
+	if self:GetHelmet() and (hitpos:DistToSqr(headpos) < 20^2) then
+		if self.HelmetHP > 0 then
+
+			self:EmitSound(self.MetalImpactSounds[math.random(#self.MetalImpactSounds)], 95, math.random(95,105))
+			ParticleEffectAttach("npcarmor_hit", PATTACH_POINT_FOLLOW, self, 10)
+
+			self.HelmetHP = self.HelmetHP - damage
+
+			dmginfo:ScaleDamage(0.015)
+		else
+			self:SetHelmet(false)
+			self:SetBodygroup(1,1)
+			angering = true
+
+			self:EmitSound(self.ArmorBreakSounds[math.random(#self.ArmorBreakSounds)], 95)
+			attacker:EmitSound(self.ArmorBreakSounds[math.random(#self.ArmorBreakSounds)], SNDLVL_GUNFIRE)
+			ParticleEffectAttach("npcarmor_break", PATTACH_POINT_FOLLOW, self, 10)
+
+			if !self.IsBeingStunned then
+				self.IsBeingStunned = true
+				self:DoSpecialAnimation("nz_soldat_pain_faceplate", true, true)
+				self.IsBeingStunned = false
+				self.LastStun = CurTime() + 8
+				self:ResetMovementSequence()
+			end
+		end
+	end
+
+	if self.HasPSupply and (hitpos:DistToSqr(powerpos) < 15^2) then
+		if self.PowerSupplyHP > 0 then
+
+			self:EmitSound(self.MetalImpactSounds[math.random(#self.MetalImpactSounds)], 95, math.random(95,105))
+			ParticleEffectAttach("npcarmor_hit", PATTACH_POINT_FOLLOW, self, 17)
+
+			self.PowerSupplyHP = self.PowerSupplyHP - damage
+
+			dmginfo:ScaleDamage(0.015)
+		else
+			self.HasPSupply = false
+			self:SetBodygroup(2,1)
+
+			self:EmitSound(self.ArmorBreakSounds[math.random(#self.ArmorBreakSounds)], 95)
+			attacker:EmitSound(self.ArmorBreakSounds[math.random(#self.ArmorBreakSounds)], SNDLVL_GUNFIRE)
+			ParticleEffectAttach("npcarmor_break", PATTACH_POINT_FOLLOW, self, 17)
+
+			if !self.IsBeingStunned then
+				self.IsBeingStunned = true
+				self:DoSpecialAnimation("nz_soldat_powercore_pain", true, true)
+				self.IsBeingStunned = false
+				self.LastStun = CurTime() + 8
+				self:ResetMovementSequence()
+			end
+		end
+	end
+
+	if self:GetHelmet() then
+		damagemod = damagemod * 0.75
+	end
+
+	if self.HasPSupply then
+		damagemod = damagemod * 0.25
+	end
+
+	-- 25% Chance to get knocked over if hit by a high damage force without power supply.
+	if !self:GetSpecialAnimation() and !self.HasPSupply and hitforce:Length2D() > 50000 and math.random(100) > 75 and CurTime() > self.LastStun then
+		if CurTime() > self.LastStun then
+			self.LastStun = CurTime() + 8
+			self:DoSpecialAnimation("nz_soldat_knockgetup_blend")
+		end
+	end
+
+	-- 25% Chance to get stunned if hit by a high damage force with the dissolve damage type without power supply.
+	if !self:GetSpecialAnimation() and !self.HasPSupply and hitforce:Length2D() > 4500 and dmgtype == DMG_DISSOLVE and math.random(100) > 75 then
+		if CurTime() > self.LastStun then
+			self.LastStun = CurTime() + 8
+			self:DoSpecialAnimation("nz_soldat_pain_jetpack")
+		end
+	end
+
+	dmginfo:ScaleDamage(damagemod)
+end
+
+function ENT:PerformDeath(dmgInfo)
+	local attacker = dmgInfo:GetAttacker()
+
+	self:StopToasting()
+	if IsValid(self.Claw) then self.Claw:Remove() end
+	--self:EmitSound("nz_moo/zombies/vox/_mechz/v2/death/rise.mp3", 100, math.random(85,105))
+	self:EmitSound("nz_moo/zombies/vox/_mechz/v2/death/killshot.mp3", 100, math.random(85,105))
+	self:EmitSound("nz_moo/zombies/vox/_mechz/vox/death/death_00.mp3", 100, math.random(85,105))
+
+	if IsValid(attacker) then
+		attacker:EmitSound("nz_moo/zombies/vox/_mechz/v2/death/killshot.mp3", SNDLVL_GUNFIRE, math.random(85,105))
+	end
+
+	self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
+	self:DoDeathAnimation(self.DeathSequences[math.random(#self.DeathSequences)])
+end
+
 function ENT:OnRemove()
 	self:StopSound(self.JetpackSnd)
 	self:StopSound("nz_moo/zombies/vox/_mechz/v2/flame/loop.wav")
@@ -753,23 +971,18 @@ function ENT:OnRemove()
 	self:StopToasting()
 end
 
-function ENT:HandleAnimEvent(a,b,c,d,e)
-	if e == "melee" then
-		self:EmitSound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(85, 105), 1, 2)
-		self:DoAttackDamage()
+function ENT:IsValidTarget( ent )
+	if not ent then return false end
+	
+	-- Turned Zombie Targetting
+	if self.IsTurned then
+		return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooBossZombie and ent:Alive() 
 	end
-	if e == "death_ragdoll" then
-		self:BecomeRagdoll(DamageInfo())
-	end
-	if e == "start_traverse" then
-		--print("starttraverse")
-		self.TraversalAnim = true
-	end
-	if e == "finish_traverse" then
-		--print("finishtraverse")
-		self.TraversalAnim = false
-	end
+	
+	return IsValid(ent) and ent:GetTargetPriority() ~= TARGET_PRIORITY_NONE and ent:GetTargetPriority() ~= TARGET_PRIORITY_MONSTERINTERACT and ent:GetTargetPriority() ~= TARGET_PRIORITY_SPECIAL and ent:GetTargetPriority() ~= TARGET_PRIORITY_FUNNY
+end
 
+function ENT:CustomAnimEvent(a,b,c,d,e)
 	if e == "mech_melee_whoosh" then
 		self:EmitSound(self.AttackWhooshSounds[math.random(#self.AttackWhooshSounds)], 100, math.random(85, 105))
 	end
@@ -814,9 +1027,9 @@ function ENT:HandleAnimEvent(a,b,c,d,e)
 
 		-- Knock normal zombies aside
 		for k,v in nzLevel.GetZombieArray() do
-			if IsValid(v) and !v:GetSpecialAnimation() and v.IsMooZombie and !v.Non3arcZombie and !v.IsMooSpecial and v ~= self then
-				if self:GetRangeTo( v:GetPos() ) < 10^2 then	
-					if v.IsMooZombie and !v.IsMooSpecial and !v:GetSpecialAnimation() and self:GetRunSpeed() > 36 then
+			if IsValid(v) and !v:GetSpecialAnimation() and v.IsMooZombie and !v.IsMooSpecial and v ~= self then
+				if self:GetRangeTo( v:GetPos() ) < 20^2 then	
+					if v.IsMooZombie and !v.IsMooSpecial and !v:GetSpecialAnimation() then
 						if v.PainSequences then
 							v:DoSpecialAnimation(v.PainSequences[math.random(#v.PainSequences)], true, true)
 						end
@@ -826,17 +1039,3 @@ function ENT:HandleAnimEvent(a,b,c,d,e)
 		end
 	end
 end
-
-function ENT:IsValidTarget( ent )
-	if not ent then return false end
-	
-	-- Turned Zombie Targetting
-	if self.IsTurned then
-		return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooBossZombie and ent:Alive() 
-	end
-	
-	return IsValid(ent) and ent:GetTargetPriority() ~= TARGET_PRIORITY_NONE and ent:GetTargetPriority() ~= TARGET_PRIORITY_MONSTERINTERACT and ent:GetTargetPriority() ~= TARGET_PRIORITY_SPECIAL and ent:GetTargetPriority() ~= TARGET_PRIORITY_FUNNY
-end
-
-function ENT:HasHelmet() return self:GetHelmet() end
-

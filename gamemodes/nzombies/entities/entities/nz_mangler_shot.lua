@@ -28,7 +28,7 @@ function ENT:Initialize()
 	if SERVER then 
 		self:SetModel("models/dav0r/hoverball.mdl")
 		self:SetNoDraw(true)
-		ParticleEffectAttach("cw_mangler_pulse",PATTACH_ABSORIGIN_FOLLOW,self,0)
+		ParticleEffectAttach("hcea_hunter_ab_proj",PATTACH_ABSORIGIN_FOLLOW,self,0)
 		
 		self:PhysicsInit(SOLID_OBB)
 		self:SetSolid(SOLID_NONE)
@@ -94,8 +94,10 @@ function ENT:Explode(ent)
         util.ScreenShake(self:GetPos(), 20, 255, 0.5, 100)
 
 		self:EmitSound(self.ImpSounds[math.random(#self.ImpSounds)], 577, math.random(95,105))
-		ParticleEffectAttach("cw_mangler_blast",PATTACH_ABSORIGIN,self,0)
-		ParticleEffect("cw_mangler_blast",self:GetPos()+Vector(0,0,1),self:GetAngles(),self)
+		--ParticleEffectAttach("cw_mangler_blast",PATTACH_ABSORIGIN,self,0)
+		for i = 1, 6 do
+			ParticleEffect("doom_mancu_blast",self:GetPos()+Vector(0,0,1),self:GetAngles(),self)
+		end
 
 		self:Remove()
 	end

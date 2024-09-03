@@ -1,6 +1,5 @@
 --
-
-function nzMapping:ZedSpawn(pos, angle, link, master, spawntype, zombietype, roundactive, spawnchance, ply)
+function nzMapping:ZedSpawn(pos, angle, link, link2, link3, master, spawntype, zombietype, roundactive, spawnchance, ply)
 
 	local ent = ents.Create("nz_spawn_zombie_normal")
 	pos.z = pos.z - ent:OBBMaxs().z
@@ -12,10 +11,19 @@ function nzMapping:ZedSpawn(pos, angle, link, master, spawntype, zombietype, rou
 	end
 	
 	ent:Spawn()
+
 	-- For the link displayer
 	if link != nil then
 		ent:SetLink(tostring(link))
 		ent.link = tostring(link)
+	end
+	if link2 != nil then
+		ent:SetLink2(tostring(link2))
+		ent.link2 = tostring(link2)
+	end
+	if link3 != nil then
+		ent:SetLink3(tostring(link3))
+		ent.link3 = tostring(link3)
 	end
 
 	ent:SetMasterSpawn(master)
@@ -51,7 +59,7 @@ function nzMapping:ZedSpawn(pos, angle, link, master, spawntype, zombietype, rou
 	return ent
 end
 
-function nzMapping:ZedSpecialSpawn(pos, angle, link, master, spawntype, zombietype, roundactive, spawnchance, ply)
+function nzMapping:ZedSpecialSpawn(pos, angle, link, link2, link3, master, spawntype, zombietype, roundactive, spawnchance, ply)
 
 	local ent = ents.Create("nz_spawn_zombie_special")
 	pos.z = pos.z - ent:OBBMaxs().z
@@ -66,6 +74,14 @@ function nzMapping:ZedSpecialSpawn(pos, angle, link, master, spawntype, zombiety
 	if link != nil then
 		ent:SetLink(tostring(link))
 		ent.link = tostring(link)
+	end
+	if link2 != nil then
+		ent:SetLink2(tostring(link2))
+		ent.link2 = tostring(link2)
+	end
+	if link3 != nil then
+		ent:SetLink3(tostring(link3))
+		ent.link3 = tostring(link3)
 	end
 
 	ent:SetMasterSpawn(master)
@@ -101,7 +117,7 @@ function nzMapping:ZedSpecialSpawn(pos, angle, link, master, spawntype, zombiety
 	return ent
 end
 
-function nzMapping:ZedBossSpawn(pos, angle, link, roundactive, ply)
+function nzMapping:ZedBossSpawn(pos, angle, link, link2, link3, roundactive, ply)
 
 	local ent = ents.Create("nz_spawn_zombie_boss")
 	pos.z = pos.z - ent:OBBMaxs().z
@@ -116,6 +132,14 @@ function nzMapping:ZedBossSpawn(pos, angle, link, roundactive, ply)
 	if link != nil then
 		ent:SetLink(tostring(link))
 		ent.link = tostring(link)
+	end
+	if link2 != nil then
+		ent:SetLink2(tostring(link2))
+		ent.link2 = tostring(link2)
+	end
+	if link3 != nil then
+		ent:SetLink3(tostring(link3))
+		ent.link3 = tostring(link3)
 	end
 
 	if roundactive ~= nil then
@@ -356,27 +380,6 @@ function nzMapping:PlayerSpawn(pos, angle, ply)
 	return ent
 end
 
-function nzMapping:EasterEgg(pos, ang, model, ply)
-	local egg = ents.Create( "easter_egg" )
-	egg:SetModel( model )
-	egg:SetPos( pos )
-	egg:SetAngles( ang )
-	egg:Spawn()
-
-	local phys = egg:GetPhysicsObject()
-	if phys:IsValid() then
-		phys:EnableMotion(false)
-	end
-
-	if ply then
-		undo.Create( "Easter Egg" )
-			undo.SetPlayer( ply )
-			undo.AddEntity( egg )
-		undo.Finish( "Effect (" .. tostring( model ) .. ")" )
-	end
-	return egg
-end
-
 function nzMapping:AmmoBox(pos, ang, model, ply)
 	local ammobox = ents.Create( "ammo_box" )
 	ammobox:SetModel( model )
@@ -482,7 +485,7 @@ function nzMapping:PropBuy(pos, ang, model, flags, ply)
 	prop:SetAngles( ang )
 	prop:Spawn()
 	prop:PhysicsInit( SOLID_VPHYSICS )
-
+	
 	-- REMINDER APPY FLAGS
 	if flags != nil then
 		nzDoors:CreateLink( prop, flags )
@@ -720,7 +723,7 @@ function nzMapping:SpawnEffect( pos, ang, model, ply )
 
 end
 	
-function nzMapping:Teleporter( pos, ang,dest,id,price,modeltype,anim,cd,kino, kinodur,buyable, ply )
+--[[function nzMapping:Teleporter( pos, ang,dest,id,price,modeltype,anim,cd,kino, kinodur,buyable, ply )
 	print(buyable)
 
 	local tele = ents.Create("nz_teleporter")
@@ -750,8 +753,134 @@ function nzMapping:Teleporter( pos, ang,dest,id,price,modeltype,anim,cd,kino, ki
 	end
 	return tele
 
-end
+end]]
 
+function nzMapping:Teleporter(data)
+	if !data then return end
+	local tele = ents.Create("nz_teleporter")
+	tele:SetMoveType( MOVETYPE_NONE )
+	tele:SetSolid( SOLID_VPHYSICS )
+--	tele:SetCollisionGroup( COLLISION_GROUP_DEBRIS_TRIGGER )
+
+	if data.pos != nil then
+		tele:SetPos(data.pos)
+	end
+
+	if data.angles != nil then
+		tele:SetAngles(data.angles)
+	end
+
+	if data.flag != nil then
+		tele:SetFlag(data.flag)
+	end
+
+	if data.destination != nil then
+		tele:SetDestination(data.destination)
+	end
+
+	if data.requiresdoor != nil then
+		tele:SetRequiresDoor(data.requiresdoor)
+	end
+
+	if data.door != nil then
+		tele:SetDoor(data.door)
+	end
+
+	if data.price != nil then
+		tele:SetPrice(data.price)
+	end
+
+	if data.mdltype != nil then
+		tele:SetModelType(data.mdltype)
+	end
+
+	if data.mdlcollisions != nil then
+		tele:SetModelCollisions(data.mdlcollisions)
+	end
+
+	if data.visible != nil then
+		tele:SetModelVisible(data.visible)
+	end
+
+	if data.useable != nil then
+		tele:SetUseable(data.useable)
+	end
+
+	if data.gif != nil then
+		tele:SetGifType(data.gif)
+	end
+
+	if data.teleportertime != nil then
+		tele:SetTeleporterTime(data.teleportertime)
+	end
+
+	if data.cooldown != nil then
+		tele:SetCooldownTime(data.cooldown)
+	end
+
+	if data.tpback != nil then
+		tele:SetTPBack(tobool(data.tpback))
+	end
+
+	if data.tpbackdelay != nil then
+		tele:SetTPBackDelay(data.tpbackdelay)
+	end
+
+	if data.activatestrap != nil then
+		tele:SetActivatesTrap(data.activatestrap)
+	end
+
+	if data.trap != nil then
+		tele:SetTrap(data.trap)
+	end
+
+	-- Compatibility stuff, just so previous NZR config teleporters continue to work
+	-- These will not exist for new configs
+	-- (not really a fan of these)
+	if data.angle != nil then
+		tele:SetAngles(data.angle)
+	end
+
+	if data.id != nil then
+		tele:SetFlag(tostring(data.id))
+	end
+
+	if data.desti != nil then
+		tele:SetDestination(tostring(data.desti))
+	end
+
+	if data.cd != nil then
+		tele:SetCooldownTime(data.cd)
+	end
+
+	if data.kino != nil then
+		tele:SetTPBack(tobool(data.kino))
+	end
+
+	if data.delay != nil then
+		tele:SetTPBackDelay(data.delay)
+	end
+	--------------------------------------------------------------------------------
+
+	tele:TurnOff()
+	tele:Spawn()
+
+	tele:PhysicsInit( SOLID_VPHYSICS )
+
+	local phys = tele:GetPhysicsObject()
+	if phys:IsValid() then
+		phys:EnableMotion(false)
+	end
+
+	if data.ply then
+		undo.Create("Teleporter")
+		undo.SetPlayer(data.ply)
+		undo.AddEntity(tele)
+		undo.Finish("Teleporter")
+	end
+
+	return tele
+end
 
 function nzMapping:SpawnEntity(pos, ang, ent, ply)
 	local entity = ents.Create( ent )
@@ -883,13 +1012,7 @@ local ghostentities = {
 	["invis_wall_zombie"] = true,
 	["jumptrav_block"] = true,
 	["wall_buys"] = true,
-	["nz_spawn_zombie_normal"] = true,
-	["nz_spawn_zombie_special"] = true,
-	["nz_spawn_zombie_boss"] = true,
-	["nz_spawn_zombie_extra1"] = true,
-	["nz_spawn_zombie_extra2"] = true,
-	["nz_spawn_zombie_extra3"] = true,
-	["nz_spawn_zombie_extra4"] = true,
+	--["perk_machine"] = true,
 }
 local function onPhysgunPickup( ply, ent )
 	local class = ent:GetClass()

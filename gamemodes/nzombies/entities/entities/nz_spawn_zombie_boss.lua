@@ -15,4 +15,8 @@ function ENT:Initialize()
 	self:SetSpawnWeight(0)
 	self:SetZombiesToSpawn(0)
 	self:SetNextSpawn(CurTime())
+	
+    if CLIENT then
+        self:SetLOD(8)
+    end
 end

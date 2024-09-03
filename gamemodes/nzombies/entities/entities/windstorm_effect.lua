@@ -50,7 +50,7 @@ function ENT:Initialize()
 		tornado:SetAngles(Angle(90,0,0))
 		tornado:SetOwner(self:GetOwner())
 		tornado.Inflictor = self
-		tornado.Life = 8
+		tornado.Life = 7
 
 		tornado.Damage = 115
 		tornado.mydamage = 115
@@ -67,7 +67,7 @@ function ENT:Initialize()
 			phys:SetVelocity(dir)
 		end
 		
-		tornado.Life = 8
+		tornado.Life = 7
 		tornado:SetOwner(self:GetOwner())
 		tornado.Inflictor = self
 	self:Remove()

@@ -192,8 +192,8 @@ function ENT:StatsInitialize()
 			self:SetMaxHealth(1000)
 		else
 			if nzRound:InState( ROUND_PROG ) then
-				self:SetHealth(math.Clamp(nzRound:GetNumber() * 800 + (2400 * count), 12000, 50400 * count))
-				self:SetMaxHealth(math.Clamp(nzRound:GetNumber() * 800 + (2400 * count), 12000, 50400 * count))
+				self:SetHealth(math.Clamp(nzRound:GetNumber() * 1200 + (3000 * count), 12000, 50400 * count))
+				self:SetMaxHealth(math.Clamp(nzRound:GetNumber() * 1200 + (3000 * count), 12000, 50400 * count))
 			else
 				self:SetHealth(12000)
 				self:SetMaxHealth(12000)	

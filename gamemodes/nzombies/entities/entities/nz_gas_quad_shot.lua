@@ -14,7 +14,7 @@ function ENT:Initialize()
 	if SERVER then
 		self:SetModel("models/weapons/w_eq_fraggrenade.mdl") -- Change later
 		self:SetNoDraw(true)
-		ParticleEffectAttach("spore_trail",PATTACH_ABSORIGIN_FOLLOW,self,0)
+		ParticleEffectAttach("acidbug_spit_trail",PATTACH_ABSORIGIN_FOLLOW,self,0)
 		self:PhysicsInit(SOLID_OBB)
 		self:SetSolid(SOLID_NONE)
 		self:SetTrigger(true)

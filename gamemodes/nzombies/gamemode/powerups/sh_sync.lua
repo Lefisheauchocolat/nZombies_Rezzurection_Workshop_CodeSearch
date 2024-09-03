@@ -6,33 +6,41 @@ if SERVER then
 	util.AddNetworkString( "nzPowerUps.Sync" )
 	util.AddNetworkString( "nzPowerUps.SyncPlayer" )
 	util.AddNetworkString( "nzPowerUps.SyncPlayerFull" )
-	util.AddNetworkString( "nzPowerUps.Nuke" ) -- See the nuke function in sv_powerups
+	util.AddNetworkString( "nzPowerUps.Nuke" ) -- See the nuke function in sv_powerups //OBSOLETE
 	util.AddNetworkString( "nzPowerUps.PickupHud" )
 	util.AddNetworkString( "RenderMaxAmmo" )
 	
 	function nzPowerUps:SendSync(receiver)
 		local data = table.Copy(self.ActivePowerUps)
-		
+		local data2 = table.Copy(self.ActiveAntiPowerUps)
+
 		net.Start( "nzPowerUps.Sync" )
 			net.WriteTable( data )
+			net.WriteTable( data2 )
 		return IsValid(receiver) and net.Send(receiver) or net.Broadcast()
 	end
-	
+
 	function nzPowerUps:SendPlayerSync(ply, receiver)
 		if !self.ActivePlayerPowerUps[ply] then self.ActivePlayerPowerUps[ply] = {} end
 		local data = table.Copy(self.ActivePlayerPowerUps[ply])
-		
-		net.Start( "nzPowerUps.SyncPlayer" )
+
+		if !self.ActivePlayerAntiPowerUps[ply] then self.ActivePlayerAntiPowerUps[ply] = {} end
+		local data2 = table.Copy(self.ActivePlayerAntiPowerUps[ply])
+
+		net.Start("nzPowerUps.SyncPlayer")
 			net.WriteEntity(ply)
-			net.WriteTable( data )
+			net.WriteTable(data)
+			net.WriteTable(data2)
 		return IsValid(receiver) and net.Send(receiver) or net.Broadcast()
 	end
 	
 	function nzPowerUps:SendPlayerSyncFull(receiver)
 		local data = table.Copy(self.ActivePlayerPowerUps)
-		
-		net.Start( "nzPowerUps.SyncPlayerFull" )
-			net.WriteTable( data )
+		local data2 = table.Copy(self.ActivePlayerAntiPowerUps)
+
+		net.Start("nzPowerUps.SyncPlayerFull")
+			net.WriteTable(data)
+			net.WriteTable(data2)
 		return IsValid(receiver) and net.Send(receiver) or net.Broadcast()
 	end
 	
@@ -44,49 +52,34 @@ if SERVER then
 end
 
 if CLIENT then
-	
 	-- Server to client (Client)
 	local function ReceivePowerupSync( length )
-		--print("Received PowerUps Sync")
-		nzPowerUps.ActivePowerUps = net.ReadTable()
-		--PrintTable(nzPowerUps.ActivePowerUps)
-	end
-	
-	local function ReceivePowerupPlayerSync( length )
-		--print("Received PowerUps Player Sync")
-		local ply = net.ReadEntity()
-		nzPowerUps.ActivePlayerPowerUps[ply] = net.ReadTable()
-		--PrintTable(nzPowerUps.ActivePlayerPowerUps)
-	end
-	
-	local function ReceivePowerupPlayerSyncFull( length )
-		--print("Received PowerUps Full Player Sync")
-		nzPowerUps.ActivePlayerPowerUps = net.ReadTable()
-		--PrintTable(nzPowerUps.ActivePlayerPowerUps)
-	end
-	
-	local function ReceiveNukeEffect()
-		local fade = 0
-		local rising = true
-		surface.PlaySound("nz_moo/powerups/nuke_flux.mp3") -- BOOM!
+		local tab1 = net.ReadTable()
+		local tab2 = net.ReadTable()
 
-		-- Fuck the flashbang.
-		--[[hook.Add("RenderScreenspaceEffects", "DrawNukeEffect", function()
-			if rising then
-				if fade <= 135 then
-					fade = fade + 1000*FrameTime()
-				else
-					rising = false
-				end
-			else
-				fade = fade - 75*FrameTime()
-				if fade <= 0 then
-					hook.Remove("RenderScreenspaceEffects", "DrawNukeEffect")
-				end
-			end
-			surface.SetDrawColor(255,255,255,fade)
-			surface.DrawRect(-ScrW(),-ScrH(),ScrW()*2,ScrH()*2)
-		end)]]
+		nzPowerUps.ActivePowerUps = tab1
+		nzPowerUps.ActiveAntiPowerUps = tab2
+	end
+
+	local function ReceivePowerupPlayerSync( length )
+		local ply = net.ReadEntity()
+		local tab1 = net.ReadTable()
+		local tab2 = net.ReadTable()
+
+		nzPowerUps.ActivePlayerPowerUps[ply] = tab1
+		nzPowerUps.ActivePlayerAntiPowerUps[ply] = tab2
+	end
+
+	local function ReceivePowerupPlayerSyncFull( length )
+		local tab1 = net.ReadTable()
+		local tab2 = net.ReadTable()
+
+		nzPowerUps.ActivePlayerPowerUps = tab1
+		nzPowerUps.ActivePlayerAntiPowerUps = tab2
+	end
+
+	local function ReceiveNukeEffect() //OBSOLETE
+		surface.PlaySound("nz_moo/powerups/nuke_flux.mp3") -- BOOM!
 	end
 
 	-- Receivers 

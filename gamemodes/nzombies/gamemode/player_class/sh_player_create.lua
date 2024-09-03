@@ -11,6 +11,7 @@ PLAYER.CanUseFlashlight     = true
 
 function PLAYER:SetupDataTables()
 	self.Player:NetworkVar("Bool", 0, "UsingSpecialWeapon")
+	self.Player:NetworkVar("Entity", 0, "TeleporterEntity")
 end
 
 function PLAYER:Init()

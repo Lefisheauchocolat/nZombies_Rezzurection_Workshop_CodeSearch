@@ -6,11 +6,13 @@ end
 -- QuickFunctions
 PropMenuAddEntity = nzQMenu.AddNewEntity
 
+PropMenuAddEntity("edit_fog", "entities/edit_fog.png", "Base Fog Editor")
+PropMenuAddEntity("edit_fog_special", "entities/edit_fog.png", "Special Round Fog Editor")
 PropMenuAddEntity("edit_sky", "entities/edit_sky.png", "Sky Editor")
 PropMenuAddEntity("edit_sun", "entities/edit_sun.png", "Sun Editor")
 PropMenuAddEntity("edit_color", "gmod/demo.png", "Color Correction Editor")
 PropMenuAddEntity("nz_fire_effect", "icon16/fire.png", "Fire Effect")
-PropMenuAddEntity("nz_pparticle_ballcore", "icon16/cd.png", "Ball Core")
+--[[PropMenuAddEntity("nz_pparticle_ballcore", "icon16/cd.png", "Ball Core")
 PropMenuAddEntity("nz_pparticle_core", "icon16/cd.png", "Core")
 PropMenuAddEntity("nz_pparticle_portal", "icon16/ruby.png", "Magic Portal")
 PropMenuAddEntity("nz_pparticle_magicflame", "icon16/fire.png", "Magic Flame")
@@ -47,6 +49,6 @@ PropMenuAddEntity("nz_pparticle_firepit3", "icon16/fire.png", "Ground Fire(Alt 2
 PropMenuAddEntity("nz_pparticle_embers", "icon16/fire.png", "Embers")
 PropMenuAddEntity("nz_pparticle_embers2", "icon16/fire.png", "Embers(Secondary)")
 PropMenuAddEntity("nz_pparticle_cykafire", "icon16/fire.png", "Molotov Fire")
-PropMenuAddEntity("nz_pparticle_candle", "icon16/fire.png", "Candle Flame")
+PropMenuAddEntity("nz_pparticle_candle", "icon16/fire.png", "Candle Flame")]]
 PropMenuAddEntity("edit_dynlight", "icon16/lightbulb.png", "Dynamic Light")
 --PropMenuAddEntity("edit_damage", "icon16/lightbulb.png", "Damage")

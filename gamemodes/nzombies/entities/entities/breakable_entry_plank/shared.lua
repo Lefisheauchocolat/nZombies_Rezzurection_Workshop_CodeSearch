@@ -9,13 +9,17 @@ ENT.Purpose			= ""
 ENT.Instructions	= ""
 
 function ENT:Initialize()
-	self:SetModel("models/moo/_codz_ports_props/t6/p6_zm_wood_plank/moo_codz_p6_barricade_board.mdl")
+	self:SetModel("models/moo/_codz_ports_props/t6/zm/p6_anim_zm_barricade_board/moo_codz_p6_anim_zm_barricade_board.mdl")
 	self.AutomaticFrameAdvance = true
 	self.Torn = true
 	self.ZombieUsing = nil
+	self.Enhanced = false
 
 	self:SetMoveType( MOVETYPE_VPHYSICS )
 	self:SetSolid( SOLID_VPHYSICS )
+
+	--self:SetBodygroup(0, math.random(0,5))
+
 	--self:SetModelScale(1)
 	--[[if CLIENT then
 		local scale = Vector(1,0.9,1.35)

@@ -30,7 +30,7 @@ ENT.LoopSound = "TFA_BO4_ALISTAIR.Charged.WindLoop"
 --[Parameters]--
 ENT.Delay = 10
 ENT.Life = 10
-ENT.Range = 200
+ENT.Range = 150
 
 DEFINE_BASECLASS(ENT.Base)
 

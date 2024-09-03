@@ -1,5 +1,7 @@
 -- Hooks
 if SERVER then
+	local cvar_bleedout = GetConVar("nz_downtime")
+
 	hook.Add("Think", "CheckDownedPlayersTime", function()
 		for id, data in pairs(nzRevive.Players) do
 			if data.ReviveTime and data.RevivePlayer and IsValid(data.RevivePlayer) then
@@ -11,8 +13,9 @@ if SERVER then
 					ply.Reviving = nil
 				end
 			end
-			if CurTime() - data.DownTime >= GetConVar("nz_downtime"):GetFloat() and !data.ReviveTime then
-				local ent = Entity(id)
+
+			local ent = Entity(id)
+			if CurTime() - data.DownTime >= (ent.GetBleedoutTime and ent:GetBleedoutTime() or cvar_bleedout:GetFloat()) and !data.ReviveTime then
 				if ent.KillDownedPlayer then
 					ent:KillDownedPlayer()
 				else
@@ -23,16 +26,12 @@ if SERVER then
 	end)
 end
 
-local ReviveClasses = {
-	["whoswho_downed_clone"] = true,
-}
-
 hook.Add("FindUseEntity", "CheckRevive", function(ply, _) //wiki states this hook is functionally serverside
 	if !nzRevive.Players[ply:EntIndex()] and not IsValid(ply:GetPlayerReviving()) then
 		local tr = util.QuickTrace(ply:EyePos(), ply:GetAimVector()*100, ply)
 		local dply = tr.Entity
 
-		if IsValid(dply) and (dply:IsPlayer() or ReviveClasses[dply:GetClass()]) then
+		if IsValid(dply) and (dply:IsPlayer() or nzRevive.ReviveClasses[dply:GetClass()]) then
 			local id = dply:EntIndex()
 			if nzRevive.Players[id] and !nzRevive.Players[id].RevivePlayer then
 				dply:StartRevive(ply)
@@ -48,7 +47,7 @@ hook.Add("PlayerPostThink", "CleanupRevive", function(ply)
 		local data = nzRevive.Players[id]
 
 		if data then
-			if SERVER and data.ReviveTime and (not ply:KeyDown(IN_USE) or ply:GetPos():DistToSqr(ply:GetPlayerReviving():GetPos()) > 10000) then //100^2 same as revive start distance
+			if SERVER and data.ReviveTime and (not ply:KeyDown(IN_USE) or (not ply:HasUpgrade("revive") and ply:GetPos():DistToSqr(ply:GetPlayerReviving():GetPos()) > 10000)) then //100^2 same as revive start distance
 				revive:StopRevive()
 				ply.Reviving = nil
 			end
@@ -74,7 +73,7 @@ if SERVER then
 			local tombstone = ents.Create("drop_tombstone")
 			tombstone:SetOwner(ply)
 			tombstone:SetFunny(math.random(100) == 1)
-			tombstone:SetPos(ply:GetPos() + Vector(0,0,24))
+			tombstone:SetPos(ply:GetPos() + vector_up)
 			tombstone:Spawn()
 
 			local weps = {}

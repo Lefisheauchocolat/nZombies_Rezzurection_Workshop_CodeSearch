@@ -16,19 +16,13 @@ concommand.Add("nz_door_id", function()
 	if IsValid( tr.Entity ) then print( tr.Entity:doorIndex() ) end
 end)
 
-concommand.Add("nz_test1", function()
-	nz.nzDoors.Functions.CreateMapDoorLink( 1236, "price=500,elec=0,link=1" )
-
-	timer.Simple(5, function() nz.nzDoors.Functions.RemoveMapDoorLink( 1236 ) end)
-end)
-
 concommand.Add("nz_forceround", function(ply, cmd, args, argStr)
 	if !IsValid(ply) or ply:IsSuperAdmin() then
 		local round = args[1] and tonumber(args[1]) or nil
 		local nokill = args[2] and tobool(args[2]) or false
 
 		if !nokill then
-			nzPowerUps:Nuke(nil, true) -- Nuke kills them all, no points, no position delay
+			nzPowerUps:Nuke(nil, true, true, true) -- Nuke kills them all, no points, no position delay
 		end
 
 		if round then

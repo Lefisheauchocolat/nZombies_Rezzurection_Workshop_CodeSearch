@@ -40,7 +40,7 @@ function ENT:Use( activator, caller )
 		self:EmitSound("effects/ammobox.ogg")
 		currentWep:GiveMaxAmmo() 
 		end)
-		self:SetPrice((price) + (nzRound:GetNumber() * 75))  
+		self:SetPrice((price) + (nzRound:GetNumber()/2 * 300))  
 		 
 	end
 end

@@ -247,7 +247,7 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 end
 
 function ENT:OnTakeDamage(dmginfo)
-	if !meleetypes[dmginfo:GetDamageType()] or !dmginfo:GetAttacker():HasPerk("sake") then
+	if !meleetypes[dmginfo:GetDamageType()] then
 		dmginfo:ScaleDamage(0)
 	else
 		if CurTime() > self.LastStun then

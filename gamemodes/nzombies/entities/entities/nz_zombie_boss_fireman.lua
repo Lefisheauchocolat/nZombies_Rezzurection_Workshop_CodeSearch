@@ -7,15 +7,22 @@ ENT.Author = "GhostlyMoo"
 
 AccessorFunc( ENT, "fLastToast", "LastToast", FORCE_NUMBER)
 
-function ENT:Draw()
-	self:DrawModel()
+if CLIENT then 
+	ENT.EyeColorTable = {
+		[0] = Material("models/moo/codz/s2_zombies/fireman/mtl_zom_fire_head_parts_org1.vmt"),
+	}
+	function ENT:Draw()
+		self:DrawModel()
 
-	if GetConVar( "nz_zombie_debug" ):GetBool() then
-		render.DrawWireframeBox(self:GetPos(), Angle(0,0,0), self:OBBMins(), self:OBBMaxs(), Color(255,0,0), true)
+		if self.RedEyes and self:Alive() then
+			self:DrawEyeGlow() 
+		end
+		if GetConVar( "nz_zombie_debug" ):GetBool() then
+			render.DrawWireframeBox(self:GetPos(), Angle(0,0,0), self:OBBMins(), self:OBBMaxs(), Color(255,0,0), true)
+		end
 	end
+	return 
 end
-
-if CLIENT then return end
 
 ENT.SpeedBasedSequences = true
 ENT.IsMooZombie = true
@@ -26,6 +33,8 @@ ENT.AttackRange = 115
 ENT.DamageRange = 115
 
 ENT.TraversalCheckRange = 80
+
+ENT.CanPanzerLift = true
 
 ENT.Models = {
 	{Model = "models/moo/_codz_ports/s2/zombie/moo_codz_s2_fireman.mdl", Skin = 0, Bodygroups = {0,0}},
@@ -254,13 +263,18 @@ ENT.CustomMeleeWhooshSounds = {
 }
 
 ENT.StompSounds = {
-	Sound("nz_moo/zombies/vox/_margwa/step/step_00.mp3"),
-	Sound("nz_moo/zombies/vox/_margwa/step/step_01.mp3"),
-	Sound("nz_moo/zombies/vox/_margwa/step/step_02.mp3"),
-	Sound("nz_moo/zombies/vox/_margwa/step/step_03.mp3"),
-	Sound("nz_moo/zombies/vox/_margwa/step/step_04.mp3"),
-	Sound("nz_moo/zombies/vox/_margwa/step/step_05.mp3"),
-	Sound("nz_moo/zombies/vox/_margwa/step/step_06.mp3"),
+	Sound("nz_moo/zombies/footsteps/_s2_large/zmb_fs_default_run_large_default_01.mp3"),
+	Sound("nz_moo/zombies/footsteps/_s2_large/zmb_fs_default_run_large_default_02.mp3"),
+	Sound("nz_moo/zombies/footsteps/_s2_large/zmb_fs_default_run_large_default_03.mp3"),
+	Sound("nz_moo/zombies/footsteps/_s2_large/zmb_fs_default_run_large_default_04.mp3"),
+	Sound("nz_moo/zombies/footsteps/_s2_large/zmb_fs_default_run_large_default_05.mp3"),
+	Sound("nz_moo/zombies/footsteps/_s2_large/zmb_fs_default_run_large_default_06.mp3"),
+	Sound("nz_moo/zombies/footsteps/_s2_large/zmb_fs_default_run_large_default_07.mp3"),
+	Sound("nz_moo/zombies/footsteps/_s2_large/zmb_fs_default_run_large_default_08.mp3"),
+	Sound("nz_moo/zombies/footsteps/_s2_large/zmb_fs_default_run_large_default_09.mp3"),
+	Sound("nz_moo/zombies/footsteps/_s2_large/zmb_fs_default_run_large_default_10.mp3"),
+	Sound("nz_moo/zombies/footsteps/_s2_large/zmb_fs_default_run_large_default_11.mp3"),
+	Sound("nz_moo/zombies/footsteps/_s2_large/zmb_fs_default_run_large_default_12.mp3"),
 }
 
 ENT.BehindSoundDistance = 500 -- When the zombie is within 200 units of a player, play these sounds instead
@@ -514,10 +528,28 @@ function ENT:StartToasting()
 				mins = mins,
 				maxs = maxs,
 			})
+			local tr2 = util.TraceHull({
+				start = pos,
+				endpos = pos + bone.Ang:Forward()*500,
+				filter = self,
+				mask = MASK_PLAYERSOLID,
+				collisiongroup = COLLISION_GROUP_PLAYER,
+				ignoreworld = true,
+				mins = mins,
+				maxs = maxs,
+			})
 		
+			local target = tr.Entity
+			local target2 = tr2.Entity
+
+			--print(target)
+
 			debugoverlay.BoxAngles(pos, mins, maxs, bone.Ang, 1, Color( 255, 255, 255, 10))
-					
-			if self:IsValidTarget(tr.Entity) then
+			
+			if IsValid(target2) and target2:IsNextBot() and target2.IsMooZombie and !target2.ZombieIgnited and !target2.IsMooSpecial then
+				target2:Flames(true)
+			end
+			if IsValid(target) and target:IsPlayer() and target:Alive() then
 				local dmg = DamageInfo()
 				dmg:SetAttacker(self)
 				dmg:SetInflictor(self)
@@ -528,7 +560,7 @@ function ENT:StartToasting()
 				--tr.Entity:Ignite(3, 0)
 			end
 		end
-		self.NextFireParticle = CurTime() + 0.25
+		self.NextFireParticle = CurTime() + 0.1
 	end
 end
 
@@ -582,22 +614,7 @@ function ENT:OnRemove()
 	self:StopToasting()
 end
 
-function ENT:HandleAnimEvent(a,b,c,d,e)
-	if e == "melee" then
-		self:EmitSound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(85, 105), 1, 2)
-		self:DoAttackDamage()
-	end
-	if e == "death_ragdoll" then
-		self:BecomeRagdoll(DamageInfo())
-	end
-	if e == "start_traverse" then
-		--print("starttraverse")
-		self.TraversalAnim = true
-	end
-	if e == "finish_traverse" then
-		--print("finishtraverse")
-		self.TraversalAnim = false
-	end
+function ENT:CustomAnimEvent(a,b,c,d,e)
 	if e == "mech_melee_whoosh" then
 		self:EmitSound(self.CustomMeleeWhooshSounds[math.random(#self.CustomMeleeWhooshSounds)], 100, math.random(85, 105))
 	end

@@ -170,6 +170,13 @@ function ENT:OnSpawn()
 end
 
 function ENT:PerformDeath(dmgInfo)
+	local count = #player.GetAllPlaying()
+	
+	if count <= 1 then 
+		nzPowerUps:SpawnPowerUp(self:GetPos(), "packapunch")
+	else
+		nzPowerUps:SpawnPowerUp(self:GetPos(), "bottle")
+	end
 	for k,v in pairs(player.GetAllPlaying()) do
 		if TFA.BO3GiveAchievement then
 			if !v.Mr_Sex_Has_Fallen_Sir then

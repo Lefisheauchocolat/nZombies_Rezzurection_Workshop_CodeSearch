@@ -12,20 +12,6 @@ function _PLAYER:CanAfford(amount)
 	return (self:GetPoints() - amount) >= 0
 end
 
-nzPlayers.HUDnetstring = {
-	["Shadows of Evil"] = "nz_points_notification_bo3_zod",
-	["Black Ops 3"] = "nz_points_notification_bo3",
-	["Black Ops 1"] = "nz_points_notification_bo1",
-	["Tranzit (Black Ops 2)"] = "nz_points_notification_bo2",
-	["Mob of the Dead"] = "nz_points_notification_bo2_dlc",
-	["Buried"] = "nz_points_notification_bo2_dlc",
-	["Origins (Black Ops 2)"] = "nz_points_notification_bo2_dlc",
-	["Snowglobe"] = "nz_points_notification_snowglobe",
-	["Industrial Estate"] = "nz_points_notification_oilrig",
-	["Encampment"] = "nz_points_notification_encampment",
-	["Origins (HD)"] = "nz_points_notification_tomb_hd",
-}
-
 if (SERVER) then
 	//clientside points related stuff
 	nzPlayers.CLPoints = nzPlayers.CLPoints or {}
@@ -74,31 +60,25 @@ if (SERVER) then
 	end)
 
 	local sv_clientpoints = GetConVar("nz_point_notification_clientside")
-
 	util.AddNetworkString("nz_points_notification")
-	util.AddNetworkString("nz_points_notification_bo1")
-	util.AddNetworkString("nz_points_notification_bo2")
-	util.AddNetworkString("nz_points_notification_bo2_dlc")
-	util.AddNetworkString("nz_points_notification_bo2_dlc")
-	util.AddNetworkString("nz_points_notification_bo2_dlc")
-	util.AddNetworkString("nz_points_notification_bo3")
-	util.AddNetworkString("nz_points_notification_bo3_zod")
-	util.AddNetworkString("nz_points_notification_snowglobe")
-	util.AddNetworkString("nz_points_notification_oilrig")
-	util.AddNetworkString("nz_points_notification_tomb_hd")
-	util.AddNetworkString("nz_points_notification_encampment")
 
 	-- Sets the character's amount of currency to a specific value.
-	function _PLAYER:SetPoints(amount)
-		amount = math.Round(amount, 2)
+	function _PLAYER:SetPoints(amount, profit_id)
+		amount = math.Round(amount)
 		if not sv_clientpoints:GetBool() then
 			local num = amount - self:GetPoints()
 			if num ~= 0 then -- 0 points doesn't get sent
-				local netstring = (nzPlayers and nzPlayers.HUDnetstring) and nzPlayers.HUDnetstring[nzMapping.Settings.hudtype] or "nz_points_notification"
+				local netstring = (nzDisplay and nzDisplay.HUDnetstrings) and nzDisplay.HUDnetstrings[nzMapping.Settings.hudtype] or "nz_points_notification"
+
+				local profit = 0
+				if profit_id then
+					profit = profit_id
+				end
 
 				net.Start(netstring)
 					net.WriteInt(num, 20)
 					net.WriteEntity(self)
+					net.WriteInt(profit, 9)
 				net.SendOmit(nzPlayers.CLPoints)
 			end
 		end
@@ -106,9 +86,20 @@ if (SERVER) then
 	end
 
 	-- Quick function to set the money to the current amount plus an amount specified.
-	function _PLAYER:GivePoints(amount, ignoredp, nosound)
+	function _PLAYER:GivePoints(amount, ignoredp, hassound)
+		if nzMapping.Settings.antipowerups and nzPowerUps:IsAntiPowerupActive("dp") and not ignoredp then
+			return //anti double points blocks earning points
+		end
 
-		if not nosound then
+		-- If double points is on.
+		if nzPowerUps:IsPowerupActive("dp") and not ignoredp then
+			amount = amount * 2
+		end
+		amount = hook.Call("OnPlayerGetPoints", nil, self, amount) or amount
+
+		self:SetPoints(self:GetPoints() + amount)
+
+		if hassound then
 			local snd = "nz_moo/effects/purchases/buy_classic.mp3"
 
 			if !table.IsEmpty(nzSounds.Sounds.Custom.Purchase) then
@@ -117,22 +108,16 @@ if (SERVER) then
 
 			self:EmitSound(snd, SNDLVL_TALKING, math.random(99,101))
 		end
-
-		-- If double points is on.
-		if nzPowerUps:IsPowerupActive("dp") and not ignoredp then
-			amount = amount * 2
-		end
-		amount = hook.Call("OnPlayerGetPoints", nil, self, amount) or amount
-		self:SetPoints(self:GetPoints() + amount)
 	end
 
 	-- Takes away a certain amount by inverting the amount specified.
-	function _PLAYER:TakePoints(amount, nosound)
+	function _PLAYER:TakePoints(amount, hassound)
 		-- Changed to prevent double points from removing double the points. - Don't even think of changing this back Ali, Love Ali.
 		amount = hook.Call("OnPlayerLosePoints", nil, self, amount) or amount
+
 		self:SetPoints(self:GetPoints() - amount)
-		
-		if not nosound then
+
+		if hassound then
 			local snd = "nz_moo/effects/purchases/buy_classic.mp3"
 
 			if !table.IsEmpty(nzSounds.Sounds.Custom.Purchase) then
@@ -152,7 +137,7 @@ if (SERVER) then
 			if self:CanAfford(new) then
 				local success = func()
 				if success then
-					self:TakePoints(new)
+					self:TakePoints(new, true)
 					hook.Call("OnPlayerBought", nil, self, new, ent)
 					return true -- If the buy was successfull, this function also returns true
 				end

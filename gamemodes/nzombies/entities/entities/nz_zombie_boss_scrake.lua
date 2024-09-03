@@ -32,6 +32,7 @@ ENT.RedEyes = false
 ENT.MooSpecialZombie = false -- They're a Special Zombie, but is still close enough to a normal zombie to be able to do normal zombie things.
 ENT.IsMooSpecial = true
 ENT.IsMooBossZombie = true
+ENT.IsMiniBoss = true
 
 ENT.AttackRange = 90
 
@@ -176,8 +177,8 @@ function ENT:StatsInitialize()
 			self:SetMaxHealth(500)
 		else
 			if nzRound:InState( ROUND_PROG ) then
-				self:SetHealth(math.Clamp(nzRound:GetNumber() * 500 + (1000 * count), 5000, 31000 * count))
-				self:SetMaxHealth(math.Clamp(nzRound:GetNumber() * 500 + (1000 * count), 5000, 31000 * count))
+				self:SetHealth(math.Clamp(nzRound:GetNumber() * 750 + (1250 * count), 5000, 31000 * count))
+				self:SetMaxHealth(math.Clamp(nzRound:GetNumber() * 750 + (1250 * count), 5000, 31000 * count))
 			else
 				self:SetHealth(5000)
 				self:SetMaxHealth(5000)	

@@ -39,7 +39,7 @@ function ENT:Launch(dir)
 	self:SetAngles((dir*-1):Angle())
 	self:SetSequence(self:LookupSequence("anim_close"))
 	
-	self.AutoReturnTime = CurTime() + 0.75
+	self.AutoReturnTime = CurTime() + 0.95
 	self.AutoBreak = CurTime() + 3
 end
 
@@ -49,7 +49,7 @@ function ENT:Grab(ply, pos) -- Pos is used for clients who may not have the Panz
 	self.HasGrabbed = true
 
 	local panzer = self:GetPanzer()
-	local speed = 1050
+	local speed = 750
 	local pos = pos or IsValid(panzer) and panzer:GetAttachment(panzer:LookupAttachment("tag_claw")).Pos
 	
 	self.GrabbedPlayer = ply
@@ -57,6 +57,8 @@ function ENT:Grab(ply, pos) -- Pos is used for clients who may not have the Panz
 	local index = self:EntIndex()
 	
 	panzer:ComedyGrab()
+	self:EmitSound("nz_moo/zombies/vox/_mechz/v2/claw/retract/retract.mp3", 100, math.random(85, 105))
+	self:EmitSound("nz_moo/zombies/vox/_mechz/v2/claw/loop_in.wav", 45)
 
 	hook.Add("SetupMove", "PanzerGrab"..index, function(pl, mv, cmd)
 		if !IsValid(ply) or IsValid(ply) and !ply:GetNotDowned() then self:Release() end
@@ -72,7 +74,7 @@ function ENT:Grab(ply, pos) -- Pos is used for clients who may not have the Panz
 				if dist < 50 then
 					speed = 200
 				end
-				if dist < 25 then
+				if dist < 16 then
 					self:Reattach()
 				end
 			end
@@ -163,6 +165,7 @@ end
 
 function ENT:Reattach(removed)
 	if SERVER then
+		self:StopSound("nz_moo/zombies/vox/_mechz/v2/claw/loop_in.wav")
 		if !removed then self:Remove() end
 	end
 	
@@ -219,7 +222,7 @@ function ENT:Think()
 		end
 		if self.Retract then
 			local panzer = self:GetPanzer()
-			local att = panzer:GetBonePosition(panzer:LookupBone("tag_claw"))
+			local att = panzer:GetAttachment(panzer:LookupAttachment("tag_claw")).Pos
 			if att then
 				self:SetPos(LerpVector( 0.1, self:GetPos(), att ))
 			end
@@ -233,6 +236,7 @@ function ENT:OnRemove()
 	if SERVER then
 		local panzer = self:GetPanzer()
 		panzer:FinishGrab()
+		self:StopSound("nz_moo/zombies/vox/_mechz/v2/claw/loop_in.wav")
 	end
 	self:Release()
 	self:Reattach(true)

@@ -6,7 +6,7 @@ ENT.PrintName = "Turned"
 ENT.Spawnable = false
 ENT.AdminOnly = false
 
-ENT.Delay = 25
+ENT.Delay = 15
 ENT.Dance = false
 ENT.Range = 240
 
@@ -26,7 +26,7 @@ function ENT:Initialize()
 	if CLIENT then return end
 	if math.random(100) >= 70 then
 		self.Dance = true
-		self.Delay = 11
+		self.Delay = 10
 	end
 
 	local p = self:GetParent()

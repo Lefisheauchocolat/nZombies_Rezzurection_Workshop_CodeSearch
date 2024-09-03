@@ -104,6 +104,7 @@ if nzombies then
 		nzSpecialWeapons:AddGrenade("nz_bo3_grenade", 4, false, 0.6, false, 0.4)
 		nzSpecialWeapons:AddGrenade("nz_waw_mk2", 4, false, 0.6, false, 0.4)
 		nzSpecialWeapons:AddGrenade("nz_bo3_semtex", 4, false, 0.6, false, 0.4)
+		nzSpecialWeapons:AddGrenade("nz_iw_grenade", 4, false, 0.6, false, 0.4)
     end)
 end
 
@@ -298,3 +299,9 @@ TFA.AddSound("NZ.ShatterBlast.Deep", CHAN_STATIC, 1, SNDLVL_GUNFIRE, 100, "wavy_
 TFA.AddSound("NZ.ShatterBlast.Low", CHAN_STATIC, 1, SNDLVL_GUNFIRE, 100, "wavy_fx/wpn_frag_exp_low_04.wav",")")
 
 TFA.AddWeaponSound("TFA_BO3.SEMTEX.PULLPIN", "weapons/bo3/semtex/semtex_pin_pull.wav")
+
+TFA.AddWeaponSound("TFA_BO3.IW_FRAG.PIN", {"weapons/bo3/mw_frag/h1_wpn_frag_pinpull_01.mp3","weapons/bo3/mw_frag/h1_wpn_frag_pinpull_02.mp3","weapons/bo3/mw_frag/h1_wpn_frag_pinpull_03.mp3"})
+TFA.AddWeaponSound("TFA_BO3.IW_FRAG.THROW", {"weapons/bo3/mw_frag/h1_wpn_frag_throw_01.mp3","weapons/bo3/mw_frag/h1_wpn_frag_throw_02.mp3"})
+
+TFA.AddWeaponSound("TFA_RD.SWAT_KNIFE.SWING", {"weapons/rainy_death/swat_knife/fly_knife_swing_00.mp3","weapons/rainy_death/swat_knife/fly_knife_swing_01.mp3","weapons/rainy_death/swat_knife/fly_knife_swing_02.mp3"})
+TFA.AddWeaponSound("TFA_RD.SWAT_KNIFE.STAB", {"weapons/rainy_death/swat_knife/wpn_knife_blade_stab_00.mp3","weapons/rainy_death/swat_knife/wpn_knife_blade_stab_01.mp3","weapons/rainy_death/swat_knife/wpn_knife_blade_stab_02.mp3","weapons/rainy_death/swat_knife/wpn_knife_blade_stab_03.mp3"})

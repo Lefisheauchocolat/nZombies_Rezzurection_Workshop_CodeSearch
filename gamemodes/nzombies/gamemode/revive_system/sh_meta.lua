@@ -1,5 +1,19 @@
 local playerMeta = FindMetaTable("Player")
 if SERVER then
+	local cvar_bleedout = GetConVar("nz_downtime")
+	function playerMeta:SetBleedoutTime(num)
+		self:SetNW2Float("nzBleedoutTime", num)
+	end
+
+	function playerMeta:GetTrueBleedoutTime()
+		return self:GetNW2Float("nzBleedoutTime", 0)
+	end
+
+	function playerMeta:GetBleedoutTime()
+		local bleedtime = self:GetTrueBleedoutTime()
+		return (bleedtime > 0 and bleedtime) or cvar_bleedout:GetFloat()
+	end
+
 	function playerMeta:DownPlayer()
 		local id = self:EntIndex()
 
@@ -20,9 +34,21 @@ if SERVER then
 		self:SetTargetPriority(TARGET_PRIORITY_NONE)
 		self:SetHealth(100)
 
-		if #player.GetAllPlaying() <= 1 and self:HasPerk("revive") and (!self.SoloRevive or self.SoloRevive < 3) then
+		if #player.GetAllPlaying() > 1 and self:HasUpgrade("tombstone") and !self.FightersFizz then
+			self.FightersFizz = true
+		end
+
+		self.OldUpgrades = self:GetUpgrades()
+		self.OldPerks = self:GetPerks()
+
+		local maxrevives = (nzMapping.Settings.solorevive or 3)
+		if #player.GetAllPlaying() <= 1 and self:HasPerk("revive") and maxrevives > 0 and (!self.SoloRevive or self.SoloRevive < maxrevives) then
 			self.SoloRevive = self.SoloRevive and self.SoloRevive + 1 or 1
 			self.DownedWithSoloRevive = true
+
+			self:SetNW2Int("nz.SoloReviveCount", maxrevives - self.SoloRevive)
+			table.RemoveByValue(self.OldPerks, "revive")
+
 			self:StartRevive(self)
 			timer.Simple(8, function()
 				if IsValid(self) and !self:GetNotDowned() then
@@ -41,10 +67,7 @@ if SERVER then
 			end
 		end
 
-		self.OldUpgrades = self:GetUpgrades()
-		self.OldPerks = self:GetPerks()
 		self.OldWeapons = {}
-
 		for k, v in pairs(self:GetWeapons()) do
 			if v.IsTFAWeapon then
 				if v.NZSpecialCategory == "display" then continue end
@@ -105,12 +128,43 @@ if SERVER then
 
 	function playerMeta:RevivePlayer(revivor, nosync)
 		local id = self:EntIndex()
-		local tbl = {}
 		if !nzRevive.Players[id] then return end
 		nzRevive.Players[id] = nil
+
 		if !nosync then
 			hook.Call("PlayerRevived", nzRevive, self, revivor)
 		end
+
+		local count = 0
+		for k, v in RandomPairs(self.OldPerks) do
+			--[[if IsValid(revivor) and revivor:HasUpgrade("revive") and revivor ~= self then
+				self:GivePerk(v)
+
+				continue]]
+			if self:GetNW2Bool("nz.GinMod") then
+				if v == "gin" then continue end
+				self:GivePerk(v)
+
+				continue
+			elseif self.FightersFizz then
+				if v == "tombstone" then continue end
+				self:GivePerk(v)
+
+				continue
+			elseif !nzMapping.Settings.dontkeepperks then
+				if count >= math.floor(#self.OldPerks/2) then break end
+				if self.DownedWithSoloRevive and v == "revive" then continue end
+				if self.DownedWithSoloRevive and v == "tombstone" then continue end
+
+				self:GivePerk(v)
+				count = count + 1
+	        end
+		end
+
+		if self:GetNW2Bool("nz.GinMod") then
+			self:SetNW2Bool("nz.GinMod", false)
+		end
+
 		self:SetTargetPriority(TARGET_PRIORITY_NONE)
         timer.Simple(2, function()
 			if (IsValid(self)) and (self:IsPlaying()) then
@@ -121,6 +175,11 @@ if SERVER then
 				end
 			end
 		end)
+		
+		if IsValid(revivor) and revivor:HasUpgrade("revive") then --revivor and revivee are invincible for a duration
+			revivor:WAWPlasmaRage(10)
+			self:WAWPlasmaRage(10)
+		end
 
 		if IsValid(revivor) and revivor:IsPlayer() then
 			if self.DownPoints then
@@ -130,18 +189,12 @@ if SERVER then
 
 		self.DownPoints = nil
 		self.DownedWithSoloRevive = nil
+		self.FightersFizz = nil
 
-		--[[for k, v in pairs(ents.GetAll()) do
-			if v:IsValidZombie() then
-				table.insert(tbl, v)
-			end
-		end
-		if !table.IsEmpty(tbl) then
-			if #tbl >= 16 then
-				local SND = "RevivalStinger"
-				nzSounds:Play(SND)
-			end
-		end]]
+		/*if GetGlobal2Int("AliveZombies", 0) >= 16 then
+			local SND = "RevivalStinger"
+			nzSounds:Play(SND)
+		end*/
 		self:ResetHull()
 	end
 
@@ -210,6 +263,7 @@ if SERVER then
 		end
 		
 		self:RemoveAllPowerUps()
+		self:RemoveAllAntiPowerUps()
 		self:ResetHull()
 	end
 end

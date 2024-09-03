@@ -3,13 +3,14 @@ DEFINE_BASECLASS( "player_default" )
 local PLAYER = {}
 
 PLAYER.Health				= nzMapping.Settings.hp
-PLAYER.WalkSpeed 			= 195 -- Moo Mark. Lowered player speed slightly, Sprinting Zombies should only slowly lose distance on you. But Supersprinting Zombies have no issue catching up. This was done testing player speed in BO4 so I don't wanna hear any shit.
-PLAYER.RunSpeed				= 300 -- Don't worry, the overall stamina is being increased to around 8 seconds to make up for this.
+PLAYER.WalkSpeed 			= 190 -- Moo Mark. Lowered player speed slightly, Sprinting Zombies should only slowly lose distance on you. But Supersprinting Zombies have no issue catching up. This was done testing player speed in BO4 so I don't wanna hear any shit.
+PLAYER.RunSpeed				= 310 -- Don't worry, the overall stamina is being increased to around 8 seconds to make up for this.
 PLAYER.JumpPower			= 200
 PLAYER.CanUseFlashlight     = true
 
 function PLAYER:SetupDataTables()
 	self.Player:NetworkVar("Bool", 0, "UsingSpecialWeapon")
+	self.Player:NetworkVar("Entity", 0, "TeleporterEntity") -- So we can know what Teleporter is teleporting us
 end
 
 function PLAYER:Init()

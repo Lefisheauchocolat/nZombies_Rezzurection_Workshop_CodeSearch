@@ -32,12 +32,6 @@ local color_red_50 = Color(255, 0, 0, 50)
 local color_green_50 = Color(0, 255, 0, 50)
 local color_revive = Color(140, 160, 255)
 
-local dahudz = {
-	["Black Ops 3"] = true,
-	["Shadows of Evil"] = true,
-	["Origins (HD)"] = true
-}
-
 local Circles = {
 	[1] = {r = -1, col = Color(0,200,0,100), colb = Color(200,0,0,100), colr = Color(0,50,150,100)},
 	[2] = {r = 0, col = Color(0,255,0,200), colb = Color(255,0,0,200), colr = Color(50,150,200,200)},
@@ -165,7 +159,7 @@ end
 
 -- Hooks
 hook.Add("HUDPaint", "nzHUDreviveswap_t7_zod", function()
-	if dahudz[nzMapping.Settings.hudtype] then
+	if nzDisplay and nzDisplay.t7revive and nzDisplay.t7revive[nzMapping.Settings.hudtype] then
 		hook.Add("HUDPaint", "DrawDownedPlayers", DrawDownedPlayers_t7 )
 		hook.Add("HUDPaint", "DrawRevivalProgress", DrawRevivalProgress_t7 )
 	end

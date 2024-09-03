@@ -108,8 +108,11 @@ local function OnWeaponAdded( wep )
 				wep:RevertNZModifier("vigor")
 			end
 
-			if ply:HasPerk("wall") and not wep:HasNZModifier("pap") then
+			if (nzGum:GetActiveGum(ply) and nzGum:GetActiveGumData(ply).name == "All Powered Up") and not wep:HasNZModifier("pap") then
 				wep:ApplyNZModifier("pap")
+
+				ply:EmitSound("nz_moo/perkacolas/pap/ready.mp3", SNDLVL_GUNFIRE)
+				nzGum:TakeUses(ply)
 
 				if wep.NZPaPReplacement then
 					local wep2 = ply:Give(wep.NZPaPReplacement)

@@ -18,8 +18,12 @@ ENT.IsMooZombie = true
 ENT.RedEyes = true
 
 ENT.Models = {
-	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_sumpf.mdl", Skin = 0, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_sumpf.mdl", Skin = 1, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_jap_impinf.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_jap_impinf.mdl", Skin = 1, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_jap_impinf.mdl", Skin = 2, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_jap_impinf.mdl", Skin = 3, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_jap_impinf.mdl", Skin = 4, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_jap_impinf.mdl", Skin = 5, Bodygroups = {0,0}},
 }
 
 local spawnslow = {"nz_spawn_ground_v1", "nz_spawn_ground_ad_v2", "nz_spawn_ground_v2", "nz_spawn_ground_v2_altb"}
@@ -44,11 +48,23 @@ ENT.DeathSequences = {
 	"nz_death_f_11",
 	"nz_death_f_12",
 	"nz_death_f_13",
-	"nz_death_fallback",
 	"nz_l4d_death_running_11a",
 	"nz_l4d_death_running_11g",
 	"nz_l4d_death_02a",
 	"nz_l4d_death_11_02d",
+	"nz_t9_dth_f_chest_lt_00",
+	"nz_t9_dth_f_chest_lt_01",
+	"nz_t9_dth_f_chest_lt_02",
+	"nz_t9_dth_f_chest_lt_03",
+	"nz_t9_dth_f_chest_lt_04",
+	"nz_t9_dth_f_chest_lt_05",
+	"nz_t9_dth_f_chest_lt_06",
+	"nz_t9_dth_f_chest_lt_07",
+	"nz_t9_dth_f_chest_lt_08",
+	"nz_t9_dth_f_chest_lt_09",
+	"nz_t9_dth_f_head_lt_00",
+	"nz_t9_dth_f_head_lt_01",
+	"nz_t9_dth_f_head_lt_02",
 }
 
 ENT.CrawlDeathSequences = {
@@ -795,7 +811,7 @@ ENT.SequenceTables = {
 		{
 			SpawnSequence = {spawnsuperfast},
 			MovementSequence = {
-				"nz_l4d_run_05",
+				--"nz_l4d_run_05",
 				"nz_pb_zombie_sprint_v7",
 				"nz_pb_zombie_sprint_v9",
 				"nz_supersprint_ad1",
@@ -877,7 +893,7 @@ ENT.SequenceTables = {
 		{
 			SpawnSequence = {spawnsuperfast},
 			MovementSequence = {
-				"nz_l4d_run_05",
+				--"nz_l4d_run_05",
 				"nz_pb_zombie_sprint_v7",
 				"nz_pb_zombie_sprint_v9",
 				"nz_supersprint_au1",
@@ -1038,19 +1054,6 @@ ENT.AttackSounds = {
 	"nz_moo/zombies/vox/_classic/attack/attack_13.mp3",
 	"nz_moo/zombies/vox/_classic/attack/attack_14.mp3",
 	"nz_moo/zombies/vox/_classic/attack/attack_15.mp3",
-}
-
-ENT.CrawlerSounds = {
-	Sound("nz_moo/zombies/vox/_proto/crawl/crawl_00.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/crawl/crawl_01.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/crawl/crawl_02.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/crawl/crawl_03.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/crawl/crawl_04.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/crawl/crawl_00.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/crawl/crawl_01.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/crawl/crawl_02.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/crawl/crawl_03.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/crawl/crawl_04.mp3"),
 }
 
 ENT.CustomWalkFootstepsSounds = {

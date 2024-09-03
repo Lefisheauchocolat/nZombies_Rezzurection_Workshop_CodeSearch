@@ -96,10 +96,10 @@ function ENT:Think()
 
 		if tr1.HitNonWorld or tr2.HitNonWorld then
 			if tr1.Entity:IsValid() then
-				if not (tr1.Entity:IsNextBot() or tr1.Entity:IsNPC()) then return end
+				if self:FriendCheck(tr1.Entity) then return end
 			end
 			if tr2.Entity:IsValid() then
-				if not (tr2.Entity:IsNextBot() or tr2.Entity:IsNPC()) then return end
+				if self:FriendCheck(tr2.Entity) then return end
 			end
 			self.Triggered = true
 			self:EmitSound(self.TriggerSound)
@@ -135,6 +135,32 @@ function ENT:Use(ply, caller)
 		self:Remove()
 	end
 end
+
+function ENT:FriendCheck(ent)
+	if ent:IsPlayer() and self:GetOwner():IsValid() and self:GetOwner():IsPlayer() then
+		if ent:IsPlayer() then 
+			return true 
+		end
+	end
+	if IsValid(ent:GetOwner()) and ent:GetOwner() == self:GetOwner() then
+		if ent:GetClass() == self.myclass then
+			return true
+		end
+	end
+	return false
+end
+
+--[[function ENT:OnTakeDamage(dmg)
+	if dmg:GetInflictor() == self or dmg:GetAttacker() == self then return end
+	if self.Exploded then return end
+	if self.HP > 0 and self.HP - dmg:GetDamage() <= 0 then
+		self.Exploded = true
+		self:Explode()
+	end
+	self.HP = self.HP - dmg:GetDamage()
+	dmg:SetAttacker(self)
+	dmg:SetInflictor(self)
+end]]
 
 function ENT:DoExplosionEffect()
 	local effectdata = EffectData()

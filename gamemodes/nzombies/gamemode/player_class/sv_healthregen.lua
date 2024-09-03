@@ -2,8 +2,8 @@
 local RegenRate = 0.05
 local RegenRatio = 0.1
 
-local RegenDelay = 4
-local RegenDelayFast = 2.5
+local RegenDelay = 5
+local RegenDelayFast = 3
 
 hook.Add("Think", "nzRegenHealth", function() //values and code taken from from _zm_playerhealth.gsc in bo2
 	local curtime = CurTime()

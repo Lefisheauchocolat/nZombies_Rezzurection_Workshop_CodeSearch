@@ -5,8 +5,8 @@ nzTools:CreateTool("door", {
 		return true
 	end,
 	PrimaryAttack = function(wep, ply, tr, data)
-		PrintTable(data)
 		local ent = tr.Entity
+		print(ent)
 		if !IsValid(ent) then return end
 		if ent:IsDoor() or ent:IsBuyableProp() or ent:IsButton() then
 			nzDoors:CreateLink(ent, data.flags)

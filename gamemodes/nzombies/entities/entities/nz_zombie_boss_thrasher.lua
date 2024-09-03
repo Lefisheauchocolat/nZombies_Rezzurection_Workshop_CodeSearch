@@ -255,6 +255,14 @@ ENT.StompSounds = {
 	Sound("nz_moo/zombies/vox/_margwa/step/step_06.mp3"),
 }
 
+ENT.WeakImpactSounds = {
+	Sound("nz_moo/zombies/gibs/prj_impact/prj_bullet_flesh_00.mp3"),
+	Sound("nz_moo/zombies/gibs/prj_impact/prj_bullet_flesh_01.mp3"),
+	Sound("nz_moo/zombies/gibs/prj_impact/prj_bullet_flesh_02.mp3"),
+	Sound("nz_moo/zombies/gibs/prj_impact/prj_bullet_flesh_03.mp3"),
+	Sound("nz_moo/zombies/gibs/prj_impact/prj_bullet_flesh_04.mp3"),
+}
+
 ENT.SporeExplodeSounds = {
 	Sound("nz_moo/zombies/vox/_margwa/head_explo/margwa_head_explo_0.mp3"),
 	Sound("nz_moo/zombies/vox/_margwa/head_explo/margwa_head_explo_1.mp3"),
@@ -366,70 +374,23 @@ function ENT:AI()
 		self:SpeedChanged()
 	end
 
-
-	-- ABDUCTION
-	for k,v in pairs(player.GetAll()) do
-		
-		if #player.GetAllPlaying() <= 1 then return end
-
-		if IsValid(v) and !v:GetNotDowned() and !IsValid(self:GetCurrentPlayer()) and !v:NZIsThrasherVictim() and math.random(3) == 1 then
-			
-			self:SetTarget(v)
-
-			if !self:TargetInRange(450) then return end
-
-			local pos = v:GetPos()
-
-			self:ResetMovementSequence()
-			self:MoveToPos(pos, {
-				lookahead = 1,
-				tolerance = 75,
-				draw = false,
-				repath = 3,
-				maxage = 5,
-			})
-
-			self:FaceTowards(v:GetPos())
-			self:DoSpecialAnimation("nz_thrasher_eat", 1)
-			if IsValid(self) and self:Alive() then
-				if !v:GetNotDowned() and !v:NZIsThrasherVictim() then
-					--v:Kill()
-					v:SetCollisionGroup(COLLISION_GROUP_IN_VEHICLE)
-					self:SetCurrentPlayer(v)
-					v.ThrasherParent = self
+	-- Knock normal zombies aside
+	for k,v in nzLevel.GetZombieArray() do
+		if IsValid(v) and !v:GetSpecialAnimation() and v.IsMooZombie and !v.Non3arcZombie and !v.IsMooSpecial and v ~= self then
+			if self:GetRangeTo( v:GetPos() ) < 8^2 then	
+				if v.IsMooZombie and !v.IsMooSpecial and !v:GetSpecialAnimation() and self:GetRunSpeed() > 36 then
+					if v.PainSequences then
+						v:DoSpecialAnimation(v.PainSequences[math.random(#v.PainSequences)], true, true)
+					end
 				end
 			end
 		end
 	end
 
-
-	-- TELEPORT
-	if IsValid(self.Target) and !self:TargetInRange(750) and CurTime() > self.TeleportCooldown then
-		if !self.Target:IsPlayer() then return end
-
-		local target = self.Target
-		local pos = self:FindSpotBehindPlayer(target:GetPos(), 10)
-
-		self:CreateVinesOut()
-		self:PlaySequenceAndWait("nz_thrasher_teleport_out")
-		self:SetSpecialAnimation(true)
-
-
-		self:SetPos( pos )
-		self:FaceTowards(self.Target)
-
-		self:CreateVinesIn()
-		self:PlaySequenceAndWait("nz_thrasher_teleport_in")
-		self:SetSpecialAnimation(false)
-		self:CollideWhenPossible()
-
-		self.TeleportCooldown = CurTime() + 7
-	end
-
 	-- SPORE REGENERATION
 	if self.SporeCount ~= 0 and CurTime() > self.RegenCooldown then
 		for k,v in nzLevel.GetZombieArray() do
-			if IsValid(v) and !v:GetSpecialAnimation() and v.IsMooZombie and !v.Non3arcZombie and !v.IsMooSpecial and v ~= self then
+			if IsValid(v) and !v:GetSpecialAnimation() and v.IsMooZombie and !v.IsMooSpecial and v ~= self then
 				if self:GetRangeTo( v:GetPos() ) < 85 then
 					local seq = "nz_thrasher_eat_z_b"
 					if self:SequenceHasSpace(seq) then
@@ -477,14 +438,59 @@ function ENT:AI()
 		end
 	end
 
-	-- Knock normal zombies aside
-	for k,v in nzLevel.GetZombieArray() do
-		if IsValid(v) and !v:GetSpecialAnimation() and v.IsMooZombie and !v.Non3arcZombie and !v.IsMooSpecial and v ~= self then
-			if self:GetRangeTo( v:GetPos() ) < 7^2 then	
-				if v.IsMooZombie and !v.IsMooSpecial and !v:GetSpecialAnimation() and self:GetRunSpeed() > 36 then
-					if v.PainSequences then
-						v:DoSpecialAnimation(v.PainSequences[math.random(#v.PainSequences)], true, true)
-					end
+	-- TELEPORT
+	if IsValid(self.Target) and !self:TargetInRange(750) and CurTime() > self.TeleportCooldown then
+		if !self.Target:IsPlayer() then return end
+
+		local target = self.Target
+		local pos = self:FindSpotBehindPlayer(target:GetPos(), 10)
+
+		self:CreateVinesOut()
+		self:PlaySequenceAndWait("nz_thrasher_teleport_out")
+		self:SetSpecialAnimation(true)
+
+
+		self:SetPos( pos )
+		self:FaceTowards(self.Target)
+
+		self:CreateVinesIn()
+		self:PlaySequenceAndWait("nz_thrasher_teleport_in")
+		self:SetSpecialAnimation(false)
+		self:CollideWhenPossible()
+
+		self.TeleportCooldown = CurTime() + 7
+	end
+
+	-- ABDUCTION
+	for k,v in pairs(player.GetAll()) do
+		
+		if #player.GetAllPlaying() <= 1 then return end
+
+		if IsValid(v) and !v:GetNotDowned() and !IsValid(self:GetCurrentPlayer()) and !v:NZIsThrasherVictim() and math.random(3) == 1 then
+			
+			self:SetTarget(v)
+
+			if !self:TargetInRange(450) then return end
+
+			local pos = v:GetPos()
+
+			self:ResetMovementSequence()
+			self:MoveToPos(pos, {
+				lookahead = 1,
+				tolerance = 75,
+				draw = false,
+				repath = 3,
+				maxage = 5,
+			})
+
+			self:FaceTowards(v:GetPos())
+			self:DoSpecialAnimation("nz_thrasher_eat", 1)
+			if IsValid(self) and self:Alive() then
+				if !v:GetNotDowned() and !v:NZIsThrasherVictim() then
+					--v:Kill()
+					v:SetCollisionGroup(COLLISION_GROUP_IN_VEHICLE)
+					self:SetCurrentPlayer(v)
+					v.ThrasherParent = self
 				end
 			end
 		end
@@ -503,13 +509,10 @@ end
 function ENT:OnThink()
 	local victim = self:GetCurrentPlayer()
 
-	if CurTime() > self.ActTime then
-		if self.Acting and !IsValid(self:GetCurrentZombie()) then
-			self.Acting = false
-			self:SetCurrentZombie(nil)
-			self:TimeOut(1)
-		end
-		self.ActTime = CurTime() + 1
+	if self.Acting and !IsValid(self:GetCurrentZombie()) then
+		self.Acting = false
+		self:SetCurrentZombie(nil)
+		self.CancelCurrentAction = true
 	end
 
 	if IsValid(victim) and victim:Alive() then
@@ -565,6 +568,8 @@ function ENT:OnInjured(dmginfo)
 
 	if hitpos:DistToSqr(legpos) < 20^2 and self.LegSpore and CurTime() > self.IFrames then
 		if self.LegSporeHp > 0 then
+			self:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], 95, math.random(95,105))
+			attacker:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], SNDLVL_GUNFIRE, math.random(95,105))
 			self.LegSporeHp = self.LegSporeHp - damage
 		else
 			self.IFrames = CurTime() + 2
@@ -596,6 +601,8 @@ function ENT:OnInjured(dmginfo)
 
 	if hitpos:DistToSqr(chestpos) < 20^2 and self.ChestSpore and CurTime() > self.IFrames then
 		if self.ChestSporeHp > 0 then
+			self:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], 95, math.random(95,105))
+			attacker:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], SNDLVL_GUNFIRE, math.random(95,105))
 			self.ChestSporeHp = self.ChestSporeHp - damage
 		else
 			self.IFrames = CurTime() + 2
@@ -628,6 +635,8 @@ function ENT:OnInjured(dmginfo)
 
 	if hitpos:DistToSqr(backpos) < 20^2 and self.BackSpore and CurTime() > self.IFrames then
 		if self.BackSporeHp > 0 then
+			self:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], 95, math.random(95,105))
+			attacker:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], SNDLVL_GUNFIRE, math.random(95,105))
 			self.BackSporeHp = self.BackSporeHp - damage
 		else
 			self.IFrames = CurTime() + 2

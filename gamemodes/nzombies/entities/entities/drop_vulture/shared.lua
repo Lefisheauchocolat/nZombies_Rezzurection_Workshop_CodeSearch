@@ -17,123 +17,50 @@ function ENT:SetupDataTables()
 	self:NetworkVar("Float", 1, "KillTime")
 end
 
-local vulturedrops = {
-	["points"] =  {
-		id = "points",
-		model = Model("models/powerups/w_vulture_points.mdl"),
-		blink = true,
-		effect = function(ply)
-			ply:EmitSound("nz_moo/powerups/vulture/vulture_pickup.mp3") 
-			ply:EmitSound("nz_moo/powerups/vulture/vulture_money.mp3") 
-			ply:GivePoints(math.random(5, 20) * (ply:HasUpgrade("vulture") and 20 or 10))
-			return true
-		end,
-		timer = 30,
-		draw = function(self)
-			self:DrawModel()
-		end,
-		initialize = function(self)
-			ParticleEffectAttach("nz_powerup_mini", PATTACH_ABSORIGIN_FOLLOW, self, 0)
-		end,
-	},
-	["ammo"] = {
-		id = "ammo",
-		model = Model("models/powerups/w_vulture_ammo.mdl"),
-		blink = true,
-		effect = function(ply)
-			local wep = ply:GetActiveWeapon()
-			if IsValid(wep) then
-				local max = wep.Primary.MaxAmmo or nzWeps:CalculateMaxAmmo(wep:GetClass(), wep:HasNZModifier("pap"))
-				local give = math.Round(max/math.random(10, 20))
-				local ammo = wep:GetPrimaryAmmoType()
-				local cur = ply:GetAmmoCount(ammo)
-
-				if (cur + give) > max then give = max - cur end
-				if give <= 0 then return end
-
-				ply:GiveAmmo(give, ammo)
-				ply:EmitSound("nz_moo/powerups/vulture/vulture_pickup.mp3")
-				return true
-			end
-		end,
-		timer = 30,
-		draw = function(self)
-			self:DrawModel()
-		end,
-		initialize = function(self)
-			ParticleEffectAttach("nz_powerup_mini", PATTACH_ABSORIGIN_FOLLOW, self, 0)
-		end,
-	},
-	["gas"] = {
-		id = "gas",
-		model = Model("models/dav0r/hoverball.mdl"),
-		blink = false,
-		effect = function(ply)
-			ply:VulturesStink(0.5)
-		end,
-		timer = 12,
-		draw = function(self)
-			self:DrawModel()
-		end,
-		initialize = function(self)
-			self:SetNoDraw(true)
-			ParticleEffectAttach("nz_perks_vulture_stink", PATTACH_ABSORIGIN_FOLLOW, self, 0)
-		end,
-	},
-	["armor"] =  {
-		id = "armor",
-		model = Model("models/items/battery.mdl"),
-		blink = true,
-		effect = function(ply)
-			local plyarm = ply:Armor()
-			ply:EmitSound("nz_moo/powerups/vulture/vulture_pickup.mp3") 
-			ply:SetArmor(math.Clamp(plyarm + (math.random(1, 5) * (ply:HasUpgrade("vulture") and 20 or 10)), 0, 200))
-			return true
-		end,
-		timer = 30,
-		draw = function(self)
-			self:DrawModel()
-		end,
-		initialize = function(self)
-			ParticleEffectAttach("nz_powerup_mini", PATTACH_ABSORIGIN_FOLLOW, self, 0)
-		end,
-	},
-}
-
 function ENT:Draw()
-	vulturedrops[self:GetDropType()].draw(self)
+	nzPerks.VultureDropsTable[self:GetDropType()].draw(self)
 end
 
 function ENT:Initialize()
 	if SERVER then
-		self:SetDropType(table.Random(vulturedrops).id)
+		SafeRemoveEntityDelayed(self, 60)
+		if self:GetDropType() == "" then
+			local chances = {}
+			for id, data in pairs(nzPerks.VultureDropsTable) do
+				chances[id] = data.chance
+			end
+			self:SetDropType(nzMisc.WeightedRandom(chances))
+		end
 	end
 
-	self:SetModel(vulturedrops[self:GetDropType()].model)
-	self:EmitSound("nz_moo/powerups/vulture/vulture_drop.mp3") 
+	local vulturedata = nzPerks.VultureDropsTable[self:GetDropType()]
 
-	self:PhysicsInitSphere(60, "default_silent")
-	self:SetRenderMode(RENDERMODE_TRANSALPHA)
-	self:SetMoveType(MOVETYPE_NONE)
-	self:SetSolid(SOLID_NONE)
-	self:UseTriggerBounds(true, 1)
-
+	self:SetModel(vulturedata.model)
 	self:SetMaterial("models/weapons/powerups/mtl_x2icon_gold")
 
-	self:SetBlinkTime(CurTime() + vulturedrops[self:GetDropType()].timer - 5)
-	self:SetKillTime(CurTime() + vulturedrops[self:GetDropType()].timer)
+	self:PhysicsInit(SOLID_NONE)
+	self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+	self:SetMoveType(MOVETYPE_NONE)
+	self:SetSolid(SOLID_NONE)
+	self:UseTriggerBounds(true, 8)
+
+	self:SetBlinkTime(CurTime() + vulturedata.timer - 5)
+	self:SetKillTime(CurTime() + vulturedata.timer)
 	self:SetBlinking(false)
 	self.NextDraw = CurTime()
 
-	vulturedrops[self:GetDropType()].initialize(self)
+	vulturedata.initialize(self)
 
 	if CLIENT then return end
+	nzPowerUps:PowerupHudSync(self)
+
+	self:SetTrigger(true)
+	self:SetUseType(SIMPLE_USE)
+
 	local nearest = self:FindNearestPlayer(self:GetPos())
 	if IsValid(nearest) then
 		self:OOBTest(nearest)
 	end
-	self:SetTrigger(true)
-	self:SetUseType(SIMPLE_USE)
 end
 
 function ENT:OOBTest(ply)
@@ -141,8 +68,8 @@ function ENT:OOBTest(ply)
 	if not IsValid(ply) then return end
 
 	local size = Vector(2, 2, 2)
-	local entpos = ply:WorldSpaceCenter()
-	local pos = self:WorldSpaceCenter()
+	local entpos = ply:GetPos()
+	local pos = self:GetPos()
 
 	local tr = util.TraceLine({
 		start = pos,
@@ -190,18 +117,20 @@ function ENT:OOBTest(ply)
 		if v:GetClass() == "breakable_entry" then
 			//print('Powerup3, Barricade too close')
 			local ply2 = self:FindNearestPlayer(v:GetPos())
-			local normal = (self:GetPos() - v:GetPos()):GetNormalized()
-			local normal2 = (ply2:GetPos() - v:GetPos()):GetNormalized()
-			local fwd = v:GetForward()
-			local dot = fwd:Dot(normal)
-			local dot2 = fwd:Dot(normal2)
+			if ply2 and IsValid(ply2) then
+				local normal = (self:GetPos() - v:GetPos()):GetNormalized()
+				local normal2 = (ply2:GetPos() - v:GetPos()):GetNormalized()
+				local fwd = v:GetForward()
+				local dot = fwd:Dot(normal)
+				local dot2 = fwd:Dot(normal2)
 
-			if 0 < dot2 and dot > 0 then
-				self:SetPos(v:WorldSpaceCenter() + fwd*50)
-			elseif 0 > dot2 and dot < 0 then
-				self:SetPos(v:WorldSpaceCenter() + fwd*-50)
+				if 0 < dot2 and dot > 0 then
+					self:SetPos(v:WorldSpaceCenter() + fwd*50)
+				elseif 0 > dot2 and dot < 0 then
+					self:SetPos(v:WorldSpaceCenter() + fwd*-50)
+				end
+				return
 			end
-			return
 		end
 	end
 end
@@ -220,7 +149,7 @@ function ENT:FindNearestPlayer(pos)
 
 	if table.IsEmpty(nearbyents) then return end
 	if #nearbyents > 1 then
-		table.sort(nearbyents, function(a, b) return a:GetPos():DistToSqr(self:GetPos()) < b:GetPos():DistToSqr(pos) end)
+		table.sort(nearbyents, function(a, b) return tobool(a:GetPos():DistToSqr(pos) < b:GetPos():DistToSqr(pos)) end)
 	end
 	return nearbyents[1]
 end
@@ -239,7 +168,7 @@ function ENT:FindNearestBarricade(pos)
 
 	if table.IsEmpty(nearbyents) then return end
 	if #nearbyents > 1 then
-		table.sort(nearbyents, function(a, b) return a:GetPos():DistToSqr(self:GetPos()) < b:GetPos():DistToSqr(pos) end)
+		table.sort(nearbyents, function(a, b) return tobool(a:GetPos():DistToSqr(pos) < b:GetPos():DistToSqr(pos)) end)
 	end
 	return nearbyents[1]
 end
@@ -253,11 +182,9 @@ function ENT:StartTouch(ent)
 		end
 	end
 
-	if IsValid(ent) and ent:IsPlayer() then
-		if ent:HasPerk("vulture") or fuck then
-			if vulturedrops[self:GetDropType()].effect(ent) then
-				self:Remove()
-			end
+	if IsValid(ent) and ent:IsPlayer() and (ent:HasPerk("vulture") or fuck) then
+		if nzPerks.VultureDropsTable[self:GetDropType()].effect(ent) then
+			self:Remove()
 		end
 	end
 end
@@ -273,13 +200,13 @@ function ENT:Touch(ent)
 
 	if IsValid(ent) and ent:IsPlayer() then
 		if self:GetDropType() == "gas" and (ent:HasPerk("vulture") or fuck) then
-			vulturedrops[self:GetDropType()].effect(ent)
+			nzPerks.VultureDropsTable[self:GetDropType()].effect(ent)
 		end
 	end
 end
 
 function ENT:Think()
-	if not self:GetBlinking() and self:GetBlinkTime() < CurTime() and vulturedrops[self:GetDropType()].blink then
+	if not self:GetBlinking() and self:GetBlinkTime() < CurTime() and nzPerks.VultureDropsTable[self:GetDropType()].blink then
 		self:SetBlinking(true)
 	end
 
@@ -290,9 +217,10 @@ function ENT:Think()
 
 		self:SetNoDraw(not self:GetNoDraw())
 		self.NextDraw = CurTime() + math.Clamp(1 * final, 0.1, 1)
-		if not self:GetNoDraw() and final > 0.35 then
-			ParticleEffectAttach("nz_powerup_mini", PATTACH_ABSORIGIN_FOLLOW, self, 0)
-		end
+	end
+
+	if nzPerks.VultureDropsTable[self:GetDropType()].think then
+		nzPerks.VultureDropsTable[self:GetDropType()].think(self)
 	end
 
 	if SERVER then
@@ -310,7 +238,27 @@ end
 function ENT:OnRemove()
 	if IsValid(self) then
 		self:StopParticles()
-		local att = self:GetAttachment(1)
-		ParticleEffect("nz_powerup_mini_poof", att and att.Pos or self:WorldSpaceCenter(), angle_zero)
+
+		if nzPerks.VultureDropsTable[self:GetDropType()].onremove then
+			nzPerks.VultureDropsTable[self:GetDropType()].onremove(self)
+		end
+
+		if SERVER then
+			nzPowerUps:PowerupHudRemove(self)
+
+			if nzPerks.VultureDropsTable[self:GetDropType()].poof then
+				local fx = EffectData()
+				fx:SetOrigin(self:WorldSpaceCenter()) //position
+				fx:SetAngles(angle_zero) //angle
+				fx:SetNormal(Vector(0.65,0.65,0.65)) //size (dont ask why its a vector)
+				fx:SetFlags(3) //powerup type, see nzPowerUps.PowerUpGlowTypes in gamemode/powerups/sh_constructor
+
+				local filter = RecipientFilter()
+				filter:AddPVS(self:GetPos())
+				if filter:GetCount() > 0 then
+					util.Effect("nz_powerup_poof", fx, true, filter)
+				end
+			end
+		end
 	end
 end

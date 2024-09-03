@@ -78,11 +78,9 @@ function ENT:Initialize(...)
 	end
 end
 
-local drawdlight = GetConVar("cl_tfa_codww2_dlights")
-
 function ENT:Think()
 	local ply = self:GetOwner()
-	if CLIENT and self:GetNW2Bool("Impacted") and drawdlight:GetBool() then
+	if CLIENT and self:GetNW2Bool("Impacted")  then
 		local dlight = DynamicLight(self:EntIndex())
 		if (dlight) then
 			dlight.pos = self:GetPos()

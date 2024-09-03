@@ -93,15 +93,45 @@ hook.Add("SetupMove", "dive_to_prone", function(ply, mv, cmd)
 
 		if dot > 0.6 then
 			if SERVER then
+			if ply:HasPerk("banana")  then
+			ply:EmitSound("TFA.D2P.Launch")
+			else
 				ply:Give('tfa_dive_to_prone')
 				ply:SelectWeapon('tfa_dive_to_prone')
 				ply:EmitSound("TFA.D2P.Launch")
+				end
 			end
-
+			if ply:HasUpgrade("banana") then
+			    for k, v in pairs(ents.FindInSphere(ply:GetPos(), 250)) do
+        if not v:IsWorld() and v:IsSolid() and not v:IsPlayer() then
+            v:SetVelocity(((v:GetPos() - ply:GetPos()):GetNormalized()*175) + v:GetUp()*225)
+            
+            if v:IsValidZombie() then
+                if v == ply then continue end
+                if v:Health() <= 0 then continue end
+                if !v:Alive() then continue end
+                local damage = DamageInfo()
+                damage:SetAttacker(ply)
+                damage:SetDamageType(DMG_MISSILEDEFENSE)
+                damage:SetDamage(250)
+                damage:SetDamageForce(v:GetUp()*22000 + (v:GetPos() - ply:GetPos()):GetNormalized() * 10000)
+                damage:SetDamagePosition(v:EyePos())
+                v:TakeDamageInfo(damage)
+            end
+        end
+    end
+	ParticleEffect("bo3_astronaut_pulse",ply:LocalToWorld(Vector(0,0,50)),Angle(0,0,0),nil)
+	ply:EmitSound("nz_moo/zombies/vox/_astro/death/astro_pop.mp3", 511, math.random(95, 105))
+	ply:EmitSound("nz_moo/zombies/vox/_astro/death/astro_flux.mp3", 511, math.random(95, 105))
+			end
 			ply:SetDiving(true)
 			ply:SetUnDuckSpeed(0.45)
 			ply:SetGroundEntity(nil)
 			mv:SetVelocity((vel_fwd * runspeed + up) * diving_launchmult:GetInt())
+			if ply:HasPerk("banana") then
+			ply:SetGravity( 0.37 )
+			end
+			
 		end
 	end
 
@@ -112,9 +142,21 @@ hook.Add("SetupMove", "dive_to_prone", function(ply, mv, cmd)
 		ply:SetLandingTime(CT + 0.4)
 		ply:SetDiving(false)
 
+
 		if SERVER then
 			local pos = mv:GetOrigin()
 			LandingSurfaceSound(ply, pos)
+			if ply:HasPerk("banana") then
+			ply:SetGravity( 1 )
+			end
+			if ply:HasUpgrade("everclear") then
+			local FIRE = ents.Create( "elemental_pop_effect_1" )
+			FIRE:SetPos( ply:GetPos())
+			FIRE:SetParent(ply)
+			FIRE.Delay = 2
+			FIRE.Range = 300
+			FIRE:Spawn()
+			end
 			if ply.TFAVOX_Sounds then
 				local sndtbl = ply.TFAVOX_Sounds['damage']
 				if sndtbl then
@@ -145,19 +187,20 @@ hook.Add("PlayerFootstep", "dive_to_prone.step", function(ply)
 end)
 
 hook.Add("StartCommand", "dive_to_prone.command", function(ply, cmd)
-	local diving = ply:GetDiving()
-	local onground = ply:OnGround()
-	local landingtime = ply:GetLandingTime()
-	local offset = 0.1
-	local CT = CurTime()
+    local diving = ply:GetDiving()
+    local onground = ply:OnGround()
+    local landingtime = ply:GetLandingTime()
+    local offset = 0.1
+    local CT = CurTime()
 
     if diving or (onground and (landingtime - offset) > CT) then
-		cmd:RemoveKey(IN_SPEED)
-		cmd:RemoveKey(IN_JUMP)
-		cmd:ClearMovement()
-
-		cmd:SetButtons(bit.bor(cmd:GetButtons(), IN_DUCK))
-	end
+        cmd:RemoveKey(IN_SPEED)
+        cmd:RemoveKey(IN_JUMP)
+		if not ply:HasPerk("banana") then
+        cmd:ClearMovement() --this is what stops movement, wrap a 'if not hasupgrade('yaperk')' around this
+		end
+        cmd:SetButtons(bit.bor(cmd:GetButtons(), IN_DUCK))
+    end
 end)
 
 if CLIENT then
@@ -178,7 +221,11 @@ if CLIENT then
 		local CT = CurTime()
 
 		if diving then
-			return 0.01
+			if ply:HasPerk("banana") then
+			return 0.5
+			else
+			return 0.05
+			end
 		elseif onground and landingtime > CT then
 			return (1 - math.Clamp((ply:GetLandingTime() - CT) / 0.5, 0, 0.9)) * 0.85
 		else

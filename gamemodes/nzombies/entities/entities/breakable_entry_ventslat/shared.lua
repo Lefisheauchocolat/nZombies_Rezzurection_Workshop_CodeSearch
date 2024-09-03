@@ -13,6 +13,7 @@ function ENT:Initialize()
 	self.AutomaticFrameAdvance = true
 	self.Torn = true
 	self.ZombieUsing = nil
+	self.Enhanced = false
 	
 	self:SetMoveType( MOVETYPE_VPHYSICS )
 	self:SetSolid( SOLID_VPHYSICS )

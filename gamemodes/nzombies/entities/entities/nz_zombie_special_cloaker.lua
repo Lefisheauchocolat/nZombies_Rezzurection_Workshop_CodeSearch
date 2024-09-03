@@ -131,6 +131,9 @@ local runsounds = {
 	Sound("npc/zombie/zombie_pain4.wav"),
 	Sound("npc/zombie/zombie_pain5.wav"),
 	Sound("npc/zombie/zombie_pain6.wav"),
+	Sound("npc/stalker/stalker_alert1b.wav"),
+	Sound("npc/stalker/stalker_alert2b.wav"),
+	Sound("npc/stalker/stalker_alert3b.wav"),
 }
 
 -- This is a very large and messy looking table... But it gets the job done.
@@ -146,9 +149,6 @@ ENT.SequenceTables = {
 				"nz_supersprint_ad12",
 				"nz_supersprint_au6",
 				"nz_gm_zrun_fast",
-				"nz_gm_sprint",
-				"nz_s2_siz_slow_sprint_v1",
-				"nz_s2_siz_slow_sprint_v2",
 			},
 			LowgMovementSequence = {
 				"nz_run_lowg_v1",
@@ -237,7 +237,12 @@ ENT.DeathSounds = {
 
 ENT.AttackSounds = {
 	"npc/zombie/zo_attack1.wav",
-	"npc/zombie/zo_attack2.wav"
+	"npc/zombie/zo_attack2.wav",
+	"npc/zombie/zo_attack1.wav",
+	"npc/zombie/zo_attack2.wav",
+	"npc/zombie/zo_attack1.wav",
+	"npc/zombie/zo_attack2.wav",
+	"npc/stalker/go_alert2a.wav"
 }
 
 ENT.CustomWalkFootstepsSounds = {
@@ -272,9 +277,7 @@ function ENT:StatsInitialize()
 			self:SetHealth( math.ceil(nzRound:GetZombieHealth() * 0.5) or 75 )
 		end
 	end
-		self.Cloaked = false
-		self.CanCloak = true
-		self.Cooldown = CurTime() + math.random(2,6)
+		self:SetMaterial( "models/props_c17/fisheyelens" )
 end
 
 function ENT:SpecialInit()
@@ -325,6 +328,7 @@ end
 function ENT:PerformDeath(dmginfo)
 	self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
 	self:StopSound("wavy_zombie/hev/crimhead_run.wav")
+	self:SetMaterial( "" )
 	self:BecomeRagdoll(dmginfo)
 end
 
@@ -332,7 +336,7 @@ function ENT:OnRemove()
 	self:StopSound("wavy_zombie/hev/crimhead_run.wav")
 end
 
-function ENT:PostAdditionalZombieStuff()
+--[[function ENT:PostAdditionalZombieStuff()
 	--if self:GetSpecialAnimation() then return end
 	if CurTime() > self.Cooldown and self.Cloaked then
 		if math.random(15) == 15 then
@@ -356,12 +360,12 @@ function ENT:PostAdditionalZombieStuff()
 	--print("im indicvisesble")
 	end
 	if self:Health() > 0 and self.Cloaked then
-		self:SetMaterial( "invisible" )
+		self:SetMaterial( "models/props_c17/fisheyelens" )
 	end
 	if self:Health() > 0 and !self.Cloaked then
 		self:SetMaterial( "" )
 	end
-end
+end]]
 
 --[[function ENT:OnTargetInAttackRange()
     if !self:GetBlockAttack() and !self.Cloaked and !nzPowerUps:IsPowerupActive("timewarp") then

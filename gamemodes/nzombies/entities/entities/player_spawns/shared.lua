@@ -17,6 +17,11 @@ function ENT:Initialize()
     self:SetCollisionGroup( COLLISION_GROUP_DEBRIS )
 	self:SetColor(Color(0,0,255))
 	self:DrawShadow( false )
+
+	
+    if CLIENT then
+        self:SetLOD(8)
+    end
 end
 
 if CLIENT then

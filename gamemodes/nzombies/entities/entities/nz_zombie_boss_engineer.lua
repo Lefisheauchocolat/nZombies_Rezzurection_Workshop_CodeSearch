@@ -576,31 +576,28 @@ function ENT:SpecialInit()
 end
 
 function ENT:OnSpawn(animation, grav, dirt)
-	animation = animation or self:SelectSpawnSequence()
+	animation = self:SelectSpawnSequence()
 	grav = grav
 	dirt = dirt
 
-	if dirt then
+	self:SetNoDraw(true)
+	self:SolidMaskDuringEvent(MASK_SOLID_BRUSHONLY)
+	self:SetInvulnerable(true)
+	self:SetSpecialAnimation(true)
 
-		self:SetNoDraw(true)
-		self:SolidMaskDuringEvent(MASK_SOLID_BRUSHONLY)
-		self:SetInvulnerable(true)
-		self:SetSpecialAnimation(true)
+	self:EmitSound("nz_moo/zombies/vox/_engineer/evt/spawn/engineer_00.mp3",577)
+	self:EmitSound("nz_moo/zombies/vox/_director/_sfx/zmb_director_yellow_beam_PCM.mp3",577)
+	ParticleEffect("summon_beam",self:LocalToWorld(Vector(0,0,0)),Angle(0,0,0),nil)
 
-		self:EmitSound("nz_moo/zombies/vox/_engineer/evt/spawn/engineer_00.mp3",577)
-		self:EmitSound("nz_moo/zombies/vox/_director/_sfx/zmb_director_yellow_beam_PCM.mp3",577)
-		ParticleEffect("summon_beam",self:LocalToWorld(Vector(0,0,0)),Angle(0,0,0),nil)
+	self:TimeOut(1.5)
 
-		self:TimeOut(1.5)
+	self:SetSpecialAnimation(false)
+	self:SetInvulnerable(false)
+	self:CollideWhenPossible()
+	self:SetNoDraw(false)
 
-		self:SetSpecialAnimation(false)
-		self:SetInvulnerable(false)
-		self:CollideWhenPossible()
-		self:SetNoDraw(false)
-
-		self:EmitSound("nz_moo/zombies/vox/_engineer/evt/spawn/bells_00.mp3", 577)
-		self:EmitSound("nz_moo/zombies/vox/_director/_sfx/zmb_director_beam_PCM.mp3", 577)
-	end
+	self:EmitSound("nz_moo/zombies/vox/_engineer/evt/spawn/bells_00.mp3", 577)
+	self:EmitSound("nz_moo/zombies/vox/_director/_sfx/zmb_director_beam_PCM.mp3", 577)
 
 	if animation then
 		self:SolidMaskDuringEvent(MASK_PLAYERSOLID)

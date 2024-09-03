@@ -21,11 +21,18 @@ local sv_clientpoints = GetConVar("nz_point_notification_clientside")
 local nz_clientpoints = GetConVar("nz_hud_clientside_points")
 local nz_perkmax = GetConVar("nz_difficulty_perks_max")
 
+local nz_showhealth = GetConVar("nz_hud_show_health")
+local nz_showhealthmp = GetConVar("nz_hud_show_health_mp")
+local nz_showstamina = GetConVar("nz_hud_show_stamina")
+
 local nz_showmmostats = GetConVar("nz_hud_show_perkstats")
 local nz_showcompass = GetConVar("nz_hud_show_compass")
 local nz_shownames = GetConVar("nz_hud_show_names")
 local nz_showgun = GetConVar("nz_hud_show_wepicon")
 local nz_showperkframe = GetConVar("nz_hud_show_perk_frames")
+local nz_showzcounter = GetConVar("nz_hud_show_alive_counter")
+local nz_showpoweruptimer = GetConVar("nz_hud_show_powerup_time")
+local nz_showportrait = GetConVar("nz_hud_show_player_portrait")
 
 local nz_indicators = GetConVar("nz_hud_player_indicators")
 local nz_indicatorangle = GetConVar("nz_hud_player_indicator_angle")
@@ -35,6 +42,7 @@ local nz_aatstyle = GetConVar("nz_hud_aat_style")
 local nz_aatcolor = GetConVar("nz_hud_aat_textcolor")
 local nz_perkrowmod = GetConVar("nz_hud_perk_row_modulo")
 local nz_mapfont = GetConVar("nz_hud_use_mapfont")
+local nz_healthbarstyle = GetConVar("nz_hud_health_style")
 
 local color_white_50 = Color(255, 255, 255, 50)
 local color_white_100 = Color(255, 255, 255, 100)
@@ -50,7 +58,8 @@ local color_grey = Color(200, 200, 200, 255)
 local color_used = Color(250, 200, 120, 255)
 local color_gold = Color(255, 255, 100, 255)
 local color_green = Color(100, 255, 10, 255)
-local color_armor = Color(135, 200, 255)
+local color_armor = Color(135, 160, 255)
+local color_health = Color(80, 0, 0, 160)
 
 local color_blood = Color(100, 0, 0, 255)
 local color_blood_score = Color(120, 0, 0, 255)
@@ -69,6 +78,10 @@ local t6_dlcHUDs = {
 
 //t6 hud
 local t6_hud_score = Material("nz_moo/huds/t6/scorebar_zom_5.png", "unlitgeneric smooth")
+
+local t6_hud_healthbar = Material("nz_moo/icons/t5hud_healthbar.png", "unlitgeneric smooth")
+local t6_hud_health = Material("nz_moo/icons/mori2_hud_health_logo.png", "unlitgeneric smooth")
+local t6_hud_shield = Material("nz_moo/huds/t7/uie_t7_icon_inventory_dlc3_dragonshield_fill.png", "unlitgeneric smooth")
 
 local t6_hud_dpad_dlc = {
 	["Mob of the Dead"] = Material("nz_moo/huds/t6/hud_hell_dpad.png", "unlitgeneric smooth"),
@@ -131,7 +144,7 @@ local t6_hud_tomb_numbers = {
 }
 
 //t6 powerup
-local t6_powerup_minigun = Material("nz_moo/icons/bo2/charred_powerup_deathmachine.png", "unlitgeneric")
+/*local t6_powerup_minigun = Material("nz_moo/icons/bo2/charred_powerup_deathmachine.png", "unlitgeneric")
 local t6_powerup_blood = Material("nz_moo/icons/bo2/charred_powerup_blood_alt_alt.png", "unlitgeneric")
 local t6_powerup_2x = Material("nz_moo/icons/bo2/charred_powerup_2x.png", "unlitgeneric")
 local t6_powerup_killjoy = Material("nz_moo/icons/bo2/charred_powerup_instakill.png", "unlitgeneric")
@@ -141,7 +154,7 @@ local t6_powerup_timewarp = Material("vgui/charred_powerup_slow.png", "unlitgene
 local t6_powerup_berzerk = Material("vgui/t6_bzk.png", "unlitgeneric")
 local t6_powerup_infinite = Material("vgui/bo2_infinite.png", "unlitgeneric")
 local t6_powerup_godmode = Material("vgui/bo2_greyson.png", "unlitgeneric")
-local t6_powerup_quick = Material("vgui/bo2_quick.png", "unlitgeneric")
+local t6_powerup_quick = Material("vgui/bo2_quick.png", "unlitgeneric")*/
 
 //t6 inventory
 local t6_icon_shield = Material("nz_moo/icons/zm_riotshield_icon.png", "unlitgeneric smooth")
@@ -167,6 +180,7 @@ local zmhud_icon_voiceon = Material("nz_moo/icons/voice_on.png", "unlitgeneric s
 local zmhud_icon_voicedim = Material("nz_moo/icons/voice_on_dim.png", "unlitgeneric smooth")
 local zmhud_icon_voiceoff = Material("nz_moo/icons/voice_off.png", "unlitgeneric smooth")
 local zmhud_icon_offscreen = Material("nz_moo/icons/offscreen_arrow.png", "unlitgeneric smooth")
+local zmhud_icon_zedcounter = Material("nz_moo/icons/ugx_talkballoon.png", "unlitgeneric smooth")
 
 local illegalspecials = {
 	["specialgrenade"] = true,
@@ -204,9 +218,9 @@ local function StatesHud_t6_dlc()
 end
 
 local PointsNotifications = {}
-local function PointsNotification(ply, amount)
+local function PointsNotification(ply, amount, profit_id)
 	if not IsValid(ply) then return end
-	local data = {ply = ply, amount = amount, diry = math.random(-25, 25), time = CurTime()}
+	local data = {ply = ply, amount = amount, diry = math.random(-25, 25), time = CurTime(), profit = profit_id}
 	table_insert(PointsNotifications, data)
 end
 
@@ -215,11 +229,14 @@ net.Receive("nz_points_notification_bo2_dlc", function()
 
 	local amount = net.ReadInt(20)
 	local ply = net.ReadEntity()
-	PointsNotification(ply, amount)
+	local profit_id = net.ReadInt(9)
+	PointsNotification(ply, amount, profit_id)
 end)
 
 //Equipment
 local function InventoryHUD_t6_dlc()
+	if not cl_drawhud:GetBool() then return end
+
 	local ply = LocalPlayer()
 	if not IsValid(ply) then return end
 	if ply:IsNZMenuOpen() then return end
@@ -328,27 +345,35 @@ local function ScoreHud_t6_dlc()
 
 	local smallfont = "nz.small.blackops2"
 	local fontsmall = "nz.points.blackops2"
+	local ammo2font =  "nz.ammo2.blackops2"
 	local fontnade = "nz.grenade"
 	if nz_mapfont:GetBool() then
 		smallfont = "nz.small."..GetFontType(nzMapping.Settings.smallfont)
 		fontsmall = "nz.points."..GetFontType(nzMapping.Settings.ammofont)
+		ammo2font = "nz.ammo2."..GetFontType(nzMapping.Settings.smallfont)
 	end
 
 	local w, h = ScrW(), ScrH()
 	local scale = (w/1920 + 1) / 2
-	local offset = 60
+	local offset = 5
+	local healthmodder = (not nz_healthbarstyle:GetBool() and nz_showhealth:GetBool())
+	if nz_showcompass:GetBool() then
+		offset = healthmodder and 35*scale or 20*scale
+	end
+	if healthmodder then
+		offset = offset + 35*scale
+	end
 
 	local ply = LocalPlayer()
 	if IsValid(ply:GetObserverTarget()) then
 		ply = ply:GetObserverTarget()
 	end
 
-	local plyindex = ply:EntIndex()
-	local plytab = player.GetAll()
-	local istheplayer = false
-	local wide = false
-	if nz_shownames:GetBool() then
-		wide = true
+	local index = ply:EntIndex()
+	local pcolor = player.GetColorByIndex(index)
+	if nz_useplayercolor:GetBool() then
+		local pvcol = ply:GetPlayerColor()
+		pcolor = Color(255*pvcol.x, 255*pvcol.y, 255*pvcol.z, 255)
 	end
 
 	surface.SetDrawColor(color_white)
@@ -366,34 +391,95 @@ local function ScoreHud_t6_dlc()
 		surface.DrawTexturedRect(w - ((big and 250 or 240) - index*24)*scale, h - ((big and 235 or 245)*scale) - offset, 32*scale, 64*scale)
 	end
 
-	for k, v in ipairs(plytab) do
-		local index = v:EntIndex()
-		if index == plyindex then istheplayer = true end
+	//points
+	surface.SetDrawColor(color_blood_score)
+	surface.SetMaterial(t6_hud_score)
+	surface.DrawTexturedRect(w - 235*scale, h - 230*scale - offset, 210*scale, 50*scale)
 
+	local points = ply:GetPoints()
+	surface.SetDrawColor(color_white)
+	for i=1, string_len(points) do
+		DrawPointsNum(points, i, offset, true)
+	end
+	ply.PointsSpawnPosition = {x = w - 240*scale, y = h - (205*scale) - offset}
+
+	//icon
+	if nz_showportrait:GetBool() then
+		local pmpath = Material("spawnicons/"..string_gsub(ply:GetModel(),".mdl",".png"), "unlitgeneric smooth")
+		if not pmpath or pmpath:IsError() then
+			pmpath = zmhud_icon_missing
+		end
+
+		surface.SetDrawColor(color_white)
+		surface.SetMaterial(pmpath)
+		surface.DrawTexturedRect(w - 60*scale, h - 230*scale - offset, 48*scale, 48*scale)
+
+		surface.SetDrawColor(pcolor)
+		surface.DrawOutlinedRect(w - 60*scale, h - 230*scale - offset, 50*scale, 50*scale, 2)
+	end
+
+	//shovel
+	if ply.GetShovel and IsValid(ply:GetShovel()) then
+		local pshovel = ply:GetShovel()
+
+		surface.SetMaterial(pshovel:IsGolden() and t6_icon_shovel_gold or t6_icon_shovel)
+		surface.SetDrawColor(color_white)
+		surface.DrawTexturedRect(w - (90*scale), h - (210*scale) - offset, 32, 32)
+	end
+
+	//nickname
+	if nz_shownames:GetBool() then
+		local nick = ply:Nick()
+		if #nick > 20 then
+			nick = string.sub(nick, 1, 20) //limit name to 20 chars
+		end
+
+		if ply:IsSpeaking() then
+			local icon = zmhud_icon_voicedim
+			if ply:VoiceVolume() > 0 then
+				icon = zmhud_icon_voiceon
+			end
+			if ply:IsMuted() then
+				icon = zmhud_icon_voiceoff
+			end
+			if not voiceloopback:GetBool() then
+				icon = zmhud_icon_voiceon
+			end
+
+			surface.SetFont(fontsmall)
+			local tw, th = surface.GetTextSize(nick)
+
+			surface.SetMaterial(icon)
+			surface.SetDrawColor(color_white)
+			surface.DrawTexturedRect((w - 215*scale) - 32, h - (248*scale) - offset - 16, 32, 32)
+		end
+
+		draw.SimpleTextOutlined(nick, fontsmall, w - 215*scale, h - (248*scale) - offset, pcolor, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER, 1, color_black)
+
+		offset = offset + 25 //nickname offset buffer
+	end
+
+	offset = offset + 45*scale
+
+	local plytab = player.GetAll()
+	for k, v in ipairs(plytab) do
+		if v == ply then continue end
+
+		local index = v:EntIndex()
 		local pcolor = player.GetColorByIndex(index)
 		if nz_useplayercolor:GetBool() then
 			local pvcol = v:GetPlayerColor()
 			pcolor = Color(255*pvcol.x, 255*pvcol.y, 255*pvcol.z, 255)
 		end
 
-		/*if nz_showhealthmp:GetBool() then
-			offset = offset + 5 //health bar offset buffer
-		end*/
-		if istheplayer then
-			offset = offset + 20
-		end
-
-		//points
-		if istheplayer then
-			surface.SetDrawColor(color_blood_score)
-			surface.SetMaterial(t6_hud_score)
-			surface.DrawTexturedRect(w - 235*scale, h - 230*scale - offset, 210*scale, 50*scale)
+		if nz_showhealthmp:GetBool() then
+			offset = offset + 25*scale //health bar offset buffer
 		end
 
 		local points = v:GetPoints()
 		surface.SetDrawColor(color_white)
 		for i=1, string_len(points) do
-			DrawPointsNum(points, i, offset, istheplayer)
+			DrawPointsNum(points, i, offset, false)
 		end
 		v.PointsSpawnPosition = {x = w - 240*scale, y = h - (205*scale) - offset}
 
@@ -405,10 +491,10 @@ local function ScoreHud_t6_dlc()
 
 		surface.SetDrawColor(color_white)
 		surface.SetMaterial(pmpath)
-		surface.DrawTexturedRect(w - 60*scale, h - (istheplayer and 230 or 235)*scale - offset, (istheplayer and 48 or 40)*scale, (istheplayer and 48 or 40)*scale)
+		surface.DrawTexturedRect(w - 60*scale, h - 235*scale - offset, 40*scale, 40*scale)
 
 		surface.SetDrawColor(pcolor)
-		surface.DrawOutlinedRect(w - 60*scale, h - (istheplayer and 230 or 235)*scale - offset, (istheplayer and 50 or 42)*scale, (istheplayer and 50 or 42)*scale, 2)
+		surface.DrawOutlinedRect(w - 60*scale, h - 235*scale - offset, 42*scale, 42*scale, 2)
 
 		//shovel
 		if v.GetShovel and IsValid(v:GetShovel()) then
@@ -416,11 +502,11 @@ local function ScoreHud_t6_dlc()
 
 			surface.SetMaterial(pshovel:IsGolden() and t6_icon_shovel_gold or t6_icon_shovel)
 			surface.SetDrawColor(color_white)
-			surface.DrawTexturedRect(w - (90*scale), h - ((istheplayer and 210 or 225)*scale) - offset, 32, 32)
+			surface.DrawTexturedRect(w - (90*scale), h - (225*scale) - offset, 32, 32)
 		end
 
 		//indicator
-		if nz_indicators:GetBool() and v:GetNotDowned() and not istheplayer then
+		if nz_indicators:GetBool() and v:GetNotDowned() then
 			local pos = ply:GetPos()
 			local epos = v:GetPos()
 
@@ -454,6 +540,43 @@ local function ScoreHud_t6_dlc()
 			end
 		end
 
+		if nz_showhealthmp:GetBool() then
+			local phealth = v:Health()
+			local pmaxhealth = v:GetMaxHealth()
+			local phealthscale = math.Clamp(phealth / pmaxhealth, 0, 1)
+			local lowres = scale < 0.96
+
+			surface.SetMaterial(t6_hud_healthbar)
+			surface.SetDrawColor(color_health)
+			surface.DrawTexturedRectUV(w - 222*scale, h - 190*scale - offset, 264*0.8*scale, 32*0.6*scale, 0, 0, 1, 1)
+
+			surface.SetMaterial(t6_hud_healthbar)
+			surface.SetDrawColor(color_blood_score)
+			surface.DrawTexturedRectUV(w - 218*scale, h - 188*scale - offset, 256*0.8*phealthscale*scale, 24*0.6*scale, 0, 0, 1*phealthscale, 1)
+
+			if nz_showhealthmp:GetInt() > 1 then
+				draw.SimpleTextOutlined(phealth, ammo2font, w - 200*scale, h - 181*scale - offset, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, color_black_180)
+			end
+
+			local armor = v:Armor()
+			if armor > 0 then
+				local maxarmor = 200
+				local armorscale = math.Clamp(armor / maxarmor, 0, 1)
+
+				surface.SetMaterial(t6_hud_shield)
+				surface.SetDrawColor(color_white)
+				surface.DrawTexturedRect(w - 244*scale, h - 196*scale - offset, 32*scale, 32*scale)
+
+				surface.SetMaterial(t6_hud_shield)
+				surface.SetDrawColor(color_armor)
+				surface.DrawTexturedRectUV(w - 244*scale, h - 196*scale - offset, 32*scale, 32*armorscale*scale, 0, 0, 1, 1*armorscale)
+
+				if nz_showhealthmp:GetInt() > 1 then
+					draw.SimpleTextOutlined(armor, ammo2font, w - (lowres and 229 or 228)*scale, h - 181*scale - offset, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, color_black_180)
+				end
+			end
+		end
+
 		//nickname
 		if nz_shownames:GetBool() then
 			local nick = v:Nick()
@@ -469,25 +592,21 @@ local function ScoreHud_t6_dlc()
 				if v:IsMuted() then
 					icon = zmhud_icon_voiceoff
 				end
-				if istheplayer and not voiceloopback:GetBool() then
-					icon = zmhud_icon_voiceon
-				end
 
 				surface.SetFont(fontsmall)
 				local tw, th = surface.GetTextSize(nick)
 
 				surface.SetMaterial(icon)
 				surface.SetDrawColor(color_white)
-				surface.DrawTexturedRect((w - 215*scale) - 32, h - (245*scale) - offset - 16, 32, 32)
+				surface.DrawTexturedRect((w - 215*scale) - 32, h - (248*scale) - offset - 16, 32, 32)
 			end
 
-			draw.SimpleTextOutlined(nick, fontsmall, w - 215*scale, h - (245*scale) - offset, pcolor, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER, 1, color_black)
+			draw.SimpleTextOutlined(nick, fontsmall, w - 215*scale, h - (248*scale) - offset, pcolor, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER, 1, color_black)
 
 			offset = offset + 25 //nickname offset buffer
 		end
 
-		offset = offset + (50*scale)
-		istheplayer = false
+		offset = offset + (45*scale)
 	end
 
 	if nz_clientpoints:GetBool() or sv_clientpoints:GetBool() then
@@ -495,7 +614,7 @@ local function ScoreHud_t6_dlc()
 			if not v.LastPoints then v.LastPoints = v:GetPoints() end
 
 			if v:GetPoints() ~= v.LastPoints then
-				PointsNotification(v, v:GetPoints() - v.LastPoints)
+				PointsNotification(v, v:GetPoints() - v.LastPoints, 0)
 				v.LastPoints = v:GetPoints()
 			end
 		end
@@ -511,11 +630,18 @@ local function ScoreHud_t6_dlc()
 		if not v.ply.PointsSpawnPosition then return end
 
 		if v.amount >= 0 then
-			if v.amount >= 100 then --If you're earning 100 points or more, the notif will be green!
-				draw.SimpleText("+"..v.amount, fontsmall, v.ply.PointsSpawnPosition.x - 50*fade, v.ply.PointsSpawnPosition.y + v.diry*fade, points2, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
-			end
-			if v.amount < 100 then --If you're earning less than 100 points, the notif will be gold!
-				draw.SimpleText("+"..v.amount, fontsmall, v.ply.PointsSpawnPosition.x - 50*fade, v.ply.PointsSpawnPosition.y + v.diry*fade, points1, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+			if v.profit and v.profit > 0 then
+				local pvcol = Entity(v.profit):GetPlayerColor()
+				pvcol = Color(255*pvcol.x, 255*pvcol.y, 255*pvcol.z, 255)
+
+				draw.SimpleText("+"..v.amount, fontsmall, v.ply.PointsSpawnPosition.x - 50*fade, v.ply.PointsSpawnPosition.y + v.diry*fade, pvcol, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+			else
+				if v.amount >= 100 then --If you're earning 100 points or more, the notif will be green!
+					draw.SimpleText("+"..v.amount, fontsmall, v.ply.PointsSpawnPosition.x - 50*fade, v.ply.PointsSpawnPosition.y + v.diry*fade, points2, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+				end
+				if v.amount < 100 then --If you're earning less than 100 points, the notif will be gold!
+					draw.SimpleText("+"..v.amount, fontsmall, v.ply.PointsSpawnPosition.x - 50*fade, v.ply.PointsSpawnPosition.y + v.diry*fade, points1, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+				end
 			end
 		else --If you're doing something that subtracts points, the notif will be red!
 			draw.SimpleText(v.amount, fontsmall, v.ply.PointsSpawnPosition.x - 50*fade, v.ply.PointsSpawnPosition.y + v.diry*fade, points4, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
@@ -640,10 +766,10 @@ local function GunHud_t6_dlc()
 		if class == "nz_multi_tool" then
 			draw.SimpleTextOutlined(nzTools.ToolData[wep.ToolMode].displayname or wep.ToolMode, ammofont, w - 170*scale, h - 145*scale, fontColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, color_black)
 			draw.SimpleTextOutlined(nzTools.ToolData[wep.ToolMode].desc or "", smallfont, w - 170*scale, h - 70*scale, fontColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, color_black)
-		elseif illegalspecials[wep.NZSpecialCategory] then
+		elseif (illegalspecials[wep.NZSpecialCategory] and not wep.NZSpecialShowHUD) then
 			local name = wep:GetPrintName()
 			draw.SimpleTextOutlined(name, fontsmall, w - 170*scale, h - 145*scale, fontColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, color_black_50)
-		elseif not illegalspecials[wep.NZSpecialCategory] then
+		else
 			if wep.Primary then
 				local clip = wep.Primary.ClipSize
 				local resclip = wep.Primary.DefaultClip
@@ -817,7 +943,7 @@ local function GunHud_t6_dlc()
 				local tw, th = surface.GetTextSize(name)
 				surface.SetMaterial(nzAATs:Get(aat).icon)
 				surface.SetDrawColor(ColorAlpha(color_white, fade))
-				surface.DrawTexturedRect(w - 170*scale - (58*scale) - tw, h - 145*scale - (48*scale), 48*scale, 48*scale)
+				surface.DrawTexturedRect(w - 170*scale - (58*scale) - tw, h - 140*scale - (48*scale), 48*scale, 48*scale)
 			end
 
 			if ply:HasPerk("mulekick") then
@@ -825,7 +951,7 @@ local function GunHud_t6_dlc()
 				if IsValid(wep) and wep:GetNWInt("SwitchSlot") == 3 then
 					surface.SetDrawColor(color_white)
 				end
-				surface.SetMaterial(zmhud_icon_mule)
+				surface.SetMaterial(GetPerkIconMaterial("mulekick", true))
 				surface.DrawTexturedRect(w - 165*scale, h - 200*scale, 35*scale, 35*scale)
 			end
 		end
@@ -905,12 +1031,12 @@ local function PerksMMOHud_t6_dlc()
 			surface.SetDrawColor(color_white_50)
 		end
 
-		surface.SetMaterial(data.icon_waw)
+		surface.SetMaterial(GetPerkIconMaterial(v, true))
 		surface.DrawTexturedRect(w - 405*scale - (40*traycount*scale), h - 75*scale, 35*scale, 35*scale)
 
 		if ply:HasUpgrade(v) and mmohud.border and ply:GetNW2Float(tostring(mmohud.upgrade), 0) < curtime then
 			surface.SetDrawColor(color_gold)
-			surface.SetMaterial(zmhud_icon_frame)
+			surface.SetMaterial(GetPerkFrameMaterial(true))
 			surface.DrawTexturedRect(w - 405*scale - (40*traycount*scale), h - 75*scale, 35*scale, 35*scale)
 		end
 
@@ -1084,7 +1210,7 @@ local function PowerUpsHud_t6_dlc()
 		end)
 	end
 
-	local function AddPowerup(material, time) -- Display another powerup on the player's screen
+	local function AddPowerup(material, time, anti, noflash) -- Display another powerup on the player's screen
 		local width = scw / 2 + (70*scale) * powerupsActive - totalWidth / 2
 
 		if width - scw / 2 > totalWidth then 
@@ -1097,53 +1223,47 @@ local function PowerUpsHud_t6_dlc()
 		end
 
 		local timeleft = time - ctime
-		local warningthreshold = 10 --at what time does the icon start blinking?
+		local warningthreshold = anti and 5 or 10 --at what time does the icon start blinking?
 		local frequency1 = 0.25 --how long in seconds it takes for the icon to toggle visibility
-		local urgencythreshold = 5 --at what time does the blinking get faster/slower?
+		local urgencythreshold = anti and 2 or 5 --at what time does the blinking get faster/slower?
 		local frequency2 = 0.1 --how long in seconds it takes for the icon to toggle visibility in urgency mode
+		if noflash then
+			warningthreshold = 0
+			urgencythreshold = 0
+		end
 		if timeleft > warningthreshold or (timeleft > urgencythreshold and timeleft % (frequency1 * 2) > frequency1) or (timeleft <= urgencythreshold and timeleft % (frequency2*2) > frequency2) then
 			surface.SetMaterial(material)
-			surface.SetDrawColor(color_white)
+			surface.SetDrawColor(anti and color_red_255 or color_white)
 			surface.DrawTexturedRect(width - 32*scale, sch - 155*scale, 64*scale, 64*scale)
-			draw.SimpleTextOutlined(math.Round(timeleft), font, width, sch - 170*scale, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, color_black_50)
+			if nz_showpoweruptimer:GetBool() then
+				draw.SimpleTextOutlined(math.Round(timeleft), font, width, sch - 170*scale, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, color_black_50)
+			end
 		end
 		powerupsActive = powerupsActive + 1
 	end
 
 	for k,v in pairs(nzPowerUps.ActivePowerUps) do	
 		if nzPowerUps:IsPowerupActive(k) then
-			if k == "dp" then
-				AddPowerup(t6_powerup_2x, v)
-				ReturnPosition("Returning" .. "dp", math.Round(v - ctime))	
-			end
-
-			if k == "insta" then
-				AddPowerup(t6_powerup_killjoy, v)
-				ReturnPosition("Returning" .. "insta", math.Round(v - ctime))	
-			end
-
-			if k == "firesale" then
-				AddPowerup(t6_powerup_firesale, v)
-				ReturnPosition("Returning" .. "firesale", math.Round(v - ctime))	
-			end
-
-			if k == "bonfiresale" then
-				AddPowerup(t6_powerup_bonfiresale, v)
-				ReturnPosition("Returning" .. "bonfiresale", math.Round(v - ctime))	
-			end
-			
-			if k == "timewarp" then
-				AddPowerup(t6_powerup_timewarp, v)
-				ReturnPosition("Returning" .. "timewarp", math.Round(v - ctime))	
-			end
-
-			if k == "infinite" then
-				AddPowerup(t6_powerup_infinite, v)
-				ReturnPosition("Returning" .. "infinite", math.Round(v - ctime))	
+			local icon, noflash = GetPowerupIconMaterial(k)
+			if icon then
+				AddPowerup(icon, v, false, noflash)
+				ReturnPosition("Returning"..k, v - ctime)
 			end
 
 			local powerupData = nzPowerUps:Get(k)
-			--draw.SimpleText(powerupData.name .. " - " .. math.Round(v - ctime), font, w, ScrH() * 0.85 + offset * c, Color(255, 255, 255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			c = c + 1
+		end
+	end
+
+	for k,v in pairs(nzPowerUps.ActiveAntiPowerUps) do	
+		if nzPowerUps:IsAntiPowerupActive(k) then
+			local icon = GetPowerupIconMaterial(k)
+			if icon then
+				AddPowerup(icon, v, true)
+				ReturnPosition("Returning anti"..k, v - ctime)
+			end
+
+			local powerupData = nzPowerUps:Get(k)
 			c = c + 1
 		end
 	end
@@ -1151,33 +1271,27 @@ local function PowerUpsHud_t6_dlc()
 	if not nzPowerUps.ActivePlayerPowerUps[ply] then nzPowerUps.ActivePlayerPowerUps[ply] = {} end
 	for k,v in pairs(nzPowerUps.ActivePlayerPowerUps[ply]) do
 		if nzPowerUps:IsPlayerPowerupActive(ply, k) then
-			if k == "zombieblood" then
-				AddPowerup(t6_powerup_blood, v)
-				ReturnPosition("Returning" .. "zombieblood", math.Round(v - ctime))	
-			end
-
-			if k == "deathmachine" then
-				AddPowerup(t6_powerup_minigun, v)
-				ReturnPosition("Returning" .. "deathmachine", math.Round(v - ctime))	
-			end
-			
-			if k == "berzerk" then
-				AddPowerup(t6_powerup_berzerk, v)
-				ReturnPosition("Returning" .. "berzerk", math.Round(v - ctime))	
-			end
-
-			if k == "godmode" then
-				AddPowerup(t6_powerup_godmode, v)
-				ReturnPosition("Returning" .. "godmode", math.Round(v - ctime))	
-			end
-			
-			if k == "quickfoot" then
-				AddPowerup(t6_powerup_quick, v)
-				ReturnPosition("Returning" .. "quickfoot", math.Round(v - ctime))	
+			local icon, noflash = GetPowerupIconMaterial(k)
+			if icon then
+				AddPowerup(icon, v, false, noflash)
+				ReturnPosition("Returning"..k, v - ctime)
 			end
 
 			local powerupData = nzPowerUps:Get(k)
-			--draw.SimpleText(powerupData.name .. " - " .. math.Round(v - ctime), font, w, ScrH() * 0.85 + offset * c, Color(255, 255, 255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			c = c + 1
+		end
+	end
+
+	if not nzPowerUps.ActivePlayerAntiPowerUps[ply] then nzPowerUps.ActivePlayerAntiPowerUps[ply] = {} end
+	for k,v in pairs(nzPowerUps.ActivePlayerAntiPowerUps[ply]) do
+		if nzPowerUps:IsPlayerAntiPowerupActive(ply, k) then
+			local icon = GetPowerupIconMaterial(k)
+			if icon then
+				AddPowerup(icon, v, true)
+				ReturnPosition("Returning anti"..k, v - ctime)
+			end
+
+			local powerupData = nzPowerUps:Get(k)
 			c = c + 1
 		end
 	end
@@ -1249,20 +1363,29 @@ local function PerksHud_t6_dlc()
 	local row_b = 0
 
 	//perk borders
-	if nz_showperkframe:GetBool() then
-		if nzRound:InProgress() or (#perks > 0) then
-			surface.SetMaterial(GetPerkFrameMaterial())
-			surface.SetDrawColor(color_white_100)
-			for i=1, nz_perkmax:GetInt() do
-				if not ply:HasUpgrade(perks[i]) then
-					surface.DrawTexturedRect(w + num_b*(size + 15)*scale, h - 210*scale - 64*row_b, 52*scale, 52*scale)
-				end
+	local perk_borders = nz_showperkframe:GetInt()
+	if perk_borders > 0 and (nzRound:InProgress() or (#perks > 0)) then
+		local modded = false
+		surface.SetMaterial(GetPerkFrameMaterial())
+		surface.SetDrawColor(color_white_100)
+		for i=1, nz_perkmax:GetInt() do
+			if i == 4 and nzMapping.Settings.modifierslot and perk_borders < 2 then
+				surface.SetDrawColor(color_gold)
+				modded = true
+			end
+			if i > #perks then
+				surface.DrawTexturedRect(w + num_b*(size + 15)*scale, h - 210*scale - 64*row_b, 52*scale, 52*scale)
+			end
 
-				num_b = num_b + 1
-				if num_b%(nz_perkrowmod:GetInt()) == 0 then
-					row_b = row_b + 1
-					num_b = 0
-				end
+			if modded then
+				modded = false
+				surface.SetDrawColor(color_white_100)
+			end
+
+			num_b = num_b + 1
+			if num_b%(nz_perkrowmod:GetInt()) == 0 then
+				row_b = row_b + 1
+				num_b = 0
 			end
 		end
 	end
@@ -1316,9 +1439,12 @@ local function VultureVision_t6_dlc()
 		local data = v:WorldSpaceCenter():ToScreen()
 		if not data.visible then continue end
 
-		if ply:GetPos():DistToSqr(v:GetPos()) > 562500  then continue end //750^2
+		local dist = ply:GetPos():DistToSqr(v:GetPos())
+		if (dist > 1000000) then continue end //1000hu^2
 
+		local distfac = 1 - math.Clamp((dist - 1000000 + 160000)/160000, 0, 1) //fade of 400hu^2
 		local class = v:GetClass()
+		local ourcolor = ColorAlpha(color_white, 120*distfac)
 
 		if nzDisplay.vultureHUDicons[class] then
 			icon = nzDisplay.vultureHUDicons[class]
@@ -1329,6 +1455,19 @@ local function VultureVision_t6_dlc()
 			else
 				icon = GetPerkIconMaterial(perk)
 			end
+		elseif nzPowerUps.EntityClasses[class] then
+			data = class == "drop_tombstone" and v:GetAttachment(1).Pos:ToScreen() or  v:GetPos():ToScreen()
+			if v.GetPowerUp then
+				icon = GetPowerupIconMaterial(v:GetPowerUp())
+			end
+			if v.GetAnti and v:GetAnti() then
+				ourcolor = ColorAlpha(color_red_255, 200*distfac)
+			else
+				if v.GetActivated and not v:GetActivated() then
+					continue
+				end
+				ourcolor = ColorAlpha(color_white, 200*distfac)
+			end
 		end
 
 		if not icon or icon:IsError() then
@@ -1336,7 +1475,7 @@ local function VultureVision_t6_dlc()
 		end
 
 		surface.SetMaterial(icon)
-		surface.SetDrawColor(color_white_150)
+		surface.SetDrawColor(ourcolor)
 		surface.DrawTexturedRect(data.x - 21*scale, data.y - 21*scale, 42*scale, 42*scale)
 	end
 end
@@ -1355,6 +1494,8 @@ local tallymats = {
 }
 
 local function RoundHud_t6_dlc()
+	if not cl_drawhud:GetBool() then return end
+
 	local font = "nz.rounds.blackops2"
 	if nz_mapfont:GetBool() then
 		font = "nz.rounds."..GetFontType(nzMapping.Settings.roundfont)
@@ -1460,8 +1601,125 @@ local function ResetRound_t6_dlc()
 end
 
 local function PlayerHealthHUD_t6_dlc()
+	if not cl_drawhud:GetBool() then return end
+	if not nz_showhealth:GetBool() then return end
+
+	local ply = LocalPlayer()
+	if not IsValid(ply) then return end
+	if IsValid(ply:GetObserverTarget()) then ply = ply:GetObserverTarget() end
+	if not (nzRound:InProgress() or nzRound:InState(ROUND_CREATE)) then return end
+
+	local w, h = ScrW(), ScrH()
+	local scale = (w/1920 + 1) / 2
+	local wr = w - 260*scale
+	local hr = h - 214*scale
+	local lowres = scale < 0.96
+
+	local armor = ply:Armor()
+	local health = ply:Health()
+	local maxhealth = ply:GetMaxHealth()
+	local healthscale = math.Clamp(health / maxhealth, 0, 1)
+
+	if nz_healthbarstyle:GetBool() then
+		wr = 34*scale
+		hr = h - 246*scale
+
+		local row = 0
+		local num = 0
+		local perks = #ply:GetPerks()
+		if nz_perkmax:GetInt() > perks then
+			perks = nz_perkmax:GetInt()
+		end
+
+		for i=1, perks do
+			if num%(nz_perkrowmod:GetInt()) == 0 then
+				row = row + 1
+				num = 0
+			end
+			num = num + 1
+		end
+
+		hr = hr - 64*(row - 1)
+
+		if armor > 0 then
+			wr = 64*scale
+		end
+	elseif nz_showcompass:GetBool() then
+		hr = h - 258*scale
+	end
+
+	local smallfont = "nz.ammo2.blackops2"
+	if nz_mapfont:GetBool() then
+		smallfont = "nz.ammo2."..GetFontType(nzMapping.Settings.smallfont)
+	end
+
+	surface.SetMaterial(t6_hud_health)
+	surface.SetDrawColor(color_white)
+	surface.DrawTexturedRect(wr - (34*scale), hr - 7*scale, 36*scale, 36*scale)
+
+	surface.SetMaterial(t6_hud_healthbar)
+	surface.SetDrawColor(color_health)
+	surface.DrawTexturedRectUV(wr - (4*scale), hr - 4*scale, 264*scale, 32*scale, 0, 0, 1, 1)
+
+	surface.SetMaterial(t6_hud_healthbar)
+	surface.SetDrawColor(ColorAlpha(color_blood_score, 220))
+	surface.DrawTexturedRectUV(wr, hr, 256*healthscale*scale, 24*scale, 0, 0, 1*healthscale, 1)
+
+	if nz_showhealth:GetInt() > 1 then
+		draw.SimpleTextOutlined(health, smallfont, wr - (lowres and 16 or 15)*scale, hr + 10*scale, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, color_black_180)
+	end
+
+	if armor > 0 then
+		wr = wr - 32*scale
+		local maxarmor = 200
+		local armorscale = math.Clamp(armor / maxarmor, 0, 1)
+
+		surface.SetMaterial(t6_hud_shield)
+		surface.SetDrawColor(color_white)
+		surface.DrawTexturedRect(wr - (38*scale), hr - 12*scale, 46*scale, 46*scale)
+
+		surface.SetMaterial(t6_hud_shield)
+		surface.SetDrawColor(color_armor)
+		surface.DrawTexturedRectUV(wr - (38*scale), hr - 12*scale, 46*scale, 46*armorscale*scale, 0, 0, 1, 1*armorscale)
+
+		if nz_showhealth:GetInt() > 1 then
+			draw.SimpleTextOutlined(armor, smallfont, wr - (lowres and 16 or 15)*scale, hr + 10*scale, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, color_black_180)
+		end
+	end
 end
+
 local function PlayerStaminaHUD_t6_dlc()
+end
+
+local function ZedCounterHUD_t6_dlc()
+	if not cl_drawhud:GetBool() then return end
+	if not nz_showzcounter:GetBool() then return end
+
+	local w, h = ScrW(), ScrH()
+	local scale = (w/1920 + 1) / 2
+	local wr = w - 340*scale
+	local hr = h - 234*scale
+	if nz_showcompass:GetBool() then
+		hr = h - 262*scale
+	end
+	if nz_showhealth:GetBool() and LocalPlayer():Armor() > 0 and not nz_healthbarstyle:GetBool() then
+		wr = w - 368*scale
+	end
+
+	surface.SetDrawColor(color_health)
+	surface.SetMaterial(zmhud_icon_zedcounter)
+	surface.DrawTexturedRect(wr - (3*scale), hr - (2*scale), 52*scale, 52*scale)
+
+	surface.SetDrawColor(color_blood_score)
+	surface.SetMaterial(zmhud_icon_zedcounter)
+	surface.DrawTexturedRect(wr, hr, 49*scale, 49*scale)
+
+	local smallfont = "nz.ammo2.bo1"
+	if nz_mapfont:GetBool() then
+		smallfont = "nz.ammo2."..GetFontType(nzMapping.Settings.smallfont)
+	end
+
+	draw.SimpleTextOutlined(GetGlobal2Int("AliveZombies", 0), smallfont, wr + 25*scale, hr + 24*scale, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, color_black_50)
 end
 
 -- Hooks
@@ -1479,6 +1737,7 @@ hook.Add("HUDPaint", "nzHUDswapping_t6_dlc", function()
 		hook.Add("HUDPaint", "deathiconsHUD", DeathHud_t6_dlc )
 		hook.Add("HUDPaint", "0nzhudlayer", GunHud_t6_dlc )
 		hook.Add("HUDPaint", "1nzhudlayer", InventoryHUD_t6_dlc )
+		hook.Add("HUDPaint", "zedcounterHUD", ZedCounterHUD_t6_dlc )
 
 		hook.Add("OnRoundPreparation", "BeginRoundHUDChange", StartChangeRound_t6_dlc )
 		hook.Add("OnRoundStart", "EndRoundHUDChange", EndChangeRound_t6_dlc )

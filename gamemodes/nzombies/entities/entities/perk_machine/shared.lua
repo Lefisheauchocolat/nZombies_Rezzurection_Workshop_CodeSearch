@@ -11,11 +11,13 @@ ENT.Instructions	= ""
 function ENT:SetupDataTables()
 	self:NetworkVar("String", 0, "PerkID")
 	self:NetworkVar("String", 1, "PapWeapon")
+	self:NetworkVar("String", 2, "LoopingSound")
 
 	self:NetworkVar("Bool", 0, "Active")
 	self:NetworkVar("Bool", 1, "BeingUsed")
 
 	self:NetworkVar("Int", 0, "Price")
+	self:NetworkVar("Int", 1, "UpgradePrice")
 	
 	self:NetworkVar("Bool", 2, "LooseChange")
 	self:NetworkVar("Bool", 3, "BrutusLocked")
@@ -46,21 +48,6 @@ function ENT:Initialize()
 			phys:Sleep()
 		end
 
-		local PerkData = nzPerks:Get(self:GetPerkID())
-		if nzPerks:GetMachineType(nzMapping.Settings.perkmachinetype) == "IW" then
-			self:SetPrice(PerkData.price_skin)
-		else
-			self:SetPrice(PerkData.price)
-		end
-
-		if offmodel then
-			self:SetModel(offmodel)
-		end
-
-		if self:GetPerkID() == "gum" then
-			self:SetModelScale(self:GetModelScale() * 0.5, 0)
-		end
-
 		self.NextRand = CurTime() + 5
 
 		self.NextJingle = 0
@@ -73,107 +60,226 @@ function ENT:Initialize()
 		self.PerkUseCoolDown = CurTime() + 1
 
 		self.PerkTime = false
+
+		-- For Selectable Machines
+		self.UseMist = false
+		self.UseJingle = false
+		self.PowSnd = false
 	end
 end
 
 function ENT:TurnOn()
+	local seq, dur 
+    seq, dur = self:LookupSequence("perk_power_on")
+
 	self:SetActive(true)
-	self:EmitSound("effects/perk_turn_on.ogg",80,math.random(95,105))
+	self:ToggleSmoke(true)
 	self:Update()
 
 	self.NextJingle = CurTime() + math.random(0,600) -- Have a slightly shorter time for inital tune.
 
-	if self:GetPerkID() == "deadshot" then
-		self:SetBodygroup(3,2)
-	elseif self:GetPerkID() == "phd" then
-		self:SetBodygroup(4,1)
-	elseif self:GetPerkID() == "pop" then
-		self:SetBodygroup(5,1)
+	if seq > 0 then
+    	self.FinishPowerOnSequence = CurTime() + dur
+		self:ResetSequence(seq)
+	else
+    	self.FinishPowerOnSequence = CurTime() + 1
 	end
 
-	if self:LookupSequence("perk_power_on") > 0 then
-		self:ResetSequence("perk_power_on")
-	end
+	self:EmitSound(self.PowSnd, 90, math.random(95,105))
 end
 
 function ENT:TurnOff()
 	self:SetActive(false)
+	self:ToggleSmoke(false)
 	self:Update()
 
-	if self:GetPerkID() == "deadshot" then
-		self:SetBodygroup(3,0)
-	elseif self:GetPerkID() == "phd" then
-		self:SetBodygroup(4,0)
-	elseif self:GetPerkID() == "pop" then
-		self:SetBodygroup(5,0)
-	end
+	self.PlayPowerOffAnim = false
+end
+
+function ENT:ToggleSmoke(toggle)
+  
+    if !self.UseMist or !nzPerks:Get(self:GetPerkID()).smokeparticles then return end
+
+    if toggle then
+        for k,v in pairs(nzPerks:Get(self:GetPerkID()).smokeparticles) do
+            --print("spawn",v.pos,v.ang)
+            local emitter = ents.Create("env_smokestack")
+            emitter:SetParent(self)
+            emitter:SetLocalPos(v.pos)
+            emitter:SetAngles(self:GetAngles() + v.ang)
+            emitter:SetKeyValue("InitialState", "1")
+            emitter:SetKeyValue("BaseSpread", v.spread)
+            emitter:SetKeyValue("SpreadSpeed", "0")
+            emitter:SetKeyValue("Speed", "7")
+            emitter:SetKeyValue("StartSize", "3")
+            emitter:SetKeyValue("EndSize", "15")
+            emitter:SetKeyValue("Rate", "3")
+            emitter:SetKeyValue("JetLength", "30")
+            emitter:SetKeyValue("SmokeMaterial", "particle/smokesprites_0004.vmt")
+            emitter:SetKeyValue("rendercolor", "225 255 255")
+            emitter:SetKeyValue("renderamt", "35")
+            emitter:Spawn()
+        end
+    else
+        for k,v in pairs(ents.FindByClass("env_smokestack")) do
+            if IsValid(v) and v:GetParent() == self then
+                v:Remove()
+            end
+        end
+    end
+    
 end
 
 function ENT:Update()
 	local PerkData = nzPerks:Get(self:GetPerkID())
-	local skinmodel = PerkData.model
-	local iwskin = PerkData.skin
-	local classicskin = PerkData.model_classic
-	local cwskin = PerkData.model_cw
+	local perktype = nzPerks:GetMachineType(nzMapping.Settings.perkmachinetype)
 
-	self.Jingle = PerkData.jingle
-	self.Sting = PerkData.sting
+	self.PerkTbl = {
+	    ["OG"] = {
+	        PerkModel       = {PerkData.model},
+	        Price 			= {PerkData.price},
+	        UpgradePrice 	= {PerkData.upgradeprice},
+	        Jingle 			= {PerkData.jingle},
+	        Sting 			= {PerkData.sting},
+	        PowerOnSnd 		= {"effects/perk_turn_on.ogg"},
+	        AmbSnd 			= {"nz_moo/perkacolas/hum_loop.wav"},
+	        AllowJingle 	= {true},
+	        AllowMist 		= {true},
+        },
+	    ["CLASSIC"] = {
+	        PerkModel       = {PerkData.model_classic},
+	        Price 			= {PerkData.price},
+	        UpgradePrice 	= {PerkData.upgradeprice},
+	        Jingle 			= {PerkData.jingle},
+	        Sting 			= {PerkData.sting},
+	        PowerOnSnd 		= {"effects/perk_turn_on.ogg"},
+	        AmbSnd 			= {"nz_moo/perkacolas/hum_loop.wav"},
+	        AllowJingle 	= {true},
+	        AllowMist 		= {true},
+        },
+	    ["IW"] = {
+	        PerkModel       = {PerkData.skin},
+	        Price 			= {PerkData.price},
+	        UpgradePrice 	= {PerkData.upgradeprice},
+	        Jingle 			= {PerkData.jingle},
+	        Sting 			= {PerkData.sting},
+	        PowerOnSnd 		= {"effects/perk_turn_on.ogg"},
+	        AmbSnd 			= {"nz_moo/perkacolas/hum_loop.wav"},
+	        AllowJingle 	= {true},
+	        AllowMist 		= {true},
+        },
+	    ["CW"] = {
+	        PerkModel       = {PerkData.model_cw},
+	        Price 			= {PerkData.price},
+	        UpgradePrice 	= {PerkData.upgradeprice},
+	        Jingle 			= {PerkData.jingle},
+	        Sting 			= {PerkData.sting},
+	        PowerOnSnd 		= {"effects/perk_turn_on.ogg"},
+	        AmbSnd 			= {"nz_moo/perkacolas/hum_loop.wav"},
+	        AllowJingle 	= {true},
+	        AllowMist 		= {true},
+        },
+	    ["VG"] = {
+	        PerkModel       = {PerkData.model_vg},
+	        Price 			= {PerkData.price},
+	        UpgradePrice 	= {PerkData.upgradeprice},
+	        Jingle 			= {PerkData.jingle},
+	        Sting 			= {PerkData.sting},
+	        PowerOnSnd 		= {"effects/perk_turn_on.ogg"},
+	        AmbSnd 			= {"nz_moo/perkacolas/hum_loop.wav"},
+	        AllowJingle 	= {true},
+	        AllowMist 		= {true},
+        },
+	}
 
-	if self:GetPerkID() == "pap"  then
-		self:SetModel(nzRound:GetPackType(nzMapping.Settings.PAPtype))
+	self.Jingle 		= self.PerkTbl[perktype].Jingle[1]
+	self.Sting 			= self.PerkTbl[perktype].Sting[1]
+	self.UseJingle 		= self.PerkTbl[perktype].AllowJingle[1]
+	self.UseMist 		= self.PerkTbl[perktype].AllowMist[1]
+	self.PowSnd 		= self.PerkTbl[perktype].PowerOnSnd[1]
+
+	if self:GetPerkID() ~= "pap" then
+		self:SetLoopingSound(self.PerkTbl[perktype].AmbSnd[1])
 	end
 
-	if nzPerks:GetMachineType(nzMapping.Settings.perkmachinetype) == "IW" then
+	if self.PerkTbl[perktype].PerkModel[1] then
+		self:SetModel(self.PerkTbl[perktype].PerkModel[1])
 	else
-		local offmodel = PerkData.model_off
+		self:SetModel(PerkData.model or "")
 	end
 
-	if skinmodel then
-		if offmodel then
-			if self:IsOn() then
-				self:SetModel(skinmodel)
-			else
-				self:SetModel(offmodel)
-			end
-		else
-			if nzPerks:GetMachineType(nzMapping.Settings.perkmachinetype) == "CLASSIC" and classicskin then
-				self:SetModel(classicskin)
-			elseif nzPerks:GetMachineType(nzMapping.Settings.perkmachinetype) == "IW" and iwskin then
-				self:SetModel(iwskin)
-			elseif nzPerks:GetMachineType(nzMapping.Settings.perkmachinetype) == "CW" and cwskin then
-				self:SetModel(cwskin)
-			else
-				self:SetModel(skinmodel)
-			end
-		
-			if self:IsOn() then
-				self:SetSkin(PerkData.on_skin or 0)
-			else
-				self:SetSkin(PerkData.off_skin or 1)
-			end
-		end
+	if self:IsOn() then
+		self:SetSkin(PerkData.on_skin or 0)
 	else
-		self:SetModel(PerkData and (self:IsOn() and PerkData.on_model or PerkData.off_model) or "")
+		self:SetSkin(PerkData.off_skin or 1)
 	end
 
 	if self:GetPerkID() == "pap" then
-		local bocwmodel = PerkData.model_bocw
-		local nz_tomb = PerkData.model_origins
-		local ww2model = PerkData.model_ww2
-		local bo2model = PerkData.model_bo2
+		local paptype = nzPerks:GetPAPType(nzMapping.Settings.PAPtype)
+		local tbl = {
+	        ["og"] = {
+	            PapModel       	= {PerkData.model},
+	        	AmbSnd 			= {"nz_moo/perkacolas/pap/pap_loop.wav"},
+	        	Stinger 		= {PerkData.sting},
+	        	Jingle 			= {PerkData.jingle},
+        	},
+	        ["bocw"] = {
+	            PapModel       	= {PerkData.model_bocw},
+	        	AmbSnd 			= {"nz_moo/perkacolas/new_pap/pap_idle_lp.wav"},
+	        	Stinger 		= {PerkData.sting},
+	        	Jingle 			= {PerkData.jingle},
+        	},
+	        ["nz_tomb"] = {
+	            PapModel       	= {PerkData.model_origins},
+	        	AmbSnd 			= {"nz_moo/perkacolas/tomb_pap/packa_loop.wav"},
+	        	Stinger 		= {PerkData.sting_tomb},
+	        	Jingle 			= {PerkData.jingle_tomb},
+        	},
+        	  ["nz_tomb_red"] = {
+	            PapModel       	= {PerkData.model_origins_red},
+	        	AmbSnd 			= {"nz_moo/perkacolas/tomb_pap/packa_loop.wav"},
+	        	Stinger 		= {PerkData.sting_tomb},
+	        	Jingle 			= {PerkData.jingle_tomb},
+        	},
+	        ["ww2"] = {
+	            PapModel       	= {PerkData.model_ww2},
+	        	AmbSnd 			= {"nz_moo/perkacolas/pap/pap_loop.wav"},
+	        	Stinger 		= {PerkData.sting},
+	        	Jingle 			= {PerkData.jingle},
+        	},
+	        ["bo2"] = {
+	            PapModel       	= {PerkData.model_bo2},
+	        	AmbSnd 			= {"nz_moo/perkacolas/pap/pap_loop.wav"},
+	        	Stinger 		= {PerkData.sting},
+	        	Jingle 			= {PerkData.jingle},
+        	},
+	        ["waw"] = {
+	            PapModel       	= {PerkData.model_waw},
+	        	AmbSnd 			= {"nz_moo/perkacolas/pap/pap_loop.wav"},
+	        	Stinger 		= {PerkData.sting},
+	        	Jingle 			= {PerkData.jingle},
+        	},
+	        ["spooky"] = {
+	            PapModel       	= {PerkData.model_spooky},
+	        	AmbSnd 			= {"nz_moo/perkacolas/pap/pap_loop.wav"},
+	        	Stinger 		= {PerkData.sting},
+	        	Jingle 			= {PerkData.jingle},
+        	},
+		}
+		self:SetModel(tbl[paptype].PapModel[1])
+		self:SetLoopingSound(tbl[paptype].AmbSnd[1])
 
-		if nzPerks:GetPAPType(nzMapping.Settings.PAPtype) == "bocw" then
-			self:SetModel(bocwmodel)
-		end
-		if nzPerks:GetPAPType(nzMapping.Settings.PAPtype) == "nz_tomb" then
-			self:SetModel(nz_tomb)
-		end
-		if nzPerks:GetPAPType(nzMapping.Settings.PAPtype) == "ww2" then
-			self:SetModel(ww2model)
-		end
-		if nzPerks:GetPAPType(nzMapping.Settings.PAPtype) == "bo2" then
-			self:SetModel(bo2model)
-		end
+		self.Jingle 		= tbl[paptype].Jingle[1]
+		self.Sting 			= tbl[paptype].Stinger[1]
+	end
+
+	self:SetPrice(self.PerkTbl[perktype].Price[1])
+	self:SetUpgradePrice(self.PerkTbl[perktype].UpgradePrice[1])
+
+	local maxrevives = (nzMapping.Settings.solorevive or 3)
+
+	if self:GetPerkID() == "revive" and #player.GetAllPlaying() <= 1 and maxrevives > 0 then
+		self:SetPrice(500)
 	end
 end
 
@@ -227,21 +333,13 @@ function ENT:Use(activator, caller)
 						activator:GivePerk(id, self)
 					end
 
-					if !self.PlayingJingle then
-						if nzPerks:GetMachineType(nzMapping.Settings.perkmachinetype) == "IW" then
-							self:EmitSound("nz/machines/jingle/IW/"..id.."_get.wav", 75, math.random(97, 103))
-						else
-							self:EmitSound("perkyworky/"..id.."_sting.mp3", 75, math.random(97, 103))
-						end
+					if !self.PlayingJingle and self.UseJingle then
+						self:EmitSound(self.Sting, 75, math.random(97, 103))
 					end
 
 					if self:GetPerkID() == "pap" then
 						if activator:HasPerk("time") then
 							self.UsingTimeSlip = true
-							self:EmitSound("nz_moo/effects/pap_timeslip.mp3", 90, math.random(97, 103))
-						else
-							self:EmitSound("nz_moo/perkacolas/pap/upgrade.mp3", 90, math.random(97, 103))
-							self:EmitSound("nz_moo/perkacolas/pap/pap_crunch.mp3", 90, math.random(97, 103))
 						end
 
 	            		-- Glow Effect
@@ -255,15 +353,6 @@ function ENT:Use(activator, caller)
 						end
 
 						self:PapAction(activator)
-
-
-						if self:LookupSequence("rotation_rings&thing") > 0 then
-							self:ResetSequence("rotation_rings&thing")
-						end
-        			else
-						if self:LookupSequence("perk_use") > 0 then
-            				self:ResetSequence("perk_use")
-        				end
         			end
 
 					self.PerkInUse = true
@@ -304,12 +393,8 @@ function ENT:Use(activator, caller)
 						activator:GiveUpgrade(id, self)
 					end
 
-					if !self.PlayingJingle then
-						if nzPerks:GetMachineType(nzMapping.Settings.perkmachinetype) == "IW" then
-							self:EmitSound(self.Sting, 75, math.random(97, 103))
-						else
-							self:EmitSound("perkyworky/"..id.."_sting.mp3", 75, math.random(97, 103))
-						end
+					if !self.PlayingJingle and self.UseJingle then
+						self:EmitSound(self.Sting, 75, math.random(97, 103))
 					end
 
 					return true
@@ -326,15 +411,15 @@ function ENT:Use(activator, caller)
 					activator:Buy(price, self, func)
 				end
 			else
-				if tobool(nzMapping.Settings.perkupgrades) then
-					activator:Buy((price*2), self, upgradefunc)
+    			if tobool(nzMapping.Settings.perkupgrades) then
+        			activator:Buy(self:GetUpgradePrice(), self, upgradefunc)
 				end
 			end
 		else
 			func()
 		end
 
-		if self:GetPerkID() ~= "pap" and !self:GetBeingUsed() and self:IsOn() and !activator:CanAfford(price) then
+		if self:GetPerkID() ~= "pap" and !self:GetBeingUsed() and self:IsOn() and !activator:CanAfford(price) and self.UseJingle then
 			self:EmitSound("nz_moo/perkacolas/deny_00.mp3", 90, math.random(97, 103))
 		end
 
@@ -390,7 +475,7 @@ function ENT:PapAction(activator)
 
 	-- Buy the Pap
 	local cost = reroll and nzPowerUps:IsPowerupActive("bonfiresale") and 500 or reroll and 2500 or nzPowerUps:IsPowerupActive("bonfiresale") and 1000 or 5000
-
+	
 	activator:Buy(cost, machine, function()
 		hook.Call("OnPlayerBuyPackAPunch", nil, activator, wep, machine)
 
@@ -410,9 +495,17 @@ function ENT:PapAction(activator)
 			activator.PAPBackupWeapon = waw
 		end
 
+		local pos = self:GetPos()
+		local lookup_gun_attach = self:LookupAttachment("gun_insert")
+
+		if lookup_gun_attach == 2 then
+			local attach = self:GetAttachment(lookup_gun_attach)
+			pos = attach.Pos
+		end
+
 		self.PapWpn = ents.Create("pap_weapon_fly")
 		self.PapWpn:SetAngles(self:GetAngles())
-		self.PapWpn:SetPos(self:GetPos())
+		self.PapWpn:SetPos(pos)
 
 		self.PapWpn.WepClass = class
 		self.PapWpn.LastCamo = lastcamo
@@ -434,16 +527,38 @@ end
 
 function ENT:Think()
 	if SERVER then
-		if self:GetPerkID() == "revive" and self:IsOn() and CurTime() > self.NextRand then
+		if self:GetPerkID() == "revive" and self:IsOn() and CurTime() > self.NextRand and self.UseJingle then
 			self:EmitSound("nz_moo/perkacolas/broken_rands/random_0"..math.random(0,4)..".mp3", 75, math.random(95,105))
 			self.NextRand = CurTime() + math.random(30,90)
 		end
+		
+		if self:IsOn() and CurTime() > self.FinishPowerOnSequence and !self.PerkInUse and (!self.StartPerkLoop or !IsValid(self.StartPerkLoop)) then
+			self.StartPerkLoop = "perk_loop"
+			if self:LookupSequence(self.StartPerkLoop) > 0 then
+				self:ResetSequence(self.StartPerkLoop)
+			end
+		end
+
+		if !self:IsOn() and !self.PlayPowerOffAnim then
+			self.PlayPowerOffAnim = true
+
+			local seq, dur 
+		    seq, dur = self:LookupSequence("perk_power_off")
+			if seq > 0 then
+		    	self.FinishPowerOffSequence = CurTime() + dur
+				self:ResetSequence("perk_power_off")
+			else
+		    	self.FinishPowerOffSequence = CurTime() + 1
+			end
+
+		end
+
 		if self:IsOn() and CurTime() > self.NextJingle and !self.PlayingJingle and !self.NoJingle then
 		
 			local NJ = CurTime() + math.random(300,900)
 			local WFJ = CurTime() + 55
 
-			if self.Jingle then
+			if self.Jingle and self.UseJingle then
 				self.PlayingJingle = true
 
 				self.NextJingle = NJ
@@ -468,83 +583,47 @@ function ENT:Think()
 
 			local seq, dur 
 
-			local use 		= self:LookupSequence("perk_use")
-			local loop 		= self:LookupSequence("perk_use_loop")
-			local finish 	= self:LookupSequence("perk_use_finish")
+			local use 			= self:LookupSequence("use")
+			local use_fast 		= self:LookupSequence("use_fast")
 
 			if self.UsingTimeSlip then
-				loop = 0
+				use = use_fast
 			end
 
-			if use > 0 and !self.PerkUse then
+			if !self.PerkUse then
 				self.PerkUse = true
 
-            	self:ResetSequence(use)
-            	seq, dur = self:LookupSequence("perk_use")
-            	self.PerkTime = CurTime() + dur
-			elseif use < 1 then
-				if !self.PerkUse then
-					self.PerkUse = true
-            		self.PerkTime = CurTime() + 2
-            		print("use")
-            	end
+				if use > 0 then
+					self:SetCycle(0)
+	            	self:ResetSequence(use)
+	        	end
+
+				if self.UsingTimeSlip then
+		            self.PerkTime = CurTime() + 1.75
+		        else
+		            self.PerkTime = CurTime() + 3.5
+				end
+	        end
+
+        	if CurTime() > self.PerkTime and !self.PerkFinish then
+        		self.PerkFinish = true
+
+				if self:GetPerkID() == "pap" then
+					self.PapWpn:WeaponEject()
+					self:SetHasPapGun(true)
+				end
+
+        		self:StopParticles()
+            	self.PerkTime = CurTime() + 1
         	end
 
-        	if loop > 0 then
-        		if CurTime() > self.PerkTime and self.PerkUse and !self.PerkLoop then
-					self.PerkLoop = true
-
-        			self:ResetSequence(loop)
-					if self.UsingTimeSlip then
-            			seq, dur = self:LookupSequence("perk_use_loop_fast")
-					else
-            			seq, dur = self:LookupSequence("perk_use_loop")
-					end
-            		self.PerkTime = CurTime() + dur
-        		end
-        	else
-        		if CurTime() > self.PerkTime and self.PerkUse and !self.PerkLoop and !self.UsingTimeSlip then
-					self.PerkLoop = true
-            		self.PerkTime = CurTime() + 1
-            	elseif self.UsingTimeSlip and !self.PerkLoop then
-					self.PerkLoop = true
-        		end
-        	end
-
-        	if finish > 0 then
-        		if CurTime() > self.PerkTime and self.PerkLoop and !self.PerkFinish then
-        			self.PerkFinish = true
-
-					if self:GetPerkID() == "pap" then
-						self.PapWpn:WeaponEject()
-						self:SetHasPapGun(true)
-					end
-
-        			self:StopParticles()
-	        		self:ResetSequence(finish)
-	            	seq, dur = self:LookupSequence("perk_use_finish")
-            		self.PerkTime = CurTime() + dur
-        		end
-        	else
-        		if CurTime() > self.PerkTime and self.PerkLoop and !self.PerkFinish then
-        			self.PerkFinish = true
-					if self:GetPerkID() == "pap" then
-						self.PapWpn:WeaponEject()
-						self:SetHasPapGun(true)
-					end
-
-        			self:StopParticles()
-            		self.PerkTime = 1
-        		end
-        	end
-
-        	if !isnumber(self.PerkTime) or (CurTime() > self.PerkTime and self.PerkFinish and self.PerkInUse) then
+        	if CurTime() > self.PerkTime and self.PerkInUse and self.PerkFinish then
 				self.PerkInUse 		= false
 				self.PerkUse 		= false
-				self.PerkLoop 		= false
-				self.PerkFinish 	= false
 				self.PerkTime		= false
+        		self.PerkFinish 	= false
 				self:SetBeingUsed(false)
+				self.StartPerkLoop 	= false
 				if self.UsingTimeSlip then
 					self.UsingTimeSlip = false
 				end
@@ -566,7 +645,7 @@ function ENT:Touch(entity)
 end
 
 function ENT:StartTouch(entity)
-	if entity:IsPlayer() and !self.Bumped then
+	if entity:IsPlayer() and !self.Bumped and self.UseJingle then
 		self:EmitSound("nz_moo/perkacolas/bump/vend_0"..math.random(0,2)..".mp3", SNDLVL_TALKING)
 		self.Bumped = true
 		self.NextBump = CurTime() + 1
@@ -585,20 +664,47 @@ if CLIENT then
                 local fwd = self:GetForward() * 35
 
                 if self:GetPerkID() == "pap" then
-	            	local bone = self:LookupBone("j_rollers_large")
-	            	if bone then
-                		center = self:GetBonePosition(bone)
-	            	end
+                	center = self:GetPos() + self:GetUp() * 35
                 	fwd = self:GetForward()
                 end
 
                 if ( dlight ) then
-                    local col = nzPerks:Get(self:GetPerkID()).color or usedcolor
+                	-- NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE 
+
+					local PerkData = nzPerks:Get(self:GetPerkID())
+                    local col = PerkData.color or usedcolor
+                    local col_cw = PerkData.color_cw or col
+					local col_spooky = PerkData.color_spooky or col
+					local col_origins_red = PerkData.color_redtomb or col
+                    local col_classic = PerkData.color_classic or col
+
+					local cwskin = PerkData.model_cw
+					local spookyskin = PerkData.model_spooky
+					local redtombskin = PerkData.model_origins_red
+					local classicskin = PerkData.model_classic
+
+					if self:GetModel() == cwskin then
+						col = col_cw
+					end
+					
+					if self:GetModel() == classicskin then
+						col = col_classic
+					end
+					
+					if self:GetModel() == spookyskin then
+						col = col_spooky
+					end
+
+					if self:GetModel() == redtombskin then
+						col = col_origins_red
+					end
+
                     if self:GetPerkID() == "pap" then
                     	dlight.pos = center + fwd
                     else
                     	dlight.pos = self:WorldSpaceCenter() + center + fwd
                     end
+
                     dlight.r = col.r
                     dlight.g = col.g
                     dlight.b = col.b
@@ -611,12 +717,8 @@ if CLIENT then
             end
 
             if !IsValid(self) then return end
-            if (!self.IdleAmbience or !IsValid(self.IdleAmbience)) then
-            	if self:GetPerkID() == "pap" then
-					self.IdleAmbience = "nz_moo/perkacolas/pap/pap_loop.wav"
-            	else
-					self.IdleAmbience = "nz_moo/perkacolas/hum_loop.wav"
-            	end
+            if (!self.IdleAmbience or !IsValid(self.IdleAmbience)) and isstring(self:GetLoopingSound()) then
+            	self.IdleAmbience = self:GetLoopingSound()
 				self:EmitSound(self.IdleAmbience, 65, 100, 1, 3)
 			end
         end

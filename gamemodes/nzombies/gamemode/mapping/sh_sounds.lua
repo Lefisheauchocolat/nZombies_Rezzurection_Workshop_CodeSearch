@@ -49,7 +49,7 @@ nzSounds.struct = { -- For use with 'data' when creating config menu options
 	"brokenbottlesnd",
 	"perkbottlesnd",
 	"packapunchsnd",
-	"randomweaponsnd",		   
+	"randomweaponsnd",
 	"purchasesnd",
 	"poweronsnd",
 	--"underscoresong",
@@ -57,6 +57,7 @@ nzSounds.struct = { -- For use with 'data' when creating config menu options
     "whoswholoopersnd", 
     "revivalstingersnd",
 	"radio",
+	"kaboomsnd",
 }
 
 nzSounds.Sounds = {}
@@ -67,18 +68,18 @@ nzSounds.Sounds.Default.RoundStart = "nz_moo/round_and_eesongs/waw/classic_redon
 nzSounds.Sounds.Default.RoundEnd = "nz_moo/round_and_eesongs/waw/classic_redone/end3.mp3"
 nzSounds.Sounds.Default.SpecialRoundStart = "nz_moo/round_and_eesongs/waw/classic_redone/special_start.mp3"
 nzSounds.Sounds.Default.SpecialRoundEnd = "nz_moo/round_and_eesongs/waw/classic_redone/special_end.mp3"
-nzSounds.Sounds.Default.DogRound = "nz/round/dog_start.wav"
+nzSounds.Sounds.Default.DogRound = "nz_moo/announcer/sammantha/announce_special.mp3"
 nzSounds.Sounds.Default.GameEnd = "nz/round/game_over_4.mp3"
-nzSounds.Sounds.Default.Spawn = "nz/powerups/power_up_spawn.wav"
-nzSounds.Sounds.Default.Grab = "nz/powerups/power_up_grab.wav"
-nzSounds.Sounds.Default.InstaKill = "nz/powerups/insta_kill.mp3"
-nzSounds.Sounds.Default.FireSale = "nz/powerups/fire_sale_announcer.wav"
-nzSounds.Sounds.Default.DeathMachine = "nz/powerups/deathmachine.mp3"
-nzSounds.Sounds.Default.Carpenter = "nz/powerups/carpenter.wav"
-nzSounds.Sounds.Default.Nuke = "nz/powerups/nuke.wav"
-nzSounds.Sounds.Default.DoublePoints = "nz/powerups/double_points.mp3"
-nzSounds.Sounds.Default.MaxAmmo = "nz/powerups/max_ammo.mp3"
-nzSounds.Sounds.Default.ZombieBlood = "nz/powerups/zombie_blood.wav"
+nzSounds.Sounds.Default.Spawn = "nz_moo/powerups/powerup_spawn_classic.mp3"
+nzSounds.Sounds.Default.Grab = "nz_moo/powerups/powerup_pickup_classic.mp3"
+nzSounds.Sounds.Default.InstaKill = "nz_moo/announcer/sammantha/announce_killjoy.mp3"
+nzSounds.Sounds.Default.FireSale = "nz_moo/announcer/sammantha/announce_sale.mp3"
+nzSounds.Sounds.Default.DeathMachine = "nz_moo/announcer/sammantha/announce_minigun.mp3"
+nzSounds.Sounds.Default.Carpenter = "nz_moo/announcer/sammantha/announce_carpenter.mp3"
+nzSounds.Sounds.Default.Nuke = "nz_moo/announcer/sammantha/announce_nuke.mp3"
+nzSounds.Sounds.Default.DoublePoints = "nz_moo/announcer/sammantha/announce_2x.mp3"
+nzSounds.Sounds.Default.MaxAmmo = "nz_moo/announcer/sammantha/announce_maxammo.mp3"
+nzSounds.Sounds.Default.ZombieBlood = "nz_moo/announcer/sammantha/announce_blood.mp3"
 nzSounds.Sounds.Default.Shake = "nzr/announcer/mysterybox/box_spinning.wav"
 nzSounds.Sounds.Default.Poof = "nz/randombox/poof.wav"
 nzSounds.Sounds.Default.Laugh = "nz/randombox/teddy_bear_laugh.wav"
@@ -87,10 +88,10 @@ nzSounds.Sounds.Default.Jingle = "nz/randombox/random_box_jingle.wav"
 nzSounds.Sounds.Default.Open = "nzr/announcer/mysterybox/box_open.mp3"
 nzSounds.Sounds.Default.Close = "nzr/announcer/mysterybox/box_close.mp3"
 nzSounds.Sounds.Default.Music = ""
-nzSounds.Sounds.Default.UpgradedShoot = "nz/effects/pap_shoot_glock20.wav"
+nzSounds.Sounds.Default.UpgradedShoot = "nz_moo/weapons/uber_shot.mp3"
 nzSounds.Sounds.Default.BonusPoints = "nz_moo/announcer/sammantha/announce_bonus.mp3"
 nzSounds.Sounds.Default.BonFireSale = "nz_moo/announcer/sammantha/announce_bonsale.mp3"
-nzSounds.Sounds.Default.FirstRoundStart = "nz_moo/round_and_eesongs/waw/classic_redone/start3.mp3"
+nzSounds.Sounds.Default.FirstRoundStart = "nz_moo/round/classic_redone/splash.mp3"
 nzSounds.Sounds.Default.Loop = "nz_moo/powerups/powerup_lp_classic.wav"
 nzSounds.Sounds.Default.TimeWarp = "powerups/timewarp.wav"
 nzSounds.Sounds.Default.Berzerk = "powerups/berzerk_pickup.wav"
@@ -100,14 +101,14 @@ nzSounds.Sounds.Default.QuickFoot = "powerups/quickfoot.mp3"
 nzSounds.Sounds.Default.BrokenBottle = "powerups/brokenbottle.mp3"
 nzSounds.Sounds.Default.PerkBottle = "powerups/randomperk.mp3"
 nzSounds.Sounds.Default.PackAPunch = "powerups/freepap.mp3"
-nzSounds.Sounds.Default.RandomWeapon = "powerups/randomweapon.mp3"															  
+nzSounds.Sounds.Default.RandomWeapon = "powerups/randomweapon.mp3"
 nzSounds.Sounds.Default.Purchase = "nz_moo/effects/purchases/buy_classic.mp3"
 nzSounds.Sounds.Default.Poweron = "nz/machines/power_up.wav"
 nzSounds.Sounds.Default.UnderScore = ""
 nzSounds.Sounds.Default.SpecialUnderScore = ""
 nzSounds.Sounds.Default.WhosWhoLooper = "nzr/2022/perks/chuggabud/ww_looper.wav"
 nzSounds.Sounds.Default.RevivalStinger = "nz_moo/effects/revive/zmb_revive_music_03_lr.mp3"
-
+nzSounds.Sounds.Default.Kaboom = "nz_moo/powerups/nuke_flux.mp3"
 
 function nzSounds:RefreshSounds()
     
@@ -148,13 +149,14 @@ function nzSounds:RefreshSounds()
 	nzSounds.Sounds.Custom.BrokenBottle = nzMapping.Settings.brokenbottlesnd
 	nzSounds.Sounds.Custom.PerkBottle = nzMapping.Settings.perkbottlesnd
 	nzSounds.Sounds.Custom.PackAPunch = nzMapping.Settings.packapunchsnd
-	nzSounds.Sounds.Custom.RandomWeapon = nzMapping.Settings.randomweaponsnd													 
+	nzSounds.Sounds.Custom.RandomWeapon = nzMapping.Settings.randomweaponsnd
 	nzSounds.Sounds.Custom.UnderScore = nzMapping.Settings.underscoresong
 	nzSounds.Sounds.Custom.SpecialUnderScore = nzMapping.Settings.specunderscoresong
 	nzSounds.Sounds.Custom.Purchase = nzMapping.Settings.purchasesnd
 	nzSounds.Sounds.Custom.Poweron = nzMapping.Settings.poweronsnd
     nzSounds.Sounds.Custom.WhosWhoLooper = nzMapping.Settings.whoswholoopersnd
     nzSounds.Sounds.Custom.RevivalStinger = nzMapping.Settings.revivalstingersnd
+    nzSounds.Sounds.Custom.Kaboom = nzMapping.Settings.kaboomsnd
     if (!table.IsEmpty(nzMapping.Settings) and table.IsEmpty(nzSounds.Sounds.Custom)) then
         nzSounds.Sounds.Custom = table.Copy(nzSounds.Sounds.Default)
     end

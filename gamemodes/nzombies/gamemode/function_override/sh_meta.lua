@@ -36,6 +36,54 @@ if SERVER then
 	end
 end
 
+-- After 8+ years of this stupid fucking lua error showing for people, I've decided to just fix it myself /Ethorbit
+local server_only_ents
+function SafeRemoveEntity( ent )
+    if ( !IsValid( ent ) || ent:IsPlayer() ) then return end
+
+    if CLIENT then
+        server_only_ents = server_only_ents or {
+            -- add whatever the game cries about deleting
+            ["class C_HL2MPRagdoll"] = true -- Yes it literally has 'class' in the classname. :facepalm:
+        }
+
+        if server_only_ents[ent:GetClass()] then return end
+    end
+
+    ent:Remove()
+end
+
+-- Override existing hooks
+nzHookAdd = nzHookAdd or hook.Add
+hook.Add = function(eventName, ...)
+    if (eventName == "ShouldCollide") then
+        eventName = "OptimizedShouldCollide"
+    end
+
+    nzHookAdd(eventName, ...)
+end
+
+-- Ultimate lag fix by: Ethorbit 
+-- Our goal is to override ShouldCollide with something that is much more optimized
+-- When someone adds a ShouldCollide hook, they're actually adding OptimizedShouldCollide instead
+-- The goal is to ignore collision checking when it is unnecessary, this avoids wasting a lot of processing time on nothing
+-- The end result is far less lag
+local ignore_collisiongroup = {
+    [COLLISION_GROUP_DEBRIS] = 1
+}
+nzHookAdd("ShouldCollide", "nzShouldCollideOptimizer", function(ent1, ent2)
+    if ent1:IsWorld() or ent2:IsWorld() then return true end -- No need to process LITERALLY NOTHING GMOD
+    --if ent1:IsNextBot() or ent2:IsNextBot() then return true end -- Zombies don't have real collisions anyways
+    if ent1.NZOnlyVisibleInCreative or ent2.NZOnlyVisibleInCreative then
+        if ignore_collisiongroup[ent1:GetCollisionGroup()] or ignore_collisiongroup[ent2:GetCollisionGroup()] then
+            return false
+        end
+    end
+
+    return hook.Run("OptimizedShouldCollide", ent1, ent2)
+end)
+-----------------------------------------------------------------------------------------
+
 local olddefreload = wepMeta.DefaultReload
 function wepMeta:DefaultReload(act)
 	if IsValid(self.Owner) and self.Owner:HasPerk("speed") then return end

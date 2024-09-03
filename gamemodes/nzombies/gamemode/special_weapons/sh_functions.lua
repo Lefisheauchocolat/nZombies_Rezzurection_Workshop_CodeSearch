@@ -112,6 +112,11 @@ nzSpecialWeapons:RegisterModifier("grenade", function(wep, data)
 	if !wep or wep.NZModifierRegistered then return end
 	wep.NZModifierRegistered = true
 
+	local projectile = wep.Primary.Projectile or wep.Primary.Round or wep.ProjectileEntity
+	if nzLevel and projectile then
+		nzLevel.GrenadeClass[projectile] = true
+	end
+
 	local drawact = data.DrawAct
 	local throwtime = data.ThrowTime
 	local throwfunc = data.ThrowFunction
@@ -221,6 +226,11 @@ end, {
 nzSpecialWeapons:RegisterModifier("specialgrenade", function(wep, data)
 	if !wep or wep.NZModifierRegistered then return end
 	wep.NZModifierRegistered = true
+
+	local projectile = wep.Primary.Projectile or wep.Primary.Round or wep.ProjectileEntity
+	if nzLevel and projectile then
+		nzLevel.SpecialGrenadeClass[projectile] = true
+	end
 
 	local drawact = data.DrawAct
 	local throwtime = data.ThrowTime
@@ -446,6 +456,7 @@ if CLIENT then
 			local ammo = GetNZAmmoID(id)
 			if !ammo or ply:GetAmmoCount(ammo) >= 1 then
 				if IsValid(wep) and !ply:GetNW2Bool("NZSpecialButtonHeld", false) then
+					if nzPowerUps:IsAntiPowerupActive("infinite") then return end
 					if ply.DoWeaponSwitch then return end
 					if hook.Call("PlayerSwitchWeapon", nil, ply, ply:GetActiveWeapon(), wep) then return end
 					ply:SelectWeapon(wep:GetClass())
@@ -509,6 +520,7 @@ hook.Add("PlayerButtonDown", "nzSpecialWeaponsHandler", function(ply, but)
 					end)
 
 					if SERVER then
+						v.NadeRethrown = true
 						v:Remove()
 					end
 					break

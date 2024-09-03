@@ -1,14 +1,16 @@
 -- 
 
 hook.Add("Think", "CheckActivePowerups", function()
-	for k,v in pairs(nzPowerUps.ActivePowerUps) do
+	for k, v in pairs(nzPowerUps.ActivePowerUps) do
 		if CurTime() >= v then
 			local func = nzPowerUps:Get(k).expirefunc
-			if func then func(id) end
+			if func then func(k) end
+
 			nzPowerUps.ActivePowerUps[k] = nil
 			nzPowerUps:SendSync()
 		end
 	end
+
 	for k,v in pairs(nzPowerUps.ActivePlayerPowerUps) do
 		if not IsValid(k) then
 			nzPowerUps.ActivePlayerPowerUps[k] = nil
@@ -26,64 +28,82 @@ hook.Add("Think", "CheckActivePowerups", function()
 	end
 end)
 
-
-function nzPowerUps:Nuke(pos, nopoints, noeffect)
+function nzPowerUps:Nuke(pos, nopoints, noeffect, instant)
 	-- Kill them all
 	local highesttime = 0
 	local total = {}
 
-	for _,v in nzLevel.GetZombieArray() do
-		if v:IsValidZombie() and !v.NZBossType and !v.IsMooBossZombie and !v.IsTurned and v:Alive() then
-			highesttime = highesttime + math.Rand(0.15, 0.45)
+	local function NukeKill(ent) //this would be usefull as a function on the zombies
+		if math.random(5) <= 2 then
+			if ent.IsMooZombie and !ent.IsMooSpecial then
+				ent:GibHead()
+			end
+		end
 
-			v:SetRunSpeed(1)
-			v:SpeedChanged()
-			v:SetBlockAttack(true)
+		ent:TakeDamage(ent:Health() + 666, Entity(0), Entity(0))
 
-			v.BeingNuked = true
-
-			-- In Serverside related stuff, timers are fine.
-			timer.Simple(highesttime, function()
-				if IsValid(v) then
-					if math.random(5) <= 2 then
-						if v.IsMooZombie and !v.IsMooSpecial then
-							v:GibHead()
-						end
-					end
-
-					v:TakeDamage(v:Health() + 666, Entity(0), Entity(0))
-
-					v:Ignite(5)
-					v:EmitSound("nz_moo/powerups/nuke_ignite.mp3", 511)	
-					v:EmitSound("nz_moo/zombies/vox/nuke_death/soul_0"..math.random(0,10)..".mp3", 75, math.random(85,115))	
-					
-					table.insert(total, v)
-				end
-			end)
+		ent:Ignite(5)
+		ent:EmitSound("nz_moo/powerups/nuke_ignite.mp3", 511)	
+		if ent.NukeDeathSounds then
+			ent:EmitSound(ent.NukeDeathSounds[math.random(#ent.NukeDeathSounds)], 75, math.random(85,115))
 		end
 	end
-	
-	-- Give the players a set amount of points
-	if not nopoints then
+
+	for _, ent in nzLevel.GetZombieArray() do
+		if IsValid(ent) and ent:IsValidZombie() and !ent.NZBossType and !ent.IsMooBossZombie and !ent.IsTurned and ent:Alive() then
+			highesttime = highesttime + math.Rand(0.15, 0.45)
+
+			ent:SetRunSpeed(1)
+			ent:SpeedChanged()
+			ent:SetBlockAttack(true)
+
+			ent.BeingNuked = true
+			table.insert(total, ent)
+
+			if instant then
+				NukeKill(ent)
+			else
+				-- In Serverside related stuff, timers are fine.
+				timer.Simple(highesttime, function()
+					if not IsValid(ent) then return end
+					NukeKill(ent)
+				end)
+			end
+		end
+	end
+
+	if self.ActivePowerUps["nuke"] then
+		self.ActivePowerUps["nuke"] = CurTime() + highesttime + engine.TickInterval()
+	end
+
+	if #total == 1 and TFA.BO3GiveAchievement then
 		timer.Simple(highesttime, function()
-			for k,v in pairs(player.GetAllPlaying()) do
-				if v:IsPlayer() then
-					v:GivePoints(400)
-					if #total == 1 then
-						if !v.MOOS_FAV_THING_TO_SAY_ON_NUKES_TM and TFA.BO3GiveAchievement then
-      						TFA.BO3GiveAchievement("Weapon of Minor Destruction", "vgui/overlay/achievment/Weapon_of_Minor_Destruction_WaW.png", v)
-    						v.MOOS_FAV_THING_TO_SAY_ON_NUKES_TM = true
-						end
-					end
-				end
+			for _, ply in pairs(player.GetAllPlaying()) do
+				if !IsValid(ply) or !ply:IsPlayer() then continue end
+				if ply.MOOS_FAV_THING_TO_SAY_ON_NUKES_TM then continue end
+
+	      		TFA.BO3GiveAchievement("Weapon of Minor Destruction", "vgui/overlay/achievment/Weapon_of_Minor_Destruction_WaW.png", ply)
+	    		ply.MOOS_FAV_THING_TO_SAY_ON_NUKES_TM = true
 			end
 		end)
 	end
-	
-	if not noeffect then
-		net.Start("nzPowerUps.Nuke")
-		net.Broadcast()
+
+	if nopoints and !nzPowerUps.NoNukePoints then
+		nzPowerUps.NoNukePoints = true
 	end
+
+	if not noeffect then
+		nzSounds:Play("Kaboom")
+		for _, ply in ipairs(player.GetAll()) do
+			ply:ScreenFade(SCREENFADE.IN, ColorAlpha(color_white, 12), 1.2, 0 )
+		end
+	end
+
+	for k,v in nzLevel.GetZombieSpawnArray() do
+        if IsValid(v) and v:GetMasterSpawn() and !instant then
+        	v.NukeDelay = true
+        end
+    end
 end
 
 -- Add the sound so we can stop it again
@@ -138,54 +158,73 @@ function nzPowerUps:FireSale()
 	end
 end
 
+function nzPowerUps:Carpenter(nopoints, pos)
+	-- Repair them all, More nZU code? no way.
+	if !pos or !isvector(pos) then
+		pos = vector_origin //use map origin
+	end
+
+	if nopoints and !nzPowerUps.NoCarpenterPoints then
+		nzPowerUps.NoCarpenterPoints = true //hack, see carpenter in sh_powerups
+	end
+
+	local barricades = ents.FindByClass("breakable_entry")
+	if not IsValid(barricades[1]) then
+		if self.ActivePowerUps["carpenter"] then
+			self.ActivePowerUps["carpenter"] = CurTime()
+		end
+		return
+	end
+
+	local sortedcades = {}
+	for i=1, #barricades do
+		local ent = barricades[i]
+		if not IsValid(ent) then continue end
+		sortedcades[i] = ent:GetPos():Distance(pos)
+	end
+
+	local count = 0
+	local highesttime = 0
+
+	for k, dist in SortedPairsByValue(sortedcades) do
+		local ent = barricades[k]
+		if not IsValid(ent) then return end
+
+		if ent:GetHasPlanks() then //0.05 second for every plank, _zm_powerups.gsc#L1196
+			count = count + (6 - ent:GetNumPlanks())
+		end
+
+		local t = (count*0.05) + math.Clamp(dist/2000, 0, 4) //just so carpenter doesnt go on forever
+		if t > highesttime then
+			highesttime = t
+		end
+		print(t)
+
+		timer.Simple(t, function()
+			if IsValid(ent) and !IsValid(ent.ZombieUsing) then
+				ent:FullRepair()
+			end
+		end)
+	end
+
+	if self.ActivePowerUps["carpenter"] then
+		self.ActivePowerUps["carpenter"] = CurTime() + highesttime + engine.TickInterval()
+	end
+end
+
 function nzPowerUps:CleanUp()
 	-- Clear all powerups
 	for k,v in pairs(ents.FindByClass("drop_powerup")) do
 		v:Remove()
 	end
-	
+
+	nzPowerUps.BoxMoved = false
+	nzPowerUps.HasPaped = false
+
 	-- Turn off all modifiers
 	table.Empty(self.ActivePowerUps)
+	table.Empty(self.ActiveAntiPowerUps)
+
 	-- Sync
 	self:SendSync()
-end
-
-function nzPowerUps:Carpenter(nopoints)
-	-- Repair them all, More nZU code? no way.
-	local pos = pos or Vector()
-	local barricades = ents.FindByClass("breakable_entry")
-	local max = 0
-	local repaired = 0
-	local PowerupData = self:Get("carpenter")
-	for k,v in pairs(barricades) do
-		local t = v:GetPos():Distance(pos)/2000 -- 1 second for every 2,000 units
-		if t > max then
-			max = t
-		end
-		timer.Simple(t, function()
-			if IsValid(v) then
-				if !IsValid(v.ZombieUsing) then
-					v:FullRepair()
-					repaired = repaired + 1
-					if repaired == #barricades then
-						self.ActivePowerUps["carpenter"] = (self.ActivePowerUps["carpenter"] or CurTime()) - PowerupData.duration
-						for k,v in pairs(player.GetAllPlaying()) do
-							if v:IsPlayer() then
-								v:GivePoints(200)
-							end
-						end
-					end
-				end
-			end
-		end)
-	end
-	
-	-- Give the players a set amount of points
-	--[[if not nopoints then
-		for k,v in pairs(player.GetAll()) do
-			if v:IsPlayer() then
-				v:GivePoints(200)
-			end
-		end
-	end]]
 end

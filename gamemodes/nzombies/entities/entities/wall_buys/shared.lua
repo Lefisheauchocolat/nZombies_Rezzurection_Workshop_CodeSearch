@@ -34,6 +34,8 @@ local cvar_glow = GetConVar("nz_wallbuy_glow")
 
 local glow = Material("sprites/wallbuy_light") --"sprites/light_ignorez"
 local glowcolor = Color(0, 200, 255, 20)
+local glowsizew, glowsizeh, alpha = 128, 42, 32
+local chalkcol = color_white
 
 function ENT:Initialize()
 	if SERVER then
@@ -72,6 +74,7 @@ end
 
 function ENT:RecalculateModelOutlines()
 	self:RemoveOutline()
+
 	local num = cvar_detail:GetInt()
 	local ang = self:GetAngles()
 	local curang = self:GetAngles() -- Modifies offset if flipped
@@ -398,6 +401,23 @@ if CLIENT then
 				self:DrawModel()
 			end
 		else
+			chalkcol = color_white
+			glowcolor = nzMapping.Settings.boxlightcolor
+			alpha = 30
+
+			if nzMapping.Settings.wallbuydata then
+				glow = Material(nzMapping.Settings.wallbuydata["material"] or "we_fucked_up")
+				chalkcol = nzMapping.Settings.wallbuydata["chalk"]
+				glowsizew = nzMapping.Settings.wallbuydata["sizew"]
+				glowsizeh = nzMapping.Settings.wallbuydata["sizeh"]
+				glowcolor = nzMapping.Settings.wallbuydata["glow"]
+				alpha = nzMapping.Settings.wallbuydata["alpha"]
+			end
+
+			if glow:IsError() then
+				glow = Material("sprites/wallbuy_light")
+			end
+
 			local pos = eyepos + eyeang:Forward()*10
 			local ang = eyeang
 			ang = Angle(ang.p+90,ang.y,0)
@@ -436,22 +456,7 @@ if CLIENT then
 				render.SetBlend(1)
 				render.SetStencilCompareFunction(STENCILCOMPARISONFUNCTION_EQUAL)
 				cam.Start3D2D(pos,ang,1)
-					/*local price = self.Price
-					surface.SetDrawColor(color_white)
-
-					if price > 7500 then
-						surface.SetDrawColor(255,240,165)
-					elseif price <= 7500 then
-						surface.SetDrawColor(255,201,165)
-					elseif price <= 3000 then
-						surface.SetDrawColor(226,165,255)
-					elseif price <= 1500 then
-						surface.SetDrawColor(165,179,255)
-					elseif price <= 750 then
-						surface.SetDrawColor(192,255,165)
-					end*/
-
-					surface.SetDrawColor(color_white)
+					surface.SetDrawColor(chalkcol)
 					surface.DrawRect(-ScrW(),-ScrH(),ScrW()*2,ScrH()*2)
 				cam.End3D2D()
 				render.SetStencilEnable(false)
@@ -467,7 +472,7 @@ if CLIENT then
 				end
 
 				render.SetMaterial(glow)
-				render.DrawQuadEasy(self:GetPos(), spriteang:Up(), 128, 42, ColorAlpha(nzMapping.Settings.boxlightcolor, 30))
+				render.DrawQuadEasy(self:GetPos(), spriteang:Up(), glowsizew, glowsizeh, ColorAlpha(glowcolor, alpha))
 			end
 
 			if self:GetBought() and (!self.WorldModelFunc or !pcall(self.WorldModelFunc, self)) then

@@ -18,10 +18,20 @@ ENT.IsMooZombie = true
 ENT.RedEyes = true
 
 ENT.Models = {
+	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_male_merc_1.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_male_merc_2.mdl", Skin = 0, Bodygroups = {0,0}},
+
+	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_charred_male.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_charred_female.mdl", Skin = 0, Bodygroups = {0,0}},
+
+	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_male_shredded_shirtless.mdl", Skin = 0, Bodygroups ={0,0}},
+
+	--[[ 
+	-- Will re-add later.
 	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_t10_jup_female_jeans.mdl", Skin = 0, Bodygroups = {0,0}},
 	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_t10_jup_male_shortsleeve.mdl", Skin = 0, Bodygroups = {0,0}},
 	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_t10_jup_male_shredded.mdl", Skin = 0, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_t10_jup_male_shredded_shirtless.mdl", Skin = 0, Bodygroups = {0,0}},
+	]]
 }
 
 local spawnslow = {"nz_spawn_ground_v1", "nz_spawn_ground_ad_v2", "nz_spawn_ground_v2", "nz_spawn_ground_v2_altb"}
@@ -46,11 +56,23 @@ ENT.DeathSequences = {
 	"nz_death_f_11",
 	"nz_death_f_12",
 	"nz_death_f_13",
-	"nz_death_fallback",
 	"nz_l4d_death_running_11a",
 	"nz_l4d_death_running_11g",
 	"nz_l4d_death_02a",
 	"nz_l4d_death_11_02d",
+	"nz_t9_dth_f_chest_lt_00",
+	"nz_t9_dth_f_chest_lt_01",
+	"nz_t9_dth_f_chest_lt_02",
+	"nz_t9_dth_f_chest_lt_03",
+	"nz_t9_dth_f_chest_lt_04",
+	"nz_t9_dth_f_chest_lt_05",
+	"nz_t9_dth_f_chest_lt_06",
+	"nz_t9_dth_f_chest_lt_07",
+	"nz_t9_dth_f_chest_lt_08",
+	"nz_t9_dth_f_chest_lt_09",
+	"nz_t9_dth_f_head_lt_00",
+	"nz_t9_dth_f_head_lt_01",
+	"nz_t9_dth_f_head_lt_02",
 }
 
 ENT.CrawlDeathSequences = {
@@ -340,9 +362,9 @@ ENT.SequenceTables = {
 			SpawnSequence = {spawnslow},
 			MovementSequence = {
 				"nz_walk_ad1",
-				"nz_walk_ad2",
+				"nz_s4_3arc_walk_ad_v2",
 				"nz_walk_ad3",
-				"nz_walk_ad4",
+				"nz_s4_3arc_walk_ad_v4",
 				"nz_walk_ad7",
 				"nz_walk_ad5",
 				"nz_walk_ad6",
@@ -617,10 +639,10 @@ ENT.SequenceTables = {
 				--"nz_legacy_jap_run_v4",
 				--"nz_legacy_jap_run_v5",
 				--"nz_legacy_jap_run_v6",
-				"nz_run_au1",
-				"nz_run_au2",
+				"nz_s4_3arc_run_au_v1",
+				"nz_s4_3arc_run_au_v2",
 				"nz_run_au3",
-				"nz_run_au4",
+				"nz_s4_3arc_run_au_v4",
 				"nz_run_au5",
 				"nz_run_au9",
 				"nz_run_au11",
@@ -702,14 +724,15 @@ ENT.SequenceTables = {
 			MovementSequence = {
 				--"nz_legacy_sprint_v5",
 				--"nz_legacy_jap_run_v3",
-				"nz_t9_base_sprint_ad_v01",
-				"nz_t9_base_sprint_ad_v02",
-				"nz_t9_base_sprint_ad_v05",
-				"nz_t9_base_sprint_ad_v21",
-				"nz_t9_base_sprint_ad_v22",
-				"nz_t9_base_sprint_ad_v23",
+				"nz_sprint_ad1",
+				"nz_sprint_ad2",
 				"nz_sprint_ad3",
 				"nz_sprint_ad4",
+				"nz_sprint_ad5",
+				"nz_sprint_ad23",
+				"nz_sprint_ad24",
+				"nz_s4_3arc_sprint_ad_v21",
+				"nz_s4_3arc_sprint_ad_v22",
 				"nz_fast_sprint_v1",
 				"nz_fast_sprint_v2",
 			},
@@ -781,14 +804,14 @@ ENT.SequenceTables = {
 			MovementSequence = {
 				--"nz_legacy_sprint_v5",
 				--"nz_legacy_jap_run_v3",
-				"nz_t9_base_sprint_au_v01",
-				"nz_t9_base_sprint_au_v02",
-				"nz_t9_base_sprint_au_v20",
-				"nz_t9_base_sprint_au_v21",
-				"nz_t9_base_sprint_au_v22",
-				"nz_t9_base_sprint_au_v25",
+				"nz_sprint_au1",
+				"nz_sprint_au2",
 				"nz_sprint_au3",
 				"nz_sprint_au4",
+				"nz_sprint_au20",
+				"nz_sprint_au21",
+				"nz_sprint_au22",
+				"nz_sprint_au25",
 				"nz_fast_sprint_v1",
 				"nz_fast_sprint_v2",
 			},

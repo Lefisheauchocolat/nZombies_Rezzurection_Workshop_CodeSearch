@@ -2,13 +2,16 @@
 function nzRevive.DoPlayerDeath(ply, dmg)
 	if IsValid(ply) and ply:IsPlayer() then
 		if (math.floor(ply:Health() - dmg:GetDamage()) <= 0) then
-			if dmg:GetAttacker():IsValidZombie() and ply:HasPerk("whoswho") and ply:GetNW2Float("nz.ChuggaDelay", 0) < CurTime() then
-				nzRevive:ChuggaBudTeleport(ply, true)
-				ply:SetNW2Float("nz.ChuggaDelay", CurTime() + 180)
-				return true
+			local ent = dmg:GetAttacker()
+			if IsValid(ent) and ent:IsValidZombie() then
+				if ply:HasPerk("whoswho") and ply:GetNW2Float("nz.ChuggaDelay", 0) < CurTime() then
+					nzRevive:ChuggaBudTeleport(ply, true)
+					ply:SetNW2Float("nz.ChuggaDelay", CurTime() + 180)
+					return true
+				end
 			end
 
-			local allow = hook.Call("PlayerShouldTakeDamage", nil, ply, dmg:GetAttacker())
+			local allow = hook.Call("PlayerShouldTakeDamage", nil, ply, ent, dmg)
 
 			if allow != false then -- Only false should prevent it (not nil)
 				if ply:GetNotDowned() then

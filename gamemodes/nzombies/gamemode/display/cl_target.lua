@@ -145,15 +145,15 @@ local traceents = {
 					text = "You may only carry " .. nz_maxperks:GetInt() .. " perks"
 				end
 
-				if ply:HasPerk(ent:GetPerkID()) and (ply:HasUpgrade(ent:GetPerkID()) or tobool(nzMapping.Settings.perkupgrades) == false) then
+				if ply:HasPerk(ent:GetPerkID()) and (!nzMapping.Settings.perkupgrades or ply:HasUpgrade(ent:GetPerkID())) then
 					text = "You already own this perk"
-				elseif ply:HasPerk(ent:GetPerkID()) and !ply:HasUpgrade(ent:GetPerkID()) then
+				elseif ply:HasPerk(ent:GetPerkID()) and !ply:HasUpgrade(ent:GetPerkID()) and ent.GetUpgradePrice then
 					if nzPerks:GetMachineType(nzMapping.Settings.perkmachinetype) == "IW" then
-						text = "Press " .. usekey .. " Upgrade " .. perkData.name_skin .. " " .. "[Cost: " .. string.Comma(ent:GetPrice()*2) .. "]"
+						text = "Press " .. usekey .. " Upgrade " .. perkData.name_skin .. " " .. "[Cost: " .. string.Comma(ent:GetUpgradePrice()) .. "]"
 					elseif nzRound:GetIconType(nzMapping.Settings.icontype) == "Hololive" then
-						text = "Press " .. usekey .. " Upgrade " .. perkData.name_holo .. " " .. "[Cost: " .. string.Comma(ent:GetPrice()*2) .. "]"
+						text = "Press " .. usekey .. " Upgrade " .. perkData.name_holo .. " " .. "[Cost: " .. string.Comma(ent:GetUpgradePrice()) .. "]"
 					else
-						text = "Press " .. usekey .. " Upgrade " .. perkData.name .. " " .. "[Cost: " .. string.Comma(ent:GetPrice()*2) .. "]"
+						text = "Press " .. usekey .. " Upgrade " .. perkData.name .. " " .. "[Cost: " .. string.Comma(ent:GetUpgradePrice()) .. "]"
 					end
 				end
 			end
@@ -161,19 +161,34 @@ local traceents = {
 		return text
 	end,
 	["nz_teleporter"] = function(ent)
+		local ply = LocalPlayer()
+		if IsValid(ply:GetObserverTarget()) then ply = ply:GetObserverTarget() end
+
 		local text = ""
-		local price = ent:GetPrice()
-		local enabled = ent:GetGifType()
-		if price < 0 or enabled > 5 then
-		text = ""
-		elseif !ent:IsOn() then
-			text = "No Power."
+		if !ent:GetUseable() then return text end
+		if !ent:IsOn() then
+			text = "You must turn on the electricity first!"
 		elseif ent:GetBeingUsed() then
-			text = "Currently in use."
-		elseif ent:GetCooldown() then
+			text = "Teleporting..."
+		elseif ent:GetOnCooldown() then
 			text = "Teleporter on cooldown!"
 		else
-			text = "Press E to Teleport for " .. ent:GetPrice() .. " points."
+			if #ent:GetDestinationsUnlocked() <= 0 then
+				text = "A door must be unlocked for this"
+			else
+				-- Its on
+				text = "Press " .. usekey .. "Use Teleporter [Cost: " .. string.Comma(ent:GetPrice()) .. "]"
+			end
+		end
+
+		if !ply:GetNotDowned() then
+			text = "You cannot use this when down"
+		end
+
+		if ply:IsInCreative() then
+			text = "Press " .. usekey .. " to Test Teleporter"
+		elseif #ent:GetDestinations() <= 0 then
+			text = "This cannot be used, it is improperly configured"
 		end
 
 		return text
@@ -242,6 +257,29 @@ local traceents = {
 
 		return text
 	end,
+	["item_suitcharger"] = function(ent)
+		local ply = LocalPlayer()
+		if IsValid(ply:GetObserverTarget()) then ply = ply:GetObserverTarget() end
+
+		if ply:Armor() < 200 then
+			return "Press & Hold "..usekey.." recharge armor"
+		else
+			return ""
+		end
+	end,
+	["item_healthcharger"] = function(ent)
+		local ply = LocalPlayer()
+		if IsValid(ply:GetObserverTarget()) then ply = ply:GetObserverTarget() end
+
+		if ply:Health() < ply:GetMaxHealth() then
+			return "Press & Hold "..usekey.." Heal"
+		else
+			return ""
+		end
+	end,
+	["prop_thumper"] = function(ent)
+		return "Press & Hold "..usekey.." toggle Thumper"
+	end,
 }
 
 local ents = ents
@@ -255,13 +293,6 @@ local color_black_180 = Color(0, 0, 0, 180)
 local color_black_100 = Color(0, 0, 0, 100)
 local color_nzwhite = Color(225, 235, 255,255)
 local color_gold = Color(255, 255, 100, 255)
-
-local dahudz = {
-	["Black Ops 3"] = true,
-	["Shadows of Evil"] = true,
-	["Black Ops 4"] = true,
-	["Origins (HD)"] = true,
-}
 
 if GetConVar("nz_hud_show_targeticon") == nil then
 	CreateClientConVar("nz_hud_show_targeticon", 1, true, false, "Enable or disable displaying an entity's HUD icon above their hint string. (0 false, 1 true), Default is 1.", 0, 1)
@@ -278,6 +309,7 @@ local zmhud_vulture_glow = Material("nz_moo/huds/t6/specialty_vulture_zombies_gl
 local function GetDoorText( ent )
 	local door_data = ent:GetDoorData()
 	local text = ""
+	--print(door_data)
 
 	if door_data and tonumber(door_data.price) == 0 and nzRound:InState(ROUND_CREATE) then
 		if tobool(door_data.elec) then
@@ -305,7 +337,6 @@ local function GetDoorText( ent )
 		text = "This door is locked and cannot be bought in-game."
 		--PrintTable(door_data)
 	end
-
 	return text
 end
 
@@ -397,7 +428,7 @@ local function DrawTargetID(text, ent)
 
 	if !ply:GetNotDowned() and not ply:GetDownedWithTombstone() then return end
 
-	local modern = dahudz[nzMapping.Settings.hudtype]
+	local modern = nzDisplay.modernHUDs[nzMapping.Settings.hudtype]
 	local scw, sch = ScrW(), ScrH()
 	local scale = (scw/1920 + 1)/2
 	local lowres = scale < 0.96
@@ -469,30 +500,74 @@ local function DrawTargetID(text, ent)
 			end
 		end
 
+		surface.SetDrawColor(color_white)
+
 		// hud icon
-		if showicons and ent.NZHudIcon then
-			surface.SetMaterial((modern and ent.NZHudIcon_t7) and ent.NZHudIcon_t7 or ent.NZHudIcon)
-			surface.SetDrawColor(color_white)
-			surface.DrawTexturedRect(scw/2 - 32, sch - 280*pscale - (th+48), 64, 64)
+		if showicons then
+			local targeticon
+
+			local wpos = scw/2 - 32
+			local ypos = sch - 280*pscale - (th+48)
+			/*if ent:IsPlayer() and !ent:GetNotDowned() and !ply:GetPlayerReviving() then
+				local syrette = nzMapping.Settings.syrette
+				if syrette then
+					local revdata = weapons.Get(tostring(syrette))
+					if revdata and revdata.NZHudIcon then
+						targeticon = (modern and revdata.NZHudIcon_t7) and revdata.NZHudIcon_t7 or revdata.NZHudIcon
+					end
+				end
+			else*/if ent:IsPlayer() then
+				local gum = nzGum:GetActiveGumData(ent)
+				if gum and gum.icon then
+					targeticon = gum.icon
+					ypos = sch - 280*pscale + (th-48) + 24
+				end
+			elseif ent.NZHudIcon then
+				targeticon = (modern and ent.NZHudIcon_t7) and ent.NZHudIcon_t7 or ent.NZHudIcon
+			elseif ent.GetWepClass then
+				local wepdata = weapons.Get(tostring(ent:GetWepClass()))
+				if wepdata and wepdata.NZHudIcon then
+					targeticon = (modern and wepdata.NZHudIcon_t7) and wepdata.NZHudIcon_t7 or wepdata.NZHudIcon
+				end
+			end
+
+			if targeticon and not targeticon:IsError() then
+				surface.SetMaterial(targeticon)
+				surface.DrawTexturedRect(wpos, ypos, 64, 64)
+			end
 		end
 
 		// perk machines
 		if perkmachineclasses[ent:GetClass()] and (nzRound:InState(ROUND_CREATE) or (ent.IsOn and ent:IsOn() or IsElec())) then
 			local perkData = nzPerks:Get(ent:GetPerkID())
 			if perkData and perkData.desc then
-				draw.SimpleTextOutlined("Effect: "..perkData.desc, font2, scw/2, sch - 230*pscale, perkData.color, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, color_black_100)
+				local tw, th = surface.GetTextSize(perkData.desc)
+
+				local bad
+				if tw > scw then
+					bad = "nz.ammo2."..GetFontType(nzMapping.Settings.ammofont)
+				end
+
+				draw.SimpleTextOutlined("Effect: "..perkData.desc, bad or font2, scw/2, sch - 230*pscale, perkData.color, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, color_black_100)
 				if perkData.desc2 then
-					draw.SimpleTextOutlined("Modifier: "..perkData.desc2, font2, scw/2, sch - 200*pscale, perkData.color, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, color_black_100)
+					draw.SimpleTextOutlined("Modifier: "..perkData.desc2, bad or font2, scw/2, sch - 200*pscale, perkData.color, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, color_black_100)
 				end
 
 				if showicons then
 					local icon = GetPerkIconMaterial(ent:GetPerkID())
 					if icon and !icon:IsError() then
 						surface.SetMaterial(icon)
-						surface.SetDrawColor(color_white)
 						surface.DrawTexturedRect(scw/2 - 32, sch - 280*pscale - (th+48), 64, 64)
 					end
 				end
+			end
+		end
+
+		// secondary descriptions
+		if ent.GetNZTargetText and ent.GetNZTargetText2 then
+			local text2 = ent:GetNZTargetText2()
+			if text2 and text2 ~= "" then
+				draw.SimpleTextOutlined(text2, font, scw/2, sch - 230*pscale, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, color_black_100)
 			end
 		end
 	end

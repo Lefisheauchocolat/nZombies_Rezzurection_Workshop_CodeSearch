@@ -6,7 +6,6 @@ ENT.Category		= "None"
 ENT.Spawnable		= false
 ENT.AdminSpawnable	= false
 
-
 ENT.MyModel = "models/bosses/locust_boomshot_ammo2.mdl"
 ENT.MyModelScale = 1
 ENT.Damage = 75

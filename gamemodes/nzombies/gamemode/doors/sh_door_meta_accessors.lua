@@ -85,7 +85,7 @@ function meta:DoorIndex()
 	end
 end
 
-function meta:GetDoorData()
+function meta:GetDoorData(ent)
 	if !IsValid(self) then return end
 	if self:IsBuyableProp() or self:IsScriptBuyable() then
 		if !nzDoors.PropDoors[self:EntIndex()] then return end

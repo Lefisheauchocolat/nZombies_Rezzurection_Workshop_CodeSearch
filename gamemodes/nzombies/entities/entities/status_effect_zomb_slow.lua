@@ -8,16 +8,15 @@ ENT.RenderGroup = RENDERGROUP_OTHER
 local entMeta = FindMetaTable("Entity")
 
 if SERVER then
-	entMeta.ZombSlow = function(self, duration, speed)
+	entMeta.ZombSlow = function(self, duration, ratio)
 		if self.IsAATTurned and self:IsAATTurned() then return end
-		if self.NZBossType then return end
-		if string.find(self:GetClass(), "nz_zombie_boss") then return end
+		if self.NZBossType or self.IsMooBossZombie then return end
 
 		if duration == nil then
 			duration = 0
 		end
-		if speed == nil then
-			speed = 20
+		if ratio == nil then
+			ratio = 0.2
 		end
 
 		if IsValid(self.perk_zombshell_logic) then
@@ -29,7 +28,7 @@ if SERVER then
 		self.perk_zombshell_logic:SetPos(self:GetPos())
 		self.perk_zombshell_logic:SetParent(self)
 		self.perk_zombshell_logic:SetOwner(self)
-		self.perk_zombshell_logic:SetSpeed(speed)
+		self.perk_zombshell_logic:SetRatio(ratio)
 
 		self.perk_zombshell_logic:Spawn()
 		self.perk_zombshell_logic:Activate()
@@ -52,7 +51,7 @@ entMeta.IsZombSlowed = function(self)
 end
 
 ENT.SetupDataTables = function(self)
-	self:NetworkVar("Float", 0, "Speed")
+	self:NetworkVar("Float", 0, "Ratio")
 end
 
 ENT.Draw = function(self)
@@ -65,8 +64,10 @@ ENT.Initialize = function(self)
 
 	local p = self:GetParent()
 	if SERVER and IsValid(p) and p:IsValidZombie() then
-		p.loco:SetAcceleration(self:GetSpeed())
-		p.loco:SetDesiredSpeed(self:GetSpeed())
+		p.loco:SetVelocity(p.loco:GetVelocity() * self:GetRatio())
+		p.loco:SetDesiredSpeed(p.loco:GetDesiredSpeed() * self:GetRatio())
+		p.loco:SetAcceleration(p.loco:GetAcceleration() * self:GetRatio())
+		self.nxb_spd = p.loco:GetDesiredSpeed()
 	end
 
 	if CLIENT then return end
@@ -88,6 +89,12 @@ end
 
 ENT.Think = function(self)
 	if CLIENT then return false end
+
+	local p = self:GetParent()
+	if IsValid(p) and p:IsNextBot() then
+		p.loco:SetVelocity(p:GetForward() * self.nxb_spd)
+		p.loco:SetDesiredSpeed(self.nxb_spd)
+	end
 
 	if self.statusEnd < CurTime() then
 		self:Remove()

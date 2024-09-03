@@ -252,6 +252,7 @@ end
 hook.Add("OnDoorUnlocked", "UnlockthatShit", function(ent, link, ply)
 	if !IsValid(ent) then return end
 	local data = ent:GetDoorData()
+
 	local link = data.link
 
 	--print("Door Bought")

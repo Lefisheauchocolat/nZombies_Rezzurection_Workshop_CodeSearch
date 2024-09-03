@@ -80,7 +80,7 @@ function ENT:Deactivation(creativeMode)
 		timer.Create("nz.activatable.cooldown.timer." .. self:EntIndex(), time, 1, function() 
 			if IsValid(self) then 
 				if (self:GetElectricityNeeded()) then
-					if (nzElec:IsOn()) then
+					if (self.LocalPower and !nzElec:IsOn() or nzElec:IsOn()) then
 						self:Ready() 
 					end
 				else
@@ -97,8 +97,6 @@ function ENT:Ready()
 	self:EmitSound("nz_moo/effects/trap_available.mp3", 100)
 	self:SetCooldownActive(false)
 	self:OnReady()
-
-
 end
 
 function ENT:Use(act, caller, type, value )
@@ -110,7 +108,7 @@ function ENT:Use(act, caller, type, value )
 		end
 	return end
 
-	if not nzElec:IsOn() and self:IsElectricityNeeded() then return end
+	if self:IsElectricityNeeded() and (!nzElec:IsOn() and !self.LocalPower) then return end
 	if IsValid(caller) and caller:IsPlayer() and not self:IsRemoteActivated() and not self:IsCooldownActive() and not self:IsActive() then
 		if caller:CanAfford(self:GetCost()) then
 			self:Activation(caller, self:GetDuration(), self:GetCooldown())
@@ -161,11 +159,11 @@ function ENT:GetNZTargetText()
 
 	if !self:GetRenderVisibility() then return "" end
 	if self:IsActive() then return "Already Activated" end
-	if not self:IsElectricityNeeded() and nzElec:IsOn() and self:IsRemoteActivated() then
+	if !self:IsElectricityNeeded() and self:IsRemoteActivated() and (nzElec:IsOn() and !self.LocalPower or self.LocalPower) then
 		return false
 	end
 
-	if self:IsElectricityNeeded() and not nzElec:IsOn() then
+	if self:IsElectricityNeeded() and (!self.LocalPower and !nzElec:IsOn() or !nzElec:IsOn()) then
 		return "You must turn on the electricity first!"
 	else
 		if (self.Trap) then

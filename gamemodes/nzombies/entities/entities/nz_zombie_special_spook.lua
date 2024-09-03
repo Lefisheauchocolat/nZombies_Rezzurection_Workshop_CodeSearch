@@ -42,6 +42,7 @@ ENT.SpeedBasedSequences = true
 ENT.IsMooZombie = true
 ENT.IsMooSpecial = true
 ENT.MooSpecialZombie = true -- They're a Special Zombie, but is still close enough to a normal zombie to be able to do normal zombie things.
+ENT.IsMiniBoss = true
 
 ENT.AttackRange = 60
 ENT.DamageRange = 90 

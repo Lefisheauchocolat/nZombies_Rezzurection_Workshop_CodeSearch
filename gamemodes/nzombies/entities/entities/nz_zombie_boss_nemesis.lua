@@ -191,7 +191,7 @@ function ENT:HandleAnimEvent(a,b,c,d,e)
 				self.ClawHook = ents.Create("nz_nemesis_rocket")
 				self.ClawHook:SetPos(clawpos)
 				self.ClawHook:Spawn()
-				self.ClawHook:Launch(((tr.Entity:GetPos() + Vector(0,0,50)) - self.ClawHook:GetPos()):GetNormalized())
+				self.ClawHook:Launch(((target:GetPos() + Vector(0,0,50) + target:GetVelocity() * math.Clamp(target:GetVelocity():Length2D(),0,0.5)) - self.ClawHook:GetPos()):GetNormalized())
 				self:SetAngles((target:GetPos() - self:GetPos()):Angle())
 	end 
 
