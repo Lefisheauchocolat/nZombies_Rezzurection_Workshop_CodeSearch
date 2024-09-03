@@ -22,6 +22,8 @@ game.AddParticles("particles/nz_pap_muzzleflash.pcf")
 
 game.AddParticles("particles/magicbox.pcf")
 
+PrecacheParticleSystem("nz_gum_machine_loop")
+
 PrecacheParticleSystem("nz_powerup_classic_loop")
 PrecacheParticleSystem("nz_powerup_classic_intro")
 PrecacheParticleSystem("nz_powerup_classic_poof")

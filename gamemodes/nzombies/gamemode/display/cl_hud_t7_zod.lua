@@ -500,16 +500,24 @@ local function InventoryHUD_t7_zod()
 	local plyweptab = ply:GetWeapons()
 
 	local gumdata = nzGum:GetActiveGumData(ply)
-	if gumdata and nzGum:IsUseBaseGum(ply) then
+	if gumdata and (nzGum:IsUseBaseGum(ply) or nzGum:IsRoundBaseGum(ply)) then
 		surface.SetMaterial(t7_icon_gum)
 		surface.SetDrawColor(color_white)
 		surface.DrawTexturedRect(w - 168*scale, h - 246*scale, 64*scale, 64*scale)
 
 		local uses = ply:GetNWInt("nzCurrentGum_UsesRemain", 0)
+		local rounds = nzGum:RoundsRemain(ply)
+		if rounds > 0 then
+			uses = rounds
+		end
 		if uses > 0 then
-			surface.SetMaterial(t7_hud_ammo[uses])
-			surface.SetDrawColor(color_white)
-			surface.DrawTexturedRect(w - 168*scale, h - 274*scale, 64*scale, 64*scale)
+			if uses > 9 then
+				draw.SimpleTextOutlined(uses, ammofont, w - 137*scale, h - 256*scale, color_t7, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, color_t7_outline)
+			else
+				surface.SetMaterial(t7_hud_ammo[uses] or zmhud_icon_missing)
+				surface.SetDrawColor(color_white)
+				surface.DrawTexturedRect(w - 168*scale, h - 274*scale, 64*scale, 64*scale)
+			end
 		end
 	end
 

@@ -119,6 +119,7 @@ function ENT:SetupDataTables()
 	self:NetworkVar("Bool", 1, "LightsOn")
 	self:NetworkVar("Bool", 2, "AllLightsOn")
 	self:NetworkVar("Bool", 3, "Sharing")
+	self:NetworkVar("Bool", 4, "GumRevealed")
 	self:NetworkVar("Int", 0, "LightsStage")
 end
 
@@ -257,6 +258,7 @@ function ENT:GumDissapier()
 	self:TurnLightsOff()
 	self:SetLightFlash(false)
 	self:SetSharing(false)
+	self:SetGumRevealed(false)
 end
 
 function ENT:RollRandomGum(ply)
@@ -369,11 +371,20 @@ function ENT:StartRolling(ply)
 		end
 	end)
 
+	ParticleEffectAttach("nz_gum_machine_loop", PATTACH_POINT_FOLLOW, self, 11)
+	timer.Simple(1.45, function()
+		if !IsValid(self) then return end
+		self:StopParticles()
+		self:SetGumRevealed(true)
+	end)
+
 	timer.Simple(2.0, function()
 		if !IsValid(self) then return end
 
 		self:SetCycle(0)
 		self:ResetSequence("Gumball_Leave")
+		self:StopParticles()
+		self.use_cooldown = CurTime() + 0.8 + engine.TickInterval() //justin case
 
 		local gumdata = nzGum:GetData(self:GetCurrentGum())
 		if gumdata then
@@ -637,13 +648,16 @@ if CLIENT then
 	function ENT:Draw()
 		self:DrawModel()
 
+		local islighton = self:GetLightsOn()
+		local isflashing = self:GetLightFlash()
 		local isrolling = self:GetIsRolling()
-		local playerrolling = (isrolling and IsValid(self:GetCurrentUser()))
+		local validroller = IsValid(self:GetCurrentUser())
+		local playerrolling = (isrolling and validroller)
 		local glowpos = (self:GetPos() + vector_up*(42)) + self:GetForward() * 14
 		local glowcol, glowcol2 = color_lights, color_lights
 
 		local gumdata = nzGum:GetData(self:GetCurrentGum())
-		if gumdata and gumdata.type and (self:GetLightFlash() or playerrolling) then
+		if gumdata and gumdata.type and (isflashing or playerrolling) then
 			glowcol = nzGum.TypeColors[gumdata.type]
 			glowcol2 = glowcol
 		end
@@ -654,12 +668,12 @@ if CLIENT then
 
 		render.SetMaterial(glowmat)
 
-		local eyesize = (!isrolling and IsValid(self:GetCurrentUser())) and 4.5 or 2.5
+		local eyesize = (!isrolling and validroller) and 4.5 or 2.5
 		render.DrawSprite(self:GetAttachment(8).Pos + self:GetForward()*0.5, eyesize, eyesize, color_red)
 		render.DrawSprite(self:GetAttachment(9).Pos + self:GetForward()*0.5, eyesize, eyesize, color_red)
 
 		//stylized blinking
-		if !self:GetLightFlash() and !isrolling and self:GetLightsOn() then
+		if !isflashing and !isrolling and islighton then
 			local cooldowns_stage = self:GetLightsStage()
 			if cooldowns_stage == #cooldowns or cooldowns_stage == 1 then
 				local rsize1 = math.Rand(12,14)
@@ -688,22 +702,22 @@ if CLIENT then
 		end
 
 		//glow for rolled gum and gum spinning in the machine
-		if self:GetLightFlash() or playerrolling then
+		if (isflashing or playerrolling) and self:GetGumRevealed() then
 			local rsize = math.Rand(18,22)
-			render.DrawSprite(self:GetAttachment(10).Pos, rsize, rsize, glowcol2)
+			render.DrawSprite(self:GetAttachment(10).Pos, rsize*0.6, rsize*0.6, glowcol2)
 			render.DrawSprite(self:GetAttachment(12).Pos, rsize, rsize, glowcol2)
 		end
 
 		//dlight and flashing lights for rolled gum
-		if self:GetLightsOn() or playerrolling then
+		if islighton or playerrolling then
 			if playerrolling then
 				glowpos = self:GetAttachment(11).Pos
 			end
-			if !isrolling and IsValid(self:GetCurrentUser()) then
+			if !isrolling and validroller then
 				glowpos = self:GetAttachment(12).Pos
 			end
 
-			if self:GetLightFlash() or (self:GetLightsOn() and playerrolling) then
+			if isflashing or (islighton and playerrolling) then
 				local rsize1 = math.Rand(16,18) * (playerrolling and 0.77777 or 1)
 				local rsize2 = math.Rand(16,18) * (playerrolling and 0.77777 or 1)
 				local rsize3 = math.Rand(16,18) * (playerrolling and 0.77777 or 1)

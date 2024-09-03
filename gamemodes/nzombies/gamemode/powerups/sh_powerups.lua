@@ -1367,29 +1367,40 @@ nzPowerUps:NewPowerUp("infinite", {
 			["display"] = true,
 		}
 
-		timer.Create(clipSizeCheckTimerName, 0.1, 0, function()
-			if nzPowerUps:IsPowerupActive("infinite") then
-				for _, ply in ipairs(player.GetAll()) do
-					local wep = ply:GetActiveWeapon()
-					if not IsValid(wep) then continue end
-					if wep.NZSpecialCategory and illegalspecials[wep.NZSpecialCategory] then continue end
+		local function RefillPlayersClip()
+			for _, ply in ipairs(player.GetAll()) do
+				local wep = ply:GetActiveWeapon()
+				if not IsValid(wep) then continue end
+				if wep.NZSpecialCategory and illegalspecials[wep.NZSpecialCategory] then continue end
 
-					if wep.IsTFAWeapon then
-						if (wep.Primary_TFA and wep.Primary_TFA.ClipSize) and wep.Primary_TFA.ClipSize > 0 and wep:GetPrimaryAmmoType() > 0 then
-							wep:SetClip1(wep.Primary_TFA.ClipSize)
-						end
-						if (wep.Secondary_TFA and wep.Secondary_TFA.ClipSize) and wep.Secondary_TFA.ClipSize > 0 and (wep.ShieldEnabled or wep:GetSecondaryAmmoType() > 0) then
-							wep:SetClip2(wep.Secondary_TFA.ClipSize)
-						end
-					else
-						if wep:GetMaxClip1() > 0 then
-							wep:SetClip1(wep:GetMaxClip1())
-						end
-						if wep:GetMaxClip2() > 0 then
-							wep:SetClip2(wep:GetMaxClip2())
+				if wep.IsTFAWeapon then
+					if (wep.Primary_TFA) then
+						local clipsize = wep.Primary_TFA.ClipSize
+					 	if clipsize and clipsize > 0 and wep:Clip1() < clipsize and wep:GetPrimaryAmmoType() > 0 then
+							wep:SetClip1(clipsize)
 						end
 					end
+					if (wep.Secondary_TFA) then
+						local clipsize2 = wep.Secondary_TFA.ClipSize
+					 	if clipsize2 and clipsize2 > 0 and wep:Clip2() < clipsize2 and wep:GetSecondaryAmmoType() > 0 then
+							wep:SetClip2(clipsize2)
+						end
+					end
+				else
+					if wep:GetMaxClip1() > 0 then
+						wep:SetClip1(wep:GetMaxClip1())
+					end
+					if wep:GetMaxClip2() > 0 then
+						wep:SetClip2(wep:GetMaxClip2())
+					end
 				end
+			end
+		end
+
+		RefillPlayersClip()
+		timer.Create(clipSizeCheckTimerName, 0.1, 0, function()
+			if nzPowerUps:IsPowerupActive("infinite") then
+				RefillPlayersClip()
 			else
 				timer.Remove(clipSizeCheckTimerName)
 			end

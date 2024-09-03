@@ -816,6 +816,83 @@ nzGum:RegisterGum("roundrobbin", {
     end,
 })
 
+nzGum:RegisterGum("ee_song", {
+    name = "These Cats Are Cooking!",
+    type = nzGum.Types.USABLE_WITH_TIMER,
+    rare = nzGum.RareTypes.PINWHEEL,
+    uses = 3,
+    time = 240,
+    desc = "Plays the maps easter egg song.",
+    icon = Material("gums/TheseCatsAreCooking.png", "smooth unlitgeneric"),
+    onuse = function(ply)
+        PrintMessage( HUD_PRINTTALK,"Assume all Easter Egg songs are copyrighted!")
+        nzSounds:Play("Music")
+    end,
+})
+
+nzGum:RegisterGum("immolation_liquidation", {
+    name = "Immolation Liquidation",
+    type = nzGum.Types.USABLE,
+    rare = nzGum.RareTypes.MEGA,
+    uses = 1,
+    desc = "Spawns a Fire Sale Power-Up.",
+    icon = Material("gums/ImmolationLiquidation.png", "smooth unlitgeneric"),
+    canroll = function(ply, ent)
+        return nzPowerUps.BoxMoved == true
+    end,
+    onuse = function(ply)
+        local enddir = Vector(ply:GetPos()[1] + ply:GetAimVector()[1] * 80, ply:GetPos()[2] + ply:GetAimVector()[2] * 80, ply:GetPos()[3] + 1)
+        if not GetBoxAroundEnt(ply, enddir).Hit then
+            nzPowerUps:SpawnPowerUp(enddir, "firesale")
+        else
+            nzPowerUps:SpawnPowerUp(ply:GetPos() + vector_up, "firesale")
+        end
+    end,
+})
+
+nzGum:RegisterGum("power_people", {
+    name = "Power To The People",
+    type = nzGum.Types.USABLE,
+    rare = nzGum.RareTypes.RAREMEGA,
+    uses = 3,
+    icon = Material("gums/PowerToThePeople.png", "smooth unlitgeneric"),
+    desc = "Activates anything besides doors that require power within a radius around you.",
+    canroll = function(ply, ent)
+        if nzElec.IsOn() then
+            return false
+        end
+        return true
+    end,
+    canuse = function(ply)
+        if not IsValid(ply) then return false end
+
+        local radius = 150
+        local entities = ents.FindInSphere(ply:GetPos(), radius)
+        local targets = {"perk_machine", "wunderfizz_machine"}
+        
+        for _, ent in ipairs(entities) do
+            if table.HasValue(targets, ent:GetClass()) and ent.IsOn and not ent:IsOn() then
+                return true 
+            end
+        end
+
+        return false -- checks if there's anything to turn on, if not you cant use it
+    end,
+    onuse = function(ply)
+        if not IsValid(ply) then return end
+        
+        local radius = 300
+        local entities = ents.FindInSphere(ply:GetPos(), radius)
+        local targets = {"perk_machine", "wunderfizz_machine"}
+        
+        for _, ent in ipairs(entities) do
+            if table.HasValue(targets, ent:GetClass()) and ent.IsOn and not ent:IsOn() then
+                ent:TurnOn()
+            end
+        end
+    end,
+})
+
 --[[-------------------------------------------------------------------------
 Oranges
 ---------------------------------------------------------------------------]]

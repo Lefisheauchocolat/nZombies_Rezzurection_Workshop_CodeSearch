@@ -425,10 +425,20 @@ end
 //Stock Options metafunc override
 local wepmeta = FindMetaTable("Weapon")
 if wepmeta then
+	local illegalspecials = {
+		["specialweapon"] = true, //would do nothing
+		["grenade"] = true, //would do nothing
+		["knife"] = true,
+		["display"] = true,
+	}
+
 	local old_setclip1 = wepmeta.SetClip1
 	function wepmeta:SetClip1(amount, ...)
-		if nzPowerUps:IsPowerupActive("infinite") then
-			return old_setclip1(self, amount, ...)
+		if nzPowerUps:IsPowerupActive("infinite") and (self.IsTFAWeapon or self.NZInfiniteSafe) and (!self.NZSpecialWeapon or illegalspecials[self.NZSpecialWeapon]) then
+			if amount >= self:Clip1() then
+				return old_setclip1(self, amount, ...)
+			end
+			return self:Clip1()
 		end
 		if self.NZSpeedRegenerating then
 			return old_setclip1(self, amount, ...)
@@ -459,8 +469,11 @@ if wepmeta then
 
 	local old_setclip2 = wepmeta.SetClip2
 	function wepmeta:SetClip2(amount, ...)
-		if nzPowerUps:IsPowerupActive("infinite") then
-			return old_setclip2(self, amount, ...)
+		if nzPowerUps:IsPowerupActive("infinite") and (self.IsTFAWeapon or self.NZInfiniteSafe) and (!self.NZSpecialWeapon or illegalspecials[self.NZSpecialWeapon]) then
+			if amount >= self:Clip2() then
+				return old_setclip2(self, amount, ...)
+			end
+			return self:Clip2()
 		end
 		if self.NZSpeedRegenerating then
 			return old_setclip2(self, amount, ...)

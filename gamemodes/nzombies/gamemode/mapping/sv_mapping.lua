@@ -568,35 +568,6 @@ function nzMapping:BlockSpawn(pos, ang, model, flags, ply)
 	return block
 end
 
-function nzMapping:JumpBlockSpawn(pos, ang, model, ply)
-	local jumpblock = ents.Create( "jumptrav_block" )
-	
-	-- Replace with nZombies versions of the same model (if exist) which are grate-based (bullets go through)
-	local model2 = string.Replace(model, "/hunter/plates/", "/nzombies_plates/")
-	if !util.IsValidModel(model2) then
-		model2 = model
-	end
-	
-	jumpblock:SetModel( model2 )
-	jumpblock:SetPos( pos )
-	jumpblock:SetAngles( ang )
-	jumpblock:Spawn()
-	jumpblock:PhysicsInit( SOLID_VPHYSICS )
-
-	local phys = jumpblock:GetPhysicsObject()
-	if IsValid(phys) then
-		phys:EnableMotion(false)
-	end
-
-	if ply then
-		undo.Create( "Jump Traversal Block" )
-			undo.SetPlayer( ply )
-			undo.AddEntity( jumpblock )
-		undo.Finish( "Effect (" .. tostring( model ) .. ")" )
-	end
-	return jumpblock
-end
-
 function nzMapping:BoxSpawn(pos, ang, spawn, ply)
 	local box = ents.Create( "random_box_spawns" )
 	box:SetPos( pos )
