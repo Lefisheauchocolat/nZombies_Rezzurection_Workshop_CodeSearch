@@ -6,6 +6,7 @@ end
 -- QuickFunctions
 PropMenuAddEntity = nzQMenu.AddNewEntity
 PropMenuAddEntity("edit_color", "gmod/demo.png", "Color Correction Editor")
+PropMenuAddEntity("edit_sky", "gmod/demo.png", "Color Correction Editor")
 PropMenuAddEntity("nz_fire_effect", "icon16/fire.png", "Fire Effect")
 --[[PropMenuAddEntity("nz_pparticle_ballcore", "icon16/cd.png", "Ball Core")
 PropMenuAddEntity("nz_pparticle_core", "icon16/cd.png", "Core")

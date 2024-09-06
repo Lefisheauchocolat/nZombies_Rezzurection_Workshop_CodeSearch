@@ -2,6 +2,7 @@ AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
 ENT.Type = "nextbot"
+ENT.PrintName = "Apothicon Furry"
 ENT.Category = "Brainz"
 ENT.Author = "Loonicity"
 ENT.Spawnable = true

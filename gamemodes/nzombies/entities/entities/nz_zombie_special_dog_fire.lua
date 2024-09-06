@@ -1,7 +1,7 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
-ENT.PrintName = "Plaguehound"
+ENT.PrintName = "Hellhound(BOCW)"
 ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 

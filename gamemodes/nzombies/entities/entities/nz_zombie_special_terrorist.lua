@@ -1,6 +1,7 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
+ENT.PrintName = "CSGO Player"
 ENT.Type = "nextbot"
 ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"

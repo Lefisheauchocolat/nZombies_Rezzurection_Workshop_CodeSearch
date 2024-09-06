@@ -2,7 +2,7 @@ AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
 ENT.Type = "nextbot"
-ENT.PrintName = "Fallout 4 Deathclaw"
+ENT.PrintName = "Deathclaw"
 ENT.Category = "Brainz"
 ENT.Author = "Wavy"
 ENT.Spawnable = true

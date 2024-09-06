@@ -66,7 +66,7 @@ function nzPerks:GetMachineType(id)
 	if id == "Bo3" then
 	return "VG"
 	end
-	if id == "Classic" then
+	if id == "Classic" or "Classic Four" then
     return "CLASSIC"
     end
 	if id == nil then
