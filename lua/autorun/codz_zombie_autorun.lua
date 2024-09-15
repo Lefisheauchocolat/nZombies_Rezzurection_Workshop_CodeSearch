@@ -29,6 +29,10 @@ PrecacheParticleSystem("zmb_mimic_mouth")
 PrecacheParticleSystem("zmb_mimic_trans")
 PrecacheParticleSystem("zmb_mimic_hide")
 
+PrecacheParticleSystem("zmb_explosive_zombie_aura")
+PrecacheParticleSystem("zmb_explosive_zombie_step")
+PrecacheParticleSystem("zmb_explosive_zombie_explo")
+
 PrecacheParticleSystem("zmb_screamer_shoulder")
 
 PrecacheParticleSystem("zmb_monster_explosion")

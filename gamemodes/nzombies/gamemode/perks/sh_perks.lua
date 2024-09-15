@@ -816,6 +816,9 @@ nzPerks:NewPerk("banana", {
 	func = function(self, ply, machine)
 	end,
 	lostfunc = function(self, ply)
+	if  not ply:GetGravity() == 1 then
+	ply:SetGravity( 1 )
+	end
 	end,
 	upgradefunc = function(self, ply)
 	end,

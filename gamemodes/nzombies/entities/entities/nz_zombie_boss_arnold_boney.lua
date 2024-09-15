@@ -261,8 +261,6 @@ function ENT:PerformDeath(dmginfo)
 		self:DoDeathAnimation(self.DeathSequences[math.random(#self.DeathSequences)])
 	end
 
-	self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
-
 	
 	--self:StopSound(self.IdleMusic)
 

@@ -896,7 +896,7 @@ nzRound:AddBossType("Terminator", "nz_zombie_boss_arnold", {
 		end
 	end,
 })
---[[nzRound:AddBossType("Panzermorder", "nz_zombie_boss_meatflower", {
+nzRound:AddBossType("Panzermorder", "nz_zombie_boss_meatflower", {
 	specialspawn = false,
 	health = 50000,
 	scale = 200,
@@ -920,7 +920,7 @@ nzRound:AddBossType("Terminator", "nz_zombie_boss_arnold", {
 			attacker:GivePoints(150) -- Give killer 500 points if not downed
 		end
 	end,
-})]]--
+})
 nzRound:AddBossType("Scrake", "nz_zombie_boss_scrake", {
 	specialspawn = false,
 	health = 500,

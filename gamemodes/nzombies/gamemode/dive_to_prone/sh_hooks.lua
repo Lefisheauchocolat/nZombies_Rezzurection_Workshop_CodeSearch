@@ -227,6 +227,7 @@ if CLIENT then
 			return 0.05
 			end
 		elseif onground and landingtime > CT then
+			ply:SetGravity( 1 )
 			return (1 - math.Clamp((ply:GetLandingTime() - CT) / 0.5, 0, 0.9)) * 0.85
 		else
 			return nil

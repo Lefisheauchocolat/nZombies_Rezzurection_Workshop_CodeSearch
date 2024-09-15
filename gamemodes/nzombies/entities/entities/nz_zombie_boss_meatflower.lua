@@ -124,8 +124,6 @@ function ENT:StatsInitialize()
     if SERVER then
         local data = nzRound:GetBossData(self.NZBossType)
         local count = #player.GetAllPlaying()
-        print(self.NZBossType)
-        PrintTable(data)
         if nzRound:InState( ROUND_CREATE ) then
             self:SetHealth(500)
             self:SetMaxHealth(500)
@@ -133,14 +131,15 @@ function ENT:StatsInitialize()
             self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
             self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
         end
-        
+        self.racismblocker = false
         self.down=false
         self.revives = 3
         self.NextAction = 0
         self:SetMooSpecial(true)
         self:SetRunSpeed( 55 )
         self.loco:SetDesiredSpeed( 55 )
-        self:SetCollisionBounds(Vector(-50,-50, 0), Vector(50, 50, 250))
+		self:SetCollisionBounds(Vector(-14,-14, 0), Vector(14, 14, 72))
+        self:SetSurroundingBounds(Vector(-50,-50, 0), Vector(50, 50, 250))
     end
 end
 function ENT:OnSpawn()
@@ -168,7 +167,10 @@ function ENT:OnInjured( dmgInfo )
 		dmgInfo:ScaleDamage(0)
 		if dmgInfo:IsDamageType(DMG_SHOCK) then
 		self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
+		if not self.racismblocker then
 		self.revives = self.revives-1
+		self.racismblocker = true
+		end
 		print(self.revives)
 		end
 		end
@@ -176,14 +178,11 @@ function ENT:OnInjured( dmgInfo )
 		self.down = true
 		dmgInfo:ScaleDamage(0)
 		self:SetInvulnerable(true)
-		--self:SetSpecialShouldDie(true)
 		self:EmitSound("enemies/bosses/divider/divider_merge_18.ogg", 94, math.random(90,100))
 		self:EmitSound("enemies/bosses/re2/em7100/down.ogg", 94, math.random(90,100))
-			--ParticleEffect("bo3_margwa_death",self:LocalToWorld(Vector(0,0,0)),Angle(0,0,0),nil)
-					self:DoSpecialAnimation("s2_zom_brt_stun_up_v1")
-					self:DoSpecialAnimation("s2_zom_brt_stun_loop_v1")
+		self:DoSpecialAnimation("s2_zom_brt_stun_up_v1")
+		self:DoSpecialAnimation("s2_zom_brt_stun_loop_v1")
 		self:DoSpecialAnimation("s2_zom_brt_stun_down_v1")
-		 
 		 self:SetHealth(self:GetMaxHealth())
 		self.down = true
 		if self.revives < 1 and self.down then 
@@ -207,7 +206,7 @@ function ENT:PerformDeath(dmgInfo)
 		self:EmitSound("enemies/bosses/divider/divider_merge_18.ogg", 94, math.random(90,100))
 			ParticleEffect("baby_dead",self:LocalToWorld(Vector(0,0,0)),Angle(0,0,0),nil)
 			ParticleEffect("nbnz_gib_explosion",self:LocalToWorld(Vector(0,0,0)),Angle(0,0,0),nil)
-			nzPowerUps:SpawnPowerUp(self:GetPos(), "bottle2")
+			nzPowerUps:SpawnPowerUp(self:GetPos(), "bottle")
 			self:Remove()
 		end
 end
@@ -217,9 +216,6 @@ function ENT:OnPathTimeOut()
 	local target = self:GetTarget()
 	local actionchance = math.random(10)
 	local comedyday = os.date("%d-%m") == "01-04"
-
-	if CurTime() < self.NextAction then return end
-	for k,v in pairs(player.GetAll()) do
 	
 		
 	if  actionchance == 1 and CurTime() > self.NextAction then
@@ -230,7 +226,6 @@ function ENT:OnPathTimeOut()
 		self.NextAction = CurTime() + math.random(20)
 		end
 	end
-	end
 
 
 
@@ -239,6 +234,7 @@ function ENT:HandleAnimEvent(a,b,c,d,e)
 	
 	if e == "ps s2_zom_brt_stun_up_v1" then
 		self.down = false
+		self.racismblocker = false
 		self:SetInvulnerable(false)
 	end
 	

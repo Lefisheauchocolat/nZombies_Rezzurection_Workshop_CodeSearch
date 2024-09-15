@@ -96,8 +96,9 @@ function ENT:Initialize()
 	self:SetRunSpeed( self.RunSpeed ) --fallback
 	self:SetWalkSpeed( self.WalkSpeed ) --fallback
 
-	self:SetCollisionBounds(Vector(-18,-18, 0), Vector(18, 18, 90))
-
+	self:SetCollisionBounds(Vector(-14,-14, 0), Vector(14, 14, 72))
+		self:SetSurroundingBounds(Vector(-34,-34, 0), Vector(34, 34, 100))
+	
 	self:SetActStage(0)
 	self:SetSpecialAnimation(false)
 

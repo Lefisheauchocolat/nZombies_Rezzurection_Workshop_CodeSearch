@@ -54,6 +54,7 @@ function player:GetHUDPointsType(id)
 	if id == "Simple (Outline)" 		then return "simple_score1.png" 		end
 	if id == "Black Ops 3" 				then return "bo3_score1.png" 			end
 	if id == "Cold War" 				then return "cw_score1.png" 			end
+	if id == "Kell" 				then return "kell_points.png" 			end
 	if id == nil 						then return "bloodline_score2.png" 		end
 end
 

@@ -109,7 +109,8 @@ function ENT:StatsInitialize()
 		self:SetMooSpecial(true)
 		self:SetRunSpeed( 20 )
 		self.loco:SetDesiredSpeed( 20 )
-		self:SetCollisionBounds(Vector(-32,-32, 0), Vector(32, 32, 130))
+		self:SetCollisionBounds(Vector(-14,-14, 0), Vector(14, 14, 72))
+		self:SetSurroundingBounds(Vector(-50,-50, 0), Vector(50, 50, 150))
 	end
 end
 

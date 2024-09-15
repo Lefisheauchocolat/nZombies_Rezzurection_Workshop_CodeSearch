@@ -277,7 +277,7 @@ nzRound:AddHUDType("Fallout", 					"fallout.png", {})
 nzRound:AddHUDType("Miku", 						"miku_hud.png", {}) 
 nzRound:AddHUDType("BSAA", 						"bsaa_hud.png", {}) 
 nzRound:AddHUDType("Deep Rock Galactic", 		"DRG_hud.png", {}) 
-
+nzRound:AddHUDType("Kell", 		"Kell_hud.png", {}) 
 
 function nzRound:GetHUDType(id)
 	if id == nil then 
