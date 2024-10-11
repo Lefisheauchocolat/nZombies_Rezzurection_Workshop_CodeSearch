@@ -14,9 +14,9 @@ SWEP.AutoSwitchFrom = false
 SWEP.DrawAmmo = false
 
 --[Model]--
-SWEP.ViewModel = "models/nz/perks/vm_t6_perk_bottle.mdl"
+SWEP.ViewModel = "models/nzr/2024/perks/bo2/vm_t6_perk_bottle.mdl"
 SWEP.ViewModelFOV = 70
-SWEP.WorldModel = "models/nz/perks/wm_t6_perk_bottle.mdl"
+SWEP.WorldModel = "models/nzr/2024/perks/bo2/world/wm_t6_perk_bottle.mdl"
 SWEP.HoldType = "slam"
 SWEP.CameraAttachmentOffsets = {}
 SWEP.CameraAttachmentScale = 1
@@ -76,8 +76,6 @@ SWEP.SafetyPos = Vector(0, 0, 0)
 SWEP.SafetyAng = Vector(0, 0, 0)
 SWEP.TracerCount = 0
 
-
-
 --[Tables]--
 SWEP.SequenceRateOverride = {
 }
@@ -127,6 +125,7 @@ SWEP.WorldModelBoneMods = {
 
 DEFINE_BASECLASS(SWEP.Base)
 
+
 local sp = game.SinglePlayer()
 
 function SWEP:SetupDataTables(...)
@@ -136,11 +135,33 @@ function SWEP:SetupDataTables(...)
 end
 
 function SWEP:PreDrawViewModel(...)
-	if self:VMIV() and self.GetPerk then
-		self.Skin = tonumber(nzPerks:Get(self:GetPerk()).material)
+	local vm = self.OwnerViewModel
+
+	local perk = self.GetPerk and self:GetPerk() or ""
+	if perk and perk ~= "" then
+		local mattable = nzPerks:GetBottleTextures(self:GetClass())
+		if mattable then
+			for id, mat in pairs(mattable) do
+				vm:SetSubMaterial(id, mat..perk)
+			end
+		end
 	end
 
 	return BaseClass.PreDrawViewModel(self, ...)
+end
+
+function SWEP:DrawWorldModel(...)
+	local perk = self.GetPerk and self:GetPerk() or ""
+	if perk and perk ~= "" then
+		local mattable = nzPerks:GetBottleTextures(self:GetClass())
+		if mattable then
+			for id, mat in pairs(mattable) do
+				self:SetSubMaterial(id, mat..perk)
+			end
+		end
+	end
+
+	return BaseClass.DrawWorldModel(self, ...)
 end
 
 function SWEP:Think2(...)

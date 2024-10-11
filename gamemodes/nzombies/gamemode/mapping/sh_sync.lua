@@ -1,9 +1,12 @@
 if SERVER then
 	util.AddNetworkString( "nzMapping.SyncSettings" )
 
+	local developer = GetConVar("developer")
 	local function receiveMapData(len, ply)
 		local tbl = net.ReadTable()
-		PrintTable(tbl)
+		if developer:GetBool() then
+			PrintTable(tbl)
+		end
 		nzMapping:LoadMapSettings(tbl)
 		-- nzMapping.Settings = tbl
 	end
@@ -62,6 +65,20 @@ if CLIENT then
 				if wep and (wep.WM or wep.WorldModel) then
 					util.PrecacheModel(wep.WM or wep.WorldModel)
 					model:SetModel(wep.WM or wep.WorldModel)
+				end
+			end
+			model:Remove()
+		end
+
+		if nzMapping.Settings.wunderfizzperklist then
+			local model = ClientsideModel("models/hoff/props/teddy_bear/teddy_bear.mdl")
+			for k, v in pairs(nzMapping.Settings.wunderfizzperklist) do
+				if !v[1] then continue end
+
+				local pdata = nzPerks:Get(k)
+				if pdata and pdata.model then
+					util.PrecacheModel(pdata.model)
+					model:SetModel(pdata.model)
 				end
 			end
 			model:Remove()

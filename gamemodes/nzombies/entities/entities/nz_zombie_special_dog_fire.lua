@@ -1,7 +1,7 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
-ENT.PrintName = "Hellhound(BOCW)"
+ENT.PrintName = "Hellhound"
 ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 
@@ -184,6 +184,9 @@ function ENT:StatsInitialize()
 		self.Sprinting = false
 		self.Exploded = false
 
+		self:SetHealth( nzRound:GetZombieHealth() * 0.25 or 75 )
+		self:SetMaxHealth( self:Health() )
+		
 		self.Lunging = false
 		self.LastLunge = CurTime() + 5
 
@@ -251,6 +254,7 @@ function ENT:PostAdditionalZombieStuff()
 end 
 
 function ENT:PerformDeath(dmginfo)
+	self.Dying = true
 	local damagetype = dmginfo:GetDamageType()
 
 	self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)

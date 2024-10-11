@@ -1,7 +1,8 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
-ENT.PrintName = "Fire Skeleton that shoots spooky skulls at you"
+--ENT.PrintName = "Fire Skeleton that shoots spooky skulls at you"
+ENT.PrintName = "SS Fire Skeleton"
 ENT.Type = "nextbot"
 ENT.Category = "Brainz"
 ENT.Author = "Wavy"
@@ -328,7 +329,9 @@ function ENT:OnSpawn()
 	end
 end
 
-function ENT:PerformDeath(dmginfo)
+function ENT:PerformDeath(dmginfo)	
+	self.Dying = true
+
 	self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(95, 105), 1, 2)
 	self:StopSound("nz_moo/zombies/vox/_napalm/evt_napalm_zombie_loop.wav")
 	self:BecomeRagdoll(dmginfo)

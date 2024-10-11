@@ -1,4 +1,4 @@
-nzMapping.Version = 400 --Note to Ali; Any time you make an update to the way this is saved, increment this.
+nzMapping.Version = 21 --Note to Ali; Any time you make an update to the way this is saved, increment this.
 
 local savemodules = savemodules or {}
 
@@ -185,15 +185,24 @@ function nzMapping:LoadConfig( name, loader )
 			print("Warning: This map config was made with an older version of nZombies. After this has loaded, use the save command to save a newer version.")
 		end
 
-		if version < 300 then
-			print("Warning: Inital Version: No changes have been made.")
-		end
-
-		if version < 350 then
-			print("Warning: This map config does not contain any set barricades.")
-		end
-
 		self:ClearConfig(true) -- We pass true to not clean up the map
+        
+        -- runs through the powerupslist and automatically disables any specified powerups as to avoid disrupting old configs
+        if version < 21 or version == 400 then
+            data.MapSettings = data.MapSettings or {}
+            data.MapSettings.poweruplist = data.MapSettings.poweruplist or {}
+
+            local poweruplist = data.MapSettings.poweruplist
+
+            if not poweruplist["random_gum"] then
+                poweruplist["random_gum"] = { false, "Random Gum" }
+            end
+
+            if not poweruplist["full_armor"] then
+                poweruplist["full_armor"] = { false, "Full Armor" }
+            end
+            data.MapSettings.poweruplist = poweruplist
+        end
 		
 		-- Then we can load if entity extensions are to be used
 		if data.MapSettings then
@@ -250,6 +259,11 @@ function nzMapping:LoadConfig( name, loader )
 			nzNav.NavGroupIDs = data.NavGroupIDs
 		end
 
+		-- Set player health to new default if the version is outdated.
+		if (version < 21 or version == 400) and nzMapping.Settings.hp == 100 then 
+			nzMapping.Settings.hp = 150 
+		end
+
 		for k,v in pairs(player.GetAll()) do
 			nzMapping:SendMapData(v)
 		end
@@ -288,8 +302,9 @@ function nzMapping:LoadConfig( name, loader )
 		end
 
 		print("[nZ] Finished loading map config.")
-		for i, playr in ipairs( player.GetAll() ) do
-			playr:ChatPrint( "Make sure you press submit on map settings to update your config to the newest gamemode version!" )
+		for i, ply in ipairs( player.GetAll() ) do
+			ply:ChatPrint( "Make sure you press submit on map settings to update your config to the newest gamemode version!" )
+			ply:ChatPrint( "[nZ] Config Version: v" .. tostring(version) )
 		end
 		hook.Call("PostConfigLoad", nil, true)
 	else

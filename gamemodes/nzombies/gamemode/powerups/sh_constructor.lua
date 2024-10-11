@@ -112,6 +112,13 @@ nzPowerUps:NewStyle("style_waypoint", {
 	poof = "nz_powerup_glowy_poof_alt_alt",
 })
 
+nzPowerUps:NewStyle("style_sparkler", {
+	name = "Sparkler",
+	loop = "nz_powerup_sparkler_loop",
+	intro = "nz_powerup_sparkler_intro",
+	poof = "nz_powerup_sparkler_poof",
+})
+
 function nzPowerUps:PowerupChanceIncrement()
 	return (nzPowerUps.PowerupChanceOverride or GetConVar("nz_difficulty_powerup_chance"):GetFloat()) / 10
 end

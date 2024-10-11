@@ -1,7 +1,8 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
-ENT.PrintName = "TAAAAAAAAANK!"
+--ENT.PrintName = "TAAAAAAAAANK!"
+ENT.PrintName = "Tank"
 ENT.Type = "nextbot"
 ENT.Category = "Brainz"
 ENT.Author = "Wavy"
@@ -35,8 +36,10 @@ ENT.AttackDamage = 80
 ENT.Models = {
 	{Model = "models/wavy/wavy_enemies/hulk/l4d1/hulk.mdl", Skin = 0, Bodygroups = {0,0}},
 	{Model = "models/wavy/wavy_enemies/hulk/l4d2/hulk.mdl", Skin = 0, Bodygroups = {0,0}},
-	--{Model = "models/wavy/wavy_enemies/hulk/l4d_dlc3/hulk_dlc3.mdl", Skin = 0, Bodygroups = {0,0}},
 	{Model = "models/wavy/wavy_enemies/hulk/l4d_ml/hulk_l4d1_ml.mdl", Skin = 3, Bodygroups = {0,0}},
+	{Model = "models/moo/_moo_ports/l4d/infected/hulk_remastered/spicyjam_hulk.mdl", Skin = 0, Bodygroups = {0,0}}, -- Army man
+
+	--{Model = "models/wavy/wavy_enemies/hulk/l4d_dlc3/hulk_dlc3.mdl", Skin = 0, Bodygroups = {0,0}},
 }
 
 local util_tracehull = util.TraceHull
@@ -301,8 +304,10 @@ function ENT:StatsInitialize()
 				self:SetMaxHealth(10000)	
 			end
 		end
-		--self:SetRunSpeed(nzRound:GetNumber() >= 30 and 155 or 71) -- could be useful later, but the tanks supersprint is so fast he constantly times out lol
-		self:SetRunSpeed(71)
+
+		-- Now using because the timeout no longer pauses nextbot movements.
+		self:SetRunSpeed(nzRound:GetNumber() >= 35 and 155 or 71) -- could be useful later, but the tanks supersprint is so fast he constantly times out lol
+		--self:SetRunSpeed(71)
 		self:SetCollisionBounds(Vector(-16,-16, 0), Vector(16, 16, 72))			-- Nextbots Collision Box(Mainly for interacting with the world.)
 		self:SetSurroundingBounds(Vector(-40, -40, 0), Vector(40, 40, 90)) 	-- Nextbots Surrounding Bounds(For Hitbox detection.)
 		
@@ -379,6 +384,9 @@ function ENT:OnRemove()
 end
 
 function ENT:PerformDeath(dmginfo)
+
+	self.Dying = true
+
 	local damagetype = dmginfo:GetDamageType()
 	local attacker = dmginfo:GetAttacker()
 	if IsValid(attacker) and attacker:IsPlayer() and TFA.BO3GiveAchievement and meleetypes[dmginfo:GetDamageType()] then
@@ -411,6 +419,20 @@ function ENT:PostAdditionalZombieStuff()
 		if !self:GetTarget():IsPlayer() then return end
 		if self:TargetInRange(300) then return end
 		self:RockThrow()
+	end
+
+
+	-- Knock normal zombies aside
+	for k,v in nzLevel.GetZombieArray() do
+		if IsValid(v) and !v:GetSpecialAnimation() and v.IsMooZombie and !v.Non3arcZombie and (v.IsMooSpecial and v.MooSpecialZombie or !v.IsMooSpecial and !v.MooSpecialZombie) and v ~= self then
+			if self:GetRangeTo( v:GetPos() ) < 10^2 then	
+				if v.IsMooZombie and (v.IsMooSpecial and v.MooSpecialZombie or !v.IsMooSpecial and !v.MooSpecialZombie) and !v:GetSpecialAnimation() and self:GetRunSpeed() > 36 then
+					if v.PainSequences then
+						v:DoSpecialAnimation(v.PainSequences[math.random(#v.PainSequences)], true, true)
+					end
+				end
+			end
+		end
 	end
 end
 
@@ -604,11 +626,13 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 		local larmfx_tag = self:LookupBone("ValveBiped.debris_bone")
 		self.Debris = ents.Create("nz_prop_effect_attachment")
 		self.Debris:SetModel("models/props_debris/concrete_chunk01a.mdl")
+
+		-- Doing it in this order allows the debris model to be positioned correctly.
+		self.Debris:SetParent(self, 7)
 		self.Debris:SetAngles( self:GetAngles() + Angle(0,90,0) )
 		self.Debris:SetPos(self:GetAttachment(self:LookupAttachment("debris")).Pos)
+
 		self.Debris:Spawn()
-		self.Debris:SetParent(self)
-		self.Debris:FollowBone( self, larmfx_tag )
 		self:DeleteOnRemove( self.Debris )
 	end
 	if e == "hulk_rock_throw" then

@@ -1,19 +1,5 @@
 local playerMeta = FindMetaTable("Player")
 if SERVER then
-	local cvar_bleedout = GetConVar("nz_downtime")
-	function playerMeta:SetBleedoutTime(num)
-		self:SetNW2Float("nzBleedoutTime", num)
-	end
-
-	function playerMeta:GetTrueBleedoutTime()
-		return self:GetNW2Float("nzBleedoutTime", 0)
-	end
-
-	function playerMeta:GetBleedoutTime()
-		local bleedtime = self:GetTrueBleedoutTime()
-		return (bleedtime > 0 and bleedtime) or cvar_bleedout:GetFloat()
-	end
-
 	function playerMeta:DownPlayer()
 		local id = self:EntIndex()
 
@@ -32,7 +18,7 @@ if SERVER then
 
 		-- downed players are not targeted
 		self:SetTargetPriority(TARGET_PRIORITY_NONE)
-		self:SetHealth(100)
+		self:SetHealth(nzMapping.Settings.hp or 100)
 
 		if #player.GetAllPlaying() > 1 and self:HasUpgrade("tombstone") and !self.FightersFizz then
 			self.FightersFizz = true
@@ -141,12 +127,7 @@ if SERVER then
 				self:GivePerk(v)
 
 				continue]]
-			if self:GetNW2Bool("nz.GinMod") then
-				if v == "gin" then continue end
-				self:GivePerk(v)
-
-				continue
-			elseif self.FightersFizz then
+			if self.FightersFizz then
 				if v == "tombstone" then continue end
 				self:GivePerk(v)
 
@@ -161,13 +142,9 @@ if SERVER then
 	        end
 		end
 
-		if self:GetNW2Bool("nz.GinMod") then
-			self:SetNW2Bool("nz.GinMod", false)
-		end
-
 		self:SetTargetPriority(TARGET_PRIORITY_NONE)
         timer.Simple(2, function()
-			if (IsValid(self)) and (self:IsPlaying()) then
+			if (IsValid(self)) and (self:IsPlaying() or self:IsInCreative()) then
 				self:SetTargetPriority(TARGET_PRIORITY_PLAYER)
 
 				for k,v in pairs(ents.FindByClass("player_spawns")) do
@@ -266,6 +243,35 @@ if SERVER then
 		self:RemoveAllAntiPowerUps()
 		self:ResetHull()
 	end
+end
+
+function playerMeta:SetReviveTime(num)
+	self:SetNW2Float("nzTimeToRevive", num)
+end
+
+function playerMeta:GetReviveTime()
+	local revive = self:GetNW2Float("nzTimeToRevive", 0)
+	if self:HasPerk("revive") then
+		revive = revive*0.5
+	end
+
+	return revive
+end
+
+function playerMeta:SetBleedoutTime(num)
+	self:SetNW2Float("nzBleedoutTime", num)
+end
+
+function playerMeta:IncreaseBleedoutTime(num)
+	self:SetNW2Float("nzBleedoutTime", math.max(self:GetBleedoutTime() + num, 0))
+end
+
+function playerMeta:DecreaseBleedoutTime(num)
+	self:SetNW2Float("nzBleedoutTime", math.max(self:GetBleedoutTime() - num, 0))
+end
+
+function playerMeta:GetBleedoutTime()
+	return self:GetNW2Float("nzBleedoutTime", 0)
 end
 
 function playerMeta:IsRevivingPlayer()

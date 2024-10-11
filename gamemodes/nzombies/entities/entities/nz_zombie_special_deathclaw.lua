@@ -2,6 +2,7 @@ AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
 ENT.Type = "nextbot"
+--ENT.PrintName = "Fallout 4 Deathclaw"
 ENT.PrintName = "Deathclaw"
 ENT.Category = "Brainz"
 ENT.Author = "Wavy"
@@ -246,7 +247,9 @@ function ENT:OnSpawn()
 	end
 end
 
-function ENT:PerformDeath(dmginfo)
+function ENT:PerformDeath(dmginfo)	
+	self.Dying = true
+
 	self:StopSound("wavy_zombie/deathclaw/npc_deathclaw_breathe_01_lp.wav")
 	local damagetype = dmginfo:GetDamageType()
 	if self.DeathRagdollForce == 0 or self:GetSpecialAnimation() or damagetype == DMG_MISSILEDEFENSE or damagetype == DMG_ENERGYBEAM then

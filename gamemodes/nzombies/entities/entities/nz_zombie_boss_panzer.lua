@@ -1,7 +1,8 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
-ENT.PrintName = "Panzer Soldat(Origins)"
+--ENT.PrintName = "Panzer Soldat (Origins)"
+ENT.PrintName = "Panzer Soldat"
 ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 
@@ -818,7 +819,7 @@ function ENT:StartToasting()
 				local dmg = DamageInfo()
 				dmg:SetAttacker(self)
 				dmg:SetInflictor(self)
-				dmg:SetDamage(5)
+				dmg:SetDamage(6)
 				dmg:SetDamageType(DMG_BURN)
 						
 				tr.Entity:TakeDamageInfo(dmg)
@@ -946,7 +947,9 @@ function ENT:PostTookDamage(dmginfo)
 	dmginfo:ScaleDamage(damagemod)
 end
 
-function ENT:PerformDeath(dmgInfo)
+function ENT:PerformDeath(dmgInfo)	
+	self.Dying = true
+
 	local attacker = dmgInfo:GetAttacker()
 
 	self:StopToasting()

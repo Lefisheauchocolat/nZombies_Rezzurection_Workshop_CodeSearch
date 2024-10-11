@@ -12,15 +12,14 @@ function ENT:SetupDataTables()
 	-- Min bound is for now just the position
 	--self:NetworkVar("Vector", 0, "MinBound")
 	self:NetworkVar("Vector", 0, "MaxBound")
-	self:NetworkVar("Bool", 0, "Radiation")
-	self:NetworkVar("Bool", 1, "Poison")
-	self:NetworkVar("Bool", 2, "Tesla")
-	self:NetworkVar("Int", 0, "Damage")
+	self:NetworkVar("Int", 0, "DamageWallType")
+	self:NetworkVar("Int", 1, "Damage")
 	self:NetworkVar("Float", 0, "Delay")
 end
 
 function ENT:Initialize()
 	--self:SetMoveType( MOVETYPE_NONE )
+	//self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
 	self:SetModel("models/BarneyHelmet_faceplate.mdl")
 	self:DrawShadow( false )
 	self:SetRenderMode( RENDERMODE_TRANSCOLOR )
@@ -53,56 +52,99 @@ function ENT:EndTouch(ent)
 	end
 end
 
+//hee hee hoo hoo ha ha
+function ENT:GetRadiation()
+	return self:GetDamageWallType() == 1
+end
+
+function ENT:GetPoison()
+	return self:GetDamageWallType() == 2
+end
+
+function ENT:GetTesla()
+	return self:GetDamageWallType() == 3
+end
+
+function ENT:GetWarp()
+	return self:GetDamageWallType() == 4
+end
+
+ENT.DamageWallEnums = {
+	[1] = DMG_RADIATION,
+	[2] = DMG_POISON,
+	[3] = DMG_SHOCK,
+	[4] = DMG_FALL,
+}
+
 function ENT:Think()
 	local ct = CurTime()
-	if ct > self.NextDamage then
-	
-		if SERVER then
-			local dmg = DamageInfo()
-			dmg:SetDamage(self:GetDamage())
-			dmg:SetAttacker(self)
-			dmg:SetDamageType(DMG_SHOCK) -- DMG_RADIATION was causing damage walls to no longer hurt players... Moo did some funnies and broke it?
-			
-			for k,v in ipairs(self.PlayersInside) do
-				if !IsValid(v) or !v:GetNotDowned() then
-					self:EndTouch(v)
-				else
-					v:TakeDamageInfo(dmg)
-				end
-			end
-		else
-			local e = EffectData()
-			e:SetMagnitude(1.1)
-			e:SetScale(1.5)
-			
-			local pos1 = self:GetPos()
-			local pos2 = self:GetPos() + self:GetMaxBound()
-			OrderVectors(pos1, pos2)
-			
-			for k,v in pairs(player.GetAll()) do
-				if IsValid(v) and v:GetNotDowned() and (v:IsPlaying() or v:IsInCreative()) then
-					if v:GetPos():WithinAABox(pos1, pos2) then
-						local islocal = v == LocalPlayer()
-						if self:GetTesla() then
-							if !v.LightningAura or v.LightningAura < ct then
-								e:SetEntity(v)
-								util.Effect("lightning_aura", e, false, true)
-							end
-							if islocal then
-								surface.PlaySound("weapons/physcannon/superphys_small_zap" .. math.random(1,4) .. ".wav")
-							end
-							v.LightningAura = ct + 1
-						end
-						if islocal and self:GetRadiation() then
-							surface.PlaySound("player/geiger" .. math.random(1,3) .. ".wav")
-						end
+	if SERVER and (!self.NextAttack or self.NextAttack < ct) then
+		local dmg = DamageInfo()
+		dmg:SetDamage(self:GetDamage())
+		dmg:SetAttacker(self)
+		dmg:SetDamageType(self.DamageWallEnums[self:GetDamageWallType()]) -- DMG_RADIATION was causing damage walls to no longer hurt players... Moo did some funnies and broke it?
+
+		for k, v in ipairs(self.PlayersInside) do
+			if !IsValid(v) or !v:GetNotDowned() then
+				self:EndTouch(v)
+			else
+				local data = self:GetTouchTrace()
+				local tr = util.TraceLine({
+					start = data.HitPos,
+					endpos = v:EyePos(),
+					mask = MASK_SHOT_HULL,
+					filter = {self},
+				})
+
+				dmg:SetDamagePosition(tr.HitPos)
+				dmg:SetReportedPosition(data.HitPos)
+				v:TakeDamageInfo(dmg)
+
+				if self:GetWarp() then
+					self:WarpPlayer(v)
+				elseif self:GetTesla() then
+					if !v.LightningAura or v.LightningAura < ct then
+						local e = EffectData()
+						e:SetMagnitude(1.1)
+						e:SetScale(1.5)
+						e:SetEntity(v)
+						util.Effect("lightning_aura", e, false, true)
 					end
+					v.LightningAura = ct + 1
+
+					v:EmitSound("weapons/physcannon/superphys_small_zap" .. math.random(1,4) .. ".wav", SNDLVL_NORM, math.random(97,103), 1, CHAN_STATIC)
+				elseif self:GetRadiation() then
+					v:EmitSound("player/geiger"..math.random(1,3)..".wav", SNDLVL_NORM, math.random(97,103), 1, CHAN_STATIC)
 				end
 			end
 		end
-		
-		self.NextDamage = ct + self:GetDelay()
+
+		self.NextAttack = ct + self:GetDelay()
 	end
+
+	self:NextThink(ct)
+	return true
+end
+
+function ENT:WarpPlayer(ply)
+	local pspawns = ents.FindByClass("player_spawns")
+	local pos = ply:GetPos()
+
+	if IsValid(pspawns[1]) then
+		pos = pspawns[math.random(#pspawns)]:GetPos()
+	else
+		ply:ChatPrint("[NZ] No player spawns to teleport to, failed.")
+	end
+
+	sound.Play("nzr/2022/perks/chuggabud/teleport_out_0"..math.random(0,1)..".wav", ply:EyePos(), SNDLVL_GUNFIRE, math.random(97,103), 1)
+
+	ply:SetLocalVelocity(vector_origin)
+	ply:SetPos(pos)
+
+	ply:StopSound("nz_moo/effects/out_of_play_area.wav")
+	ply:EmitSound("nz_moo/effects/out_of_play_area.wav", SNDLVL_IDLE, math.random(97, 103), 1, CHAN_STATIC)
+
+	ParticleEffect("nz_perks_chuggabud_tp", pos + vector_up, angle_zero)
 end
 
 local mat = Material("color")

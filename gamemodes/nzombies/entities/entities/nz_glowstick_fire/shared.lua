@@ -72,7 +72,9 @@ function ENT:PhysicsCollide(data, phys)
 end
 
 function ENT:CreateRocketTrail()
-	ParticleEffectAttach("ww2_molotov_trail",PATTACH_POINT_FOLLOW,self,1)
+	if SERVER then
+		util.SpriteTrail(self, 0, Color(255, 25, 0, 255), false, 35, 25, 0.15, 1 / 40 * 0.3, "trails/electric")
+	end
 end
 
 function ENT:Initialize(...)
@@ -103,7 +105,7 @@ function ENT:Think()
 
 		if !self.StartLP and !self:GetNW2Bool("Impacted") then
 			self.StartLP = true
-			self:EmitSound(self.LoopSound, 70, math.random(95,105))
+			self:EmitSound(self.LoopSound, 70, math.random(95,125))
 		end
 
 		if self:WaterLevel() > 0 then
@@ -122,7 +124,7 @@ function ENT:Think()
 				mask = MASK_SHOT_HULL
 			}
 
-			for k, v in pairs(ents.FindInSphere(self:GetPos(), 150)) do
+			for k, v in pairs(ents.FindInSphere(self:GetPos(), 100)) do
 				if IsValid(v) and nzombies then
 					if v == self:GetOwner() then continue end
 					if v:Health() <= 0 then continue end
@@ -155,7 +157,7 @@ function ENT:Think()
 end
 
 function ENT:DoExplosionEffect()
-	ParticleEffect("ww2_molotov_explosion", self:GetPos(), Angle(-90,0,0))
+	ParticleEffect("zmb_firepit", self:GetPos(), Angle(-90,0,0), self)
 end
 
 function ENT:Explode()

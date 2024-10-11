@@ -106,20 +106,12 @@ function nzPowerUps:Nuke(pos, nopoints, noeffect, instant)
     end
 end
 
--- Add the sound so we can stop it again
-sound.Add( {
-	name = "nz_firesale_jingle",
-	channel = CHAN_STATIC,
-	volume = 1.0,
-	level = 75,
-	pitch = { 100, 100 },
-	sound = "nz_moo/powerups/firesale_jingle.mp3"
-} )
-
 function nzPowerUps:FireSale()
+	-- Like a sane person, the functions of Fire Sale boxes being created is handled by the box spawn entity itself now.
+
 	--print("Running")
 	-- Get all spawns
-	local all = ents.FindByClass("random_box_spawns")
+	--[[local all = ents.FindByClass("random_box_spawns")
 	
 	for k,v in pairs(all) do
 		if not IsValid(v.Box) then
@@ -132,10 +124,12 @@ function nzPowerUps:FireSale()
 			else
 				box:SetPos( pos + ang:Right()*7 )
 			end
+
 			box:SetAngles( ang )
 			box:Spawn()
-			--box:PhysicsInit( SOLID_VPHYSICS )
 			box.SpawnPoint = v
+			box.IsFireSaleBox = true
+
 			v.FireSaleBox = box
 			
 			v:SetBodygroup(1,1)
@@ -144,18 +138,8 @@ function nzPowerUps:FireSale()
 			if phys:IsValid() then
 				phys:EnableMotion(false)
 			end
-			
-			box:EmitSound("nz_firesale_jingle")
-		else
-			local sound = ents.Create("nz_prop_effect_attachment")
-			sound:SetNoDraw(true)
-			sound:SetPos(v:GetPos())
-			sound:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
-			sound:Spawn()
-			sound:EmitSound("nz_firesale_jingle")
-			v.FireSaleBox = sound
 		end
-	end
+	end]]
 end
 
 function nzPowerUps:Carpenter(nopoints, pos)
@@ -198,7 +182,7 @@ function nzPowerUps:Carpenter(nopoints, pos)
 		if t > highesttime then
 			highesttime = t
 		end
-		print(t)
+		--print(t)
 
 		timer.Simple(t, function()
 			if IsValid(ent) and !IsValid(ent.ZombieUsing) then

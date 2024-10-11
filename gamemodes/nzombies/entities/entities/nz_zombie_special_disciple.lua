@@ -2,6 +2,7 @@ AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
 ENT.Type = "nextbot"
+ENT.PrintName = "Disciple"
 ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 ENT.Spawnable = true
@@ -133,6 +134,7 @@ ENT.IsMooZombie = true
 ENT.RedEyes = true
 ENT.IsMooSpecial = true
 ENT.IsMiniBoss = true
+--ENT.IsNZAlly = true
 
 ENT.AttackRange 			= 1
 ENT.DamageRange 			= 275
@@ -368,7 +370,7 @@ function ENT:AI()
 	local target = self:GetTarget()
 
 	-- Buff Zombies
-	if CurTime() > self.BuffZombiesCooldown and !self.BuffZombies and !self.IsTurned then
+	if CurTime() > self.BuffZombiesCooldown and (!self.BuffZombies and !self.IsTurned and !self.IsNZAlly) then
 		for k,v in nzLevel.GetZombieArray() do
 			if IsValid(v) and v:IsValidZombie() and v.IsMooZombie and !v.HasDiscipleBuff and self:GetRangeTo( v:GetPos() ) < 800 and !self:IsAttackEntBlocked(v) then
 				if v.IsMooSpecial or v.IsMooBossZombie or v.NZBossType or v.IsCatalyst or v:WaterBuff() then continue end -- will ignore itself and Bosses
@@ -396,7 +398,8 @@ function ENT:AI()
 
 		self:TryDash()
 
-		if (target:IsPlayer() and !self.IsTurned or self.IsTurned) and self:TargetInRange(self.DamageRange) and !self.InLifeDrain then
+		if !IsValid(target) then return end
+		if (target:IsPlayer() and !self.IsTurned or self.IsTurned or self.IsNZAlly) and self:TargetInRange(self.DamageRange) and !self.InLifeDrain then
 			self.InLifeDrain = true
 			self:DoSpecialAnimation("nz_ai_disciple_lifedrain_start", true)
 			self:EmitSound("nz_moo/zombies/vox/_sonoforda/lifedrain/lifedrain_start.mp3", 90, math.random(95,105))
@@ -479,7 +482,7 @@ end
 function ENT:OnThink()
 	if CurTime() > self.LifeDrainDmgTick and self.InLifeDrain then
 		local target = self:GetTarget()
-		if self:IsAttackBlocked() or !self:TargetInRange(575) or !target:GetNotDowned() then
+		if self:IsAttackBlocked() or !self:TargetInRange(575) or (target:IsPlayer() and !target:GetNotDowned()) or !target:Alive() then
 			self.InLifeDrain = false
 			self:DoSpecialAnimation("nz_ai_disciple_lifedrain_finish", true)
 			self:EmitSound("nz_moo/zombies/vox/_sonoforda/lifedrain/lifedrain_bust.mp3", 90, math.random(95,105))
@@ -583,15 +586,22 @@ function ENT:PerformIdle()
 	end
 end
 
-function ENT:IsValidTarget( ent )
-	if not ent then return false end
+if SERVER then
+	function ENT:IsValidTarget( ent )
+		if not ent then return false end
 
-	-- Zombie Targetting
-	if self.BuffZombies or self.IsTurned then
-		return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooBossZombie and !ent.IsMooSpecial and !ent.HasDiscipleBuff and !ent.IsNZAlly and !ent:IsPlayer() and ent:Alive() 
+		-- Turned Zombie Targetting
+		if self.IsTurned or self.IsNZAlly then
+			return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooBossZombie and !ent.IsNZAlly and ent:Alive() 
+		end
+		
+		-- Zombie Targetting
+		if self.BuffZombies then
+			return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooBossZombie and !ent.IsMooSpecial and !ent.HasDiscipleBuff and !ent.IsNZAlly and !ent:IsPlayer() and ent:Alive() 
+		end
+
+		return IsValid(ent) and ent:GetTargetPriority() ~= TARGET_PRIORITY_NONE and ent:GetTargetPriority() ~= TARGET_PRIORITY_MONSTERINTERACT and ent:GetTargetPriority() ~= TARGET_PRIORITY_FUNNY -- This is really funny.
 	end
-	
-	return IsValid(ent) and ent:GetTargetPriority() ~= TARGET_PRIORITY_NONE and ent:GetTargetPriority() ~= TARGET_PRIORITY_MONSTERINTERACT and ent:GetTargetPriority() ~= TARGET_PRIORITY_FUNNY -- This is really funny.
 end
 
 function ENT:OnTakeDamage(dmginfo)

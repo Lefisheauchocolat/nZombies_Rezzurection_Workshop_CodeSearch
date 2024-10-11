@@ -1,7 +1,8 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
-ENT.PrintName = "Mr. Sex"
+--ENT.PrintName = "Mr. Sex"
+ENT.PrintName = "Mr. X"
 ENT.Category = "Brainz"
 ENT.Author = "Wavy"
 
@@ -169,7 +170,9 @@ function ENT:OnSpawn()
 	end
 end
 
-function ENT:PerformDeath(dmgInfo)
+function ENT:PerformDeath(dmgInfo)	
+	self.Dying = true
+
 	local count = #player.GetAllPlaying()
 	
 	if count <= 1 then 

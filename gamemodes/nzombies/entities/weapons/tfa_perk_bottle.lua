@@ -95,6 +95,13 @@ SWEP.SpeedColaActivities = {
 
 SWEP.EventTable = {
 [ACT_VM_DRAW] = {
+{ ["time"] = 0, ["type"] = "lua", value = function(self)
+	if self:GetOwner():HasUpgrade("speed") then
+		self.SequenceRateOverride[ACT_VM_DRAW] = 45 / 30
+	else
+		self.SequenceRateOverride[ACT_VM_DRAW] = 30 / 30
+	end
+end, client = true, server = true},
 { ["time"] = 0, ["type"] = "lua", value = function(self) self:GetOwner():SetUsingSpecialWeapon(true) end, client = false, server = true},
 { ["time"] = 15 / 30, ["type"] = "sound", ["value"] = Sound("NZ.Bottle.Open") },
 { ["time"] = 25 / 30, ["type"] = "sound", ["value"] = Sound("NZ.Bottle.Drink") },
@@ -126,24 +133,37 @@ function SWEP:SetupDataTables(...)
 	self:NetworkVarTFA("String", "Perk")
 end
 
-function SWEP:Think2(...)
-	if IsFirstTimePredicted() and self.GetPerk and self:GetPerk() ~= "" and self.Skin ~= nzPerks:Get(self:GetPerk()).material then
-		self.Skin = tonumber(nzPerks:Get(self:GetPerk()).material)
-		self:ClearStatCache("Skin")
+function SWEP:PreDrawViewModel(...)
+	local vm = self.OwnerViewModel
 
-		if SERVER and IsValid(self:GetOwner()) then
-			local fx = EffectData()
-			fx:SetEntity(self)
-			fx:SetFlags(nzPerks:Get(self:GetPerk()).material)
-
-			local filter = RecipientFilter()
-			filter:AddPVS(self:GetOwner():GetShootPos())
-			if filter:GetCount() > 0 then
-				util.Effect("tfa_perkbottle_3p_fix", fx, true, filter)
+	local perk = self.GetPerk and self:GetPerk() or ""
+	if perk and perk ~= "" then
+		local mattable = nzPerks:GetBottleTextures(self:GetClass())
+		if mattable then
+			for id, mat in pairs(mattable) do
+				vm:SetSubMaterial(id, mat..perk)
 			end
 		end
 	end
 
+	return BaseClass.PreDrawViewModel(self, ...)
+end
+
+function SWEP:DrawWorldModel(...)
+	local perk = self.GetPerk and self:GetPerk() or ""
+	if perk and perk ~= "" then
+		local mattable = nzPerks:GetBottleTextures(self:GetClass())
+		if mattable then
+			for id, mat in pairs(mattable) do
+				self:SetSubMaterial(id, mat..perk)
+			end
+		end
+	end
+
+	return BaseClass.DrawWorldModel(self, ...)
+end
+
+function SWEP:Think2(...)
 	if SERVER then
 		local stat = self:GetStatus()
 		local statusend = CurTime() >= self:GetStatusEnd()

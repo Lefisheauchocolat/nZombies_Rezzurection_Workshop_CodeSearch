@@ -43,10 +43,7 @@ if SERVER then
 						ply:Give(guntogive)
 					else
 						local wep2 = ply:Give(guntogive)
-						timer.Simple(0, function()
-							if not IsValid(ply) or not IsValid(wep2) then return end
-							wep2:ApplyNZModifier("pap")
-						end)
+						wep2.NZPaPME = true
 					end
 
 					break
@@ -55,22 +52,76 @@ if SERVER then
 		end
 	end)
 
-	hook.Add("PlayerPostThink", "nzSpeedColaMod", function(ply)
-		if not ply:HasUpgrade("speed") then return end
+	hook.Add("PlayerPostThink", "nzCandolierMod", function(ply)
+		local bandit = ply:HasUpgrade("candolier")
+		local speed = ply:HasUpgrade("speed")
+		if not (bandit or speed) then return end
 
-		for _, wep in ipairs(ply:GetWeapons()) do
-			if wep:IsSpecial() then continue end
-			if wep.NZDontRegen then continue end
+		local speeddelay = ply:GetNW2Float("nz.SpeedDelay", 0)
+
+		local weps = ply:GetWeapons()
+		for _, wep in ipairs(weps) do
+			if wep:IsSpecial() or !wep.IsTFAWeapon then continue end
+
+			local speedtimer = wep.NZSpeedHolster
+			if speed then
+				local ply = wep:GetOwner()
+				if IsValid(ply) and ply:IsPlayer() and ply:HasUpgrade("speed") and wep:GetStatusEnd() < CurTime() and wep ~= ply:GetActiveWeapon() and !wep.NZSpeedHolster then
+					local b_notfull = false
+					if wep:Clip1() < wep:GetPrimaryClipSize() and wep:Ammo1() > 0 then
+						b_notfull = true
+					end
+					if wep:Clip2() < (wep.Akimbo and wep:GetPrimaryClipSize() or wep:GetSecondaryClipSize()) and (wep.Akimbo and wep:Ammo1() or wep:Ammo2()) > 0 then
+						b_notfull = true
+					end
+
+					if b_notfull then
+						local ct = CurTime()
+						wep.NZSpeedHolster = ct
+						ply:SetNW2Float("nz.SpeedDelay", ct + 4)
+						ply:SetNW2Int("nz.SpeedCount", 4)
+					end
+				end
+
+				if speedtimer then
+					if speedtimer + 4 == speeddelay then
+						local frac = 1 - math.Clamp((CurTime() - speedtimer) / 4, 0, 1)
+						local count = math.Round(4*frac)
+						if ply:GetNW2Int("nz.SpeedCount", 0) > count then
+							ply:SetNW2Int("nz.SpeedCount", math.max(count, 0))
+						end
+					end
+
+					if speedtimer + 4 < CurTime() then
+						local active = ply:GetActiveWeapon()
+						if wep ~= active then
+							wep.NZSpeedHolster = nil
+							if (wep.LoopedReload or wep.Shotgun) then
+								local amt = wep:GetStatL("LoopedReloadInsertAmount", 1)
+								wep:InsertPrimaryAmmo(amt)
+								wep:CallOnClient("InsertPrimaryAmmo", tostring(amt))
+							else
+								wep:CompleteReload()
+								wep:CallOnClient("CompleteReload", "")
+							end
+						end
+						continue
+					end
+				end
+			end
+
+			if wep.NZDontRegen or !bandit then continue end
 
 			if wep.IsTFAWeapon and (wep:GetStatus() == TFA.Enum.STATUS_SHOOTING or TFA.Enum.ReloadStatus[wep:GetStatus()]) then
-				if wep.NZLastSpeedRegen then
+				if wep.NZLastAmmoRegen then
 					local time = math.Clamp(10/wep.Primary.ClipSize, 0.1, 1) + 1
-					wep.NZLastSpeedRegen = math.Max(wep.NZLastSpeedRegen, CurTime() + time)
+					wep.NZLastAmmoRegen = math.Max(wep.NZLastAmmoRegen, CurTime() + time)
 				end
 				continue
 			end
 
-			if wep.NZLastSpeedRegen and wep.NZLastSpeedRegen > CurTime() then continue end
+			if wep.NZLastAmmoRegen and wep.NZLastAmmoRegen > CurTime() then continue end
+
 			if not wep.Primary or not wep.Primary.ClipSize then continue end
 			if wep.Primary.ClipSize <= 0 then continue end
 
@@ -114,10 +165,22 @@ if SERVER then
 			local active = ply:GetActiveWeapon()
 			if wep == active then
 				local time = 10/wep.Primary.ClipSize
-				wep.NZLastSpeedRegen = CurTime() + math.Clamp(time, 0.2, 2)
+				wep.NZLastAmmoRegen = CurTime() + math.Clamp(time, 0.2, 2)
 			else
 				local time = 10/wep.Primary.ClipSize
-				wep.NZLastSpeedRegen = CurTime() + math.Clamp(time, 0.1, 2)
+				wep.NZLastAmmoRegen = CurTime() + math.Clamp(time, 0.1, 2)
+			end
+		end
+	end)
+
+	hook.Add("TFA_Deploy", "nzSpeedColaMod", function(wep)
+		local ply = wep:GetOwner()
+		local speedtimer = wep.NZSpeedHolster
+		if IsValid(ply) and ply:IsPlayer() and speedtimer then
+			wep.NZSpeedHolster = nil
+			if speedtimer + 4 == ply:GetNW2Float("nz.SpeedDelay", 0) then
+				ply:SetNW2Float("nz.SpeedDelay", 0)
+				ply:SetNW2Int("nz.SpeedCount", 0)
 			end
 		end
 	end)
@@ -213,9 +276,7 @@ local function GetMoveVector(mv) //from willox's double jump
 end
 
 hook.Add("SetupMove", "nzPHDEffects", function(ply, mv, cmd)
-	if ply:HasUpgrade("phd") and (not ply:InVehicle()) and ply:GetMoveType() ~= MOVETYPE_NOCLIP then
-		if (nzMapping.Settings.ac and nzMapping.Settings.acpreventcjump and !ply:IsInCreative()) then return end
-
+	if ply:HasUpgrade("phd") and !ply:InVehicle() and ply:GetMoveType() ~= MOVETYPE_NOCLIP then
 		local onground = ply:IsOnGround()
 		if onground and ply:GetPHDJumped() then
 			ply:SetPHDJumped(false)
@@ -245,6 +306,7 @@ hook.Add("SetupMove", "nzPHDEffects", function(ply, mv, cmd)
 				fx:SetEntity(ply)
 				fx:SetScale(120)
 				util.Effect("ThumperDust", fx)
+
 				ply:EmitSound("NZ.PHD.Jump")
 			end
 		end
@@ -267,9 +329,17 @@ end)
 
 hook.Add("OnZombieKilled", "nzTombstoneModifierWavy", function(ent, dmginfo)
 	local ply = dmginfo:GetAttacker()
-	if IsValid(ply) and ply:IsPlayer() and ply.FightersFizz and !ply:GetNotDowned() then
-		if not IsValid(ent) or not ent:IsValidZombie() then return end
-		ply:RevivePlayer(ply)
+	if IsValid(ply) and ply:IsPlayer() and IsValid(ent) and ent:IsValidZombie() then
+		if ply.FightersFizz and !ply:GetNotDowned() then
+			ply:RevivePlayer(ply)
+		end
+	end
+end)
+
+hook.Add("TFA_CanPrimaryAttack", "nzDeadlockBanana", function(weapon)
+	local ply = weapon:GetOwner()
+	if IsValid(ply) and ply:IsPlayer() and ply:HasUpgrade("banana") and ply:GetSliding() and ply:GetNW2Int("nz.BananaCount", 0) > 0 then
+		return true
 	end
 end)
 
@@ -375,6 +445,7 @@ hook.Add("TFA_Reload", "nzCherryEffects", function(wep)
 
 				if SERVER then
 					if v.TempBehaveThread and v.SparkySequences then
+						ParticleEffectAttach("bo3_shield_electrify_zomb", PATTACH_ABSORIGIN_FOLLOW, v, 2)
 						if v.PlaySound and v.ElecSounds then
 							v:PlaySound(v.ElecSounds[math.random(#v.ElecSounds)], v.SoundVolume or SNDLVL_NORM, math.random(v.MinSoundPitch, v.MaxSoundPitch), 1, 2)
 						end
@@ -383,11 +454,17 @@ hook.Add("TFA_Reload", "nzCherryEffects", function(wep)
 							local seq = v.SparkySequences[math.random(#v.SparkySequences)]
 							local id, time = v:LookupSequence(seq)
 							v:PlaySequenceAndWait(seq)
+							v:StopParticles()
 						end)
 					end
 
-					v.MarkedByCherry = true
+					v.WasShockedThisTick = true
 					v:TakeDamageInfo(damage)
+
+					timer.Simple(0, function()
+						if not IsValid(v) then return end
+						v.WasShockedThisTick = nil
+					end)
 
 					if damage:GetDamage() > v:Health() then
 						count = count + 1
@@ -440,7 +517,7 @@ if CLIENT then
 		render.DrawScreenQuad()
 	end
 
-	local tab = {
+	local vulture_tab = {
 		["$pp_colour_addr"] = 0.05,
 		["$pp_colour_addg"] = 0.2,
 		["$pp_colour_addb"] = 0.0,
@@ -452,13 +529,23 @@ if CLIENT then
 		["$pp_colour_mulb"] = 0,
 	}
 
+	local stinkfade = 0
 	local function ScreenEffects()
 		local ply = LocalPlayer()
 		if not IsValid(ply) then return end
 
 		if ply:HasVultureStink() then
-			DrawColorModify(tab)
+			stinkfade = math.Approach(stinkfade, 1, 0.125)
 		end
+
+		if stinkfade > 0 then
+			vulture_tab["$pp_colour_addr"] = 0.05*stinkfade
+			vulture_tab["$pp_colour_addg"] = 0.2*stinkfade
+			vulture_tab["$pp_colour_colour"] = 1 + (0.1*stinkfade)
+			DrawColorModify(vulture_tab)
+			stinkfade = math.max(stinkfade - math.min(FrameTime()*4, engine.TickInterval()*5), 0)
+		end
+
 		if ply:HasPerkBlur() then
 			MyDrawBokehDOF(ply:PerkBlurIntensity())
 		end

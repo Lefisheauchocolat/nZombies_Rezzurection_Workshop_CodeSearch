@@ -88,10 +88,14 @@ local function DrawDownedPlayers_t7()
 			posxy.x, posxy.y = XYCompassToScreen((ppos + vector_up_35), 64*scale)
 		end
 
+		if ply.GetBleedoutTime then
+			bleedtime = ply:GetBleedoutTime()
+		end
+
 		local revivescale = 1 - math.Clamp((CurTime() - data.DownTime) / bleedtime, 0, 1)
 		if data.ReviveTime and IsValid(revivor) then
 			hasrevive = revivor:HasPerk("revive")
-			local revtime = hasrevive and 2 or 4
+			local revtime = ply:GetReviveTime(revivor)
 			revivescale = math.Clamp((CurTime() - data.ReviveTime) / revtime, 0, 1)
 		end
 
@@ -129,7 +133,7 @@ local function DrawRevivalProgress_t7()
 	local id = reviving:EntIndex()
 
 	local hasrevive = ply:HasPerk("revive")
-	local revtime = hasrevive and 2 or 4
+	local revtime = reviving:GetReviveTime(ply)
 	local w, h = ScrW(), ScrH()
 	local scale = (w/1920 + 1)/2
 

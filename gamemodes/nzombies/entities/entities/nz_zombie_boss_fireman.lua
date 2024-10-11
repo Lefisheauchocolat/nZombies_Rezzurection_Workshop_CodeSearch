@@ -1,7 +1,8 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
-ENT.PrintName = "The BRUHnner"
+--ENT.PrintName = "The BRUHnner"
+ENT.PrintName = "Brenner"
 ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 
@@ -380,7 +381,9 @@ function ENT:OnSpawn()
 	end
 end
 
-function ENT:PerformDeath(dmgInfo)
+function ENT:PerformDeath(dmgInfo)	
+	self.Dying = true
+
 	self:StopToasting()
 	if self:GetSpecialAnimation() or self.PanzerDGLifted and self:PanzerDGLifted() then
 		self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
@@ -553,7 +556,7 @@ function ENT:StartToasting()
 				local dmg = DamageInfo()
 				dmg:SetAttacker(self)
 				dmg:SetInflictor(self)
-				dmg:SetDamage(5)
+				dmg:SetDamage(6)
 				dmg:SetDamageType(DMG_BURN)
 						
 				tr.Entity:TakeDamageInfo(dmg)

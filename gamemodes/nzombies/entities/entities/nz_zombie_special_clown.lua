@@ -2,7 +2,8 @@ AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
 ENT.Type = "nextbot"
-ENT.PrintName = "Proper IW Clowns"
+--ENT.PrintName = "Proper IW Clowns"
+ENT.PrintName = "Clown"
 ENT.Category = "Brainz"
 ENT.Author = "Wavy"
 ENT.Spawnable = true
@@ -711,7 +712,9 @@ ENT.CustomRunFootstepsSounds = {
 	"nz_moo/zombies/footsteps/_clown/concrete4.mp3",
 }
 
-function ENT:PerformDeath(dmgInfo)
+function ENT:PerformDeath(dmgInfo)	
+	self.Dying = true
+
 	if !self.Suicide then
 		self:Explode( math.random( 25, 50 ))
 	end

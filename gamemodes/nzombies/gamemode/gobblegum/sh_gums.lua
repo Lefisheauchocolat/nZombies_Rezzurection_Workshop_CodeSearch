@@ -30,6 +30,7 @@ nzGum:RegisterGum("unique_id", {
 	type = nzGum.Types.USABLE, //gum usage type, refer to Types table above
 	rare = nzGum.RareTypes.DEFAULT, //gum rarity, refer to RareTypes table above (THIS IS REALLY FUCKING NEEDED!!!!!!!!!!!)
 	multiplayer = bool, //set to true for gum to only be rolled in multiplayer (example, phoenix up)
+	donteraseonspawn = bool, //set to true for gum to not be consumed after respawning, delete if not needed
 
 	//SPECIFIC GUM TYPE VARIABLES
 	uses = 1, //amount of uses the gum will have, delete if not a use based gum
@@ -180,7 +181,7 @@ nzGum:RegisterGum("on_the_house", {
 	type = nzGum.Types.USABLE,
 	rare = nzGum.RareTypes.RAREMEGA,
 	uses = 1,
-	desc = "Spawns a Random Perk Bottle Power Up.",
+	desc = "Spawns a Random Perk Bottle Power-Up.",
 	icon = Material("gums/OnTheHouse.png", "smooth unlitgeneric"),
 	onuse = function(ply)
 		if not IsValid(ply) then return end
@@ -199,7 +200,7 @@ nzGum:RegisterGum("im_feeling_lucky", {
 	type = nzGum.Types.USABLE,
 	rare = nzGum.RareTypes.MEGA,
 	uses = 1,
-	desc = "Spawns a Mystery Power Up.",
+	desc = "Spawns a Mystery Power-Up.",
 	icon = Material("gums/ImFeelingLucky.png", "smooth unlitgeneric"),
 	onuse = function(ply)
 		if not IsValid(ply) then return end
@@ -275,7 +276,7 @@ nzGum:RegisterGum("lead_rain", {
 	type = nzGum.Types.USABLE,
 	rare = nzGum.RareTypes.MEGA,
 	uses = 2,
-	desc = "Spawn a Infinite Ammo power up.",
+	desc = "Spawn a Infinite Ammo Power-Up.",
 	icon = Material("gums/LeadRain.png", "smooth unlitgeneric"),
 	onuse = function(ply)
 		if not IsValid(ply) then return end
@@ -391,12 +392,89 @@ nzGum:RegisterGum("ctrl_z", {
 	end,
 })
 
+nzGum:RegisterGum("hordes_up", {
+	name = "Hordes Up",
+	type = nzGum.Types.USABLE,
+	rare = nzGum.RareTypes.ULTRARAREMEGA,
+	desc = "Summons an army of the undead.",
+	uses = 1,
+	icon = Material("gums/hordesup.png", "smooth unlitgeneric"),
+	canroll = function(ply)
+		local zspawn = ents.FindByClass("nz_spawn_zombie_normal")[1]
+		local spawn = ents.FindByClass("player_spawns")[1]
+
+		return IsValid(zspawn) and IsValid(spawn)
+	end,
+	canuse = function(ply)
+		return !nzRound:IsSpecial() and nzRound:InState(ROUND_PROG)
+	end,
+	onuse = function(ply)
+		if not IsValid(ply) then return end
+
+		for i=1, 12 do
+			timer.Simple(i*0.25, function()
+				if not IsValid(ply) then return end
+				local nearbyents = {}
+				for k, v in pairs(ents.FindByClass("nz_spawn_zombie_normal")) do
+					if v.GetSpawner and v:GetSpawner() and v:IsSuitable() then
+						table.insert(nearbyents, v)
+					end
+				end
+
+				local zspawn = table.Random(nearbyents)
+				local spawn = table.Random(ents.FindByClass("player_spawns"))
+
+				if IsValid(spawn) and IsValid(zspawn) and zspawn:IsSuitable() then
+					local class
+					local spawntypes = {
+						["nz_spawn_zombie_normal"] = true,
+						["nz_spawn_zombie_extra1"] = true,
+						["nz_spawn_zombie_extra2"] = true,
+						["nz_spawn_zombie_extra3"] = true,
+						["nz_spawn_zombie_extra4"] = true,
+					}
+
+					if !nzRound:IsSpecial() and zspawn:GetZombieType() ~= "none" and spawntypes[zspawn:GetClass()] then
+						class = zspawn:GetZombieType()
+					elseif nzRound:IsSpecial() and !spawntypes[zspawn:GetClass()] and zspawn:GetClass() == "nz_spawn_zombie_special" and zspawn:GetZombieType() ~= "none" then
+						class = zspawn:GetZombieType()
+					else
+						class = nzMisc.WeightedRandom(zspawn:GetZombieData(), "chance")
+					end
+
+					local zombie = ents.Create(class)
+					zombie:SetPos(spawn:GetPos())
+					zombie:SetAngles(spawn:GetAngles())
+					zombie:Spawn()
+
+					zombie:SetSpawner(zspawn:GetSpawner())
+					zombie:Activate()
+					zombie:AATTurned(60, ply, false)
+
+					hook.Call("OnZombieSpawned", nzEnemies, zombie, zspawn)
+					nzRound:SetZombiesMax(nzRound:GetZombiesMax() + 1) //how illegal is this
+					zspawn:SetZombiesToSpawn(zspawn:GetZombiesToSpawn() + 1) //on a scale of 1-10
+
+					if nzRound:IsSpecial() then
+						local data = nzRound:GetSpecialRoundData()
+						if data and data.spawnfunc then
+							data.spawnfunc(zombie)
+						end
+					end
+
+					//zspawn:SetNextSpawn(CurTime() + zspawn:GetSpawner():GetDelay() * 2)
+				end
+			end)
+		end
+	end,
+})
+
 nzGum:RegisterGum("reign_drops", {
 	name = "Reign Drops",
 	type = nzGum.Types.USABLE,
 	rare = nzGum.RareTypes.ULTRARAREMEGA,
 	uses = 1,
-	desc = "Spawns all the core power-ups at once.",
+	desc = "Spawns all the core Power-Ups at once.",
 	icon = Material("gums/ReignDrops.png", "smooth unlitgeneric"),
 	onuse = function(ply)
 		if not IsValid(ply) then return end
@@ -437,7 +515,7 @@ nzGum:RegisterGum("reign_drops", {
 				middleofspawns[3])
 			end
 
-			local spawn_pos = not GetBoxAroundEnt(ply, enddir).Hit and enddir or pastpos + Vector(0, 0, 5)
+			local spawn_pos = not GetBoxAroundEnt(ply, enddir).Hit and enddir or pastpos + vector_up
 
 			nzPowerUps:SpawnPowerUp(spawn_pos, powerups[i])
 		end)
@@ -791,111 +869,330 @@ nzGum:RegisterGum("point_drops", {
 })
 
 nzGum:RegisterGum("roundrobbin", {
-    name = "Round Robbin'",
-    type = nzGum.Types.USABLE,
-    rare = nzGum.RareTypes.ULTRARAREMEGA,
-    desc = "Ends the current round. All players gain 1600 points.",
-    uses = 1,
-    icon = Material("gums/RoundRobbin.png", "smooth unlitgeneric"),
-    canuse = function(ply)
-        return not nzRound:IsSpecial()
-    end,
-    onuse = function(ply)
-        local currentRound = nzRound:GetNumber()
-        nzRound:SetNumber(currentRound)  -- Set the round to the current number to end it
-        nzPowerUps:Nuke(nil, true, true, true)  -- Nuke kills all zombies, no points, no position delay
+	name = "Round Robbin'",
+	type = nzGum.Types.USABLE,
+	rare = nzGum.RareTypes.ULTRARAREMEGA,
+	desc = "Ends the current round. All players gain 1600 points.",
+	uses = 1,
+	icon = Material("gums/RoundRobbin.png", "smooth unlitgeneric"),
+	canuse = function(ply)
+		return not nzRound:IsSpecial()
+	end,
+	onuse = function(ply)
+		local currentRound = nzRound:GetNumber()
+		nzRound:SetNumber(currentRound)  -- Set the round to the current number to end it
+		nzPowerUps:Nuke(nil, true, true, true)  -- Nuke kills all zombies, no points, no position delay
 
-        local nextRound = currentRound + 1
-        local specint = GetConVar("nz_round_special_interval"):GetInt() or 6
-        nzRound:SetNextSpecialRound(math.ceil(nextRound / specint) * specint)
-        nzRound:Prepare()
+		local nextRound = currentRound + 1
+		local specint = GetConVar("nz_round_special_interval"):GetInt() or 6
+		nzRound:SetNextSpecialRound(math.ceil(nextRound / specint) * specint)
+		nzRound:Prepare()
 
-        for k, v in pairs(player.GetAllPlaying()) do
-            v:GivePoints(1600)
-        end
-    end,
+		for k, v in pairs(player.GetAllPlaying()) do
+			v:GivePoints(1600)
+		end
+	end,
 })
 
 nzGum:RegisterGum("ee_song", {
-    name = "These Cats Are Cooking!",
-    type = nzGum.Types.USABLE_WITH_TIMER,
-    rare = nzGum.RareTypes.PINWHEEL,
-    uses = 3,
-    time = 240,
-    desc = "Plays the maps easter egg song.",
-    icon = Material("gums/TheseCatsAreCooking.png", "smooth unlitgeneric"),
-    onuse = function(ply)
-        PrintMessage( HUD_PRINTTALK,"Assume all Easter Egg songs are copyrighted!")
-        nzSounds:Play("Music")
-    end,
+	name = "These Cats Are Cooking!",
+	type = nzGum.Types.USABLE_WITH_TIMER,
+	rare = nzGum.RareTypes.PINWHEEL,
+	uses = 3,
+	time = 240,
+	desc = "Plays the maps easter egg song.",
+	icon = Material("gums/TheseCatsAreCooking.png", "smooth unlitgeneric"),
+	onuse = function(ply)
+		PrintMessage( HUD_PRINTTALK,"Assume all Easter Egg songs are copyrighted!")
+		nzSounds:Play("Music")
+	end,
 })
 
 nzGum:RegisterGum("immolation_liquidation", {
-    name = "Immolation Liquidation",
-    type = nzGum.Types.USABLE,
-    rare = nzGum.RareTypes.MEGA,
-    uses = 1,
-    desc = "Spawns a Fire Sale Power-Up.",
-    icon = Material("gums/ImmolationLiquidation.png", "smooth unlitgeneric"),
-    canroll = function(ply, ent)
-        return nzPowerUps.BoxMoved == true
-    end,
-    onuse = function(ply)
-        local enddir = Vector(ply:GetPos()[1] + ply:GetAimVector()[1] * 80, ply:GetPos()[2] + ply:GetAimVector()[2] * 80, ply:GetPos()[3] + 1)
-        if not GetBoxAroundEnt(ply, enddir).Hit then
-            nzPowerUps:SpawnPowerUp(enddir, "firesale")
-        else
-            nzPowerUps:SpawnPowerUp(ply:GetPos() + vector_up, "firesale")
-        end
-    end,
+	name = "Immolation Liquidation",
+	type = nzGum.Types.USABLE,
+	rare = nzGum.RareTypes.MEGA,
+	uses = 1,
+	desc = "Spawns a Fire Sale Power-Up.",
+	icon = Material("gums/ImmolationLiquidation.png", "smooth unlitgeneric"),
+	canroll = function(ply, ent)
+		return nzPowerUps.BoxMoved == true
+	end,
+	onuse = function(ply)
+		local enddir = Vector(ply:GetPos()[1] + ply:GetAimVector()[1] * 80, ply:GetPos()[2] + ply:GetAimVector()[2] * 80, ply:GetPos()[3] + 1)
+		if not GetBoxAroundEnt(ply, enddir).Hit then
+			nzPowerUps:SpawnPowerUp(enddir, "firesale")
+		else
+			nzPowerUps:SpawnPowerUp(ply:GetPos() + vector_up, "firesale")
+		end
+	end,
 })
 
 nzGum:RegisterGum("power_people", {
-    name = "Power To The People",
-    type = nzGum.Types.USABLE,
-    rare = nzGum.RareTypes.RAREMEGA,
-    uses = 3,
-    icon = Material("gums/PowerToThePeople.png", "smooth unlitgeneric"),
-    desc = "Activates anything besides doors that require power within a radius around you.",
-    canroll = function(ply, ent)
-        if nzElec.IsOn() then
-            return false
-        end
-        return true
-    end,
-    canuse = function(ply)
-        if not IsValid(ply) then return false end
+	name = "Power To The People",
+	type = nzGum.Types.USABLE,
+	rare = nzGum.RareTypes.RAREMEGA,
+	uses = 3,
+	icon = Material("gums/PowerToThePeople.png", "smooth unlitgeneric"),
+	desc = "Activates anything besides doors that require power within a radius around you.",
+	canroll = function(ply, ent)
+		if nzElec.IsOn() then
+			return false
+		end
+		return true
+	end,
+	canuse = function(ply)
+		if not IsValid(ply) then return false end
 
-        local radius = 150
-        local entities = ents.FindInSphere(ply:GetPos(), radius)
-        local targets = {"perk_machine", "wunderfizz_machine"}
-        
-        for _, ent in ipairs(entities) do
-            if table.HasValue(targets, ent:GetClass()) and ent.IsOn and not ent:IsOn() then
-                return true 
-            end
-        end
+		local radius = 150
+		local entities = ents.FindInSphere(ply:GetPos(), radius)
+		local targets = {"perk_machine", "wunderfizz_machine"}
+		
+		for _, ent in ipairs(entities) do
+			if table.HasValue(targets, ent:GetClass()) and ent.IsOn and not ent:IsOn() then
+				return true 
+			end
+		end
 
-        return false -- checks if there's anything to turn on, if not you cant use it
-    end,
-    onuse = function(ply)
-        if not IsValid(ply) then return end
-        
-        local radius = 300
-        local entities = ents.FindInSphere(ply:GetPos(), radius)
-        local targets = {"perk_machine", "wunderfizz_machine"}
-        
-        for _, ent in ipairs(entities) do
-            if table.HasValue(targets, ent:GetClass()) and ent.IsOn and not ent:IsOn() then
-                ent:TurnOn()
-            end
-        end
-    end,
+		return false -- checks if there's anything to turn on, if not you cant use it
+	end,
+	onuse = function(ply)
+		if not IsValid(ply) then return end
+		
+		local radius = 300
+		local entities = ents.FindInSphere(ply:GetPos(), radius)
+		local targets = {"perk_machine", "wunderfizz_machine"}
+		
+		for _, ent in ipairs(entities) do
+			if table.HasValue(targets, ent:GetClass()) and ent.IsOn and not ent:IsOn() then
+				ent:TurnOn()
+			end
+		end
+	end,
+})
+
+nzGum:RegisterGum("doppelganger", {
+	name = "Im Not That Man",
+	type = nzGum.Types.USABLE_WITH_TIMER,
+	rare = nzGum.RareTypes.MEGA,
+	uses = 2,
+	time = 10,
+	desc = "Spawns a doppelganger clone to distract zombies.",
+	icon = Material("gums/imnotthatman.png", "smooth unlitgeneric"),
+	ontimerstart = function(ply)
+		if not IsValid(ply) then return end
+
+		local ghost = ents.Create("nz_gum_ghost")
+		ghost:SetModel(ply:GetModel())
+		ghost:SetPos(ply:GetPos())
+		ghost:SetAngles(ply:GetAngles())
+		ghost:SetOwner(ply)
+		ghost.IsMonkeyBomb = true
+		ghost:Spawn()
+
+		ply.GumDoppelganger = ghost
+	end,
+	ontimerend = function(ply)
+		if ply.GumDoppelganger and IsValid(ply.GumDoppelganger) then
+			ply.GumDoppelganger:Remove()
+		end
+	end,
+})
+
+nzGum:RegisterGum("equipmint", {
+	name = "Equip Mint",
+	type = nzGum.Types.USABLE,
+	rare = nzGum.RareTypes.DEFAULT,
+	uses = 1,
+	icon = Material("gums/equipmint.png", "smooth unlitgeneric"),
+	desc = "Players grenades and equipment is replenished.",
+	onuse = function(ply)
+		local specialist = ply:GetSpecialWeaponFromCategory("specialist")
+		if IsValid(specialist) and specialist.IsTFAWeapon then
+			specialist:SetClip1(specialist.Primary_TFA.ClipSize)
+
+			if specialist.OnSpecialistRecharged then
+				specialist:OnSpecialistRecharged()
+				specialist:CallOnClient("OnSpecialistRecharged", "")
+			end
+			hook.Run("OnSpecialistRecharged", specialist)
+
+			if ply:GetActiveWeapon() ~= specialist then
+				specialist:ResetFirstDeploy()
+				specialist:CallOnClient("ResetFirstDeploy", "")
+			end
+		end
+
+		local shield = ply:GetSpecialWeaponFromCategory("shield")
+		if IsValid(shield) and shield.IsTFAWeapon and shield.Secondary_TFA then
+			local clip2 = shield.Secondary_TFA.ClipSize
+			if clip2 and clip2 > 0 then
+				shield:SetClip2(clip2)
+			end
+		end
+
+		local grenade = ply:GetSpecialWeaponFromCategory("grenade")
+		if IsValid(grenade) then
+			local max = 4
+			local data = grenade.NZSpecialWeaponData
+			if data and data.MaxAmmo then
+				max = data.MaxAmmo
+			end
+
+			ply:SetAmmo(max, GetNZAmmoID("grenade"))
+		end
+
+		local special = ply:GetSpecialWeaponFromCategory("specialgrenade")
+		if IsValid(special) then
+			local max = 3
+			local data = special.NZSpecialWeaponData
+			if data and data.MaxAmmo then
+				max = data.MaxAmmo
+			end
+
+			ply:SetAmmo(max, GetNZAmmoID("specialgrenade"))
+		end
+
+		local trap = ply:GetSpecialWeaponFromCategory("trap")
+		if IsValid(trap) then
+			local max = 1
+			local data = trap.NZSpecialWeaponData
+			if data then
+				if data.MaxAmmo then
+					max = data.MaxAmmo
+					if trap.NZRegenTakeClip then
+						max = max - trap:Clip1()
+					end
+				end
+				if data.AmmoType then
+					ply:SetAmmo(max, data.AmmoType)
+				end
+			end
+		end
+
+		nzSounds:PlayFile("weapons/tfa_bo3/zm_common.all.sabl.4316.wav", ply)
+	end,
+	onerase = function(ply)
+	end,
+})
+
+nzGum:RegisterGum("func_breakable", {
+	name = "Insured Disaster",
+	type = nzGum.Types.USABLE,
+	rare = nzGum.RareTypes.PINWHEEL,
+	uses = 1,
+	desc = "Destroys all breakable props and surfaces on the map.",
+	icon = Material("gums/func_breakable.png", "smooth unlitgeneric"),
+	onuse = function(ply)
+		local prop_phys = {
+			["prop_dynamic"] = true,
+			["prop_physics"] = true,
+			["prop_physics_multiplayer"] = true,
+		}
+		local func_break = {
+			["func_physbox"] = true,
+			["func_physbox_multiplayer"] = true,
+			["func_breakable"] = true,
+			["func_breakable_surf"] = true,
+		}
+
+		local count, func_count, prop_count = 0, 0, 0, 0
+		for k, v in ipairs(ents.GetAll()) do
+			if !IsValid(v) then continue end
+			local class = v:GetClass()
+			if !(prop_phys[class] or func_break[class]) then continue end
+			if v.GetName and nzGum.UnbreakableFunc[v:GetName()] then continue end
+
+			count = count + 1
+			if prop_phys[class] and v:Health() > 0 then
+				prop_count = prop_count + 1
+			elseif func_break[class] and v:Health() > 0 then
+				func_count = func_count + 1
+			end
+
+			timer.Simple(0.05*count, function()
+				if !IsValid(v) then return end
+
+				/*if ply:IsInCreative() then
+					ply:SetPos(v:GetPos() + vector_up*24)
+					ply:SetEyeAngles((v:GetPos() - ply:GetPos()):Angle())
+				end*/
+
+				local dmginfo = DamageInfo()
+				dmginfo:SetDamage(v:Health() + 666)
+				dmginfo:SetAttacker(Entity(0))
+				dmginfo:SetInflictor(Entity(0))
+				dmginfo:SetDamageType(DMG_GENERIC)
+				dmginfo:SetDamagePosition(v:GetPos())
+				dmginfo:SetDamageForce(vector_up*12000)
+
+				v:TakeDamageInfo(dmginfo)
+
+				timer.Simple(engine.TickInterval(), function() 
+					if !IsValid(v) or !v.Fire then return end
+					v:Fire("Break")
+				end)
+			end)
+		end
+
+		if prop_count > 0 or func_count > 0 then
+			ply:ChatPrint("[NZ] I hope you're insured.")
+		end
+		timer.Simple(count*0.05, function()
+			if not IsValid(ply) then return end
+			ply:ChatPrint("[NZ] Destroyed "..func_count.." Surfaces/Brushes, and "..prop_count.." Props")
+		end)
+	end,
 })
 
 --[[-------------------------------------------------------------------------
 Oranges
 ---------------------------------------------------------------------------]]
+
+nzGum:RegisterGum("wunderbar", {
+	name = "Wunderbar",
+	type = nzGum.Types.SPECIAL,
+	rare = nzGum.RareTypes.ULTRARAREMEGA,
+	desc = "Next random box spin guarantees a Wonder Weapon.",
+	uses = 1,
+	icon = Material("gums/wunderbar.png", "smooth unlitgeneric"),
+	canroll = function(ply)
+		if !nzMapping.Settings.rboxweps then
+			return false
+		end
+		local blacklist = table.Copy(nzConfig.WeaponBlackList)
+		for k, v in pairs(nzMapping.Settings.rboxweps) do
+			if !blacklist[k] and nzWeps:IsWonderWeapon(k) and IsValid(ply) and not ply:HasWeapon(k) then
+				return true
+			end
+		end
+		return false
+	end,
+	ongain = function(ply)
+		if not IsValid(ply) then return end
+
+		local hookname = "nzGums_wunderbar_" .. ply:EntIndex()
+		local index = ply:EntIndex()
+		hook.Add("OnPlayerBuyBox", hookname, function(ply, class)
+			if not IsValid(ply) then return end
+			if ply:EntIndex() ~= index then return end
+			if class == "nz_box_teddy" then return end
+
+			local blacklist = table.Copy(nzConfig.WeaponBlackList)
+			for k, v in RandomPairs(nzMapping.Settings.rboxweps) do
+				if !blacklist[k] and nzWeps:IsWonderWeapon(k) and not ply:HasWeapon(k) then
+					nzGum:TakeUses(ply)
+					nzSounds:PlayFile("weapons/tfa_bo3/zm_common.all.sabl.510.wav", ply)
+					return k
+				end
+			end
+		end)
+	end,
+	onerase = function(ply)
+		local hookname = "nzGums_wunderbar_" .. ply:EntIndex()
+		hook.Remove("OnPlayerBuyBox", hookname)
+	end,
+})
 
 nzGum:RegisterGum("unbearable", {
 	name = "Unbearable",
@@ -987,7 +1284,6 @@ nzGum:RegisterGum("aftertaste", {
 			for k, v in pairs(ply.OldPerks) do
 				if ply.DownedWithSoloRevive and v == "revive" then continue end
 				if ply.DownedWithSoloRevive and v == "tombstone" then continue end
-				if ply:GetNW2Bool("nz.GinMod", false) and v == "gin" then continue end
 
 				ply:GivePerk(v)
 			end
@@ -1062,73 +1358,6 @@ nzGum:RegisterGum("astronomical", {
 	end,
 })
 
-nzGum:RegisterGum("equipmint", {
-	name = "Equip Mint",
-	type = nzGum.Types.SPECIAL,
-	rare = nzGum.RareTypes.DEFAULT,
-	uses = 1,
-	icon = Material("gums/equipmint.png", "smooth unlitgeneric"),
-	desc = "Players grenades and equipment is replenished.",
-	ongain = function(ply)
-		local shield = ply:GetSpecialWeaponFromCategory("shield")
-		if IsValid(shield) and shield.IsTFAWeapon and shield.Secondary_TFA then
-			local clip2 = shield.Secondary_TFA.ClipSize
-			if clip2 and clip2 > 0 then
-				shield:SetClip2(clip2)
-			end
-		end
-
-		local grenade = ply:GetSpecialWeaponFromCategory("grenade")
-		if IsValid(grenade) then
-			local max = 4
-			local data = grenade.NZSpecialWeaponData
-			if data and data.MaxAmmo then
-				max = data.MaxAmmo
-			end
-
-			ply:SetAmmo(max, GetNZAmmoID("grenade"))
-		end
-
-		local special = ply:GetSpecialWeaponFromCategory("specialgrenade")
-		if IsValid(special) then
-			local max = 3
-			local data = special.NZSpecialWeaponData
-			if data and data.MaxAmmo then
-				max = data.MaxAmmo
-			end
-
-			ply:SetAmmo(max, GetNZAmmoID("specialgrenade"))
-		end
-
-		local trap = ply:GetSpecialWeaponFromCategory("trap")
-		if IsValid(trap) then
-			local max = 1
-			local data = trap.NZSpecialWeaponData
-			if data then
-				if data.MaxAmmo then
-					max = data.MaxAmmo
-					if trap.NZRegenTakeClip then
-						max = max - trap:Clip1()
-					end
-				end
-				if data.AmmoType then
-					ply:SetAmmo(max, data.AmmoType)
-				end
-			end
-		end
-
-		//uh oh stinky! ill come up with a better fix l8r
-		timer.Simple(1.75, function()
-			if not IsValid(ply) then return end
-			nzGum:TakeUses(ply)
-		end)
-
-		nzSounds:PlayFile("weapons/tfa_bo3/zm_common.all.sabl.4316.wav", ply)
-	end,
-	onerase = function(ply)
-	end,
-})
-
 nzGum:RegisterGum("shield_up", {
 	name = "Shield Up",
 	type = nzGum.Types.SPECIAL,
@@ -1159,7 +1388,7 @@ nzGum:RegisterGum("shield_up", {
 nzGum:RegisterGum("burned_out", {
 	name = "Burned Out",
 	type = nzGum.Types.SPECIAL,
-	rare = nzGum.RareTypes.DEFAULT,
+	rare = nzGum.RareTypes.MEGA,
 	uses = 3,
 	desc = "The next time the player takes damage, nearby zombies burst into fire.",
 	desc_howactivates = "Has 3 uses",
@@ -1363,38 +1592,20 @@ nzGum:RegisterGum("soda_fountain", {
 	uses = 1,
 	desc = "Buying a perk will reward you an extra random perk.",
 	desc_howactivates = "Has 1 uses",
-	icon = Material("gums/SodaFountain.png", "smooth unlitgeneric"),
+	icon = Material("gums/perkfountain.png", "smooth unlitgeneric"),
 	ongain = function(ply)
 		local hookname = "nzGums_soda_fountain_" .. ply:EntIndex()
 		local index = ply:EntIndex()
+
 		hook.Add("OnPlayerGetPerk", hookname, function( ply, id, machine )
 			if not IsValid(ply) then return end
 			if ply:EntIndex() ~= index then return end
-
-			local available = {}
-			local fizzlist = nzMapping.Settings.wunderfizzperklist
-			local blockedperks = {
-				["wunderfizz"] = true,
-				["pap"] = true,
-				["gum"] = true,
-			}
-
-			for perk, _ in pairs(nzPerks:GetList()) do
-				if blockedperks[perk] then continue end
-				if fizzlist and fizzlist[perk] and not fizzlist[perk][1] then continue end
-				if ply:HasPerk(perk) then continue end
-				table.insert(available, perk)
-			end
-
-			if table.IsEmpty(available) then nzSounds:PlayEnt("Laugh", ply) end
-
-			ply:GivePerk(table.Random(available))
-				
 			nzGum:TakeUses(ply)
+			ply:GiveRandomPerk()
 		end)
 	end,
 	onerase = function(ply)
-		local hookname = "nzGums_soda_fountain_" .. ply:EntIndex()
+		local hookname = "nzGums_soda_fountain_"..ply:EntIndex()
 		hook.Remove("OnPlayerGetPerk", hookname)
 	end,
 })
@@ -1413,28 +1624,76 @@ nzGum:RegisterGum("perkaholic", {
 		end)
 
 		for i = 1, 4 do
-			local available = {}
-			local fizzlist = nzMapping.Settings.wunderfizzperklist
-			local playerperks = ply:GetPerks()
-
-			local blockedperks = {
-				["wunderfizz"] = true,
-				["pap"] = true,
-				["gum"] = true,
-			}
-
-			for perk, _ in pairs(nzPerks:GetList()) do
-				if blockedperks[perk] then continue end
-				if fizzlist and fizzlist[perk] and not fizzlist[perk][1] then continue end
-				if ply:HasPerk(perk) then continue end
-				table.insert(available, perk)
-			end
-
-			--if #playerperks >= limit then break end
-			if table.IsEmpty(available) then nzSounds:PlayEnt("Laugh", ply) break end
-
-			ply:GivePerk(table.Random(available))
+			ply:GiveRandomPerk()
 		end
+	end,
+})
+
+nzGum:RegisterGum("stumbler", {
+	name = "Tripping Hazard",
+	type = nzGum.Types.SPECIAL,
+	rare = nzGum.RareTypes.DEFAULT,
+	uses = 5,
+	desc = "The next time the player takes damage, stun nearby zombies and cause them to stumble.",
+	desc_howactivates = "Has 5 uses",
+	icon = Material("gums/trippinghazard.png", "smooth unlitgeneric"),
+	ongain = function(ply)
+		local hookname = "nzGums_stumbler_" .. ply:EntIndex()
+		local index = ply:EntIndex()
+		local next_trip = 0
+
+		hook.Add("PostEntityTakeDamage", hookname, function(ent, dmginfo, took)
+			if not IsValid(ent) or not ent:IsPlayer() then return end
+			if ent:EntIndex() ~= index then return end
+
+			local attacker = dmginfo:GetAttacker()
+			if not IsValid(attacker) then return end
+			if not attacker:IsValidZombie() then return end
+
+			if !took and !ent:IsInCreative() then return end
+			if dmginfo:GetDamage() <= 0 then return end
+			if next_trip > CurTime() then return end
+
+			ply:EmitSound("NZ.ChuggaBud.Charge")
+			ParticleEffectAttach("nz_gums_stumbler_flash", PATTACH_POINT_FOLLOW, ply, 0)
+
+			nzGum:TakeUses(ent)
+			next_trip = CurTime() + 1
+
+			for k, v in RandomPairs(ents.FindInSphere(ply:GetPos(), 300)) do
+				if v:IsValidZombie() and v.PainSequences and v:VisibleVec(ply:EyePos()) then
+					if v.Target and IsValid(v.Target) and v.Target:EntIndex() ~= index then continue end
+					if !v:Alive() then continue end
+					if v:GetSpecialAnimation() or
+					v:GetCrawler() or v:GetIsBusy() or
+					v.ShouldCrawl or v.IsBeingStunned or
+					v.Dying or v:IsAATTurned() then
+						continue
+					end
+
+					if v.PainSounds and !v:GetDecapitated() then
+						v:EmitSound(v.PainSounds[math.random(#v.PainSounds)], 100, math.random(85, 105), 1, 2)
+						v.NextSound = CurTime() + v.SoundDelayMax
+					end
+
+					v.IsBeingStunned = true
+					v:DoSpecialAnimation(v.PainSequences[math.random(#v.PainSequences)], false, true)
+					v.IsBeingStunned = false
+					v.LastStun = CurTime() + 8
+					v:ResetMovementSequence()
+
+					if !v.IsMooSpecial and !v.IsMooBossZombie then
+						ParticleEffectAttach("nz_gums_stumbler_blind_eyes", PATTACH_POINT_FOLLOW, v, 3)
+						ParticleEffectAttach("nz_gums_stumbler_blind_eyes", PATTACH_POINT_FOLLOW, v, 4)
+					end
+					ParticleEffectAttach("nz_gums_stumbler_blind_loop", PATTACH_POINT_FOLLOW, v, 2)
+				end
+			end
+		end)
+	end,
+	onerase = function(ply)
+		local hookname = "nzGums_stumbler_"..ply:EntIndex()
+		hook.Remove("PostEntityTakeDamage", hookname)
 	end,
 })
 
@@ -1679,19 +1938,19 @@ nzGum:RegisterGum("coagulant", {
 	multiplayer = true,
 	ontimerstart = function(ply)
 		if not IsValid(ply) then return end
-		ply:SetBleedoutTime(ply:GetTrueBleedoutTime() + 120) //new system, never overide, only increase and decrease
+		ply:IncreaseBleedoutTime(120)
 	end,
 	ontimerend = function(ply)
 		if not IsValid(ply) then return end
-		ply:SetBleedoutTime(math.max(ply:GetTrueBleedoutTime() - 120, 0)) //when 0, GetBleedoutTime returns 'nz_downtime' instead
+		ply:DecreaseBleedoutTime(120)
 	end,
 })
 
 nzGum:RegisterGum("profit_sharing", {
 	name = "Profit Sharing",
 	type = nzGum.Types.TIME,
-	rare = nzGum.RareTypes.RAREMEGA,
-	time = 300,
+	rare = nzGum.RareTypes.ULTRARAREMEGA,
+	time = 180,
 	icon = Material("gums/profitsharing.png", "smooth unlitgeneric"),
 	desc = "Points you earn are also recieved by nearby players and vice versa.",
 	multiplayer = true,
@@ -1761,7 +2020,7 @@ nzGum:RegisterGum("danger_closest", {
 nzGum:RegisterGum("lucky_crit", {
 	name = "Lucky Crit",
 	type = nzGum.Types.ROUNDS,
-	rare = nzGum.RareTypes.RAREMEGA,
+	rare = nzGum.RareTypes.MEGA,
 	desc = "Alternate Ammo Types activate more often and have a shorter cooldown.",
 	rounds = 3,
 	icon = Material("gums/luckycrit.png", "smooth unlitgeneric"),
@@ -1870,9 +2129,9 @@ nzGum:RegisterGum("temporal_gift", {
 	name = "Temporal Gift",
 	type = nzGum.Types.ROUNDS,
 	rare = nzGum.RareTypes.RAREMEGA,
-	rounds = 1,
+	rounds = 2,
 	icon = Material("gums/TemporalGift.png", "smooth unlitgeneric"),
-	desc = "Power ups last 30 seconds longer.",
+	desc = "Power-Ups last 30 seconds longer.",
 	ongain = function(ply)
 		nzGum.TemporalGiftTime = nzGum.TemporalGiftTime + 30
 	end,
@@ -1881,9 +2140,238 @@ nzGum:RegisterGum("temporal_gift", {
 	end,
 })
 
+nzGum:RegisterGum("heavy_duty", {
+	name = "Heavy Duty",
+	type = nzGum.Types.ROUNDS,
+	rare = nzGum.RareTypes.MEGA,
+	rounds = 3,
+	desc = "All repaired barricade planks become upgraded.",
+	icon = Material("gums/heavyduty.png", "smooth unlitgeneric"),
+	canroll = function(ply)
+		if nzGum.HeavyDutyPlanks then
+			return false
+		end
+
+		local barricades = ents.FindByClass("breakable_entry")
+		if IsValid(barricades[1]) then
+			local b_hasplanks = false
+			for _, ent in pairs(barricades) do 
+				if ent:GetHasPlanks() then
+					b_hasplanks = true
+					break
+				end
+			end
+
+			return b_hasplanks
+		else
+			return false
+		end
+	end,
+	ongain = function(ply)
+		nzGum.HeavyDutyPlanks = true
+
+		hook.Add("BarricadePlankCheck", "nzGums_Heavyduty", function(barricade, plank, ply)
+			if not IsValid(plank) then return end
+			if !nzGum.HeavyDutyPlanks then return end
+
+			plank.Enhanced = true
+			if barricade:GetBoardType() == 1 then
+				plank:SetBodygroup(1,1)
+			end
+
+			if IsValid(ply) and ply:IsPlayer() and ply:HasPerk("amish") then return end
+			plank.HeavyDutyPlank = true
+		end)
+	end,
+	onerase = function(ply)
+		nzGum.HeavyDutyPlanks = nil
+
+		for k, v in pairs(ents.FindByClass("breakable_entry")) do
+			if !v:GetHasPlanks() or !v.Planks then continue end
+
+			for i=1, 6 do
+				local v2 = v.Planks[i]
+				if not IsValid(v2) then continue end
+
+				if v2.HeavyDutyPlank and v2.Enhanced then
+					v2.Enhanced = nil
+					v2.HeavyDutyPlank = nil
+
+					if !v2.Torn and !v2.ZombieUsing then
+						timer.Simple((i - 1)*0.1, function()
+							if not IsValid(v) then return end
+							if not IsValid(v2) then return end
+							v:RemovePlank(v2)
+
+							timer.Simple(0.6, function()
+								if not IsValid(v) then return end
+								if not IsValid(v2) then return end
+								if v:GetBoardType() == 1 then
+									v2:SetBodygroup(1,0)
+								end
+								if !v2.Torn or v2.ZombieUsing then return end
+
+								v:AddPlank(v2)
+							end)
+						end)
+					elseif v:GetBoardType() == 1 then
+						v2:SetBodygroup(1,0)
+					end
+				end
+			end
+		end
+	end,
+})
+
+nzGum:RegisterGum("power_hungry", {
+	name = "Power Hungry",
+	type = nzGum.Types.ROUNDS,
+	rare = nzGum.RareTypes.RAREMEGA,
+	desc = "Power-Ups are automatically picked up after activating.",
+	rounds = 3,
+	icon = Material("gums/powerhungry.png", "smooth unlitgeneric"),
+	canroll = function(ply, ent)
+		if nzGum.PowerHungryPlayer then
+			return false
+		end
+		return true
+	end,
+	ongain = function(ply)
+		if not IsValid(ply) then return end
+		nzGum.PowerHungryPlayer = ply
+
+		hook.Add("Think", "nzGums_PowerHungry", function()
+			for k, ent in nzLevel.GetPowerUpsArray() do
+				if not IsValid(ent) then continue end
+				if ent:GetClass() ~= "drop_powerup" then continue end
+
+				if !ent.GetActivated or !ent:GetActivated() then continue end
+				if !ent.GetAnti or ent:GetAnti() then continue end
+				if !ent.GetPowerUp or ent:GetPowerUp() == "" then continue end
+				if nzPowerUps:IsPlayerPowerupActive(ply, ent:GetPowerUp()) then continue end
+
+				local pdata = nzPowerUps:Get(ent:GetPowerUp())
+				if !pdata then continue end
+				if !pdata.global and !ent:VisibleVec(ply:EyePos()) then continue end
+
+				nzPowerUps:Activate(ent:GetPowerUp(), ply, ent)
+				ply:EmitSound(nzPowerUps:Get(ent:GetPowerUp()).collect or ent.GrabSound)
+				ent:Remove()
+			end
+		end)
+	end,
+	onerase = function(ply)
+		nzGum.PowerHungryPlayer = nil
+
+		hook.Remove("Think", "nzGums_PowerHungry")
+	end,
+})
+
 --[[-------------------------------------------------------------------------
 Unused/Scrapped
 ---------------------------------------------------------------------------]]
+
+/*nzGum:RegisterGum("regen_haste", {
+	name = "Intravenous Haste",
+	type = nzGum.Types.TIME,
+	rare = nzGum.RareTypes.RAREMEGA,
+	time = 300,
+	icon = Material("gums/intravenoushaste.png", "smooth unlitgeneric"),
+	desc = "Player heals twice as fast.",
+	ontimerstart = function(ply)
+		if not IsValid(ply) then return end
+
+		local regendelay = ply.RegenOverride or nzMapping.Settings.healthregendelay or 5
+		ply.RegenOverride = regendelay*0.5
+	end,
+	ontimerend = function(ply)
+		if not IsValid(ply) then return end
+		ply.RegenOverride = nil
+	end,
+})*/
+
+/*nzGum:RegisterGum("bar_tab", {
+	name = "Bar Tab",
+	type = nzGum.Types.ROUNDS,
+	rare = nzGum.RareTypes.ULTRARAREMEGA,
+	desc = "Gain 2 random perks from the wunderfizz list. \nPerks are lost on player down or when gum runs out.",
+	rounds = 5,
+	icon = Material("gums/onemore.png", "smooth unlitgeneric"),
+	ongain = function(ply)
+		if not IsValid(ply) then return end
+
+		local available = {}
+		local fizzlist = nzMapping.Settings.wunderfizzperklist
+		local blockedperks = {
+			["wunderfizz"] = true,
+			["pap"] = true,
+			["gum"] = true,
+		}
+
+		for perk, _ in RandomPairs(nzPerks:GetList()) do
+			if blockedperks[perk] then continue end
+			if fizzlist and fizzlist[perk] and not fizzlist[perk][1] then continue end
+			if ply:HasPerk(perk) then continue end
+			table.insert(available, perk)
+		end
+
+		if table.IsEmpty(available) then
+			nzSounds:PlayEnt("Laugh", ply)
+			timer.Simple(1.75, function()
+				if not IsValid(ply) then return end
+				nzGum:TakeUses(ply)
+			end)
+			return
+		end
+
+		local perkl, perkb = table.Random(available), nil
+		table.RemoveByValue(available, perkl)
+
+		if table.IsEmpty(available) then
+			nzSounds:PlayEnt("Laugh", ply)
+		else
+			perkb = table.Random(available)
+		end
+
+		ply:GivePerk(perkl)
+		if perkb then
+			ply:GivePerk(perkb)
+		end
+
+		ply.BarTabPerks = {perkl, perkb}
+
+		local hookname = "nzGums_onemore_" .. ply:EntIndex()
+		local index = ply:EntIndex()
+		hook.Add("PlayerDowned", hookname, function(ent)
+			if not IsValid(ent) then return end
+			if not ent:IsPlayer() then return end
+			if ent:EntIndex() ~= index then return end
+
+			local oldperks = ply.OldPerks
+			if ply.BarTabPerks and oldperks then
+				for _, perk in pairs(ply.BarTabPerks) do
+					if table.HasValue(oldperks, perk) then
+						table.RemoveByValue(oldperks, perk)
+					end
+				end
+			end
+
+			nzGum:TakeUses(ply)
+		end)
+	end,
+	onerase = function(ply)
+		if not IsValid(ply) then return end
+		if ply.BarTabPerks then
+			for _, perk in pairs(ply.BarTabPerks) do
+				if not ply:HasPerk(perk) then continue end
+				ply:RemovePerk(perk)
+			end
+		end
+
+		local hookname = "nzGums_onemore_" .. ply:EntIndex()
+		hook.Remove("PlayerDowned", hookname)
+	end,
+})*/
 
 --[[
 nzGum:RegisterGum("power_keg", {

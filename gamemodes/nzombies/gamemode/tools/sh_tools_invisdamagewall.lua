@@ -67,18 +67,16 @@ nzTools:CreateTool("damagewall", {
 	interface = function(frame, data)
 		local pnl = vgui.Create("DPanel", frame)
 		pnl:Dock(FILL)
-		
-		
-		
+
 		local data = data or {}
-		
+
 		local valz = {}
 		if data then
 			valz["Dmg"] = data.dmg or 10
 			valz["Delay"] = data.delay or 0.5
 			valz["DmgType"] = data.dmgtype or 1
 		end
-		
+
 		function pnl.CompileData()
 			data.dmg = valz["Dmg"]
 			data.delay = valz["Delay"]
@@ -86,11 +84,11 @@ nzTools:CreateTool("damagewall", {
 			
 			return data
 		end
-		
+
 		function pnl.UpdateData(data)
 			nzTools:SendData(data, "damagewall", data) -- Save the same data here
 		end
-		
+
 		local chk = vgui.Create("DCheckBoxLabel", pnl)
 		chk:SetPos( 100, 20 )
 		chk:SetText( "Preview Config" )
@@ -98,28 +96,29 @@ nzTools:CreateTool("damagewall", {
 		chk:SetConVar( "nz_creative_preview" )
 		chk:SetValue( GetConVar("nz_creative_preview"):GetBool() )
 		chk:SizeToContents()
-		
+
 		local properties = vgui.Create("DProperties", pnl)
 		properties:SetPos(5, 50)
 		properties:SetSize(480, 450)
-		
+
 		local dmg = properties:CreateRow( "Damage Properties", "Damage" )
 		dmg:Setup( "Int", {min = 1, max = 250} )
 		dmg:SetValue( data.dmg )
 		dmg.DataChanged = function( _, val ) valz["Dmg"] = val pnl.UpdateData(pnl.CompileData()) end
-		
+
 		local delay = properties:CreateRow( "Damage Properties", "Delay" )
 		delay:Setup( "Float", {min = 0, max = 10} )
 		delay:SetValue( data.delay )
 		delay.DataChanged = function( _, val ) valz["Delay"] = val pnl.UpdateData(pnl.CompileData()) end
-		
+
 		local dmgtype = properties:CreateRow( "Damage Properties", "Type" )
 		dmgtype:Setup( "Combo", {text = "Select type ..."} )
-		dmgtype:AddChoice( "Radiation", 1 )
-		dmgtype:AddChoice( "Poison", 2 )
-		dmgtype:AddChoice( "Tesla", 3 )
+		dmgtype:AddChoice("Radiation", 1)
+		dmgtype:AddChoice("Poison", 2)
+		dmgtype:AddChoice("Tesla", 3)
+		dmgtype:AddChoice("Warp", 4)
 		dmgtype.DataChanged = function( _, val ) valz["DmgType"] = val pnl.UpdateData(pnl.CompileData()) end
-		
+
 		return pnl
 	end,
 	drawhud = function()

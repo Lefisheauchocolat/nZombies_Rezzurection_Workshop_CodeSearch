@@ -2,8 +2,8 @@ AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
 ENT.Type = "nextbot"
+ENT.PrintName = "Wustling"
 ENT.Category = "Brainz"
-ENT.PrintName = "Man who is mad"
 ENT.Author = "GhostlyMoo"
 ENT.Spawnable = true
 
@@ -514,7 +514,7 @@ end
 
 function ENT:AI()
 	if CurTime() > self.ManIsMadTime and self.ManIsMad then
-		print(self.ManIsMad)
+		--print(self.ManIsMad)
 		self:DoSpecialAnimation("nz_base_follower_charge_attack")
 
 		self.ManIsMad = false

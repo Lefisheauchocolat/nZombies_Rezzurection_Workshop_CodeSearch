@@ -2,7 +2,8 @@ AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
 ENT.Type = "nextbot"
-ENT.PrintName = "Killing Floor Husk yet another enemy that shoots shit at you LMAO"
+--ENT.PrintName = "Killing Floor Husk yet another enemy that shoots shit at you LMAO"
+ENT.PrintName = "Husk"
 ENT.Category = "Brainz"
 ENT.Author = "Wavy"
 ENT.Spawnable = true
@@ -176,7 +177,9 @@ function ENT:OnSpawn()
 	util.Effect("panzer_spawn_tp", effectData)
 end
 
-function ENT:PerformDeath(dmginfo)
+function ENT:PerformDeath(dmginfo)	
+	self.Dying = true
+
 	self:EmitSound(self.DeathSounds[math.random(#self.DeathSounds)], 500, math.random(95, 105), 1, 2)
 	self:StopSound("nz_moo/zombies/vox/_mechz/flame/loop.wav")
 	self:StopParticles()

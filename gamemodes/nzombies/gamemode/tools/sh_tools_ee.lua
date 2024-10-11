@@ -53,24 +53,12 @@ nzTools:CreateTool("ee", {
 			nzTools:SendData(data, "easter_egg")
 		end
 
-		local color_red = Color(150, 50, 50)
-
 		local Row1 = DProperties:CreateRow("Model", "Model path")
 		Row1:Setup("Generic")
 		Row1:SetValue(valz["Row1"])
 		Row1.DataChanged = function( _, val ) valz["Row1"] = val DProperties.UpdateData(DProperties.CompileData()) end
-		
-		
-		local textw = vgui.Create("DLabel", DProperties)
-		textw:SetText("After setting your filepath, refresh the tool or your EE will not place!")
-		textw:SetFont("Trebuchet18")
-		textw:SetTextColor(color_red)
-		textw:SizeToContents()
-		textw:SetPos(0, 110)
-		textw:CenterHorizontal()
 
-		
-		return pnl
+		return DProperties
 	end,
 	defaultdata = {
 		model = "models/props_lab/huladoll.mdl",

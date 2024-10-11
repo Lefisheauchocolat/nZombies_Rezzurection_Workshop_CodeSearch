@@ -708,7 +708,9 @@ function ENT:OnGameOver()
 	end
 end
 
-function ENT:PerformDeath(dmgInfo)
+function ENT:PerformDeath(dmgInfo)	
+	self.Dying = true
+
 	local attacker = dmgInfo:GetAttacker()
 
 	self:StopToasting()
@@ -934,7 +936,7 @@ function ENT:StartToasting()
 				local dmg = DamageInfo()
 				dmg:SetAttacker(self)
 				dmg:SetInflictor(self)
-				dmg:SetDamage(5)
+				dmg:SetDamage(6)
 				dmg:SetDamageType(DMG_BURN)
 						
 				tr.Entity:TakeDamageInfo(dmg)

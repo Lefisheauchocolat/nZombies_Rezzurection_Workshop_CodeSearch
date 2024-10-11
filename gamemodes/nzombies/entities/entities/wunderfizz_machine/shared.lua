@@ -13,11 +13,16 @@ function ENT:SetupDataTables()
 	self:NetworkVar("Bool", 0, "Active")
 	self:NetworkVar("Bool", 1, "BeingUsed")
 	self:NetworkVar("Entity", 0, "User")
-	
-	self:NetworkVar( "String", 0, "PerkID")
-	self:NetworkVar( "Bool", 2, "IsTeddy" )
-	self:NetworkVar( "Bool", 3, "Sharing" ) ////////////////////Communism
+
+	self:NetworkVar("String", 0, "PerkID")
+	self:NetworkVar("Bool", 2, "IsTeddy" )
+	self:NetworkVar("Bool", 3, "Sharing" )
 end
+
+local blockedperks = {
+	["wunderfizz"] = true,
+	["pap"] = true,
+}
 
 function ENT:DecideOutcomePerk(ply, specific)
 	if specific then self:SetPerkID(specific) return end
@@ -25,10 +30,6 @@ function ENT:DecideOutcomePerk(ply, specific)
 	if self.TimesUsed > 1 and math.random(100) <= 20 and #ents.FindByClass("wunderfizz_machine") > 1 then
 		return hook.Call("OnPlayerBuyWunderfizz", nil, ply, "teddy") or "teddy"
 	else
-		local blockedperks = {
-			["wunderfizz"] = true, -- lol, this would happen
-			["pap"] = true,
-		}
 		local wunderfizzlist = {}
 		for k,v in pairs(nzPerks:GetList()) do
 			if k != "wunderfizz" and k != "pap" then
@@ -53,7 +54,17 @@ end
 
 function ENT:Initialize()
 	if SERVER then
-		self:SetModel("models/nzr/2022/machines/wonder/vending_wonder.mdl")
+		if nzMapping.Settings.cwfizz then
+			self:SetModel("models/moo/_codz_ports_props/t10/jup_zm_machine_wunderfizz/moo_codz_jup_zm_machine_wunderfizz.mdl")
+		else
+			local perktype = nzPerks:GetMachineType(nzMapping.Settings.perkmachinetype)
+			if perktype == "CLASSIC" then
+				self:SetModel("models/nzr/2022/machines/wonder/vending_wonder.mdl")
+			else
+				self:SetModel("models/perks/machines/wonder/vending_wunderfizz.mdl")
+			end
+		end
+
 		self:SetMoveType( MOVETYPE_NONE )
 		self:SetSolid( SOLID_VPHYSICS )
 		--self:DrawShadow( false )
@@ -62,7 +73,7 @@ function ENT:Initialize()
 		self:SetIsTeddy(false)
 		self:SetPrice(1500)
 
-		self:SetSharing(false) ////////////////////Communism
+		self:SetSharing(false)
 
 		self.NextLightning = CurTime() + math.random(10)
 		self:SetAutomaticFrameAdvance(true)
@@ -71,7 +82,30 @@ function ENT:Initialize()
 	end
 end
 
+function ENT:Update()
+	if nzMapping.Settings.cwfizz then
+		self:SetModel("models/moo/_codz_ports_props/t10/jup_zm_machine_wunderfizz/moo_codz_jup_zm_machine_wunderfizz.mdl")
+	else
+		local perktype = nzPerks:GetMachineType(nzMapping.Settings.perkmachinetype)
+		if perktype == "CLASSIC" then
+			self:SetModel("models/nzr/2022/machines/wonder/vending_wonder.mdl")
+		else
+			self:SetModel("models/perks/machines/wonder/vending_wunderfizz.mdl")
+		end
+
+		local idle = self:LookupSequence("idle")
+		self:SetCycle(0)
+		self:ResetSequence(idle)
+	end
+	self:StopSound("nz_moo/perkacolas/hum_loop.wav", 65, 100, 1, 3)
+end
+
 function ENT:TurnOn()
+	if nzMapping.Settings.cwfizz then
+		self:SetActive(true)
+		return
+	end
+
 	local turnon, dur = self:LookupSequence("turn_on")
 	self:SetCycle(0)
 	self:ResetSequence(turnon)
@@ -81,13 +115,16 @@ end
 
 function ENT:TurnOff(spawn)
 	self:SetActive(false)
+
+	if nzMapping.Settings.cwfizz then
+		return
+	end
+
 	local turnoff, dur = self:LookupSequence("turn_off")
 	self:ResetSequence(turnoff)
+	self.GoIdle = nil
 	self:EmitSound("nz_moo/perks/wonderfizz/rand_perk_mach_leave.mp3", 100)
 	if spawn then self:SetCycle(1) else self:SetCycle(0) end
-	--self:SetCycle(0)
-	--self:SetPlaybackRate(10)
-	--print(turnoff)
 end
 
 function ENT:IsOn()
@@ -96,22 +133,17 @@ end
 
 function ENT:Think()
 	if SERVER then
-		if self.GoIdle and self.GoIdle < CurTime() then
+		if self.GoIdle and self.GoIdle < CurTime() and !nzMapping.Settings.cwfizz then
 			local idle = self:LookupSequence("idle")
 			self:SetCycle(0)
 			self:ResetSequence(idle)
-			self:SetActive(true) -- Turn on here
+			self:SetActive(true)
 			self.GoIdle = nil
-			--print("idling")
 		end
-		if self:IsOn() and CurTime() > self.NextLightning then
-			local e = EffectData()
-			e:SetStart(self:GetPos() + Vector(0,0,3000))
-			e:SetOrigin(self:GetPos() + Vector(0,0,100))
-			e:SetMagnitude(0.5)
-			util.Effect("lightning_strike_wunderfizz", e)
-			ParticleEffect("ins_skybox_lightning",self:GetPos(),self:GetAngles(),nil)
-			--self:EmitSound("amb/weather/lightning/lightning_flash_0"..math.random(0,3)..".wav",511)
+		if self:IsOn() and CurTime() > self.NextLightning and !nzMapping.Settings.cwfizz then
+			ParticleEffect("driese_tp_arrival_phase2", self:GetAttachment(1).Pos, Angle(0,0,0))
+			self:EmitSound("amb/weather/lightning/lightning_flash_0"..math.random(0,3)..".wav",511)
+
 			self.NextLightning = CurTime() + math.random(30)
 		end
 		self:NextThink(CurTime())
@@ -121,64 +153,84 @@ end
 
 function ENT:Use(activator, caller)
 	if self:IsOn() and !self.GoIdle then -- Only after fully arriving
+		if nzMapping.Settings.cwfizz then
+			local fizzround = nzMapping.Settings.cwfizzround
+			if fizzround and nzRound:GetNumber() < fizzround and !nzRound:InState(ROUND_CREATE) then
+				return
+			end
+
+			net.Start("nzColdWarFizzMenu")
+			net.Send(activator)
+			return
+		end
+
+		local b_no_perks = true
+		for k, v in pairs(nzMapping.Settings.wunderfizzperklist) do
+			if !blockedperks[k] and (v[1] == nil || v[1] == true) and !activator:HasPerk(k) then
+				b_no_perks = false
+				break
+			end
+		end
+
+		if b_no_perks then
+			activator:Buy(math.huge, self, function()
+				return false
+			end)
+			return false
+		end
+
 		if !IsValid(self.Bottle) and !self:GetBeingUsed() then
-			local price = self:GetPrice()
 			-- Can only be bought if you have free perk slots
-			if #activator:GetPerks() < GetConVar("nz_difficulty_perks_max"):GetInt() then
+			if #activator:GetPerks() < activator:GetMaxPerks() then
 				-- If they have enough money
+				local price = self:GetPrice()
 				activator:Buy(price, self, function()
+					self:StopSound("nz_moo/perks/wonderfizz/rand_perk_mach_stop.wav")
+					self:EmitSound("nz_moo/perks/wonderfizz/rand_perk_mach_start.mp3", SNDLVL_TALKING, math.random(97, 103), 1, CHAN_STATIC)
+					self:EmitSound("nz_moo/perks/wonderfizz/rand_perk_mach_loop.wav", SNDLVL_NORM, math.random(97, 103), 0.5, CHAN_ITEM)
 					self:SetBeingUsed(true)
 					self:SetUser(activator)
-					
+
 					self.OutcomePerk = self:DecideOutcomePerk(activator)
 					self.Bottle = ents.Create("wunderfizz_windup")
-					if (nzMapping.Settings.bottle == "tfa_bo1_bottle") then
-						self.Bottle:SetPos(self:GetPos() + Vector(0,0,50))
-						self.Bottle:SetAngles(self:GetAngles() + Angle(0,90,0))
-					elseif (nzMapping.Settings.bottle == "tfa_bo2_bottle") then
-						self.Bottle:SetPos(self:GetPos() + Vector(0,0,50))
-						self.Bottle:SetAngles(self:GetAngles() + Angle(0,90,0))	
-					elseif (nzMapping.Settings.bottle == "tfa_perk_can") then
-						self.Bottle:SetPos(self:GetPos() + Vector(0,0,50))
-						self.Bottle:SetAngles(self:GetAngles() + Angle(0,180,0))		
-					elseif (nzMapping.Settings.bottle == "tfa_perk_gum") then
-						self.Bottle:SetPos(self:GetPos() + Vector(0,0,55))
-						self.Bottle:SetAngles(self:GetAngles() + Angle(0,180,0))
-					elseif (nzMapping.Settings.bottle == "tfa_bo3_nana") then
-						self.Bottle:SetPos(self:GetPos() + Vector(0,0,55))
-						self.Bottle:SetAngles(self:GetAngles() + Angle(0,-90,0))
-					elseif (nzMapping.Settings.bottle == "tfa_perk_candy") then
-						self.Bottle:SetPos(self:GetPos() + Vector(0,0,50))
-						self.Bottle:SetAngles(self:GetAngles() + Angle(0,0,0))
-					else	
-						self.Bottle:SetPos(self:GetPos() + Vector(0,0,50))
-						self.Bottle:SetAngles(self:GetAngles() + Angle(0,140,0))
+
+					local bpos, bang = nzPerks:GetFizzPosition(nzMapping.Settings.bottle)
+					if bpos and bang then
+						self.Bottle:SetPos(self:GetPos() + (self:GetUp()*bpos[3]))
+
+						local ang = self:GetAngles()
+						ang:RotateAroundAxis(self:GetUp(), bang[1])
+						ang:RotateAroundAxis(self:GetRight(), bang[2])
+						ang:RotateAroundAxis(self:GetForward(), bang[3])
+						self.Bottle:SetAngles(ang)
+					else
+						self.Bottle:SetPos(self:GetPos() + (self:GetUp()*50))
+
+						local ang = self:GetAngles()
+						ang:RotateAroundAxis(self:GetRight(), 140)
+						self.Bottle:SetAngles(ang)
 					end
+
 					self.Bottle.WMachine = self
-					self.Bottle.Perk = self.OutcomePerk
+					self.Bottle:SetPerk(self.OutcomePerk)
+					self.Bottle:SetParent(self)
 					self.Bottle:Spawn()
-					
-					timer.Simple(0, function()
-						if IsValid(self.Bottle) then
-							local e = EffectData()
-							e:SetEntity(self.Bottle)
-							e:SetMagnitude(1.1)
-							e:SetScale(5)
-							util.Effect("lightning_aura", e)
-						end
-					end)
-					
+
 					self.TimesUsed = self.TimesUsed + 1
+
+					local id, dur = self:LookupSequence("vend")
+					if id > 0 then
+						self:SetCycle(0)
+						self:ResetSequence(id)
+					end
 					return true
 				end)
-			else
-				print(activator:Nick().." already has max perks")
 			end
-		elseif !self.Bottle:GetWinding() and !self:GetIsTeddy() then  //////////////////// FROM HERE
+		elseif !self.Bottle:GetWinding() and !self:GetIsTeddy() then
 			if nzMapping.Settings.sharing then
 				if activator == self:GetUser() or self:GetSharing() then
-					if self:GetSharing() and #activator:GetPerks() >= GetConVar("nz_difficulty_perks_max"):GetInt() then
-						activator:PrintMessage( HUD_PRINTTALK, "BITCH YOU THOUGHT" )
+					if self:GetSharing() and #activator:GetPerks() >= activator:GetMaxPerks() then
+						activator:PrintMessage(HUD_PRINTTALK, "[NZ] You may only have "..activator:GetMaxPerks().." perks!")
 						return
 					end
 
@@ -188,33 +240,58 @@ function ENT:Use(activator, caller)
 						wep:SetPerk(perk)
 					end
 					activator:GivePerk(perk)
-					self:SetBeingUsed(false)
-					self:SetPerkID("")
-					self:SetUser(nil)
-					self.Bottle:Remove()
-					self:SetSharing(false)
-					self:EmitSound("nz_moo/perkacolas/wonderfizz_sting_1.mp3", 75, math.random(97, 103))
+					self:EmitSound("nz_moo/perkacolas/wonderfizz_sting_1.mp3", 75, math.random(97, 103), 1, CHAN_STATIC)
+
+					self:Reset()
 				end
 			else
 				if activator == self:GetUser() then	
+					if #activator:GetPerks() >= activator:GetMaxPerks() then
+						activator:PrintMessage(HUD_PRINTTALK, "[NZ] You have outsmarted the system.")
+					end
+
 					local perk = self:GetPerkID()
 					local wep = activator:Give(nzMapping.Settings.bottle or "tfa_perk_bottle")
 					if IsValid(wep) then
 						wep:SetPerk(perk)
 					end
 					activator:GivePerk(perk)
-					self:SetBeingUsed(false)
-					self:SetPerkID("")
-					self:SetUser(nil)
-					self.Bottle:Remove()
-					self:SetSharing(false)
-					self:EmitSound("nz_moo/perkacolas/wonderfizz_sting_1.mp3", 75, math.random(97, 103))
+					self:EmitSound("nz_moo/perkacolas/wonderfizz_sting_1.mp3", 75, math.random(97, 103), 1, CHAN_STATIC)
+
+					self:Reset()
 				else
-					activator:PrintMessage( HUD_PRINTTALK, "This is " .. self:GetUser():Nick() .. "'s perk. You cannot take it." )
+					activator:PrintMessage( HUD_PRINTTALK, "[NZ] This is " .. self:GetUser():Nick() .. "'s perk. You cannot take it." )
 				end
 			end
-		end  //////////////////// TO HERE IS COMMUNISM (i think)
+		end
 	end
+end
+
+function ENT:OnTakeDamage(dmginfo)
+	local ply = dmginfo:GetAttacker()
+	if not IsValid(ply) or not ply:IsPlayer() or self:GetSharing() or !self:GetBeingUsed() then return end
+	if !self.Bottle or !IsValid(self.Bottle) or self.Bottle:GetWinding() then return end
+
+	if ply == self:GetUser() and bit.band(dmginfo:GetDamageType(), bit.bor(DMG_SLASH, DMG_CLUB, DMG_CRUSH)) ~= 0 then
+		self:SetSharing(true)
+		if self.Bottle and IsValid(self.Bottle) then
+			self.Bottle:SetSharing(true)
+		end
+	end
+end
+
+function ENT:Reset()
+	self:SetBeingUsed(false)
+	self:SetPerkID("")
+	self:SetUser(nil)
+	self:SetSharing(false)
+
+	if self.Bottle and IsValid(self.Bottle) then
+		self.Bottle:Remove()
+	end
+
+	self:StopSound("nz_moo/perks/wonderfizz/rand_perk_mach_loop.wav")
+	self:EmitSound("nz_moo/perks/wonderfizz/rand_perk_mach_stop.mp3", SNDLVL_TALKING, math.random(97, 103), 1, CHAN_ITEM)
 end
 
 function ENT:OnRemove()
@@ -240,25 +317,141 @@ function ENT:MoveLocation()
 	end
 end
 
-local offlight = Material( "sprites/redglow1" )
-local offpos = Vector(10, 23.6, 61.4)
-local red = Color(255,255,255) -- The sprite itself is red
+local red = Color(255,0,0)
+local green = Color(0,255,0)
 local onlight = Material( "sprites/physg_glow1" )
-local onpos = Vector(10, 23.6, 58)
-local green = Color(0,255,0) -- That one's white though
+local usedcolor = Color(255,240,225)
+
 if CLIENT then
 	function ENT:Draw()
 		self:DrawModel()
+
+		if nzMapping.Settings.cwfizz then
+			if self.VendingEffects1 and IsValid(self.VendingEffects1) then
+				self.VendingEffects1:StopEmission()
+			end
+			if self.VendingEffects2 and IsValid(self.VendingEffects2) then
+				self.VendingEffects2:StopEmission()
+			end
+			if self.VendingEffects3 and IsValid(self.VendingEffects3) then
+				self.VendingEffects3:StopEmission()
+			end
+			if self.LightningEffects1 and IsValid(self.LightningEffects1) then
+				self.LightningEffects1:StopEmission()
+			end
+			if self.LightningEffects2 and IsValid(self.LightningEffects2) then
+				self.LightningEffects2:StopEmission()
+			end
+			if self.LightningEffects3 and IsValid(self.LightningEffects3) then
+				self.LightningEffects3:StopEmission()
+			end
+			if self.LightningEffects4 and IsValid(self.LightningEffects4) then
+				self.LightningEffects4:StopEmission()
+			end
+
+			if self:IsOn() then
+				if !self.NextLight or CurTime() > self.NextLight then
+					local dlight = DynamicLight(self:EntIndex(), true)
+					local center = self:OBBCenter() * 0.25
+					local fwd = self:GetForward() * 35
+
+					if ( dlight ) then
+						dlight.pos = self:WorldSpaceCenter() + center + fwd
+						dlight.r = usedcolor.r
+						dlight.g = usedcolor.g
+						dlight.b = usedcolor.b
+						dlight.brightness = 1
+						dlight.Decay = 1000
+						dlight.Size = 256
+						dlight.DieTime = CurTime() + 1
+					end
+					if math.random(300) == 1 then self.NextLight = CurTime() + 0.05 end
+				end
+
+				self:EmitSound("nz_moo/perkacolas/hum_loop.wav", 65, 100, 1, 3)
+			end
+			return
+		end
+
 		if self:IsOn() then
-			cam.Start3D(EyePos(),EyeAngles())
-				render.SetMaterial( onlight )
-				render.DrawSprite( self:LocalToWorld(onpos), 10, 10, green)
-			cam.End3D()
+			local being_used = self:GetBeingUsed()
+
+			local dlight2 = DynamicLight(self:EntIndex(), false)
+			if (dlight2) then
+				local attpos = self:GetAttachment(1)
+
+				dlight2.pos = (attpos and attpos.Pos) and attpos.Pos or self:GetPos()
+				dlight2.r = 100
+				dlight2.g = 120
+				dlight2.b = 255
+				dlight2.brightness = 0.5
+				dlight2.Decay = 2000
+				dlight2.Size = 160
+				dlight2.DieTime = CurTime() + 0.5
+			end
+
+			if being_used then
+				if !self.VendingEffects1 or !IsValid(self.VendingEffects1) then
+					self.VendingEffects1 = CreateParticleSystem(self, "bo3_vending_wonder_vend", PATTACH_POINT_FOLLOW, 2)
+				end
+				if !self.VendingEffects2 or !IsValid(self.VendingEffects2) then
+					self.VendingEffects2 = CreateParticleSystem(self, "bo3_vending_wonder_halo", PATTACH_POINT_FOLLOW, 3)
+				end
+				if !self.VendingEffects3 or !IsValid(self.VendingEffects3) then
+					self.VendingEffects3 = CreateParticleSystem(self, "bo3_vending_wonder_halo", PATTACH_POINT_FOLLOW, 4)
+				end
+			else
+				if self.VendingEffects1 and IsValid(self.VendingEffects1) then
+					self.VendingEffects1:StopEmission()
+				end
+				if self.VendingEffects2 and IsValid(self.VendingEffects2) then
+					self.VendingEffects2:StopEmission()
+				end
+				if self.VendingEffects3 and IsValid(self.VendingEffects3) then
+					self.VendingEffects3:StopEmission()
+				end
+			end
+
+			if !self.LightningEffects1 or !IsValid(self.LightningEffects1) then
+				self.LightningEffects1 = CreateParticleSystem(self, "bo3_vending_wonder_ball", PATTACH_POINT_FOLLOW, 1)
+			end
+			if !self.LightningEffects2 or !IsValid(self.LightningEffects2) then
+				self.LightningEffects2 = CreateParticleSystem(self, "bo3_vending_wonder_light", PATTACH_POINT_FOLLOW, 6)
+			end
+			if !self.LightningEffects3 or !IsValid(self.LightningEffects3) then
+				self.LightningEffects3 = CreateParticleSystem(self, "bo3_vending_wonder_light", PATTACH_POINT_FOLLOW, 7)
+			end
+			if !self.LightningEffects4 or !IsValid(self.LightningEffects4) then
+				self.LightningEffects4 = CreateParticleSystem(self, "bo3_vending_wonder_idle", PATTACH_ABSORIGIN_FOLLOW, 1)
+			end
+
+			render.SetMaterial(onlight)
+			render.DrawSprite((being_used and self:GetAttachment(9).Pos or self:GetAttachment(8).Pos), 8, 8, being_used and red or green)
 		else
-			cam.Start3D(EyePos(),EyeAngles())
-				render.SetMaterial( offlight )
-				render.DrawSprite( self:LocalToWorld(offpos), 10, 10, red)
-			cam.End3D()
+			if self.VendingEffects1 and IsValid(self.VendingEffects1) then
+				self.VendingEffects1:StopEmission()
+			end
+			if self.VendingEffects2 and IsValid(self.VendingEffects2) then
+				self.VendingEffects2:StopEmission()
+			end
+			if self.VendingEffects3 and IsValid(self.VendingEffects3) then
+				self.VendingEffects3:StopEmission()
+			end
+			if self.LightningEffects1 and IsValid(self.LightningEffects1) then
+				self.LightningEffects1:StopEmission()
+			end
+			if self.LightningEffects2 and IsValid(self.LightningEffects2) then
+				self.LightningEffects2:StopEmission()
+			end
+			if self.LightningEffects3 and IsValid(self.LightningEffects3) then
+				self.LightningEffects3:StopEmission()
+			end
+			if self.LightningEffects4 and IsValid(self.LightningEffects4) then
+				self.LightningEffects4:StopEmission()
+			end
+
+			render.SetMaterial(onlight)
+			render.DrawSprite((being_used and self:GetAttachment(9).Pos or self:GetAttachment(8).Pos), 8, 8, being_used and red or green)
 		end
 	end
 end

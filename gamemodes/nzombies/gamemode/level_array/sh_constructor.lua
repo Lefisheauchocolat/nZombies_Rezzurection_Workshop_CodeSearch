@@ -15,6 +15,7 @@ nzLevel.HudEntityCache = {}
 nzLevel.BrutusEntityCache = {}
 nzLevel.GrenadeCache = {}
 nzLevel.SpecialGrenadeCache = {}
+nzLevel.PowerUpsCache = {}
 
 nzLevel.HudEntityClass = {}
 nzLevel.BrutusEntityClass = {}
@@ -92,6 +93,9 @@ function nzLevel:RebuildSWEPCache()
 				nzLevel.SpecialGrenadeClass[projectile] = true
 			end
 		end
+		if SERVER and wep.NZWonderWeapon then
+			nzWeps:AddWonderWeapon(wep.ClassName)
+		end
 	end
 end
 
@@ -132,6 +136,9 @@ function nzLevel:RebuildENTCache()
 			table.insert(nzLevel.VultureCache, ent)
 		end
 
+		if class == "drop_powerup" then
+			table.insert(nzLevel.PowerUpsCache, ent)
+		end
 		if class == "jumptrav_block" then
 			table.insert(nzLevel.JumpTravCache, ent)
 		end
@@ -251,6 +258,9 @@ hook.Add("OnEntityCreated", "nzLevel.Iterator", function(ent)
 			table.insert(nzLevel.VultureCache, ent)
 		end
 
+		if class == "drop_powerup" then
+			table.insert(nzLevel.PowerUpsCache, ent)
+		end
 		if class == "jumptrav_block" then
 			table.insert(nzLevel.JumpTravCache, ent)
 		end
@@ -359,6 +369,15 @@ hook.Add("EntityRemoved", "nzLevel.Iterator", function(ent)
 		for i = 1, #nzLevel.BarricadeCache do
 			if nzLevel.BarricadeCache[i] == ent then
 				table.remove(nzLevel.BarricadeCache, i)
+				break
+			end
+		end
+	end
+
+	if class == "drop_powerup" then
+		for i = 1, #nzLevel.PowerUpsCache do
+			if nzLevel.PowerUpsCache[i] == ent then
+				table.remove(nzLevel.PowerUpsCache, i)
 				break
 			end
 		end
@@ -498,6 +517,10 @@ end
 
 function nzLevel.GetBarricadeArray()
 	return inext, nzLevel.BarricadeCache, 0
+end
+
+function nzLevel.GetPowerUpsArray()
+	return inext, nzLevel.PowerUpsCache, 0
 end
 
 function nzLevel.GetJumpTravArray()

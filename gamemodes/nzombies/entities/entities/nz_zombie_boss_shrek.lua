@@ -1,7 +1,7 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase"
-ENT.PrintName = "Brutus"
+ENT.PrintName = "Shrek"
 ENT.Category = "Brainz"
 ENT.Author = "Laby"
 

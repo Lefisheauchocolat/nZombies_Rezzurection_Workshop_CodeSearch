@@ -1,7 +1,8 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
-ENT.PrintName = "SPIDERMAN"
+--ENT.PrintName = "SPIDERMAN"
+ENT.PrintName = "Meuchler"
 ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 
@@ -196,7 +197,9 @@ function ENT:OnSpawn()
 	end
 end
 
-function ENT:PerformDeath(dmginfo)
+function ENT:PerformDeath(dmginfo)	
+	self.Dying = true
+
 	self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
 	if self.DeathRagdollForce == 0 or dmginfo:GetDamageType() == DMG_REMOVENORAGDOLL or self:GetSpecialAnimation() then
 		self:Remove(dmginfo)

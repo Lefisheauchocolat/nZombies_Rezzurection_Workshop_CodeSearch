@@ -3,6 +3,7 @@ AddCSLuaFile()
 ENT.Base = "nz_zombiebase_moo"
 ENT.Type = "nextbot"
 ENT.Category = "Brainz"
+ENT.PrintName = "Keeper"
 ENT.Author = "GhostlyMoo"
 ENT.Spawnable = true
 
@@ -199,7 +200,9 @@ function ENT:OnSpawn()
 	self:EmitSound("nz_moo/zombies/vox/_keeper/keeper_lp.wav", 65)
 end
 
-function ENT:PerformDeath(dmgInfo)
+function ENT:PerformDeath(dmgInfo)	
+	self.Dying = true
+
 	self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
 	self:StopSound("nz_moo/zombies/vox/_keeper/keeper_lp.wav")
 	ParticleEffect("doom_dissolve_flameburst",self:WorldSpaceCenter(),Angle(0,0,0),nil)

@@ -1,7 +1,8 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
-ENT.PrintName = "Panzer Soldat(Der Eisendrache)"
+--ENT.PrintName = "Panzer Soldat (Der Eisendrache)"
+ENT.PrintName = "Panzer Soldat"
 ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 
@@ -481,7 +482,9 @@ function ENT:OnGameOver()
 	end
 end
 
-function ENT:PerformDeath(dmgInfo)
+function ENT:PerformDeath(dmgInfo)	
+	self.Dying = true
+
 	self:EmitSound("nz_moo/zombies/vox/_mechz/v2/death/rise.mp3", 100, math.random(85,105))
 	self:EmitSound("nz_moo/zombies/vox/_mechz/v2/death/killshot.mp3", 100, math.random(85,105))
 	self:EmitSound("nz_moo/zombies/vox/_mechz/vox/death/death_00.mp3", 100, math.random(85,105))
@@ -613,7 +616,7 @@ function ENT:StartToasting()
 				local dmg = DamageInfo()
 				dmg:SetAttacker(self)
 				dmg:SetInflictor(self)
-				dmg:SetDamage(5)
+				dmg:SetDamage(6)
 				dmg:SetDamageType(DMG_BURN)
 						
 				tr.Entity:TakeDamageInfo(dmg)

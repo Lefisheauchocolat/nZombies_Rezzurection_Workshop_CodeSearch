@@ -175,7 +175,7 @@ function nzRandomBox.DecideWep(ply)
 		end
 	end
 
-	if ply:HasWeapon(gun) then
+	if !ply:HasWeapon(gun) then
 		gun = hook.Call("OnPlayerBuyBox", nil, ply, gun) or gun
 	end
 	

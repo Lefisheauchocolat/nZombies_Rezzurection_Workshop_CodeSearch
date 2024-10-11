@@ -1,7 +1,8 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
-ENT.PrintName = "Thrasher aka The Cheekeater"
+--ENT.PrintName = "Thrasher aka The Cheekeater"
+ENT.PrintName = "Thrasher"
 ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 
@@ -346,7 +347,9 @@ function ENT:OnSpawn()
 	end
 end
 
-function ENT:PerformDeath(dmgInfo)
+function ENT:PerformDeath(dmgInfo)	
+	self.Dying = true
+
 	if self:GetSpecialAnimation() then
 		self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
 		if IsValid(self) then

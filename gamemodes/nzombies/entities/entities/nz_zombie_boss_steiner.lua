@@ -1,7 +1,8 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
-ENT.PrintName = "The Megaton aka Magnatron(According to IServerOutVibes) I AM MEGALON!!!!!!!!!"
+--ENT.PrintName = "The Megaton aka Magnatron(According to IServerOutVibes) I AM MEGALON!!!!!!!!!"
+ENT.PrintName = "Megaton"
 ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 

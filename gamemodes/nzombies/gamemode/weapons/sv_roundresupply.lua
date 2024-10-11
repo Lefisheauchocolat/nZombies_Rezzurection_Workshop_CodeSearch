@@ -57,7 +57,11 @@ function nzWeps:DoRoundResupply()
 			ply:Give(gun)
 		end
 
-		if ply:HasUpgrade("speed") and ply:GetNW2Int("nz.SpeedRefund", 0) > 0 then
+		if ply:GetNW2Int("nz.CandolierRefund", 0) > 0 then
+			ply:SetNW2Int("nz.CandolierRefund", 0)
+		end
+
+		/*if ply:HasUpgrade("speed") and ply:GetNW2Int("nz.SpeedRefund", 0) > 0 then
 			local total = ply:GetNW2Int("nz.SpeedRefund", 0)
 			local totalog = total
 
@@ -100,7 +104,7 @@ function nzWeps:DoRoundResupply()
 			end
 
 			ply:SetNW2Int("nz.SpeedRefund", 0)
-		end
+		end*/
 	end
 end
 

@@ -1122,11 +1122,11 @@ local function PerksHud_t5()
 end
 
 local vulture_textures = {
-	["nz_ammo_matic"] = Material("nz_moo/vulture/fxt_zmb_question_mark.png", "smooth unlitgeneric"),
-	["pap"] = Material("nz_moo/vulture/fxt_zmb_perk_pap.png", "smooth unlitgeneric"),
-	["wall_buys"] = Material("nz_moo/vulture/fxt_zmb_perk_rifle.png", "smooth unlitgeneric"),
-	["random_box"] = Material("nz_moo/vulture/fxt_zmb_perk_magic_box.png", "smooth unlitgeneric"),
-	["wunderfizz_machine"] = Material("nz_moo/vulture/fxt_zmb_question_mark.png", "smooth unlitgeneric"),
+	["nz_ammo_matic"] = Material("nz_moo/icons/vulture/fxt_zmb_question_mark.png", "smooth unlitgeneric"),
+	["pap"] = Material("nz_moo/icons/vulture/fxt_zmb_perk_pap.png", "smooth unlitgeneric"),
+	["wall_buys"] = Material("nz_moo/icons/vulture/fxt_zmb_perk_rifle.png", "smooth unlitgeneric"),
+	["random_box"] = Material("nz_moo/icons/vulture/fxt_zmb_perk_magic_box.png", "smooth unlitgeneric"),
+	["wunderfizz_machine"] = Material("nz_moo/icons/vulture/fxt_zmb_question_mark.png", "smooth unlitgeneric"),
 }
 
 local function VultureVision_t5()

@@ -2,8 +2,8 @@ AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
 ENT.Type = "nextbot"
-ENT.PrintName = "Engineer"
 ENT.Category = "Brainz"
+ENT.PrintName = "Engineer"
 ENT.Author = "GhostlyMoo"
 ENT.Spawnable = true
 
@@ -98,8 +98,8 @@ ENT.MooSpecialZombie = true -- They're a Special Zombie, but is still close enou
 ENT.IsMooBossZombie = true
 
 ENT.DamageRange 			= 75
-ENT.AttackDamage 			= 50
-ENT.HeavyAttackDamage 		= 95 
+ENT.AttackDamage 			= 75
+ENT.HeavyAttackDamage 		= 100 
 
 ENT.SoundVolume 			= 90
 

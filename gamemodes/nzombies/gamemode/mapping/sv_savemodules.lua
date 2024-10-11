@@ -49,13 +49,16 @@ nzMapping:AddSaveModule("ZedSpawns", {
 				zombietype = v:GetZombieType() or "none",
 				roundactive = v:GetActiveRound() or 0,
 				spawnchance = v:GetSpawnChance() or 100,
+				miscspawn 	= v:GetMixedSpawn(),
+				totalspawn  = v:GetTotalSpawns(),
+				aliveamount  = v:GetAliveAmount(),
 			})
 		end
 		return zed_spawns
 	end,
 	loadfunc = function(data)
 		for k,v in pairs(data) do
-			nzMapping:ZedSpawn(v.pos, v.angle, v.link, v.link2, v.link3, v.master, v.spawntype, v.zombietype, v.roundactive, v.spawnchance)
+			nzMapping:ZedSpawn(v.pos, v.angle, v.link, v.link2, v.link3, v.master, v.spawntype, v.zombietype, v.roundactive, v.spawnchance, v.miscspawn, v.totalspawn, v.aliveamount)
 		end
 	end,
 	cleanents = {"nz_spawn_zombie_normal"}, -- Simply clean entities of this type
@@ -547,11 +550,22 @@ nzMapping:AddSaveModule("RandomBoxSpawns", {
 nzMapping:AddSaveModule("PerkMachineSpawns", {
 	savefunc = function()
 		local perk_machinespawns = {}
+
 		for _, v in pairs(ents.FindByClass("perk_machine")) do
 			table.insert(perk_machinespawns, {
 				pos = v:GetPos(),
 				angle = v:GetAngles(),
-				id = v:GetPerkID(),
+				tab = {
+					id = v:GetPerkID(),
+					random = v.Randomize,
+					fizzlist = v.RandomizeFizzlist,
+					randomround = v.RandomizeRoundStart,
+					roundnum = v.RandomizeRoundInterval,
+					door = v.HideBehindDoor,
+					doorflag = v.DoorFlag,
+					doorflag2 = v.DoorFlag2,
+					doorflag3 = v.DoorFlag3,
+				}
 			})
 		end
 		for _, v in pairs(ents.FindByClass("wunderfizz_machine")) do
@@ -564,11 +578,11 @@ nzMapping:AddSaveModule("PerkMachineSpawns", {
 		return perk_machinespawns
 	end,
 	loadfunc = function(data)
-		for k,v in pairs(data) do
-			nzMapping:PerkMachine(v.pos, v.angle, v.id)
+		for k, v in pairs(data) do
+			nzMapping:PerkMachine(v.pos, v.angle, v.tab or v.id)
 		end
 	end,
-	cleanents = {"perk_machine", "wunderfizz_machine", "wunderfizz_windup"},
+	cleanents = {"perk_machine", "wunderfizz_machine"},
 })
 
 nzMapping:AddSaveModule("DoorSetup", {
@@ -783,16 +797,27 @@ nzMapping:AddSaveModule("DamageWalls", {
 				maxbound = v:GetMaxBound(),
 				damage = v:GetDamage(),
 				delay = v:GetDelay(),
-				radiation = v:GetRadiation(),
-				poison = v:GetPoison(),
-				tesla = v:GetTesla(),
+				dmgtype = v:GetDamageWallType(),
+				//radiation = v:GetRadiation(),
+				//poison = v:GetPoison(),
+				//tesla = v:GetTesla(),
 			})
 		end
 		return invis_damage_walls
 	end,
 	loadfunc = function(data)
-		for k,v in pairs(data) do
-			nzMapping:CreateInvisibleDamageWall(v.pos, v.maxbound, nil, v.damage, v.delay, v.radiation, v.poison, v.tesla)
+		for k, v in pairs(data) do
+			//yippee suicide
+			local fuckoffdie = 1
+			if v.radiation then
+				fuckoffdie = 1
+			elseif v.poison then
+				fuckoffdie = 2
+			elseif v.tesla then
+				fuckoffdie = 3
+			end
+
+			nzMapping:CreateInvisibleDamageWall(v.pos, v.maxbound, nil, v.damage, v.delay, v.dmgtype or fuckoffdie)
 		end
 	end,
 	cleanents = {"invis_damage_wall"},

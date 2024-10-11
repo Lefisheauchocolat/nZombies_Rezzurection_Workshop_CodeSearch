@@ -4,19 +4,23 @@ if SERVER then
 
 	hook.Add("Think", "CheckDownedPlayersTime", function()
 		for id, data in pairs(nzRevive.Players) do
-			if data.ReviveTime and data.RevivePlayer and IsValid(data.RevivePlayer) then
-				local ply = data.RevivePlayer
-				local revivetime = ply:HasPerk("revive") and 2 or 4
+			local ent = Entity(id)
+			local ply = data.RevivePlayer
+
+			if data.ReviveTime and IsValid(ply) and IsValid(ent) then
+				local revivetime = ply.GetReviveTime and ply:GetReviveTime() or 4 //see 252 of revive_system/sh_meta
+				if ent.GetReviveTime and ent:GetReviveTime() < revivetime then
+					revivetime = ent:GetReviveTime()
+				end
+
 				if (CurTime() - data.ReviveTime >= revivetime) then
-					local ent = Entity(id)
 					ent:RevivePlayer(ply)
 					ply.Reviving = nil
 				end
 			end
 
-			local ent = Entity(id)
-			if CurTime() - data.DownTime >= (ent.GetBleedoutTime and ent:GetBleedoutTime() or cvar_bleedout:GetFloat()) and !data.ReviveTime then
-				if ent.KillDownedPlayer then
+			if !data.ReviveTime and CurTime() - data.DownTime >= ((IsValid(ent) and ent.GetBleedoutTime) and ent:GetBleedoutTime() or cvar_bleedout:GetFloat()) then
+				if IsValid(ent) and ent.KillDownedPlayer then
 					ent:KillDownedPlayer()
 				else
 					nzRevive.Players[id] = nil

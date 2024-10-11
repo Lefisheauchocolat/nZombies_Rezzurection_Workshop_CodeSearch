@@ -4,7 +4,7 @@ local function RegisterDefaultSpecialWeps()
 	nzSpecialWeapons:AddKnife( "nz_quickknife_stunstick", false, 0.4 )
 	nzSpecialWeapons:AddKnife( "nz_knife_butterfly", false, 0.65 )
 	nzSpecialWeapons:AddKnife( "nz_knife_bo1", false, 0.5 )
-	nzSpecialWeapons:AddKnife( "nz_knife_waw", false, 0.7 )
+	nzSpecialWeapons:AddKnife( "nz_knife_w@w", false, 0.7 ) -- Squeaky clean new one :angle:
 	nzSpecialWeapons:AddKnife( "nz_knife_mw", false, 0.5 )
 	nzSpecialWeapons:AddKnife( "nz_knife_ghosts", false, 0.5 )
 	nzSpecialWeapons:AddKnife( "nz_knife_malice", false, 0.65 )
@@ -148,7 +148,7 @@ local function RegisterDefaultSpecialWeps()
 	end)
 
 	nzSpecialWeapons:AddDisplay("tfa_perk_bottle", false, function(wep)
-		return SERVER and (wep.nzDeployTime + 2.2) < CurTime()
+		return SERVER and (wep.nzDeployTime + (wep:GetOwner():HasUpgrade("speed") and 0.9 or 2.2)) < CurTime()
 	end)
 
 	nzSpecialWeapons:AddDisplay("tfa_paparms", false, function(wep)

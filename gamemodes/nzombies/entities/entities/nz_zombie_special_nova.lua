@@ -2,6 +2,7 @@ AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
 ENT.Type = "nextbot"
+ENT.PrintName = "Nova Crawler"
 ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 ENT.Spawnable = true
@@ -250,7 +251,9 @@ function ENT:OnSpawn()
 	end
 end
 
-function ENT:PerformDeath(dmginfo)
+function ENT:PerformDeath(dmginfo)	
+	self.Dying = true
+
 	local damagetype = dmginfo:GetDamageType()
 
 	self:PostDeath(dmginfo)

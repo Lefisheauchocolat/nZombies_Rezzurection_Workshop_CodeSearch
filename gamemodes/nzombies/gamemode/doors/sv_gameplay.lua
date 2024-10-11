@@ -156,17 +156,29 @@ end
 function nzDoors.OnUseDoor( ply, ent )
 	-- Downed players can't use anything!
 	if !ply:GetNotDowned() then return false end
-	
+
 	-- Players can't use stuff while using special weapons! (Perk bottles, knives, etc)
-	if IsValid(ply:GetActiveWeapon()) and ply:GetActiveWeapon():IsSpecial() then return false end
-	
+	local wep = ply:GetActiveWeapon()
+	if IsValid(wep) and wep:IsSpecial() then
+		local papapunch = (IsValid(ent) and ent:GetClass() == "perk_machine" and ent:GetPerkID() == "pap")
+		if papapunch then
+			if (wep.AllowInteraction and !wep.NZSpecialPAP) or !wep.NZSpecialPAP then
+				return false
+			end
+		else
+			if !wep.AllowInteraction then
+				return false
+			end
+		end
+	end
+
 	if ent:IsBuyableEntity() then
 		if ent.buyable == nil or tobool(ent.buyable) then
 			nzDoors:BuyDoor( ply, ent )
 		end
 	end
 end
-hook.Add( "PlayerUse", "nzPlayerBuyDoor", nzDoors.OnUseDoor )
+hook.Add("PlayerUse", "nzPlayerBuyDoor", nzDoors.OnUseDoor)
 
 function nzDoors.CheckUseDoor(ply, ent)
 	--print(ply, ent)

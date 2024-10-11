@@ -2,7 +2,8 @@ AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
 ENT.Type = "nextbot"
-ENT.PrintName = "Baboon Xenomorph that headbutts you"
+--ENT.PrintName = "Baboon Xenomorph that headbutts you"
+ENT.PrintName = "Xenomorph Brute"
 ENT.Category = "Brainz"
 ENT.Author = "Wavy"
 ENT.Spawnable = true
@@ -235,7 +236,9 @@ function ENT:OnSpawn()
 	util.Effect("panzer_spawn_tp", effectData)
 end
 
-function ENT:PerformDeath(dmginfo)
+function ENT:PerformDeath(dmginfo)	
+	self.Dying = true
+
 	local damagetype = dmginfo:GetDamageType()
 	if self.DeathRagdollForce == 0 or self:GetSpecialAnimation() or damagetype == DMG_MISSILEDEFENSE or damagetype == DMG_ENERGYBEAM then
 		self:BecomeRagdoll(dmginfo)

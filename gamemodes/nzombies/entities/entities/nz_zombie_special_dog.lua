@@ -149,6 +149,9 @@ ENT.SequenceTables = {
 
 function ENT:StatsInitialize()
 	if SERVER then
+		self:SetHealth( nzRound:GetZombieHealth() * 0.25 or 75 )
+		self:SetMaxHealth( self:Health() )
+		
 		self.Sprinting = false
 		self.IgnitedFoxy = false
 	end
@@ -187,6 +190,7 @@ function ENT:OnSpawn()
 end
 
 function ENT:PerformDeath(dmgInfo)
+	self.Dying = true
 	if self:GetSpecialAnimation() then
 		self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
 		if IsValid(self) then

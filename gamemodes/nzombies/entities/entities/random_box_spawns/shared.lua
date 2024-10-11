@@ -71,7 +71,34 @@ function ENT:Initialize()
 end
 
 function ENT:Think()
-	self:NextThink(CurTime())
+	if SERVER then
+		if !IsValid(self.Box) and nzPowerUps:IsPowerupActive("firesale") then
+			local box = ents.Create( "random_box" )
+			local pos = self:GetPos()
+			local ang = self:GetAngles()
+			
+			if (nzMapping.Settings.boxtype == "Original" or nzMapping.Settings.boxtype == "Black Ops 3" or nzMapping.Settings.boxtype == "Black Ops 3(Quiet Cosmos)" or nzMapping.Settings.boxtype == "Leviathan") then
+				box:SetPos( pos + ang:Up()*10 + ang:Right()*7 )
+			else
+				box:SetPos( pos + ang:Right()*7 )
+			end
+
+			box:SetAngles( ang )
+			box:Spawn()
+			box.SpawnPoint = self
+			box.FireSaleBox = true
+
+			self:SetBodygroup(1,1)
+			self.Box = box
+
+			local phys = box:GetPhysicsObject()
+			if phys:IsValid() then
+				phys:EnableMotion(false)
+			end
+		end
+	end
+
+	self:NextThink(CurTime() + 0.25)
 	return true
 end
 

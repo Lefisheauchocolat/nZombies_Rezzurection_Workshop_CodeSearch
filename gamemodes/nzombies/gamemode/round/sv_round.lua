@@ -16,8 +16,6 @@ function nzRound:Init()
 end
 
 function nzRound:Prepare( time )
-	local P = GetConVar("nz_difficulty_perks_max"):GetInt()
-
 	hook.Remove("EntityTakeDamage", "TFA_MeleeScaling")
 	hook.Remove("EntityTakeDamage", "TFA_MeleeReceiveLess")
 	hook.Remove("EntityTakeDamage", "TFA_MeleePaP")
@@ -36,15 +34,20 @@ function nzRound:Prepare( time )
 	self:SetSpecial( self:MarkedForSpecial( self:GetNumber() + 1 ) )
 	self:SetState( ROUND_PREP )
 
-	if self:GetNumber() < 666 then
-		self:IncrementNumber()
-	end
+	--[[if self:GetNumber() < 666 then
+	end]]
+
+	
+	-- Round Counter is in 16 bit, so it can only display up to 32767 before it starts back at 0.
+	-- Depending on the hud of the config, it'll actually display 0 or it'll stay at 32767 before starting back at 1.
+	self:IncrementNumber()
 
 	if self:GetNumber() < 1 then
 		self:SetNumber(1) -- No more -1 :steamhappy:
 	end
 
 	self:SetZombieHealth( nzCurves.GenerateHealthCurve(self:GetNumber()) )
+	self:SetZombieDamage( nzCurves.GenerateAttackDamage(self:GetNumber()) )
 
 	if nzMapping.Settings.timedgame == 1 then
 		self:SetZombiesMax( 666 )
@@ -70,8 +73,14 @@ function nzRound:Prepare( time )
 	end
 
 	local slot_reward = nzMapping.Settings.roundperkbonus
+	local cvar_maxperks = GetConVar("nz_difficulty_perks_max")
 	if (self:GetNumber() == 16 or self:GetNumber() == 26) and (slot_reward == nil or tobool(slot_reward)) then -- Beating rounds 15 and 25 will reward you with your 2 slots.
-		GetConVar("nz_difficulty_perks_max"):SetInt(P+1) -- No longer a Powerup, You'll just get slots depending on the round.
+		cvar_maxperks:SetInt(cvar_maxperks:GetInt() + 1) -- No longer a Powerup, You'll just get slots depending on the round. //powerup again but now its a reward
+		for k, v in pairs(player.GetAll()) do
+			if (v:IsPlaying() or v:IsInCreative()) then
+				v:SetMaxPerks(v:GetMaxPerks() + 1)
+			end
+		end
 
 		net.Start("nzPowerUps.PickupHud")
 			net.WriteString("Perk Slot!")
@@ -280,8 +289,8 @@ function nzRound:Start()
 	if self:GetNumber() == -1 then
 		self.InfinityStart = CurTime()
 	end
+
 	if self:GetNumber() == 1 then
-		GetConVar("nz_difficulty_perks_max"):SetInt(4)
 		nzRound:EnableInitialBossRound()
 	end
 end
@@ -382,7 +391,7 @@ function nzRound:ResetGame()
 		end
 
 		ply:SetPreventPerkLoss(false)
-		ply:RemovePerks() --Remove all players perks
+		ply:RemovePerks(true) --Remove all players perks
 		ply:RemoveUpgrades() --Remove all players perk upgrades
 
 		ply.OldWeapons = nil --Remove stored weapons
@@ -405,9 +414,12 @@ function nzRound:ResetGame()
 	--Reset Box and Pap uses.
 	nzPowerUps.HasPaped = false
 	nzPowerUps.BoxMoved = false
-	
-	GetConVar("nz_difficulty_perks_max"):SetInt(4)
-	
+
+	nzPerks:ResetMaxPlayerPerks()
+	GetConVar("nz_downtime"):SetFloat(nzMapping.Settings.downtime or 45)
+	GetConVar("nz_revivetime"):SetFloat(nzMapping.Settings.revivetime or 4)
+	RunConsoleCommand("sv_gravity", tostring(nzMapping.Settings.gravity or 600))
+
 	for k,v in pairs(ents.FindByClass("player_spawns")) do
 		v:SetTargetPriority(TARGET_PRIORITY_NONE) -- Get rid of the spawn's target priority.
 	end
@@ -631,7 +643,7 @@ function nzRound:SetupGame()
 		end
 
 		ply:SetPreventPerkLoss(false)
-		ply:RemovePerks() --Remove all players perks
+		ply:RemovePerks(true) --Remove all players perks
 		ply:RemoveUpgrades() --Remove all players perk upgrades
 
 		ply.OldWeapons = nil --Remove stored weapons
@@ -684,6 +696,11 @@ function nzRound:SetupGame()
 		nzElec:Reset() -- Reset with no value to play the power down sound
 	end
 
+	GetConVar("nz_downtime"):SetFloat(nzMapping.Settings.downtime or 45)
+	GetConVar("nz_revivetime"):SetFloat(nzMapping.Settings.revivetime or 4)
+	RunConsoleCommand("sv_gravity", tostring(nzMapping.Settings.gravity or 600))
+
+	nzPerks:ResetMaxPlayerPerks()
 	nzPerks:UpdateQuickRevive()
 
 	if nzMapping.Settings.timedgame ~= 1 then

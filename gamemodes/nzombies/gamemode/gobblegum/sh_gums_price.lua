@@ -33,45 +33,34 @@ local function GetGumCost()
 	return price_data[#price_data]
 end
 
-function nzGum:GetCost(ply)
-	if not IsValid(ply) or not ply:IsPlayer() then return end
-
-	local price = GetGumCost()
-	price = price * ply:GetNWInt("nzGumPriceMultiplier", 0)
-	return price
-end
-
-function nzGum:GetActiveGum(ply)
-	if not IsValid(ply) or not ply:IsPlayer() then return end
-
-	local gum = ply:GetNWString("nzCurrentGum", "")
-	if !gum or gum == "" then
-		return
+function nzGum:GetCost(ply) //calling without a player will provide price without multiplier
+	if not IsValid(ply) or not ply:IsPlayer() then
+		return GetGumCost()
 	end
-	return gum
+	return GetGumCost() * nzGum:GetPlayerPriceMultiplier(ply)
 end
 
-function nzGum:GetMaxBuysPerRound(ply)
+function nzGum:SetPlayerPriceMultiplier(ply, num)
 	if not IsValid(ply) or not ply:IsPlayer() then return end
+	ply:SetNWInt("nzGumPriceMultiplier", num)
+end
 
-	local limit = ply:GetNWInt("nzGumRoundBuyPerRound", 0)
-	return limit
+function nzGum:GetPlayerPriceMultiplier(ply)
+	if not IsValid(ply) or not ply:IsPlayer() then return end
+	return ply:GetNWInt("nzGumPriceMultiplier", 0)
+end
+
+function nzGum:GetTotalBuys(ply)
+	if not IsValid(ply) or not ply:IsPlayer() then return end
+	return ply:GetNWInt("nzGumRoundBuyPerRound", 0)
 end
 
 function nzGum:AddToTotalBuys(ply)
 	if not IsValid(ply) or not ply:IsPlayer() then return end
-
-	local total = ply:GetNWInt("nzGumRoundBuyPerRound", 0)
-	total = ply:SetNWInt("nzGumRoundBuyPerRound", total + 1)
+	ply:SetNWInt("nzGumRoundBuyPerRound", nzGum:GetTotalBuys(ply) + 1)
 end
 
 function nzGum:ResetTotalBuys(ply)
 	if not IsValid(ply) or not ply:IsPlayer() then return end
-
 	ply:SetNWInt("nzGumRoundBuyPerRound", 0)
-	for k,v in pairs(player.GetAll()) do
-		if IsValid(v) and v:IsPlayer() then
-			v:SetNWInt("nzGumRoundBuyPerRound", 0)
-		end
-	end
 end

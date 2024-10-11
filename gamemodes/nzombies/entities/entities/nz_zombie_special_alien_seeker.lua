@@ -3,6 +3,7 @@ AddCSLuaFile()
 ENT.Base = "nz_zombiebase_moo"
 ENT.Type = "nextbot"
 ENT.Category = "Brainz"
+ENT.PrintName = "Cryptid Seeker"
 ENT.Author = "GhostlyMoo"
 ENT.Spawnable = true
 
@@ -546,7 +547,9 @@ function ENT:OnInjured(dmginfo)
 	end
 end
 
-function ENT:PerformDeath(dmgInfo)
+function ENT:PerformDeath(dmgInfo)	
+	self.Dying = true
+
 	self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
 	if IsValid(self) then
 		self:Explode(85)

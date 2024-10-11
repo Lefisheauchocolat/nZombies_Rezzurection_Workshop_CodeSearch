@@ -134,6 +134,9 @@ function ENT:StatsInitialize()
 		self.Lunging = false
 		self.LastLunge = CurTime() + 5
 
+		self:SetHealth( nzRound:GetZombieHealth() * 0.25 or 75 )
+		self:SetMaxHealth( self:Health() )
+		
 		self.SpawnProtection = true -- Zero Health Zombies tend to be created right as they spawn.
 		self.SpawnProtectionTime = CurTime() + 1 -- So this is an experiment to see if negating any damage they take for a second will stop this.
 	end
@@ -188,6 +191,7 @@ function ENT:PostAdditionalZombieStuff()
 end 
 
 function ENT:PerformDeath(dmginfo)
+	self.Dying = true
 	local damagetype = dmginfo:GetDamageType()
 
 	self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)

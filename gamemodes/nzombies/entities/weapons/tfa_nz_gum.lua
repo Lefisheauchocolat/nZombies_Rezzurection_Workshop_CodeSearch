@@ -14,9 +14,9 @@ SWEP.AutoSwitchFrom = false
 SWEP.DrawAmmo = false
 
 --[Model]--
-SWEP.ViewModel = "models/nz/perks/wpn_t7_zmb_bubblegum_view_lod4.mdl"
+SWEP.ViewModel = "models/nzr/2024/perks/bo3/gum/vm_bo3_gum.mdl"
 SWEP.ViewModelFOV = 65
-SWEP.WorldModel = "models/nz/perks/w_wpn_t7_zmb_bubblegum_view_lod4.mdl"
+SWEP.WorldModel = "models/nzr/2024/perks/bo3/gum/world/wm_bo3_gum.mdl"
 SWEP.HoldType = "slam"
 SWEP.CameraAttachmentOffsets = {}
 SWEP.CameraAttachmentScale = 1

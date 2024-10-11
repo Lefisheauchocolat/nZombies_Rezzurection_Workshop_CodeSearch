@@ -43,12 +43,23 @@ function PLAYER:Loadout()
 
 end
 
+local cvar_bleedout = GetConVar("nz_downtime")
+local cvar_revive = GetConVar("nz_revivetime")
+local cvar_perkmax = GetConVar("nz_difficulty_perks_max")
+
 function PLAYER:Spawn()
 	-- if we are in create or debuging make zombies target us
 	if nzRound:InState(ROUND_CREATE) or GetConVar( "nz_zombie_debug" ):GetBool() then --TODO this is bullshit?
 		self.Player:SetTargetPriority(TARGET_PRIORITY_PLAYER)
+		self.Player:SetHealth(nzMapping.Settings.hp or 100)
+		self.Player:SetMaxHealth(nzMapping.Settings.hp or 100)
+		self.Player:AllowFlashlight(true)
 	end
 	self.Player:SetUsingSpecialWeapon(false)
+
+	self.Player:SetBleedoutTime(cvar_bleedout:GetFloat())
+	self.Player:SetReviveTime(cvar_revive:GetFloat())
+	self.Player:SetMaxPerks(cvar_perkmax:GetInt())
 end
 
 player_manager.RegisterClass( "player_create", PLAYER, "player_default" )

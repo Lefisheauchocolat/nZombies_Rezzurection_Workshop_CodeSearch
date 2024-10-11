@@ -38,6 +38,14 @@ function nzRound:SetZombieHealth( num )
 	self.ZombieHealth = num
 end
 
+function nzRound:GetZombieDamage()
+	return self.ZombieDamage
+end
+
+function nzRound:SetZombieDamage( num )
+	self.ZombieDamage = num
+end
+
 function nzRound:GetNormalSpawner()
 	return self.hNormalSpawner
 end

@@ -1,7 +1,8 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
-ENT.PrintName = "Hellhound(BO4)"
+--ENT.PrintName = "Hellhound(BO4)"
+ENT.PrintName = "Hellhound"
 ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 
@@ -133,6 +134,9 @@ ENT.SequenceTables = {
 
 function ENT:StatsInitialize()
 	if SERVER then
+		self:SetHealth( nzRound:GetZombieHealth() * 0.25 or 75 )
+		self:SetMaxHealth( self:Health() )
+		
 		self.Sprinting = false
 	end
 	self:SetCollisionBounds(Vector(-9,-9, 0), Vector(9, 9, 72))

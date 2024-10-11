@@ -1,7 +1,8 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
-ENT.PrintName = "Yet another big guy that runs on you YEEEEEEEEEEEAH"
+--ENT.PrintName = "Yet another big guy that runs on you YEEEEEEEEEEEAH"
+ENT.PrintName = "Juggernaut"
 ENT.Category = "Brainz"
 ENT.Author = "Wavy"
 
@@ -165,6 +166,8 @@ function ENT:OnSpawn()
 end
 
 function ENT:PerformDeath(dmginfo)
+	
+	self.Dying = true
 
 	local damagetype = dmginfo:GetDamageType()
 	

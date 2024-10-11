@@ -3,6 +3,7 @@ AddCSLuaFile()
 ENT.Base = "nz_zombie_walker_moon_classic"
 ENT.Type = "nextbot"
 ENT.Category = "Brainz"
+ENT.PrintName = "Zombie"
 ENT.Author = "GhostlyMoo"
 ENT.Spawnable = true
 

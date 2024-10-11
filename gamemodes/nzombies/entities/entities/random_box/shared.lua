@@ -237,7 +237,7 @@ function ENT:Think()
 			self:SetActivated(true)
 		end
 
-		if self.MarkedForRemoval and !self:GetOpen() then
+		if (!nzPowerUps:IsPowerupActive("firesale") and self.FireSaleBox or self.MarkedForRemoval) and !self:GetOpen() then
 			self:Remove()
 		end
 
@@ -329,7 +329,6 @@ function ENT:MarkForRemoval()
 end
 
 function ENT:OnRemove()
-
 	self:RemoveBeam()
 
 	if CLIENT then
@@ -387,14 +386,12 @@ else
 		end
 	end
 end
--- hellbox_plat_sidefire_a
+
 function ENT:OnOpenChanged(_, old, new)
 	if new then
 		self:CreateOpenEffect()
-		--self:OnOpen()
 	else
 		self:RemoveOpenEffect()
-		--self:OnClosed()
 	end
 end
 

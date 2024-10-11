@@ -103,3 +103,96 @@ function wepMeta:GetPrintName()
 	end
 	return name
 end
+
+local illegalspecials = {
+	["specialweapon"] = true, //would do nothing
+	["grenade"] = true, //would do nothing
+	["knife"] = true,
+	["display"] = true,
+}
+
+local old_setclip1 = wepMeta.SetClip1
+function wepMeta:SetClip1(amount, ...)
+	if self.NZSpeedRegenerating then
+		return old_setclip1(self, amount, ...)
+	end
+	if nzPowerUps:IsPowerupActive("infinite") and (self.IsTFAWeapon or self.NZInfiniteSafe) and (!self.NZSpecialWeapon or illegalspecials[self.NZSpecialWeapon]) then
+		if amount >= self:Clip1() then
+			return old_setclip1(self, amount, ...)
+		end
+		return self:Clip1()
+	end
+
+	local ply = self:GetOwner()
+	if IsValid(ply) and ply:IsPlayer() and self.IsTFAWeapon then
+		if ply:HasUpgrade("banana") and ply:GetNW2Int("nz.BananaCount", 0) > 0 and ply:GetSliding() and !self.NZSpecialWeapon then
+			if amount >= self:Clip1() then
+				return old_setclip1(self, amount, ...)
+			end
+			return self:Clip1()
+		end
+
+		local gum = nzGum:GetActiveGum(ply)
+
+		if gum and gum == "stock_option" then
+			local ammostring = self:GetStatL("Primary.Ammo")
+
+			if ply:IsPlayer() and self:Ammo1() > 0 and self:GetPrimaryAmmoType() > 0 and (ammostring ~= ("none" or "")) and amount < self.Primary_TFA.ClipSize then
+				local new = math.max(self:Clip1() - amount, 0)
+
+				ply:RemoveAmmo(new, self:GetPrimaryAmmoType())
+				return amount
+			else
+				return old_setclip1(self, amount, ...)
+			end
+		else
+			return old_setclip1(self, amount, ...)
+		end
+	else
+		return old_setclip1(self, amount, ...)
+	end
+end
+
+local old_setclip2 = wepMeta.SetClip2
+function wepMeta:SetClip2(amount, ...)
+	if self.NZSpeedRegenerating then
+		return old_setclip2(self, amount, ...)
+	end
+	if nzPowerUps:IsPowerupActive("infinite") and (self.IsTFAWeapon or self.NZInfiniteSafe) and (!self.NZSpecialWeapon or illegalspecials[self.NZSpecialWeapon]) then
+		if amount >= self:Clip2() then
+			return old_setclip2(self, amount, ...)
+		end
+		return self:Clip2()
+	end
+
+	local ply = self:GetOwner()
+	if IsValid(ply) and ply:IsPlayer() and self.IsTFAWeapon then
+		if ply:HasUpgrade("banana") and ply:GetNW2Int("nz.BananaCount", 0) > 0 and ply:GetSliding() and !self.NZSpecialWeapon then
+			if amount >= self:Clip2() then
+				return old_setclip2(self, amount, ...)
+			end
+			return self:Clip2()
+		end
+
+		local gum = nzGum:GetActiveGum(ply)
+
+		if gum and gum == "stock_option" then
+			local ammotype = self.Akimbo and self:GetPrimaryAmmoType() or self:GetSecondaryAmmoType()
+			local ammo = self.Akimbo and self:Ammo1() or self:Ammo2()
+			local ammostring = self.Akimbo and self:GetStatL("Primary.Ammo") or self:GetStatL("Secondary.Ammo")
+
+			if ply:IsPlayer() and ammo > 0 and ammotype > 0 and (ammostring ~= ("none" or "")) and amount < self.Secondary_TFA.ClipSize then
+				local new = math.max(self:Clip2() - amount, 0)
+
+				ply:RemoveAmmo(new, ammotype)
+				return amount
+			else
+				return old_setclip2(self, amount, ...)
+			end
+		else
+			return old_setclip2(self, amount, ...)
+		end
+	else
+		return old_setclip2(self, amount, ...)
+	end
+end

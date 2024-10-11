@@ -1,7 +1,8 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
-ENT.PrintName = "A bootleg lightning man who is fortunately not narcissistic"
+--ENT.PrintName = "A bootleg lightning man who is fortunately not narcissistic"
+ENT.PrintName = "Tempest"
 ENT.Category = "Brainz"
 ENT.Author = "Loonicity"
 
@@ -137,9 +138,16 @@ function ENT:StatsInitialize()
 		local count = #player.GetAllPlaying()
 
 		if nzRound:InState( ROUND_CREATE ) then
-			self:SetHealth(1250)
+			self:SetHealth(2500)
+			self:SetMaxHealth(2500)
 		else
-			self:SetHealth( nzRound:GetZombieHealth() or 75 )
+			if nzRound:InState( ROUND_PROG ) then
+				self:SetHealth(math.Clamp(nzRound:GetNumber() * 950 + (500 * count), 1000, 55000 * count))
+				self:SetMaxHealth(math.Clamp(nzRound:GetNumber() * 950 + (500 * count), 1000, 55000 * count))
+			else
+				self:SetHealth(5000)
+				self:SetMaxHealth(5000)	
+			end
 		end
 
 		self.LastShot = CurTime() + 10
@@ -157,6 +165,26 @@ end
 function ENT:SpecialInit()
 	if CLIENT then
 	end
+end
+
+function ENT:PostTookDamage(dmginfo)
+    local attacker = dmginfo:GetAttacker()
+    local inflictor = dmginfo:GetInflictor()
+
+    local hitpos = dmginfo:GetDamagePosition()
+    local hitgroup = util.QuickTrace(hitpos, hitpos).HitGroup
+    local hitforce = dmginfo:GetDamageForce()
+
+    local damage = dmginfo:GetDamage()
+
+    local chestpos = self:GetBonePosition(self:LookupBone("j_spine4"))
+
+    -- Using the same type of armor code as the Heavy Zombie.
+    if (hitpos:DistToSqr(chestpos) < 13^2) then
+        dmginfo:ScaleDamage(2.5)
+    else
+        dmginfo:ScaleDamage(0.25)
+    end
 end
 
 function ENT:OnSpawn()
@@ -264,7 +292,9 @@ function ENT:OnPathTimeOut()
 	end
 end
 
-function ENT:PerformDeath(dmgInfo)
+function ENT:PerformDeath(dmgInfo)	
+	self.Dying = true
+
 	self:StopSound("enemies/bosses/avo/move_loop.wav")
 	self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
 	self:DoDeathAnimation("nz_temp_death")

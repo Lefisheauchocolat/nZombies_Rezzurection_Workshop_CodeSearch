@@ -10,6 +10,31 @@ AccessorFunc( plymeta, "fMaxRunSpeed", "MaxRunSpeed", FORCE_NUMBER )
 //AccessorFunc( plymeta, "bSprinting", "Sprinting", FORCE_BOOL )
 AccessorFunc( plymeta, "bSpawned", "Spawned", FORCE_BOOL )
 
+function plymeta:StopSprint(released)
+	if released then
+		self:SetSprinting(false)
+		self:SetRunSpeed(self:GetMaxRunSpeed())
+	else
+		self:SetRunSpeed(self:GetWalkSpeed())
+		self:SetSprinting(false)
+	end
+
+	hook.Run("OnStopSprint", self)
+end
+
+function plymeta:StartSprint()
+	/*local MaxRunSpeed = self:GetMaxRunSpeed()
+
+	if !MaxRunSpeed then
+		MaxRunSpeed = self:GetRunSpeed()
+		self:SetMaxRunSpeed(MaxRunSpeed)
+	end
+
+	self:SetRunSpeed( MaxRunSpeed )*/
+	self:SetSprinting( true )
+	hook.Run("OnStartSprint", self)
+end
+
 function plymeta:GetSprinting()
 	return self:GetNW2Bool("nz_Sprinting", false)
 end
@@ -43,19 +68,19 @@ function plymeta:SetMaxStamina(float)
 end
 
 if SERVER then
-	hook.Add( "PlayerSpawn", "PlayerSprintSpawn", function( ply )
-
+	hook.Add("PlayerSpawn", "PlayerSprintSpawn", function( ply )
 		ply:SetSprinting( false )
-		ply:SetStamina( 100 )
-		ply:SetMaxStamina( 100 )
+		ply:SetStamina( nzMapping.Settings.stamina )
+		ply:SetMaxStamina( nzMapping.Settings.stamina )
+		ply:SetSlidingStamina( 1 )
 
 		--The rate is fixed on 0.05 seconds
 		ply:SetStaminaLossAmount( 0.9 ) -- Sprint now lasts around 8 seconds without Staminup.
-		ply:SetStaminaRecoverAmount( 4.5 ) -- Raised this slightly just incase.
+		ply:SetStaminaRecoverAmount( nzMapping.Settings.staminaregenamount ) -- Raised this slightly just incase.
 
 		ply:SetLastStaminaLoss( 0 )
 		ply:SetLastStaminaRecover( 0 )
-		
+
 		-- Delay this a bit - it seems like it takes the old sprint speed from last round state (Creative speed)
 		timer.Simple(0.1, function()
 			if IsValid(ply) then
@@ -64,11 +89,9 @@ if SERVER then
 				ply:SetSpawned(true)
 			end
 		end)
-		--print(player_manager.GetPlayerClass(ply))
+	end)
 
-	end )
-
-	hook.Add( "Think", "PlayerSprint", function()
+	hook.Add("Think", "PlayerSprint", function()
 		if !nzRound:InState( ROUND_CREATE ) then
 			for _, ply in pairs( player.GetAll() ) do
 				if ply:Alive() and ply:GetNotDowned() and ply:IsSprinting() and ply:GetStamina() >= 0 and ply:GetLastStaminaLoss() + 0.05 <= CurTime() then
@@ -76,32 +99,28 @@ if SERVER then
 					ply:SetLastStaminaLoss( CurTime() )
 
 					-- Delay the recovery a bit, you can't sprint instantly after
-					ply:SetLastStaminaRecover( CurTime() + 0.5 )
+					ply:SetLastStaminaRecover( CurTime() + nzMapping.Settings.staminaregendelay )
 
 					if ply:GetStamina() == 0 then
-						ply:SetRunSpeed( ply:GetWalkSpeed() )
-						ply:SetSprinting( false )
+						ply:StopSprint()
 					end
 				elseif ply:Alive() and ply:GetNotDowned() and !ply:IsSprinting() and ply:GetStamina() < ply:GetMaxStamina() and ply:GetLastStaminaRecover() + 0.05 <= CurTime() then
-					ply:SetStamina( math.Clamp( ply:GetStamina() + ply:GetStaminaRecoverAmount(), 0, ply:GetMaxStamina() ) )
+					ply:SetStamina( math.Clamp( ply:GetStamina() + nzMapping.Settings.staminaregenamount, 0, ply:GetMaxStamina() ) )
 					ply:SetLastStaminaRecover( CurTime() )
 				end
 			end
 		end
-	end )
+	end)
 
-	hook.Add( "KeyPress", "OnSprintKeyPressed", function( ply, key )
-		if !nzRound:InState( ROUND_CREATE ) and ( key == IN_SPEED ) and IsValid(ply) and ply:Alive() then
-			ply:SetSprinting( true )
+	hook.Add( "KeyRelease", "ButtonUp_NZ", function( ply, key )
+		if key == IN_SPEED and ply:Alive() and ply:GetNotDowned() then
+			ply:StopSprint(true)
 		end
-	end )
+	end)
 
-	hook.Add( "KeyRelease", "OnSprintKeyReleased", function( ply, key )
-		-- Always reset sprint state even if player is dead.
-		-- Reason: player can die while holding shift.
-		if !nzRound:InState( ROUND_CREATE ) and ( key == IN_SPEED ) and ply:IsSpawned() then
-			ply:SetSprinting( false )
-			ply:SetRunSpeed( ply:GetMaxRunSpeed() )
+	hook.Add( "KeyPress", "OnSprintKeyReleased_NZ", function( ply, key )
+		if key == IN_SPEED and ply:Alive() and ply:GetNotDowned() and ply:GetStamina() > 0 then
+			ply:StartSprint()
 		end
-	end )
+	end)
 end

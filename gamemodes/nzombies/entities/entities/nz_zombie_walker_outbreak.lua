@@ -3,6 +3,7 @@ AddCSLuaFile()
 ENT.Base = "nz_zombiebase_moo"
 ENT.Type = "nextbot"
 ENT.Category = "Brainz"
+ENT.PrintName = "Zombie"
 ENT.Author = "GhostlyMoo"
 ENT.Spawnable = true
 
@@ -464,6 +465,15 @@ ENT.SequenceTables = {
 				"nz_t9_base_player_sprint_v07",
 				"nz_t9_base_player_sprint_v08",
 			},
+			PatrolMovementSequence = {
+				"nz_base_zombie_idle_patrol_01",
+				"nz_base_zombie_idle_patrol_02",
+				"nz_base_zombie_idle_patrol_03",
+				"nz_base_zombie_idle_patrol_04",
+				"nz_base_zombie_idle_patrol_05",
+				"nz_base_zombie_idle_patrol_06",
+				"nz_base_zombie_idle_patrol_07",
+			},
 			AttackSequences = {WalkAttackSequences},
 			StandAttackSequences = {AttackSequences},
 			CrawlAttackSequences = {CrawlAttackSequences},
@@ -551,6 +561,15 @@ ENT.SequenceTables = {
 				"nz_t9_base_player_sprint_v06",
 				"nz_t9_base_player_sprint_v07",
 				"nz_t9_base_player_sprint_v08",
+			},
+			PatrolMovementSequence = {
+				"nz_base_zombie_idle_patrol_01",
+				"nz_base_zombie_idle_patrol_02",
+				"nz_base_zombie_idle_patrol_03",
+				"nz_base_zombie_idle_patrol_04",
+				"nz_base_zombie_idle_patrol_05",
+				"nz_base_zombie_idle_patrol_06",
+				"nz_base_zombie_idle_patrol_07",
 			},
 			AttackSequences = {WalkAttackSequences},
 			StandAttackSequences = {AttackSequences},
@@ -645,6 +664,15 @@ ENT.SequenceTables = {
 				"nz_t9_base_player_sprint_v07",
 				"nz_t9_base_player_sprint_v08",
 			},
+			PatrolMovementSequence = {
+				"nz_base_zombie_idle_patrol_01",
+				"nz_base_zombie_idle_patrol_02",
+				"nz_base_zombie_idle_patrol_03",
+				"nz_base_zombie_idle_patrol_04",
+				"nz_base_zombie_idle_patrol_05",
+				"nz_base_zombie_idle_patrol_06",
+				"nz_base_zombie_idle_patrol_07",
+			},
 			AttackSequences = {RunAttackSequences},
 			StandAttackSequences = {AttackSequences},
 			Bo3AttackSequences = {StinkyRunAttackSequences},
@@ -736,6 +764,15 @@ ENT.SequenceTables = {
 				"nz_t9_base_player_sprint_v07",
 				"nz_t9_base_player_sprint_v08",
 			},
+			PatrolMovementSequence = {
+				"nz_base_zombie_idle_patrol_01",
+				"nz_base_zombie_idle_patrol_02",
+				"nz_base_zombie_idle_patrol_03",
+				"nz_base_zombie_idle_patrol_04",
+				"nz_base_zombie_idle_patrol_05",
+				"nz_base_zombie_idle_patrol_06",
+				"nz_base_zombie_idle_patrol_07",
+			},
 			AttackSequences = {RunAttackSequences},
 			StandAttackSequences = {AttackSequences},
 			Bo3AttackSequences = {StinkyRunAttackSequences},
@@ -817,6 +854,15 @@ ENT.SequenceTables = {
 				"nz_t9_base_player_sprint_v07",
 				"nz_t9_base_player_sprint_v08",
 			},
+			PatrolMovementSequence = {
+				"nz_base_zombie_idle_patrol_01",
+				"nz_base_zombie_idle_patrol_02",
+				"nz_base_zombie_idle_patrol_03",
+				"nz_base_zombie_idle_patrol_04",
+				"nz_base_zombie_idle_patrol_05",
+				"nz_base_zombie_idle_patrol_06",
+				"nz_base_zombie_idle_patrol_07",
+			},
 			AttackSequences = {SprintAttackSequences},
 			StandAttackSequences = {AttackSequences},
 			Bo3AttackSequences = {StinkyRunAttackSequences},
@@ -848,7 +894,7 @@ ENT.SequenceTables = {
 				"nz_t9_base_sprint_au_v25",
 				"nz_sprint_au3",
 				"nz_sprint_au4",
-				"nz_fast_sprint_v1",
+				"nz_fast_sprint_v3",
 				"nz_fast_sprint_v2",
 			},
 			LowgMovementSequence = {
@@ -895,6 +941,15 @@ ENT.SequenceTables = {
 				"nz_t9_base_player_sprint_v06",
 				"nz_t9_base_player_sprint_v07",
 				"nz_t9_base_player_sprint_v08",
+			},
+			PatrolMovementSequence = {
+				"nz_base_zombie_idle_patrol_01",
+				"nz_base_zombie_idle_patrol_02",
+				"nz_base_zombie_idle_patrol_03",
+				"nz_base_zombie_idle_patrol_04",
+				"nz_base_zombie_idle_patrol_05",
+				"nz_base_zombie_idle_patrol_06",
+				"nz_base_zombie_idle_patrol_07",
 			},
 			AttackSequences = {SprintAttackSequences},
 			StandAttackSequences = {AttackSequences},
@@ -975,6 +1030,15 @@ ENT.SequenceTables = {
 				"nz_t9_base_player_sprint_v07",
 				"nz_t9_base_player_sprint_v08",
 			},
+			PatrolMovementSequence = {
+				"nz_base_zombie_idle_patrol_01",
+				"nz_base_zombie_idle_patrol_02",
+				"nz_base_zombie_idle_patrol_03",
+				"nz_base_zombie_idle_patrol_04",
+				"nz_base_zombie_idle_patrol_05",
+				"nz_base_zombie_idle_patrol_06",
+				"nz_base_zombie_idle_patrol_07",
+			},
 			AttackSequences = {SuperSprintAttackSequences},
 			StandAttackSequences = {AttackSequences},
 			Bo3AttackSequences = {StinkyRunAttackSequences},
@@ -1050,6 +1114,15 @@ ENT.SequenceTables = {
 				"nz_t9_base_player_sprint_v07",
 				"nz_t9_base_player_sprint_v08",
 			},
+			PatrolMovementSequence = {
+				"nz_base_zombie_idle_patrol_01",
+				"nz_base_zombie_idle_patrol_02",
+				"nz_base_zombie_idle_patrol_03",
+				"nz_base_zombie_idle_patrol_04",
+				"nz_base_zombie_idle_patrol_05",
+				"nz_base_zombie_idle_patrol_06",
+				"nz_base_zombie_idle_patrol_07",
+			},
 			AttackSequences = {SuperSprintAttackSequences},
 			StandAttackSequences = {AttackSequences},
 			Bo3AttackSequences = {StinkyRunAttackSequences},
@@ -1085,47 +1158,94 @@ ENT.TauntSequences = {
 ENT.IdleSequence = "nz_idle_ad"
 
 ENT.DeathSounds = {
-	"nz_moo/zombies/vox/_2k20/death/death_00.mp3",
-	"nz_moo/zombies/vox/_2k20/death/death_01.mp3",
-	"nz_moo/zombies/vox/_2k20/death/death_02.mp3",
-	"nz_moo/zombies/vox/_2k20/death/death_03.mp3",
-	"nz_moo/zombies/vox/_2k20/death/death_04.mp3",
-	"nz_moo/zombies/vox/_2k20/death/death_05.mp3",
-	"nz_moo/zombies/vox/_2k20/death/death_06.mp3",
-	"nz_moo/zombies/vox/_2k20/death/death_07.mp3",
-	"nz_moo/zombies/vox/_2k20/death/death_08.mp3",
-	"nz_moo/zombies/vox/_2k20/death/death_09.mp3",
-	"nz_moo/zombies/vox/_2k20/death/death_10.mp3"
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_01.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_02.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_03.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_04.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_05.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_06.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_07.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_08.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_09.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_10.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_11.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_12.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_13.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_14.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_15.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_16.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_17.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_18.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_19.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_20.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_21.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_22.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_23.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_24.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_25.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_26.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_27.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_28.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_29.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_30.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_31.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_32.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_33.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_34.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_35.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_36.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_37.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_38.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_39.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_40.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_41.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_42.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_43.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_44.mp3"),
 }
 
 ENT.ElecSounds = {
-	"nz_moo/zombies/vox/_2k20/elec/series_1/elec_00.mp3",
-	"nz_moo/zombies/vox/_2k20/elec/series_1/elec_01.mp3",
-	"nz_moo/zombies/vox/_2k20/elec/series_1/elec_02.mp3",
-	"nz_moo/zombies/vox/_2k20/elec/series_1/elec_03.mp3",
-	"nz_moo/zombies/vox/_2k20/elec/series_1/elec_04.mp3",
-	"nz_moo/zombies/vox/_2k20/elec/series_1/elec_05.mp3",
-	"nz_moo/zombies/vox/_2k20/elec/series_1/elec_06.mp3",
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_1/elec_00.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_1/elec_01.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_1/elec_02.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_1/elec_03.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_1/elec_04.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_1/elec_05.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_1/elec_06.mp3"),
 
-	"nz_moo/zombies/vox/_2k20/elec/series_2/elec_00.mp3",
-	"nz_moo/zombies/vox/_2k20/elec/series_2/elec_01.mp3",
-	"nz_moo/zombies/vox/_2k20/elec/series_2/elec_02.mp3",
-	"nz_moo/zombies/vox/_2k20/elec/series_2/elec_03.mp3",
-	"nz_moo/zombies/vox/_2k20/elec/series_2/elec_04.mp3",
-	"nz_moo/zombies/vox/_2k20/elec/series_2/elec_05.mp3",
-	"nz_moo/zombies/vox/_2k20/elec/series_2/elec_06.mp3",
-	"nz_moo/zombies/vox/_2k20/elec/series_2/elec_07.mp3",
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_2/elec_00.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_2/elec_01.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_2/elec_02.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_2/elec_03.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_2/elec_04.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_2/elec_05.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_2/elec_06.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_2/elec_07.mp3"),
 
-	"nz_moo/zombies/vox/_2k20/elec/series_3/elec_00.mp3",
-	"nz_moo/zombies/vox/_2k20/elec/series_3/elec_01.mp3",
-	"nz_moo/zombies/vox/_2k20/elec/series_3/elec_02.mp3",
-	"nz_moo/zombies/vox/_2k20/elec/series_3/elec_03.mp3",
-	"nz_moo/zombies/vox/_2k20/elec/series_3/elec_04.mp3",
-	"nz_moo/zombies/vox/_2k20/elec/series_3/elec_05.mp3",
-	"nz_moo/zombies/vox/_2k20/elec/series_3/elec_06.mp3",
-	"nz_moo/zombies/vox/_2k20/elec/series_3/elec_07.mp3",
-	"nz_moo/zombies/vox/_2k20/elec/series_3/elec_08.mp3",
-	"nz_moo/zombies/vox/_2k20/elec/series_3/elec_09.mp3",
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_3/elec_00.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_3/elec_01.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_3/elec_02.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_3/elec_03.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_3/elec_04.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_3/elec_05.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_3/elec_06.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_3/elec_07.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_3/elec_08.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/elec/series_3/elec_09.mp3"),
+}
+
+ENT.LaunchSounds = {
+	Sound("nz_moo/zombies/vox/_classic/launch/zmb_launch_00.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/launch/zmb_launch_01.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/launch/zmb_launch_02.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/launch/zmb_launch_03.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/launch/zmb_launch_04.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/launch/zmb_launch_05.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/launch/zmb_launch_06.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/launch/zmb_launch_07.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/launch/zmb_launch_08.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/launch/zmb_launch_09.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/launch/zmb_launch_10.mp3"),
 }
 
 ENT.NukeDeathSounds = {
@@ -1324,18 +1444,15 @@ ENT.BehindSounds = {
 
 function ENT:StatsInitialize()
 	if SERVER then
-		if nzRound:GetNumber() == -1 then
-			self:SetRunSpeed( math.random(25, 220) )
-			self:SetHealth( math.random(100, 1500) )
+		local speeds = nzRound:GetZombieCoDSpeeds()
+		if speeds then
+			self:SetRunSpeed( nzMisc.WeightedRandom(speeds) + math.random(0,35) )
 		else
-			local speeds = nzRound:GetZombieCoDSpeeds()
-			if speeds then
-				self:SetRunSpeed( nzMisc.WeightedRandom(speeds) + math.random(0,35) )
-			else
-				self:SetRunSpeed( 100 )
-			end
-			self:SetHealth( nzRound:GetZombieHealth() or 75 )
+			self:SetRunSpeed( 100 )
 		end
+
+		self:SetHealth( nzRound:GetZombieHealth() or 75 )
+		self.AttackDamage = nzRound:GetZombieDamage() or 50
 	end
 end
 

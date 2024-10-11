@@ -2,6 +2,7 @@ AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
 ENT.Type = "nextbot"
+ENT.PrintName = "Zombie"
 ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 ENT.Spawnable = true
@@ -385,6 +386,15 @@ ENT.SequenceTables = {
 				"nz_pb_zombie_sprint_v8", -- The Tranzit Sprinter one.
 				--"nz_pb_zombie_sprint_v9",
 			},
+			PatrolMovementSequence = {
+				"nz_base_zombie_idle_patrol_01",
+				"nz_base_zombie_idle_patrol_02",
+				"nz_base_zombie_idle_patrol_03",
+				"nz_base_zombie_idle_patrol_04",
+				"nz_base_zombie_idle_patrol_05",
+				"nz_base_zombie_idle_patrol_06",
+				"nz_base_zombie_idle_patrol_07",
+			},
 			AttackSequences = {WalkAttackSequences},
 			StandAttackSequences = {AttackSequences},
 			CrawlAttackSequences = {CrawlAttackSequences},
@@ -465,6 +475,15 @@ ENT.SequenceTables = {
 				--"nz_pb_zombie_sprint_v7",
 				"nz_pb_zombie_sprint_v8", -- The Tranzit Sprinter one.
 				--"nz_pb_zombie_sprint_v9",
+			},
+			PatrolMovementSequence = {
+				"nz_base_zombie_idle_patrol_01",
+				"nz_base_zombie_idle_patrol_02",
+				"nz_base_zombie_idle_patrol_03",
+				"nz_base_zombie_idle_patrol_04",
+				"nz_base_zombie_idle_patrol_05",
+				"nz_base_zombie_idle_patrol_06",
+				"nz_base_zombie_idle_patrol_07",
 			},
 			AttackSequences = {WalkAttackSequences},
 			StandAttackSequences = {AttackSequences},
@@ -548,6 +567,15 @@ ENT.SequenceTables = {
 				"nz_pb_zombie_sprint_v8", -- The Tranzit Sprinter one.
 				--"nz_pb_zombie_sprint_v9",
 			},
+			PatrolMovementSequence = {
+				"nz_base_zombie_idle_patrol_01",
+				"nz_base_zombie_idle_patrol_02",
+				"nz_base_zombie_idle_patrol_03",
+				"nz_base_zombie_idle_patrol_04",
+				"nz_base_zombie_idle_patrol_05",
+				"nz_base_zombie_idle_patrol_06",
+				"nz_base_zombie_idle_patrol_07",
+			},
 			AttackSequences = {RunAttackSequences},
 			StandAttackSequences = {AttackSequences},
 			Bo3AttackSequences = {StinkyRunAttackSequences},
@@ -628,6 +656,15 @@ ENT.SequenceTables = {
 				"nz_pb_zombie_sprint_v8", -- The Tranzit Sprinter one.
 				--"nz_pb_zombie_sprint_v9",
 			},
+			PatrolMovementSequence = {
+				"nz_base_zombie_idle_patrol_01",
+				"nz_base_zombie_idle_patrol_02",
+				"nz_base_zombie_idle_patrol_03",
+				"nz_base_zombie_idle_patrol_04",
+				"nz_base_zombie_idle_patrol_05",
+				"nz_base_zombie_idle_patrol_06",
+				"nz_base_zombie_idle_patrol_07",
+			},
 			AttackSequences = {RunAttackSequences},
 			StandAttackSequences = {AttackSequences},
 			Bo3AttackSequences = {StinkyRunAttackSequences},
@@ -704,6 +741,15 @@ ENT.SequenceTables = {
 				"nz_pb_zombie_sprint_v8", -- The Tranzit Sprinter one.
 				--"nz_pb_zombie_sprint_v9",
 			},
+			PatrolMovementSequence = {
+				"nz_base_zombie_idle_patrol_01",
+				"nz_base_zombie_idle_patrol_02",
+				"nz_base_zombie_idle_patrol_03",
+				"nz_base_zombie_idle_patrol_04",
+				"nz_base_zombie_idle_patrol_05",
+				"nz_base_zombie_idle_patrol_06",
+				"nz_base_zombie_idle_patrol_07",
+			},
 			AttackSequences = {SprintAttackSequences},
 			StandAttackSequences = {AttackSequences},
 			Bo3AttackSequences = {StinkyRunAttackSequences},
@@ -776,6 +822,15 @@ ENT.SequenceTables = {
 				--"nz_pb_zombie_sprint_v7",
 				"nz_pb_zombie_sprint_v8", -- The Tranzit Sprinter one.
 				--"nz_pb_zombie_sprint_v9",
+			},
+			PatrolMovementSequence = {
+				"nz_base_zombie_idle_patrol_01",
+				"nz_base_zombie_idle_patrol_02",
+				"nz_base_zombie_idle_patrol_03",
+				"nz_base_zombie_idle_patrol_04",
+				"nz_base_zombie_idle_patrol_05",
+				"nz_base_zombie_idle_patrol_06",
+				"nz_base_zombie_idle_patrol_07",
 			},
 			AttackSequences = {SprintAttackSequences},
 			StandAttackSequences = {AttackSequences},
@@ -854,6 +909,15 @@ ENT.SequenceTables = {
 				"nz_l4d_run_03",
 				"nz_l4d_run_04",
 			},
+			PatrolMovementSequence = {
+				"nz_base_zombie_idle_patrol_01",
+				"nz_base_zombie_idle_patrol_02",
+				"nz_base_zombie_idle_patrol_03",
+				"nz_base_zombie_idle_patrol_04",
+				"nz_base_zombie_idle_patrol_05",
+				"nz_base_zombie_idle_patrol_06",
+				"nz_base_zombie_idle_patrol_07",
+			},
 			AttackSequences = {SuperSprintAttackSequences},
 			StandAttackSequences = {AttackSequences},
 			Bo3AttackSequences = {StinkyRunAttackSequences},
@@ -926,6 +990,15 @@ ENT.SequenceTables = {
 				--"nz_pb_zombie_sprint_v9",
 				"nz_l4d_run_03",
 				"nz_l4d_run_04",
+			},
+			PatrolMovementSequence = {
+				"nz_base_zombie_idle_patrol_01",
+				"nz_base_zombie_idle_patrol_02",
+				"nz_base_zombie_idle_patrol_03",
+				"nz_base_zombie_idle_patrol_04",
+				"nz_base_zombie_idle_patrol_05",
+				"nz_base_zombie_idle_patrol_06",
+				"nz_base_zombie_idle_patrol_07",
 			},
 			AttackSequences = {SuperSprintAttackSequences},
 			StandAttackSequences = {AttackSequences},
@@ -1053,18 +1126,14 @@ ENT.BehindSounds = {
 
 function ENT:StatsInitialize()
 	if SERVER then
-		if nzRound:GetNumber() == -1 then
-			self:SetRunSpeed( math.random(25, 220) )
-			self:SetHealth( math.random(100, 1500) )
+		local speeds = nzRound:GetZombieCoDSpeeds()
+		if speeds then
+			self:SetRunSpeed( nzMisc.WeightedRandom(speeds) + math.random(0,35) )
 		else
-			local speeds = nzRound:GetZombieCoDSpeeds()
-			if speeds then
-				self:SetRunSpeed( nzMisc.WeightedRandom(speeds) + math.random(0,35) )
-			else
-				self:SetRunSpeed( 100 )
-			end
-			self:SetHealth( nzRound:GetZombieHealth() or 75 )
+			self:SetRunSpeed( 100 )
 		end
+		self:SetHealth( nzRound:GetZombieHealth() or 75 )
+		self.AttackDamage = nzRound:GetZombieDamage() or 50
 	end
 end
 

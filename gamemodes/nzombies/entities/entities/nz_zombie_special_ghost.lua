@@ -137,7 +137,9 @@ function ENT:OnSpawn()
 	end
 end
 
-function ENT:PerformDeath(dmginfo)
+function ENT:PerformDeath(dmginfo)	
+	self.Dying = true
+
 	self:StopSound("wavy_zombie/ghost/ghost_loop.wav")
 	self:DoDeathAnimation(self.DeathSequences[math.random(#self.DeathSequences)])
 	self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)

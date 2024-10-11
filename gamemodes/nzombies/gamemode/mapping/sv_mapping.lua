@@ -1,5 +1,5 @@
 --
-function nzMapping:ZedSpawn(pos, angle, link, link2, link3, master, spawntype, zombietype, roundactive, spawnchance, ply)
+function nzMapping:ZedSpawn(pos, angle, link, link2, link3, master, spawntype, zombietype, roundactive, spawnchance, miscspawn, totalspawn, aliveamount, ply)
 
 	local ent = ents.Create("nz_spawn_zombie_normal")
 	pos.z = pos.z - ent:OBBMaxs().z
@@ -27,6 +27,7 @@ function nzMapping:ZedSpawn(pos, angle, link, link2, link3, master, spawntype, z
 	end
 
 	ent:SetMasterSpawn(master)
+	ent:SetMixedSpawn(miscspawn)
 
 	if spawntype ~= nil then
 		ent:SetSpawnType(spawntype)
@@ -36,6 +37,18 @@ function nzMapping:ZedSpawn(pos, angle, link, link2, link3, master, spawntype, z
 		ent:SetZombieType(zombietype)
 	else
 		ent:SetZombieType("none")
+	end
+
+	if totalspawn ~= nil then
+		ent:SetTotalSpawns(tonumber(totalspawn))
+	else
+		ent:SetTotalSpawns(0)
+	end
+
+	if aliveamount ~= nil then
+		ent:SetAliveAmount(tonumber(aliveamount))
+	else
+		ent:SetAliveAmount(0)
 	end
 
 	if roundactive ~= nil then
@@ -380,6 +393,30 @@ function nzMapping:PlayerSpawn(pos, angle, ply)
 	return ent
 end
 
+function nzMapping:EasterEgg(pos, ang, tab, ply)
+	local egg = ents.Create( "easter_egg" )
+	egg:SetPos( pos )
+	egg:SetAngles( ang )
+	egg:Spawn()
+
+	if tab.model then
+		egg:SetModel(tab.model)
+	end
+
+	local phys = egg:GetPhysicsObject()
+	if phys:IsValid() then
+		phys:EnableMotion(false)
+	end
+
+	if ply then
+		undo.Create( "Easter Egg" )
+			undo.SetPlayer( ply )
+			undo.AddEntity( egg )
+		undo.Finish( "Effect" )
+	end
+	return egg
+end
+
 function nzMapping:AmmoBox(pos, ang, model, ply)
 	local ammobox = ents.Create( "ammo_box" )
 	ammobox:SetModel( model )
@@ -586,8 +623,138 @@ function nzMapping:BoxSpawn(pos, ang, spawn, ply)
 	return box
 end
 
-function nzMapping:PerkMachine(pos, ang, id, ply)
-	if id == "wunderfizz" then
+function nzMapping:SpawnPowerupSpawner(pos, ang, ply, data)
+	if not data then return end
+	if not data.powerup then return end
+
+	local pdata = nzPowerUps:Get(data.powerup)
+	if not pdata then return end
+
+	local ent = ents.Create("powerup_spawner")
+	ent:SetPos(pos)
+	ent:SetAngles(ang)
+
+	if data.powerup then
+		ent:SetPowerUp(tostring(data.powerup))
+	end
+	if data.randomize ~= nil then
+		ent:SetRandomize(tobool(data.randomize))
+	end
+	if data.randomizeround then
+		ent:SetRandomizeRound(tonumber(data.randomizeround))
+	end
+	if data.scroll ~= nil then
+		ent:SetDoScroll(tobool(data.scroll))
+	end
+	if data.scrollrate then
+		ent:SetScrollTime(tonumber(data.scrollrate))
+	end
+	if data.scrollraterare then
+		ent:SetScrollTimeRare(tonumber(data.scrollraterare))
+	end
+	if data.scrollsequential then
+		ent:SetSequential(tobool(data.scrollsequential))
+	end
+	if data.door ~= nil then
+		ent:SetDoor(tobool(data.door))
+	end
+	if data.doorflag then
+		ent:SetDoorFlag(tostring(data.doorflag))
+	end
+
+	ent:Spawn()
+
+	/*local phys = ent:GetPhysicsObject()
+	if IsValid(phys) then
+		phys:EnableMotion(false)
+	end*/
+
+	if ply then
+		undo.Create("Powerup Spawner")
+			undo.SetPlayer(ply)
+			undo.AddEntity(ent)
+		undo.Finish("Effect ()")
+	end
+
+	return ent
+end
+
+function nzMapping:PerkMachine(pos, ang, data, ply)
+	if not data then return end
+
+	if istable(data) then
+		if data.id == "wunderfizz" then
+			local perk = ents.Create("wunderfizz_machine")
+			perk:SetPos(pos)
+			perk:SetAngles(ang)
+			perk:Spawn()
+			perk:Activate()
+			perk:PhysicsInit( SOLID_VPHYSICS )
+			perk:TurnOff()
+
+			local phys = perk:GetPhysicsObject()
+			if phys:IsValid() then
+				phys:EnableMotion(false)
+			end
+
+			if ply then
+				undo.Create( "Der Wunderfizz" )
+					undo.SetPlayer( ply )
+					undo.AddEntity( perk )
+				undo.Finish( "Effect (" .. tostring( model ) .. ")" )
+			end
+			return perk
+		else
+			local perk = ents.Create("perk_machine")
+			perk:SetPerkID(data.id)
+			perk:TurnOff()
+
+			if data.random then
+				perk.Randomize = tobool(data.random)
+			end
+			if data.fizzlist then
+				perk.RandomizeFizzlist = tobool(data.fizzlist)
+			end
+			if data.randomround then
+				perk.RandomizeRoundStart = tobool(data.randomround)
+			end
+			if data.roundnum then
+				perk.RandomizeRoundInterval = tonumber(data.roundnum)
+			end
+			if data.door then
+				perk.HideBehindDoor = tobool(data.door)
+			end
+			if data.doorflag then
+				perk.DoorFlag = tostring(data.doorflag)
+			end
+			if data.doorflag2 then
+				perk.DoorFlag2 = tostring(data.doorflag2)
+			end
+			if data.doorflag3 then
+				perk.DoorFlag3 = tostring(data.doorflag3)
+			end
+
+			perk:SetPos(pos)
+			perk:SetAngles(ang)
+			perk:Spawn()
+			perk:Activate()
+			perk:PhysicsInit( SOLID_VPHYSICS )
+
+			local phys = perk:GetPhysicsObject()
+			if phys:IsValid() then
+				phys:EnableMotion(false)
+			end
+
+			if ply then
+				undo.Create( "Perk Machine" )
+					undo.SetPlayer( ply )
+					undo.AddEntity( perk )
+				undo.Finish( "Effect (" .. tostring( model ) .. ")" )
+			end
+
+			return perk
+		end
+	elseif data == "wunderfizz" then
 		local perk = ents.Create("wunderfizz_machine")
 		perk:SetPos(pos)
 		perk:SetAngles(ang)
@@ -609,10 +776,8 @@ function nzMapping:PerkMachine(pos, ang, id, ply)
 		end
 		return perk
 	else
-		local perkData = nzPerks:Get(id)
-
 		local perk = ents.Create("perk_machine")
-		perk:SetPerkID(id)
+		perk:SetPerkID(data)
 		perk:TurnOff()
 		perk:SetPos(pos)
 		perk:SetAngles(ang)
@@ -944,7 +1109,7 @@ function nzMapping:CreateAntiCheatExclusion(vec1, vec2, ply)
 	return wall
 end
 
-function nzMapping:CreateInvisibleDamageWall(vec1, vec2, ply, dmg, delay, radiation, poison, tesla)
+function nzMapping:CreateInvisibleDamageWall(vec1, vec2, ply, dmg, delay, dmgtype)
 	local wall = ents.Create( "invis_damage_wall" )
 	wall:SetPos( vec1 )
 	wall:SetMaxBound(vec2)
@@ -955,9 +1120,7 @@ function nzMapping:CreateInvisibleDamageWall(vec1, vec2, ply, dmg, delay, radiat
 	wall:SetDamage(dmg)
 	wall:SetDelay(delay)
 
-	wall:SetRadiation(radiation)
-	wall:SetPoison(poison)
-	wall:SetTesla(tesla)
+	wall:SetDamageWallType(dmgtype or 1)
 
 	local phys = wall:GetPhysicsObject()
 	if IsValid(phys) then

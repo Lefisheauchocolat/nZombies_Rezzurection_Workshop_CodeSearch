@@ -25,9 +25,12 @@ function ENT:SetupDataTables()
     self:NetworkVar("String", 3, "Link3")
 	self:NetworkVar("Bool", 0, "Skip")
     self:NetworkVar("Bool", 1, "MasterSpawn")
+    self:NetworkVar("Bool", 2, "MixedSpawn")
     self:NetworkVar("Int", 0, "SpawnType")
     self:NetworkVar("Int", 1, "ActiveRound")
     self:NetworkVar("Int", 2, "SpawnChance")
+    self:NetworkVar("Int", 3, "TotalSpawns")
+    self:NetworkVar("Int", 4, "AliveAmount")
 end
 
 function ENT:Initialize()
@@ -52,6 +55,9 @@ function ENT:Initialize()
     end
 
     self.Spawns = {}
+    self.MiscSpawns = {}
+
+    self.TotalSpawns = 0
 
     self.CurrentSpawnType = "nil"
     self:UpdateSpawnType()
@@ -169,7 +175,7 @@ function ENT:Think()
             if (nzRound:GetZombiesKilled() + nzEnemies:TotalAlive()) + 1 > nzRound:GetZombiesMax() then --[[print("--Possible Overflow--")]] return end
 
             -- Delay the spawning if a Nuke just went off.
-            if IsValid(self:GetSpawner()) and self:GetMasterSpawn() and self.NukeDelay then
+            if self:GetSpawner() and self:GetMasterSpawn() and self.NukeDelay then
                 self.NukeDelay = false
                 self:GetSpawner():SetNextSpawn(CurTime() + 8)
             end
@@ -183,10 +189,11 @@ function ENT:Think()
                     if self:GetSpawnUpdateRate() < CurTime() then
 
                         local plys = player.GetAllPlaying()
-                        local range = math.Clamp(nzMapping.Settings.range / 2, 1000, 60000) 
+                        local range = math.Clamp(nzMapping.Settings.range / 2, 500, 60000) 
                         if range <= 0 then range = 60000 end -- A quote on quote, infinite range.
 
                         self.Spawns = {}
+                        self.MiscSpawns = {}
 
                         for k,v in nzLevel.GetZombieSpawnArray() do -- You get an array now.
                             if v:GetClass() == self:GetClass() then
@@ -198,14 +205,26 @@ function ENT:Think()
                                         for k2, v2 in pairs(plys) do
                                             if IsValid(v2) and v2:IsInWorld() and nzNav.Functions.IsInSameNavGroup(v2, v) then
                                                 if v:GetPos():DistToSqr(v2:GetPos()) <= range^2 then
-                                                    table.insert(self.Spawns, v)
+                                                    if v.TotalSpawns < v:GetTotalSpawns() or v:GetTotalSpawns() == 0 then
+                                                        if v:GetMixedSpawn() then
+                                                            table.insert(self.MiscSpawns, v)
+                                                        else
+                                                            table.insert(self.Spawns, v)
+                                                        end
+                                                    end
                                                 end
                                             end
                                         end
                                     else
                                         for k2, v2 in pairs(plys) do
                                             if v:GetPos():DistToSqr(v2:GetPos()) <= range^2 then
-                                                table.insert(self.Spawns, v)
+                                                if v.TotalSpawns < v:GetTotalSpawns() or v:GetTotalSpawns() == 0 then
+                                                    if v:GetMixedSpawn() then
+                                                        table.insert(self.MiscSpawns, v)
+                                                    else
+                                                        table.insert(self.Spawns, v)
+                                                    end
+                                                end
                                             end
                                         end
                                     end
@@ -219,19 +238,21 @@ function ENT:Think()
 
                     if IsValid(randomspawn) then
 
-                        -- Get the chance of the spawner.
-                        local rnd = nzRound:GetNumber()
-                        if rnd == -1 then
-                            rnd = 1
-                        end
-
                         local chance = randomspawn:GetSpawnChance()
                         local multi = math.Clamp(nzRound:GetNumber() - randomspawn:GetActiveRound(), 0, math.huge)
                         local limit = chance * 2
 
-                        if chance < 100 then
-                            for i=1, multi do
-                                chance = math.Clamp(chance + 0.5, 0, limit)
+                        if !randomspawn:GetMixedSpawn() then
+                            -- Get the chance of the spawner.
+                            local rnd = nzRound:GetNumber()
+                            if rnd == -1 then
+                                rnd = 1
+                            end
+
+                            if chance < 100 then
+                                for i=1, multi do
+                                    chance = math.Clamp(chance + 0.5, 0, limit)
+                                end
                             end
                         end
 
@@ -244,19 +265,25 @@ function ENT:Think()
                             ["nz_spawn_zombie_extra4"] = true,
                         }
 
-                        -- Now we're gonna see if the spawner has a zombie type set.
-                        if !nzRound:IsSpecial() and randomspawn:GetZombieType() ~= "none" and spawntypes[randomspawn:GetClass()] then
-                            -- Normal and Extra Spawns.
-                            class = randomspawn:GetZombieType()
-                        elseif nzRound:IsSpecial() and !spawntypes[randomspawn:GetClass()] and randomspawn:GetClass() == "nz_spawn_zombie_special" and randomspawn:GetZombieType() ~= "none" then
-                            -- Special Spawns.
-                            class = randomspawn:GetZombieType()
+                        if !randomspawn:GetMixedSpawn() then
+                            local zombietype = randomspawn:GetZombieType()
+
+                            -- Now we're gonna see if the spawner has a zombie type set.
+                            if !nzRound:IsSpecial() and zombietype ~= "none" and spawntypes[randomspawn:GetClass()] then
+                                -- Normal and Extra Spawns.
+                                class = zombietype
+                            elseif nzRound:IsSpecial() and !spawntypes[randomspawn:GetClass()] and randomspawn:GetClass() == "nz_spawn_zombie_special" and zombietype ~= "none" then
+                                -- Special Spawns.
+                                class = zombietype
+                            else
+                                -- No zombie type set, default to config mapsetting.
+                                class = nzMisc.WeightedRandom(self:GetZombieData(), "chance")
+                            end
                         else
-                            -- No zombie type set, default to config mapsetting.
                             class = nzMisc.WeightedRandom(self:GetZombieData(), "chance")
                         end
 
-                        if math.Rand(0,100) < chance then
+                        if math.Rand(0,100) < chance and randomspawn.TotalSpawns < randomspawn:GetTotalSpawns() or randomspawn:GetTotalSpawns() == 0 then
                             zombie = ents.Create(class)
                             zombie:SetPos(randomspawn:GetPos())
                             zombie:SetAngles(randomspawn:GetAngles())
@@ -269,6 +296,10 @@ function ENT:Think()
                             -- reduce zombies in queue on self and spawner object
                             self:GetSpawner():DecrementZombiesToSpawn()
                             self:DecrementZombiesToSpawn()
+
+                            self:ChanceExtraEnemySpawn()
+
+                            randomspawn:DecrementTotalSpawns()
                         end
                     end
                     
@@ -289,6 +320,90 @@ function ENT:Think()
     end
 end
 
+function ENT:DecrementTotalSpawns()
+    if self:GetTotalSpawns() ~= 0 then
+
+        -- Find any other spawner that shares the same zombie type. Chances are if they share, they're probably the exact same.
+        for k,v in nzLevel.GetZombieSpawnArray() do
+            if v:GetTotalSpawns() ~= 0 and !v:GetMasterSpawn() and v:GetZombieType() == self:GetZombieType() and v:GetSpawnChance() == self:GetSpawnChance() then
+                v.TotalSpawns = v.TotalSpawns + 1
+                print(v.TotalSpawns)
+            end
+        end
+    end
+end
+
+-- While you'd still have to cover your map with a bunch of spawns, 
+-- this is in hopes that having a large amount of spawns with different spawn chances
+-- and round activations doesn't slow down spawning of regular/general enemies.
+-- So now any spawn that has a class override should have the same chance of spawning 
+-- reguardless of how many spawns with that type there are.
+-- This means now any additional enemies will spawn at the same time as a regular enemy if the criteria is met.
+function ENT:ChanceExtraEnemySpawn()
+    local spawntbl = {}
+
+    for _, spawn in ipairs(self.MiscSpawns) do
+        if IsValid(spawn) then
+
+            local class = spawn:GetZombieType()
+            local alive = ents.FindByClass(class)
+
+            -- Get the chance of the spawner.
+            local rnd = nzRound:GetNumber()
+            if rnd == -1 then
+                rnd = 1
+            end
+
+            local chance = spawn:GetSpawnChance()
+            local multi = math.Clamp(nzRound:GetNumber() - spawn:GetActiveRound(), 0, math.huge)
+            local limit = chance * 2
+
+            if chance < 100 then
+                for i=1, multi do
+                    chance = math.Clamp(chance + 0.15, 0, limit)
+                end
+            end
+
+            if #alive < spawn:GetAliveAmount() and spawn:GetAliveAmount() ~= 0 then
+                if math.Rand(0,100) < chance and spawn.TotalSpawns < spawn:GetTotalSpawns() or spawn:GetTotalSpawns() == 0 then
+                    table.insert(spawntbl, spawn)
+                end 
+            end
+        end
+    end
+
+    local randommiscspawn = spawntbl[math.random(#spawntbl)]
+
+    --PrintTable(spawntbl)
+
+    if IsValid(randommiscspawn) then
+
+        local class = randommiscspawn:GetZombieType()
+        local zombie
+
+        zombie = ents.Create(class)
+        zombie:SetPos(randommiscspawn:GetPos())
+        zombie:SetAngles(randommiscspawn:GetAngles())
+        zombie:Spawn()
+
+        -- make a reference to the spawner object used for "respawning"
+        zombie:SetSpawner(self:GetSpawner())
+        zombie:Activate()
+
+        -- reduce zombies in queue on self and spawner object
+        self:GetSpawner():DecrementZombiesToSpawn()
+        self:DecrementZombiesToSpawn()  
+
+        randommiscspawn:DecrementTotalSpawns()
+    end
+end
+
+hook.Add("OnRoundStart", "ResetTotalSpawns", function()
+    for k,v in nzLevel.GetZombieSpawnArray() do
+        v.TotalSpawns = 0
+    end
+end)
+
 if CLIENT then
     local displayfont = "ChatFont"
     local outline = Color(0,0,0,59)
@@ -297,6 +412,12 @@ if CLIENT then
     function ENT:Draw()
         if ConVarExists("nz_creative_preview") and !GetConVar("nz_creative_preview"):GetBool() and nzRound:InState( ROUND_CREATE ) then
             self:DrawModel()
+
+            if tobool(self:GetMixedSpawn()) == true then
+                local col = Color(33,0,127)
+                self:SetColor(col)
+            end
+
             if self:GetPos():DistToSqr(LocalPlayer():WorldSpaceCenter()) < drawdistance^2 then
                 local angle = EyeAngles()
                 angle:RotateAroundAxis( angle:Up(), -90 )
@@ -360,6 +481,30 @@ if CLIENT then
                 angle:RotateAroundAxis( angle:Forward(), 90 )
                 cam.Start3D2D(self:GetPos() + Vector(0,0,120), angle, size)
                     draw.SimpleTextOutlined("Chance: "..self:GetSpawnChance().."", displayfont, 0, 0, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 3, outline)
+                cam.End3D2D()
+            end
+            if self:GetPos():DistToSqr(LocalPlayer():WorldSpaceCenter()) < drawdistance^2 and self:GetActiveRound() then
+                local angle = EyeAngles()
+                angle:RotateAroundAxis( angle:Up(), -90 )
+                angle:RotateAroundAxis( angle:Forward(), 90 )
+                cam.Start3D2D(self:GetPos() + Vector(0,0,125), angle, size)
+                    draw.SimpleTextOutlined("Total Spawns: "..self:GetTotalSpawns().."", displayfont, 0, 0, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 3, outline)
+                cam.End3D2D()
+            end
+            if self:GetPos():DistToSqr(LocalPlayer():WorldSpaceCenter()) < drawdistance^2 and self:GetActiveRound() then
+                local angle = EyeAngles()
+                angle:RotateAroundAxis( angle:Up(), -90 )
+                angle:RotateAroundAxis( angle:Forward(), 90 )
+                cam.Start3D2D(self:GetPos() + Vector(0,0,130), angle, size)
+                    draw.SimpleTextOutlined("Alive Cap: "..self:GetAliveAmount().."", displayfont, 0, 0, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 3, outline)
+                cam.End3D2D()
+            end
+            if self:GetPos():DistToSqr(LocalPlayer():WorldSpaceCenter()) < drawdistance^2 and self:GetMixedSpawn() then
+                local angle = EyeAngles()
+                angle:RotateAroundAxis( angle:Up(), -90 )
+                angle:RotateAroundAxis( angle:Forward(), 90 )
+                cam.Start3D2D(self:GetPos() + Vector(0,0,135), angle, size)
+                    draw.SimpleTextOutlined("Mixed Spawn", displayfont, 0, 0, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 3, outline)
                 cam.End3D2D()
             end
         end

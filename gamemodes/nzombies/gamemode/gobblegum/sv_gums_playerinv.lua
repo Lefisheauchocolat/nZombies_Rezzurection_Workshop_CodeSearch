@@ -1,1 +1,0 @@
-print('Delete me! - sv_gums_playerinv.lua')

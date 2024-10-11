@@ -9,6 +9,9 @@ nzTools:CreateTool("die", {
 			if data.model and util.IsValidModel(data.model) then
 				ent:SetModel(tostring(data.model))
 			end
+			if data.snd and isstring(data.snd) then
+				ent:SetActivateSound(data.snd)
+			end
 			ent:DrawShadow(!ent:GetNoModel())
 			return
 		end
@@ -43,6 +46,7 @@ nzTools:CreateTool("die", {
 		
 		function DProperties.CompileData()
 			data.model = tostring(valz["Row1"])
+			data.snd = tostring(valz["Row2"])
 			return data
 		end
 		
@@ -55,10 +59,16 @@ nzTools:CreateTool("die", {
 		Row1:SetValue(valz["Row1"])
 		Row1.DataChanged = function( _, val ) valz["Row1"] = val DProperties.UpdateData(DProperties.CompileData()) end
 
+		local Row2 = DProperties:CreateRow("Sound", "Activate Sound")
+		Row2:Setup("Generic")
+		Row2:SetValue(valz["Row2"])
+		Row2.DataChanged = function( _, val ) valz["Row2"] = val DProperties.UpdateData(DProperties.CompileData()) end
+
 		return DProperties
 	end,
 	defaultdata = {
 		model = "models/nzr/2022/misc/maldometer.mdl",
+		snd = "nz_moo/zombies/vox/mute_00.wav",
 	}
 })
 
@@ -72,6 +82,7 @@ if SERVER then
 					angle = v:GetAngles(),
 					tab = {
 						model = v:GetModel(),
+						snd = v:GetActivateSound(),
 					}
 				})
 			end

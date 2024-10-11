@@ -11,7 +11,7 @@ nzTools:CreateTool("zspawn", {
 		if IsValid(tr.Entity) and tr.Entity:GetClass() == "nz_spawn_zombie_normal" then
 			ent = tr.Entity -- No need to recreate if we shot an already existing one
 		else
-			ent = nzMapping:ZedSpawn(tr.HitPos,(Angle(0,(ply:GetPos() - tr.HitPos):Angle()[2],0)), tobool(data.flag) and data.link or nil, data.link2, data.link3, tobool(data.master), data.spawntype, data.zombietype, data.roundactive, data.spawnchance, ply)
+			ent = nzMapping:ZedSpawn(tr.HitPos,(Angle(0,(ply:GetPos() - tr.HitPos):Angle()[2],0)), tobool(data.flag) and data.link or nil, data.link2, data.link3, tobool(data.master), data.spawntype, data.zombietype, data.roundactive, data.spawnchance, tobool(data.miscspawn), data.totalspawn, data.aliveamount, ply)
 		end
 
 		ent.flag = data.flag
@@ -35,6 +35,9 @@ nzTools:CreateTool("zspawn", {
 		ent.master 			= data.master
 		ent.roundactive 	= data.roundactive
 		ent.spawnchance 	= data.spawnchance
+		ent.miscspawn 		= data.miscspawn
+		ent.totalspawn 		= data.totalspawn
+		ent.aliveamount 	= data.aliveamount
 	end,
 	SecondaryAttack = function(wep, ply, tr, data)
 		-- Remove entity if it is a zombie spawnpoint
@@ -71,6 +74,9 @@ nzTools:CreateTool("zspawn", {
 		valz["Row8"] = data.zombietype
 		valz["Row9"] = data.roundactive
 		valz["Row10"] = data.spawnchance
+		valz["Row11"] = data.miscspawn
+		valz["TotalSpawn"] = data.totalspawn
+		valz["AliveAmount"] = data.aliveamount
 
 
 		local DProperties = vgui.Create( "DProperties", frame )
@@ -103,6 +109,9 @@ nzTools:CreateTool("zspawn", {
 			data.zombietype 	= valz["Row8"]
 			data.roundactive 	= valz["Row9"]
 			data.spawnchance 	= valz["Row10"]
+			data.miscspawn 		= valz["Row11"]
+			data.totalspawn 	= valz["TotalSpawn"]
+			data.aliveamount 	= valz["AliveAmount"]
 
 			return data
 		end
@@ -190,10 +199,25 @@ nzTools:CreateTool("zspawn", {
 		Row10:SetValue( valz["Row10"] )
 		Row10.DataChanged = function( _, val ) valz["Row10"] = val DProperties.UpdateData(DProperties.CompileData()) end
 		
+		local TotalSpawn = DProperties:CreateRow( "Settings", "Total Possible Spawns" )
+		TotalSpawn:Setup( "Integer" )
+		TotalSpawn:SetValue( valz["TotalSpawn"] )
+		TotalSpawn.DataChanged = function( _, val ) valz["TotalSpawn"] = val DProperties.UpdateData(DProperties.CompileData()) end
+		
+		local AliveAmount = DProperties:CreateRow( "Settings", "Alive at Once" )
+		AliveAmount:Setup( "Integer" )
+		AliveAmount:SetValue( valz["AliveAmount"] )
+		AliveAmount.DataChanged = function( _, val ) valz["AliveAmount"] = val DProperties.UpdateData(DProperties.CompileData()) end
+		
+		local Row11 = DProperties:CreateRow( "Settings", "Mixed Spawn?" )
+		Row11:Setup( "Boolean" )
+		Row11:SetValue( valz["Row11"] )
+		Row11.DataChanged = function( _, val ) valz["Row11"] = val DProperties.UpdateData(DProperties.CompileData()) end
+		
 		local text = vgui.Create("DLabel", DProperties)
 		text:SetText("You can only have one Master Spawn! You need at least one so zombies can spawn!")
 		text:SetFont("Trebuchet18")
-		text:SetPos(0, 245)
+		text:SetPos(0, 275)
 		text:SetTextColor( Color(50, 50, 50) )
 		text:SizeToContents()
 		text:CenterHorizontal()
@@ -201,7 +225,7 @@ nzTools:CreateTool("zspawn", {
 		local text2 = vgui.Create("DLabel", DProperties)
 		text2:SetText("You must add flags in order!")
 		text2:SetFont("Trebuchet18")
-		text2:SetPos(0, 255)
+		text2:SetPos(0, 285)
 		text2:SetTextColor( Color(50, 50, 50) )
 		text2:SizeToContents()
 		text2:CenterHorizontal()
@@ -218,5 +242,8 @@ nzTools:CreateTool("zspawn", {
 		zombietype = zombietype or "none",
 		roundactive = 0,
 		spawnchance = 100,
+		miscspawn = 0,
+		totalspawn = 0,
+		aliveamount = 0,
 	}
 })

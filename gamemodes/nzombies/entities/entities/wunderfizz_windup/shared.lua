@@ -8,24 +8,62 @@ ENT.Contact			= "youtube.com/Zet0r"
 ENT.Purpose			= ""
 ENT.Instructions	= ""
 
-ENT.VortexLoopSound = Sound("nz_moo/perks/wonderfizz/vortex_loop.wav")
-
 local teddymat = "models/perk_bottle/c_perk_bottle_teddy"
 
 function ENT:SetupDataTables()
-	self:NetworkVar( "Bool", 0, "Winding" )
+	self:NetworkVar("Bool", 0, "Winding")
+	self:NetworkVar("Bool", 1, "Sharing")
+	self:NetworkVar("String", 0, "Perk")
+
+	if (CLIENT) then
+		self:NetworkVarNotify("Sharing", function(ent)
+			if ent.LightningEffects1 and IsValid(ent.LightningEffects1) then
+				ent.LightningEffects1:StopEmissionAndDestroyImmediately()
+			end
+		end)
+	end
 end
 
 function ENT:RandomizeSkin()
-	local skin
-	if nzMapping.Settings.wunderfizzperks then
-		skin = nzPerks:Get(table.Random(table.GetKeys(nzMapping.Settings.wunderfizzperklist))).material
-	else
-		skin = nzPerks:Get(table.Random(table.GetKeys(nzPerks:GetList()))).material
+	local perk
+	local available = {}
+	local bottle = nzMapping.Settings.bottle
+	local fizzlist = nzMapping.Settings.wunderfizzperklist
+	local blockedperks = {
+		["wunderfizz"] = true,
+		["pap"] = true,
+		["gum"] = true,
+	}
+
+	local machine = self.WMachine
+	local ply = IsValid(machine) and machine:GetUser() or nil
+
+	for perk, _ in pairs(nzPerks:GetList()) do
+		if blockedperks[perk] then continue end
+		if fizzlist and fizzlist[perk] and not fizzlist[perk][1] then continue end
+		if IsValid(ply) and ply:IsPlayer() and ply:HasPerk(perk) then continue end
+		if self.last_perk and self.last_perk == perk then continue end
+
+		table.insert(available, perk)
 	end
 
-	if skin then
-		self:SetSkin(skin)
+	if table.IsEmpty(available) then return end
+	perk = available[math.random(#available)]
+
+	if perk and perk ~= "" then
+		self.last_perk = perk
+
+		local mattable = nzPerks:GetBottleTextures(bottle)
+		if mattable then
+			for id, mat in pairs(mattable) do
+				self:SetSubMaterial(id, mat..perk)
+			end
+		else
+			local skinid = nzPerks:Get(perk).material
+			if skinid then
+				self:SetSkin(skinid)
+			end
+		end
 	end
 end
 
@@ -33,66 +71,84 @@ function ENT:Initialize()
 	self:SetMoveType(MOVETYPE_NONE)
 	self:SetSolid(SOLID_OBB)
 	self:DrawShadow(false)
+	self:SetWinding(true)
 
-	if (nzMapping.Settings.bottle == "tfa_perk_can") then
-		self:SetModel("models/nz/perks/wm_t9_can.mdl")
-	elseif (nzMapping.Settings.bottle == "tfa_bo1_bottle") then
-		self:SetModel("models/nz/perks/wm_t5_perk_bottle.mdl")
-	elseif (nzMapping.Settings.bottle == "tfa_bo2_bottle") then
-		self:SetModel("models/nz/perks/wm_t6_perk_bottle.mdl")
-	elseif (nzMapping.Settings.bottle == "tfa_perk_gum") then
-		self:SetModel("models/nz/perks/w_wpn_t7_zmb_bubblegum_view_lod4.mdl")
-	elseif (nzMapping.Settings.bottle == "tfa_bo3_nana") then
-		self:SetModel("models/nz/perks/wm_perk_nana.mdl")
-	elseif (nzMapping.Settings.bottle == "tfa_perk_candy") then
-		self:SetModel("models/nz/perks/wm_iw8_candy.mdl")
-	elseif (nzMapping.Settings.bottle == "tfa_perk_goblet") then
-		self:SetModel("models/nz/perks/wm_s4_goblet.mdl")
+	local model = nzPerks:GetFizzBottle(nzMapping.Settings.bottle)
+	if model and util.IsValidModel(model) then
+		self:SetModel(model)
 	else
 		self:SetModel("models/nzr/2022/perks/w_perk_bottle.mdl")
 	end
-	--self:SetModel("models/nzr/2022/perks/w_perk_bottle.mdl")
+
+	local machine = self:GetParent()
+	if IsValid(machine) then
+		self:SetAngles(machine:GetAngles())
+		if machine.GetUser then
+			local ply = machine:GetUser()
+			if IsValid(ply) and ply:IsPlayer() and ply:HasPerk("time") then
+				self.TimeSlipped = true
+			end
+		end
+	end
+
+	if CLIENT then return end
+
 	self:RandomizeSkin()
 
-	local machine = self.WMachine
-	if SERVER then
-		self:SetWinding(true)
-		self.SoundPlayer = CreateSound(self, self.VortexLoopSound)
-    	if (self.SoundPlayer) then
-        	self.SoundPlayer:Play()
-    	end
+	self:EmitSound("nz_moo/perks/wonderfizz/vortex_loop.wav", SNDLVL_NORM, math.random(97, 103), 0.4, CHAN_ITEM)
 
-		timer.Simple(5, function()
-			self:SetWinding(false)
-			timer.Simple(5, function()
-				if IsValid(self) and IsValid(self.WMachine) then
-					self.WMachine:SetSharing(true)
-				end
-			end)
-
-			self:EmitSound("nz_moo/perks/wonderfizz/elec/hit/random_perk_imp_0"..math.random(0, 2)..".mp3", 90, math.random(97, 103))
-
-			if (self.SoundPlayer) then
-        		self.SoundPlayer:FadeOut(0.8)
-    		end
-			if self.Perk == "teddy" then
-				self:SetSkin(30)
-				machine:SetIsTeddy(true)
-				machine:GetUser():GivePoints(machine:GetPrice())
-				timer.Simple(5, function() 
-					if IsValid(self) and IsValid(machine) then
-						self:Remove()
-						machine:MoveLocation()
-					end
-				end)
-			else
-				self:SetSkin(nzPerks:Get(self.Perk).material)
+	timer.Simple(self.TimeSlipped and 2 or 4, function()
+		self:SetWinding(false)
+		timer.Simple(8, function()
+			if IsValid(self) and IsValid(self.WMachine) and !self:GetSharing() then
+				self.WMachine:SetSharing(true)
+				self:SetSharing(true)
 			end
-			machine:SetPerkID(self.Perk)
 		end)
 
-		timer.Simple(15, function() if IsValid(self) then self:Remove() end end)
-	end
+		self:EmitSound("nz_moo/perks/wonderfizz/elec/hit/random_perk_imp_0"..math.random(0, 2)..".mp3", SNDLVL_TALKING, math.random(97, 103), 1, CHAN_STATIC)
+
+		local machine = self.WMachine
+		if self:GetPerk() == "teddy" then
+			local mattable = nzPerks:GetBottleTextures(nzMapping.Settings.bottle)
+			if mattable then
+				for id, mat in pairs(mattable) do
+					self:SetSubMaterial(id, mat.."wunderfizz")
+				end
+			else
+				self:SetSkin(30)
+			end
+
+			machine:SetIsTeddy(true)
+			machine:GetUser():GivePoints(machine:GetPrice())
+			timer.Simple(5, function() 
+				if IsValid(self) and IsValid(machine) then
+					self:Remove()
+					machine:MoveLocation()
+				end
+			end)
+		else
+			local mattable = nzPerks:GetBottleTextures(nzMapping.Settings.bottle)
+			if mattable then
+				for id, mat in pairs(mattable) do
+					self:SetSubMaterial(id, mat..self:GetPerk())
+				end
+			else
+				local skinid = nzPerks:Get(self:GetPerk()).material
+				if skinid then
+					self:SetSkin(skinid)
+				end
+			end
+		end
+
+		machine:SetPerkID(self:GetPerk())
+
+		local idle = machine:LookupSequence("idle")
+		machine:SetCycle(0)
+		machine:ResetSequence(idle)
+	end)
+
+	SafeRemoveEntityDelayed(self, 15)
 end
 
 function ENT:WindUp()
@@ -114,17 +170,41 @@ function ENT:Think()
 end
 
 function ENT:OnRemove()
-	if IsValid(self.WMachine) then
-		self.WMachine:SetBeingUsed(false)
-		self.WMachine.Bottle = nil
+	self:StopSound("nz_moo/perks/wonderfizz/vortex_loop.wav")
+
+	local machine = self.WMachine
+	if IsValid(machine) then
+		machine:Reset()
 	end
 end
 
 function ENT:Draw()
 	self:DrawModel()
-	if !self.Stopped then
-		self:SetRenderAngles(self:GetNetworkAngles())
-		self.LightningAura = nil -- Kill the aura effect
+	if !self.LightningEffects1 or !IsValid(self.LightningEffects1) then
+		self.LightningEffects1 = CreateParticleSystem(self, self:GetSharing() and "bo3_vending_wonder_perk_share" or "bo3_vending_wonder_perk", PATTACH_POINT_FOLLOW, 0)
+	end
+	if self:GetWinding() then
+		if !self:GetRenderAngles() then
+			local ang = self:GetAngles()
+			ang:RotateAroundAxis(self:GetForward(), 20)
+			self:SetRenderAngles(ang)
+		end
+
+		local ang = self:GetRenderAngles()
+		ang:RotateAroundAxis(self:GetUp(), (self.TimeSlipped and 220 or 110)*FrameTime())
+		self:SetRenderAngles(ang)
+	elseif !self.Stopped and IsValid(self:GetParent()) then
+		local fpos, fang = nzPerks:GetFizzPosition(nzMapping.Settings.bottle)
+		local ang = self:GetParent():GetAngles()
+		if fang then
+			ang:RotateAroundAxis(self:GetParent():GetForward(), fang[1])
+			ang:RotateAroundAxis(self:GetParent():GetUp(), fang[2])
+			ang:RotateAroundAxis(self:GetParent():GetRight(), fang[3])
+		else
+			ang:RotateAroundAxis(self:GetParent():GetUp(), 140)
+		end
+
+		self:SetRenderAngles(ang)
 		self.Stopped = true
 	end
 end

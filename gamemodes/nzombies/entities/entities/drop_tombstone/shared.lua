@@ -27,8 +27,9 @@ end
 
 local color_black_180 = Color(0, 0, 0, 180)
 local zmhud_icon_missing = Material("nz_moo/icons/statmon_warning_scripterrors.png", "unlitgeneric smooth")
+local nz_useplayercolor = GetConVar("nz_hud_use_playercolor")
 
-local function Draw3DText( pos, ang, scale, flipView, icon, name )
+local function Draw3DText( pos, ang, scale, flipView, icon, name, fcolor )
 	if ( flipView ) then
 		ang:RotateAroundAxis( vector_up, 180 )
 	end
@@ -39,9 +40,9 @@ local function Draw3DText( pos, ang, scale, flipView, icon, name )
 	cam.Start3D2D(pos, ang, scale)
 		surface.SetMaterial(icon)
 		surface.SetDrawColor(color_white)
-		surface.DrawTexturedRect(-16, -16, 48,48)
+		surface.DrawTexturedRect(-16, -16, 48, 48)
 
-		draw.SimpleTextOutlined(name, "nz.points."..GetFontType(nzMapping.Settings.smallfont), 8, 42, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, color_black_180)
+		draw.SimpleTextOutlined(name, "nz.points."..GetFontType(nzMapping.Settings.smallfont), 8, 48, fcolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, color_black_180)
 	cam.End3D2D()
 end
 
@@ -49,14 +50,22 @@ function ENT:Draw()
 	local perkply = self:GetOwner()
 	self.pmpath = Material("spawnicons/"..string.gsub(perkply:GetModel(),".mdl",".png"), "unlitgeneric smooth")
 
-	local pos = self:GetPos() + self:GetUp()*42
+	local pos = self:GetPos() + self:GetUp()*44
 	local ang = LocalPlayer():EyeAngles()
 
 	ang = Angle(ang.x, ang.y, 0)
 	ang:RotateAroundAxis(ang:Up(), -90)
 	ang:RotateAroundAxis(ang:Forward(), 90)
 
-	Draw3DText( pos, ang, 0.2, false, self:GetFunny() and self.nickcage or self.pmpath, perkply:Nick())
+	local fontColor = !IsColor(nzMapping.Settings.textcolor) and color_white or nzMapping.Settings.textcolor
+
+	local pply = self:GetOwner()
+	if IsValid(pply) and pply:IsPlayer() and nz_useplayercolor:GetBool() then
+		local pvcol = pply:GetPlayerColor()
+		fontColor = Color(255*pvcol.x, 255*pvcol.y, 255*pvcol.z, 255)
+	end
+
+	Draw3DText( pos, ang, 0.2, false, self:GetFunny() and self.nickcage or self.pmpath, perkply:Nick(), fontColor)
 
 	self:DrawModel()
 
@@ -163,13 +172,9 @@ function ENT:StartTouch(ply)
 					if not IsValid(ply) then return end
 
 					local wep = ply:Give(weps[i].class)
-					timer.Simple(engine.TickInterval(), function()
-						if not IsValid(wep) then return end
-						if weps[i].pap then
-							wep:ApplyNZModifier("pap")
-						end
-						wep:GiveMaxAmmo()
-					end)
+					if weps[i].pap then
+						wep.NZPaPME = true
+					end
 				end)
 			end
 		end
@@ -177,10 +182,6 @@ function ENT:StartTouch(ply)
 		for _, perk in pairs(self.OwnerData.perks) do
 			if perk == "tombstone" then continue end
 			ply:GivePerk(perk)
-		end
-
-		if self.OwnerData.upgrade then
-			ply:GivePoints(6000)
 		end
 
 		ply:EmitSound(self.GrabSound)

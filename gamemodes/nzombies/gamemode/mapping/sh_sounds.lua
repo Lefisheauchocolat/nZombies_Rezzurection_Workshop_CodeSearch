@@ -58,6 +58,8 @@ nzSounds.struct = { -- For use with 'data' when creating config menu options
     "revivalstingersnd",
 	"radio",
 	"kaboomsnd",
+	"random_gumsnd",
+	"fullarmorsnd",
 }
 
 nzSounds.Sounds = {}
@@ -109,6 +111,8 @@ nzSounds.Sounds.Default.SpecialUnderScore = ""
 nzSounds.Sounds.Default.WhosWhoLooper = "nzr/2022/perks/chuggabud/ww_looper.wav"
 nzSounds.Sounds.Default.RevivalStinger = "nz_moo/effects/revive/zmb_revive_music_03_lr.mp3"
 nzSounds.Sounds.Default.Kaboom = "nz_moo/powerups/nuke_flux.mp3"
+nzSounds.Sounds.Default.RandomGum = "nz_moo/zombies/vox/mute_00.mp3"
+nzSounds.Sounds.Default.FullArmor = "nz_moo/zombies/vox/mute_00.mp3"
 
 function nzSounds:RefreshSounds()
     
@@ -157,6 +161,9 @@ function nzSounds:RefreshSounds()
     nzSounds.Sounds.Custom.WhosWhoLooper = nzMapping.Settings.whoswholoopersnd
     nzSounds.Sounds.Custom.RevivalStinger = nzMapping.Settings.revivalstingersnd
     nzSounds.Sounds.Custom.Kaboom = nzMapping.Settings.kaboomsnd
+    nzSounds.Sounds.Custom.RandomGum = nzMapping.Settings.randomgumsnd
+    nzSounds.Sounds.Custom.FullArmor = nzMapping.Settings.fullarmorsnd
+    
     if (!table.IsEmpty(nzMapping.Settings) and table.IsEmpty(nzSounds.Sounds.Custom)) then
         nzSounds.Sounds.Custom = table.Copy(nzSounds.Sounds.Default)
     end

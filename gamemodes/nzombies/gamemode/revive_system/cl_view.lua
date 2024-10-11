@@ -107,7 +107,7 @@ local function DrawColorModulation()
 	if IsValid(ply:GetObserverTarget()) then ply = ply:GetObserverTarget() end
 
 	if nzRevive.Players[ply:EntIndex()] then
-		local fadeadd = ((1/nz_bleedouttime:GetFloat()) * FrameTime()) * -1
+		local fadeadd = ((1/(ply.GetBleedoutTime and ply:GetBleedoutTime() or nz_bleedouttime:GetFloat())) * FrameTime()) * -1
 		tab[ "$pp_colour_addr" ] = math.Approach(tab[ "$pp_colour_addr" ], 0.28, fadeadd *-0.28)
 		tab[ "$pp_colour_mulr" ] = math.Approach(tab[ "$pp_colour_mulr" ], 1, -fadeadd)
 		tab[ "$pp_colour_contrast" ] = math.Approach(tab[ "$pp_colour_contrast" ], 0.5, fadeadd *-0.5)
@@ -143,6 +143,10 @@ local function DrawDownedPlayers()
 			posxy.x, posxy.y = XYCompassToScreen((ppos + vector_up_35), 60)
 		end
 
+		if ply.GetBleedoutTime then
+			bleedtime = ply:GetBleedoutTime()
+		end
+
 		local downscale = 1 - math.Clamp((CurTime() - data.DownTime) / bleedtime, 0, 1)
 		surface.SetDrawColor(255, 180*downscale, 0)
 		surface.SetMaterial(zmhud_icon_revive)
@@ -150,7 +154,7 @@ local function DrawDownedPlayers()
 
 		if IsValid(revivor) and data.ReviveTime then
 			local hasrevive = revivor:HasPerk("revive")
-			local revtime = hasrevive and 2 or 4
+			local revtime = ply:GetReviveTime(revivor)
 			local revivescale = math.Clamp((CurTime() - data.ReviveTime) / revtime, 0, 1)
 
 			surface.SetDrawColor(color_white)
@@ -176,7 +180,7 @@ local function DrawRevivalProgress()
 	local id = reviving:EntIndex()
 
 	local hasrevive = ply:HasPerk("revive")
-	local revtime = hasrevive and 2 or 4
+	local revtime = reviving:GetReviveTime(ply)
 	local bleedtime = nz_bleedouttime:GetFloat()
 	local w, h = ScrW(), ScrH()
 	local pscale = 1
@@ -189,6 +193,9 @@ local function DrawRevivalProgress()
 		local revivescale = math.Clamp((CurTime() - data.ReviveTime) / revtime, 0, 1)
 
 		if data.DownTime then
+			if reviving.GetBleedoutTime then
+				bleedtime = reviving:GetBleedoutTime()
+			end
 			local downscale = 1 - math.Clamp((CurTime() - data.DownTime) / bleedtime, 0, 1)
 			surface.SetDrawColor(255, 180*downscale, 0)
 			surface.SetMaterial(zmhud_icon_revive)

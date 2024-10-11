@@ -1,7 +1,8 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
-ENT.PrintName = "I've adopted a funny little squid creature from Laby"
+--ENT.PrintName = "I've adopted a funny little squid creature from Laby"
+ENT.PrintName = "Margwa"
 ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 
@@ -272,7 +273,9 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 	end
 end
 
-function ENT:PerformDeath(dmgInfo)
+function ENT:PerformDeath(dmgInfo)	
+	self.Dying = true
+
 	self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
 	self:DoDeathAnimation("nz_margwa_death")
 end

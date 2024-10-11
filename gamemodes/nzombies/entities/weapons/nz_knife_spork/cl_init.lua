@@ -2,8 +2,9 @@
 include('shared.lua')
 
 
-SWEP.PrintName			= "Classic Knife"
-SWEP.ClassName			= "nz_knife_waw"
+SWEP.PrintName			= "Spork"
+SWEP.ClassName			= "nz_knife_spork"
+SWEP.Slot				= 0
 SWEP.SlotPos			= 0
 SWEP.DrawAmmo			= false
 SWEP.DrawCrosshair		= true 

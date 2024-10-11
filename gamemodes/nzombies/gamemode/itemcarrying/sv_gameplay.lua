@@ -2,17 +2,29 @@
 function nzItemCarry.OnPlayerPickItemUp( ply, ent )
 	-- Downed players can't pick up anything!
 	if !ply:GetNotDowned() then return false end
-	
+
 	-- Players can't pick stuff up while using special weapons! (Perk bottles, knives, etc)
-	if IsValid(ply:GetActiveWeapon()) and (ply:GetActiveWeapon():IsSpecial() and !ply:GetActiveWeapon().AllowInteraction) then return false end
-	
+	local wep = ply:GetActiveWeapon()
+	if IsValid(wep) and wep:IsSpecial() then
+		local papapunch = (IsValid(ent) and ent:GetClass() == "perk_machine" and ent:GetPerkID() == "pap")
+		if papapunch then
+			if (wep.AllowInteraction and !wep.NZSpecialPAP) or !wep.NZSpecialPAP then
+				return false
+			end
+		else
+			if !wep.AllowInteraction then
+				return false
+			end
+		end
+	end
+
 	-- Used in map scripting
 	if ent.OnUsed and type(ent.OnUsed) == "function" then
 		if ply:KeyPressed(IN_USE) then
 			ent:OnUsed(ply)
 		end
 	end
-	
+
 	local category = ent:GetNWString("NZItemCategory")
 	if category != "" then
 		local item = nzItemCarry.Items[category]

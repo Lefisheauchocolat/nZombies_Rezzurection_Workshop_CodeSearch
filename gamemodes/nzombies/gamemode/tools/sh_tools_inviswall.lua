@@ -4,7 +4,7 @@ local point1, point2, height
 
 if SERVER then
 	util.AddNetworkString("nz_InvisWallCreation")
-	
+
 	net.Receive("nz_InvisWallCreation", function(len, ply)
 		if !ply:IsInCreative() then return end
 		local vec1 = net.ReadVector()
@@ -14,10 +14,10 @@ if SERVER then
 			nzMapping:CreateInvisibleWall(vec1, vec2, ply)
 		else
 			local data = ply.NZToolData
-			local radiation = data.dmgtype == 1
-			local poison = data.dmgtype == 2
-			local tesla = data.dmgtype == 3
-			nzMapping:CreateInvisibleDamageWall(vec1, vec2, ply, data.dmg or 1, data.delay or 0.5, radiation, poison, tesla)
+			//local radiation = data.dmgtype == 1
+			//local poison = data.dmgtype == 2
+			//local tesla = data.dmgtype == 3
+			nzMapping:CreateInvisibleDamageWall(vec1, vec2, ply, data.dmg or 1, data.delay or 0.5, data.dmgtype or 1)
 		end
 	end)
 end

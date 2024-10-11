@@ -1,33 +1,33 @@
 -- Wonder Weapon system does NOT apply to weapons like Monkey Bombs or Ray Gun
 -- ONLY to those that you can only have 1 of at a time
 
-local wonderweapons = nzWeps.WonderWeapons or {}
+nzWeps.WonderWeapons = nzWeps.WonderWeapons or {}
 
 function nzWeps:AddWonderWeapon(class)
-	wonderweapons[class] = true
+	nzWeps.WonderWeapons[class] = true
 end
 
 function nzWeps:RemoveWonderWeapon(class)
-	wonderweapons[class] = nil
+	nzWeps.WonderWeapons[class] = nil
 end
 
 //this doesnt work, please fix me
 function nzWeps:IsWonderWeapon(class)
-	return wonderweapons[class] or false
+	return nzWeps.WonderWeapons[class] or false
 end
 
 function nzWeps:GetHeldWonderWeapons(ply) -- No arguments means all players
 	local tbl = {}
 	if IsValid(ply) and ply:IsPlayer() then
 		for k,v in pairs(ply:GetWeapons()) do
-			if wonderweapons[v:GetClass()] then
+			if nzWeps.WonderWeapons[v:GetClass()] then
 				table.insert(tbl, v:GetClass())
 			end
 		end
 	else
 		for k,v in pairs(player.GetAll()) do
 			for k2,v2 in pairs(v:GetWeapons()) do
-				if wonderweapons[v2:GetClass()] then
+				if nzWeps.WonderWeapons[v2:GetClass()] then
 					table.insert(tbl, v2:GetClass())
 				end
 			end
@@ -38,7 +38,7 @@ function nzWeps:GetHeldWonderWeapons(ply) -- No arguments means all players
 end
 
 function nzWeps:IsWonderWeaponOut(class, ignorewonder)
-	if (wonderweapons[class] or ignorewonder) then
+	if (nzWeps.WonderWeapons[class] or ignorewonder) then
 		for k,v in pairs(player.GetAll()) do
 			for k2,v2 in pairs(v:GetWeapons()) do
 				local vclass = v2:GetClass()

@@ -125,6 +125,12 @@ end
 
 function ENT:GetPrice(ply)
 	local price = nzGum:GetCost(ply)
+
+	local start_price = nzMapping.Settings.gumstartprice
+	if start_price and nzGum:GetPlayerPriceMultiplier(ply) <= 0 then
+		price = start_price
+	end
+
 	return price
 end
 
@@ -146,6 +152,9 @@ function ENT:Think()
 		end
 		local gum = self:GetCurrentGum()
 		if gum and gum != "" then
+			return
+		end
+		if self.GumsEmpty then
 			return
 		end
 
@@ -176,7 +185,7 @@ function ENT:Think()
 			end
 
 			self.next_lightsound = ct + cooldowns[cooldowns_stage]
-			self:EmitSound("bo3/gobblegum/machine/machine_light_on.mp3")
+			self:EmitSound("bo3/gobblegum/machine/machine_light_on.mp3", SNDLVL_IDLE, math.Rand(97,103), 1, CHAN_WEAPON)
 		end
 
 		if ct > self.idle_time and ct > self.use_cooldown and !isrolling and !isflashing then
@@ -288,7 +297,7 @@ function ENT:RollRandomGum(ply)
 			if pgum and pgum == id then continue end
 		end
 
-		local rarity = data.rare or nzGum.RareTypes.DEFAULT
+		local rarity = nzGum:GetGumRare(id)
 		local rolldata = nzGum.RollData[id]
 
 		local count = nzGum.RollCounts[rarity]
@@ -322,7 +331,9 @@ function ENT:StartRolling(ply)
 	local gum = self:RollRandomGum(ply)
 	if !gum then return false end
 
-	nzGum:SetPlayerPriceMultiplayer(ply, math.min(2, ply:GetNWInt("nzGumPriceMultiplier", 0) + 1))
+	if !nzRound:InState(ROUND_CREATE) and !ply:IsInCreative() then
+		nzGum:SetPlayerPriceMultiplier(ply, nzGum:GetPlayerPriceMultiplier(ply) + 1)
+	end
 
 	self:SetNextUse(CurTime() + 2.8)
 	self:TurnLightsOff()
@@ -357,13 +368,13 @@ function ENT:StartRolling(ply)
 
 	self:SetCurrentUser(ply)
 
-	self:EmitSound("bo3/gobblegum/machine/machine_light_on.mp3")
+	self:EmitSound("bo3/gobblegum/machine/machine_light_on.mp3", SNDLVL_IDLE, math.Rand(97,103), 1, CHAN_WEAPON)
 	self:TurnLightsOn(true)
 	self.next_turnofflights = CurTime() + .1
 	local timername = "nzGumMachine" .. self:EntIndex()
 	timer.Create(timername, .4, 0, function()
 		if IsValid(self) then
-			self:EmitSound("bo3/gobblegum/machine/machine_light_on.mp3")
+			self:EmitSound("bo3/gobblegum/machine/machine_light_on.mp3", SNDLVL_NORM, math.Rand(97,103), 1, CHAN_WEAPON)
 			self:TurnLightsOn(true)
 			self.next_turnofflights = CurTime() + .1
 		else
@@ -371,11 +382,10 @@ function ENT:StartRolling(ply)
 		end
 	end)
 
-	ParticleEffectAttach("nz_gum_machine_loop", PATTACH_POINT_FOLLOW, self, 11)
 	timer.Simple(1.45, function()
 		if !IsValid(self) then return end
-		self:StopParticles()
 		self:SetGumRevealed(true)
+		self:StopParticles()
 	end)
 
 	timer.Simple(2.0, function()
@@ -389,7 +399,7 @@ function ENT:StartRolling(ply)
 		local gumdata = nzGum:GetData(self:GetCurrentGum())
 		if gumdata then
 			local gumtype = gumdata.type
-			local gumrare = gumdata.rare or nzGum.RareTypes.DEFAULT
+			local gumrare = nzGum:GetGumRare(self:GetCurrentGum())
 
 			for k, v in pairs(gumball_joints) do
 				if k ~= gumrare then continue end
@@ -477,10 +487,13 @@ function ENT:OnTakeDamage(dmginfo)
 end
 
 function ENT:Use(activator, caller)
-	if nzGum:GetMaxBuysPerRound(activator) >= 3 then return end
+	if nzGum:GetTotalBuys(activator) >= (nzMapping.Settings.maxplayergumuses or 3) then return end
 	if activator:GetUsingSpecialWeapon() then return end
 	if self:GetIsRolling() then return end
-	if GetGlobal2Bool("nzGumsEmpty", false) then return end
+
+	local in_creative = (nzRound:InState(ROUND_CREATE) or activator:IsInCreative())
+
+	if !in_creative and nzGum:GetTotalCount() <= 0 then return end
 	if CurTime() < self.use_cooldown then return end
 
 	self.use_cooldown = CurTime() + 2
@@ -488,7 +501,7 @@ function ENT:Use(activator, caller)
 	local gum = self:GetCurrentGum()
 	if !gum or gum == "" then
 		local price = self:GetPrice(activator)
-		if nzRound:InState(ROUND_CREATE) or activator:IsInCreative() then
+		if in_creative then
 			price = 0
 		end
 
@@ -510,34 +523,21 @@ function ENT:Use(activator, caller)
 
 	self:GumDissapier()
 	self:ResetGumBones()
+	self:SetNextUse(CurTime() + 2)
 
 	nzGum:SetActiveGum(activator, gum)
 
-	local rolldata = nzGum.RollData[gum]
-	if rolldata then
-		local gumdata = nzGum:GetData(gum)
-		if !rolldata.roundgotin or (rolldata.roundgotin == 0) then
-			rolldata.roundgotin = nzRound:GetNumber()
-		end
+	if !in_creative then
+		nzGum:UpdateRollData(gum)
+		nzGum:AddToTotalBuys(activator)
 
-		rolldata.chance = math.max((rolldata.chance or nzGum.RollChance) - 1, 1)
-		rolldata.count = math.max((rolldata.count or nzGum.RollCounts[gumdata and (gumdata.rare or nzGum.RareTypes.DEFAULT)]) - 1, 0)
-
-		local empty = true
-		for i, data in pairs(nzGum.RollData) do
-			if data.count and data.count > 0 then
-				empty = false
-				break
+		if nzGum:GetTotalCount() <= 0 then
+			for k, v in pairs(ents.FindByClass(self:GetClass())) do
+				if v.EmptyGums then
+					v:EmptyGums()
+				end
 			end
 		end
-
-		if empty and !GetGlobal2Bool("nzGumsEmpty", false) then
-			SetGlobal2Bool("nzGumsEmpty", true)
-		end
-	end
-
-	if !nzRound:InState(ROUND_CREATE) then
-		nzGum:AddToTotalBuys(activator)
 	end
 
 	local wep = activator:Give("tfa_nz_gum")
@@ -549,6 +549,34 @@ function ENT:Use(activator, caller)
 	self:ResetSequence("Gumball_Take")
 end
 
+function ENT:EmptyGums()
+	timer.Simple(0, function()
+		if not IsValid(self) then return end
+		self:ResetGumBones()
+	end)
+	ParticleEffect("nzr_building_poof", self:GetAttachment(11).Pos, angle_zero)
+	self:EmitSound("NZ.BO2.DigSite.Part")
+	self:SetBodygroup(1, 1)
+	self.GumsEmpty = true
+
+	self:TurnLightsOff()
+	self.next_turnofflights = false
+	self.next_lightsound = 0
+	self.cooldowns_stage = 0
+end
+
+function ENT:RefillGums()
+	timer.Simple(0, function()
+		if not IsValid(self) then return end
+		self:ResetGumBones()
+	end)
+	ParticleEffect("nzr_building_poof", self:GetAttachment(11).Pos, angle_zero)
+	self:EmitSound("NZ.BO2.DigSite.Part")
+	self:SetBodygroup(1, 0)
+	self.GumsEmpty = nil
+	self.next_lightsound = CurTime()
+end
+
 function ENT:OnRemove()
 	for _, ply in pairs(player.GetAll()) do
 		nzGum:ResetTotalBuys(ply)
@@ -556,6 +584,7 @@ function ENT:OnRemove()
 end
 
 if CLIENT then
+	local nz_guminfo = GetConVar("nz_hud_show_gumstats")
 	local nz_betterscaling = GetConVar("nz_hud_better_scaling")
 	local usekey = "" .. string.upper(input.LookupBinding( "+use", true )) .. " - "
 
@@ -592,19 +621,31 @@ if CLIENT then
 			ply = ply:GetObserverTarget()
 		end
 
-		if nzGum:GetMaxBuysPerRound(ply) >= 3 then
-			return "Come back next round!"
+		local in_creative = nzRound:InState(ROUND_CREATE) or ply:IsInCreative()
+		local total_gums = GetGlobal2Int("nzGumsTotalCount", 0)
+
+		if !in_creative and total_gums <= 0 then
+			return "Out of gums!"
 		end
 
-		if GetGlobal2Bool("nzGumsEmpty", false) then
-			return "Out of gums!"
+		if nzGum:GetTotalBuys(ply) >= (nzMapping.Settings.maxplayergumuses or 3) then
+			return "Come back next round!"
 		end
 
 		local gum = self:GetCurrentGum()
 		if gum and gum != "" and !ply:GetUsingSpecialWeapon() then
 			local gumdata = nzGum:GetData(gum) or {}
 
-			local text = "Press "..usekey..""..(gumdata.name or "error")
+			local amount = ""
+			if nzGum.RollData and nzGum.RollData[gum] and nz_guminfo:GetBool() and nzMapping.Settings.showgumstats then
+				amount = " [Amount: "..nzGum.RollData[gum].."]"
+			end
+			local total = ""
+			if !in_creative and nz_guminfo:GetBool() and nzMapping.Settings.showgumstats then
+				total = " [Total: "..total_gums.."]"
+			end
+
+			local text = "Press "..usekey..""..(gumdata.name or "error")..amount..total
 			if IsValid(self:GetCurrentUser()) and self:GetCurrentUser() ~= ply then
 				text = self:GetCurrentUser():Nick().."'s "..gumdata.name
 			end
@@ -638,11 +679,16 @@ if CLIENT then
 			return text
 		end
 
-		if nzRound:InState(ROUND_CREATE) then
+		if in_creative then
 			return "Press "..usekey.."Roll Gobblegum"
 		end
 
-		return "Press "..usekey.."Gobblegum [Cost: "..string.Comma(self:GetPrice(ply)).."]"
+		local rolls = ""
+		if nz_guminfo:GetBool() and nzMapping.Settings.showgumstats then
+			rolls = " [Rolls: "..(nzMapping.Settings.maxplayergumuses - nzGum:GetTotalBuys(ply)).."]"
+		end
+
+		return "Press "..usekey.."Gobblegum [Cost: "..string.Comma(self:GetPrice(ply)).."]"..rolls
 	end
 
 	function ENT:Draw()
@@ -653,6 +699,7 @@ if CLIENT then
 		local isrolling = self:GetIsRolling()
 		local validroller = IsValid(self:GetCurrentUser())
 		local playerrolling = (isrolling and validroller)
+
 		local glowpos = (self:GetPos() + vector_up*(42)) + self:GetForward() * 14
 		local glowcol, glowcol2 = color_lights, color_lights
 
@@ -664,6 +711,15 @@ if CLIENT then
 
 		if self:GetSharing() then
 			glowcol = color_share
+		end
+
+		if playerrolling and !self:GetGumRevealed() then
+			if !self.LightningEffects or !IsValid(self.LightningEffects) then
+				self.LightningEffects = CreateParticleSystem(self, "nz_gum_machine_loop", PATTACH_POINT_FOLLOW, 11)
+			end
+		elseif self.LightningEffects and IsValid(self.LightningEffects) then
+			self.LightningEffects:StopEmission()
+			self.LightningEffects = nil
 		end
 
 		render.SetMaterial(glowmat)

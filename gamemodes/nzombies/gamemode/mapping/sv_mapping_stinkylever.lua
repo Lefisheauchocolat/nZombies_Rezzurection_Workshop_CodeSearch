@@ -7,6 +7,10 @@ function nzMapping:StinkyLever(pos, ang, data, ply)
 		if data.model and util.IsValidModel(data.model) then
 			ent:SetModel(tostring(data.model))
 		end
+
+		if data.snd and isstring(data.snd) then
+			ent:SetActivateSound(data.snd)
+		end
 	end
 
 	ent:Spawn()

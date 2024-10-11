@@ -1,7 +1,8 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
-ENT.PrintName = "The Mangle... er"
+--ENT.PrintName = "The Mangle... er"
+ENT.PrintName = "Mangler"
 ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 
@@ -89,8 +90,8 @@ ENT.IsMiniBoss = true
 ENT.AttackRange = 95
 ENT.DamageRange = 95
 
-ENT.AttackDamage = 50
-ENT.HeavyAttackDamage = 95
+ENT.AttackDamage = 75
+ENT.HeavyAttackDamage = 115
 
 ENT.MinSoundPitch = 95
 ENT.MaxSoundPitch = 105
@@ -203,6 +204,9 @@ ENT.SequenceTables = {
 			MovementSequence = {
 				"nz_base_zmb_raz_walk",
 			},
+			PatrolMovementSequence = {
+				"nz_base_zmb_raz_unaware_walk",
+			},
 			StandAttackSequences = {AttackSequences},
 			AttackSequences = {WalkAttackSequences},
 			JumpSequences = {JumpSequences},
@@ -214,6 +218,9 @@ ENT.SequenceTables = {
 			SpawnSequence = {spawn},
 			MovementSequence = {
 				"nz_base_zmb_raz_sprint",
+			},
+			PatrolMovementSequence = {
+				"nz_base_zmb_raz_unaware_walk",
 			},
 			StandAttackSequences = {AttackSequences},
 			AttackSequences = {RunAttackSequences},
@@ -529,8 +536,7 @@ function ENT:SpecialInit()
 end
 
 function ENT:OnSpawn()
-	animation = self:SelectSpawnSequence()
-
+	-- If you win the lottery, you get a space chicken instead.
 	local comedyday = os.date("%d-%m") == "01-04"
 	if math.random(10000) == 1 or comedyday then
 		self.RISE = ents.Create("nz_zombie_boss_gigan")
@@ -540,12 +546,26 @@ function ENT:OnSpawn()
 		self:Remove()
 	end
 
+	animation = self:SelectSpawnSequence()
+	local stype
+
+	if IsValid(self.SpawnIndex) then
+		stype = self.SpawnIndex:GetSpawnType()
+	end
+
 	self:SetCollisionBounds(Vector(-14,-14, 0), Vector(14, 14, 72))
 	self:SetSurroundingBounds(Vector(-45, -45, 0), Vector(45, 45, 80))
-	self:SetBodygroup(1,0)
 
-	ParticleEffect("zmb_spawn_portal",self:GetPos()+Vector(0,0,1),self:GetAngles(),self)
-	self:EmitSound("nz_moo/zombies/spawn/portal/zmb_spawn_portal_0"..math.random(6)..".mp3",100,math.random(95,105))
+	self:SetBodygroup(1,0) -- Arm
+	self:SetBodygroup(2,0) -- Helmet
+	self:SetBodygroup(3,0) -- Torso
+
+	if stype ~= 1 then
+		ParticleEffect("zmb_trickster_portal",self:GetPos()+Vector(0,0,1),self:GetAngles(),self)
+		self:EmitSound("nz_moo/zombies/spawn/portal/zmb_spawn_portal_0"..math.random(6)..".mp3",100,math.random(95,105))
+	else
+		animation = "idle"
+	end
 
 	self:EmitSound("nz_moo/zombies/vox/_raz/_t9/spawn.mp3", 577)
 
@@ -563,10 +583,10 @@ function ENT:OnSpawn()
 end
 
 function ENT:AI()
-	if CurTime() > self.NextShoot and self.ArmCannon and self:IsOnGround() then
-		if !self:IsAttackBlocked() and self:TargetInRange(750) and !self:TargetInRange(150) then
+	if CurTime() > self.NextShoot and self.ArmCannon and self:IsOnGround() and IsValid(self.Target) then
+		if !self:IsAttackBlocked() and self:TargetInRange(750) and !self:TargetInRange(150) and self:IsFacingEnt(self.Target) then
 			self:TempBehaveThread(function(self)
-				self.NextShoot = CurTime() + math.random(3,10)
+				self.NextShoot = CurTime() + math.random(3,9)
 
 				self:SetSpecialAnimation(true)
 

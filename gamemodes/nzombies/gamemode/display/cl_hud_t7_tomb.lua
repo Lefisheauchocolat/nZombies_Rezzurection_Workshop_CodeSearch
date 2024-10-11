@@ -1763,6 +1763,7 @@ end
 
 local perkcount = 0
 local perkflashtime = 0
+local stinkfade = 0
 local function PerksHud_t7()
 	if not cl_drawhud:GetBool() then return end
 	local ply = LocalPlayer()
@@ -1774,6 +1775,7 @@ local function PerksHud_t7()
 	local pscale = (ScrW()/1920 + 1)/2
 
 	local perks = ply:GetPerks()
+	local maxperks = ply:GetMaxPerks()
 	local w = ScrW()/1920 + 206
 	local h = ScrH()
 	local size = 50
@@ -1785,17 +1787,17 @@ local function PerksHud_t7()
 	local rowmod = nz_perkrowmod:GetInt()
 
 	local perk_borders = nz_showperkframe:GetInt()
-	if perk_borders > 0 and (nzRound:InProgress() or (#perks > 0)) then
+	if perk_borders > 0 and maxperks > 0 then
 		local modded = false
 		surface.SetMaterial(GetPerkFrameMaterial())
 		surface.SetDrawColor(color_white_100)
-		for i=1, nz_perkmax:GetInt() do
+		for i=1, ply:GetMaxPerks() do
 			if i == 4 and nzMapping.Settings.modifierslot and perk_borders < 2 then
 				surface.SetDrawColor(color_gold)
 				modded = true
 			end
 			if i > #perks then
-				surface.DrawTexturedRect(w + num_b*(size + 6)*pscale, h - 100*pscale - 64*row_b, 54*pscale, 54*pscale)
+				surface.DrawTexturedRect(w + num_b*(size + 6)*pscale, h - 100*pscale - (64*row_b)*pscale, 54*pscale, 54*pscale)
 			end
 
 			if modded then
@@ -1849,23 +1851,31 @@ local function PerksHud_t7()
 
 		surface.SetMaterial(icon)
 		surface.SetDrawColor(alpha < 1 and ColorAlpha(color_white, 800*alpha) or color_white)
-		surface.DrawTexturedRect(w + num*(size + 6)*pscale, h - 100*pscale - 64*row, 54*pscale, 54*pscale)
+		surface.DrawTexturedRect(w + num*(size + 6)*pscale, h - 100*pscale - (64*row)*pscale, 54*pscale, 54*pscale)
 
 		if ply:HasUpgrade(perk) then
 			surface.SetDrawColor(color_gold)
 			surface.SetMaterial(GetPerkFrameMaterial())
-			surface.DrawTexturedRect(w + num*(size + 6)*pscale, h - 100*pscale - 64*row, 54*pscale, 54*pscale)
+			surface.DrawTexturedRect(w + num*(size + 6)*pscale, h - 100*pscale - (64*row)*pscale, 54*pscale, 54*pscale)
 		end
 
-		if perk == "vulture" and ply:HasVultureStink() then
-			surface.SetMaterial(zmhud_vulture_glow)
-			surface.SetDrawColor(color_white)
-			surface.DrawTexturedRect((w + num*(size + 6)*pscale) - 24*pscale, (h - 100*pscale - 64*row) - 24*pscale, 102*pscale, 102*pscale)
+		if perk == "vulture" then
+			if ply:HasVultureStink() then
+				stinkfade = 1
+			end
+
+			if stinkfade > 0 then
+				surface.SetDrawColor(ColorAlpha(color_white, 255*stinkfade))
+
+				surface.SetMaterial(zmhud_vulture_glow)
+				surface.DrawTexturedRect((w + num*(size + 6)*pscale) - 24*pscale, (h - 100*pscale - (64*row)*pscale) - 24*pscale, 102*pscale, 102*pscale)
+				
+				local stink = surface.GetTextureID("nz_moo/huds/t6/zm_hud_stink_ani_green")
+				surface.SetTexture(stink)
+				surface.DrawTexturedRect((w + num*(size + 6)*pscale), (h - 100*pscale - (64*row)*pscale) - 62*pscale, 64*pscale, 64*pscale)
 			
-			local stink = surface.GetTextureID("nz_moo/huds/t6/zm_hud_stink_ani_green")
-			surface.SetTexture(stink)
-			surface.SetDrawColor(color_white)
-			surface.DrawTexturedRect((w + num*(size + 6)*pscale), (h - 100*pscale - 64*row) - 62*pscale, 64*pscale, 64*pscale)
+				stinkfade = math.max(stinkfade - FrameTime()*3, 0)
+			end
 		end
 
 		num = num + 1

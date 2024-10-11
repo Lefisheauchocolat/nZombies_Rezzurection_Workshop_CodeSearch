@@ -2,7 +2,8 @@ AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
 ENT.Type = "nextbot"
-ENT.PrintName = "Kevin Clamely"
+--ENT.PrintName = "Kevin Clamely"
+ENT.PrintName = "Patriarch"
 ENT.Category = "Brainz"
 ENT.Author = "Wavy"
 ENT.Spawnable = true
@@ -248,7 +249,9 @@ function ENT:OnSpawn()
 	end
 end
 
-function ENT:PerformDeath(dmginfo)
+function ENT:PerformDeath(dmginfo)	
+	self.Dying = true
+
 	self:EmitSound(self.DeathSounds[math.random(#self.DeathSounds)], 500, math.random(95, 105), 1, 2)
 	self:StopSound("wavy_zombie/patriarch/wep_minigunloop.wav")
 	self:StopSound("wavy_zombie/patriarch/wep_minigunshooting.wav")

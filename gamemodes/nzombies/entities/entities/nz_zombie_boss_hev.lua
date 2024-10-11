@@ -1,7 +1,8 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
-ENT.PrintName = "Morgan"
+--ENT.PrintName = "Morgan"
+ENT.PrintName = "Tesla Zombie"
 ENT.Category = "Brainz"
 ENT.Author = "Wavy"
 
@@ -256,7 +257,9 @@ function ENT:OnSpawn()
 	end
 end
 
-function ENT:PerformDeath(dmginfo)
+function ENT:PerformDeath(dmginfo)	
+	self.Dying = true
+
 	self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
 	self:EmitSound("wavy_zombie/hev/flatline.wav")
 	self:EmitSound("wavy_zombie/hev/hev_dead_shutdown01.wav")

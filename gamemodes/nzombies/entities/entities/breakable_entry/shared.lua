@@ -183,6 +183,8 @@ function ENT:RemovePlank(plank)
 	self.ZombieUsing = nil
 	
 	self.NextPlank = CurTime() + 1
+
+	hook.Run("BarricadePlankRemoved", self, plank, sequence, duration)
 end
 
 function ENT:ResetPlanks(nosoundoverride)
@@ -221,6 +223,8 @@ end
 function ENT:PlankCheck(plank, ent)
 	--print(ent)
 	if !IsValid(plank) then plank = self:GetTornPlank() end
+
+	hook.Run("BarricadePlankCheck", self, plank, ent)
 
 	--print(plank.Torn)
 	if plank.Torn then
@@ -277,6 +281,8 @@ function ENT:SpawnPlank()
 	local nums = self:GetPlankPositionAvailable(plank)
 	plank:AddFlags(nums)
 	table.insert(self.Planks, plank)
+
+	hook.Run("BarricadePlankCreated", self, plank)
 
 	self:PlankCheck(plank)
 
@@ -464,8 +470,6 @@ else
 					if self.NextPlank and self.NextPlank < CurTime() then
 						local plank = self:GetTornPlank()
 						if IsValid(plank) then
-							self:AddPlank(plank, p)
-
 							if !IsValid(p) then return end
 							if p:HasPerk("amish") then
 								plank.Enhanced = true
@@ -478,6 +482,8 @@ else
 									plank:SetBodygroup(1,0)
 								end
 							end
+
+							self:AddPlank(plank, p)
 
 							timer.Simple(time, function()
 								if not IsValid(p) then return end

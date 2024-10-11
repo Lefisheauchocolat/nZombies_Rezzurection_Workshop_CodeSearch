@@ -56,6 +56,10 @@ function PLAYER:Loadout()
 	end
 end
 
+local cvar_bleedout = GetConVar("nz_downtime")
+local cvar_revive = GetConVar("nz_revivetime")
+local cvar_perkmax = GetConVar("nz_difficulty_perks_max")
+
 function PLAYER:Spawn()
     local starting = nzMapping.Settings.startpoints or 500
     local round = nzRound:GetNumber() > 0 and nzRound:GetNumber() or 1
@@ -74,7 +78,7 @@ function PLAYER:Spawn()
 
     self.Player:SetTargetPriority(TARGET_PRIORITY_PLAYER)
 
---Charlotte here, this took 2 fucking hours. I've never been so happy to have something done >:3
+	--Charlotte here, this took 2 fucking hours. I've never been so happy to have something done >:3
     local spawns = ents.FindByClass("player_spawns")
     local availableSpawns = {}
 
@@ -101,6 +105,10 @@ function PLAYER:Spawn()
     end
 
     self.Player:SetUsingSpecialWeapon(false)
+    self.Player:SetBleedoutTime(cvar_bleedout:GetFloat())
+	self.Player:SetReviveTime(cvar_revive:GetFloat())
+	self.Player:SetMaxPerks(cvar_perkmax:GetInt())
+	self.Player:AllowFlashlight(tobool(nzMapping.Settings.flashlight))
 
     -- Resend the map data to any player that spawns/respawns(They might've joined late and haven't recived the mapsettings.)
     nzMapping:SendMapData(self.Player)

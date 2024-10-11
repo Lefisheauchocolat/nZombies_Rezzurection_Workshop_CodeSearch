@@ -1,6 +1,7 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
+--ENT.PrintName = "Killing Floor Fleshpound"
 ENT.PrintName = "Fleshpound"
 ENT.Type = "nextbot"
 ENT.Category = "Brainz"
@@ -213,7 +214,9 @@ function ENT:OnSpawn()
 	end
 end
 
-function ENT:PerformDeath(dmginfo)
+function ENT:PerformDeath(dmginfo)	
+	self.Dying = true
+
 	self:BecomeRagdoll(dmginfo)
 	self:EmitSound(self.DeathSounds[math.random(#self.DeathSounds)], 500, math.random(95, 105), 1, 2)
 end

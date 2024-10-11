@@ -58,6 +58,10 @@ local function DrawDownedPlayers_t6()
 			posxy.x, posxy.y = XYCompassToScreen((ppos + vector_up_35), 60)
 		end
 
+		if ply.GetBleedoutTime then
+			bleedtime = ply:GetBleedoutTime()
+		end
+
 		local downscale = 1 - math.Clamp((CurTime() - data.DownTime) / bleedtime, 0, 1)
 		surface.SetDrawColor(255, 180*downscale, 0)
 		surface.SetMaterial(t5_hud_revive)
@@ -65,7 +69,7 @@ local function DrawDownedPlayers_t6()
 
 		if IsValid(revivor) and data.ReviveTime then
 			local hasrevive = revivor:HasPerk("revive")
-			local revtime = hasrevive and 2 or 4
+			local revtime = ply:GetReviveTime(revivor)
 			local revivescale = math.Clamp((CurTime() - data.ReviveTime) / revtime, 0, 1)
 
 			surface.SetDrawColor(color_white)
@@ -91,7 +95,7 @@ local function DrawRevivalProgress_t6()
 	local id = reviving:EntIndex()
 
 	local hasrevive = ply:HasPerk("revive")
-	local revtime = hasrevive and 2 or 4
+	local revtime = reviving:GetReviveTime(ply)
 	local bleedtime = nz_bleedouttime:GetFloat()
 	local w, h = ScrW(), ScrH()
 	local scale = (w/1920 + 1)/2
@@ -101,6 +105,9 @@ local function DrawRevivalProgress_t6()
 		local revivescale = math.Clamp((CurTime() - data.ReviveTime) / revtime, 0, 1)
 
 		if data.DownTime then
+			if reviving.GetBleedoutTime then
+				bleedtime = reviving:GetBleedoutTime()
+			end
 			local downscale = 1 - math.Clamp((CurTime() - data.DownTime) / bleedtime, 0, 1)
 			surface.SetDrawColor(255, 180*downscale, 0)
 			surface.SetMaterial(t5_hud_revive)

@@ -1,7 +1,8 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
-ENT.PrintName = "Killing Floor Scrake FOR REAL ACTUAL"
+--ENT.PrintName = "Killing Floor Scrake FOR REAL ACTUAL"
+ENT.PrintName = "Scrake"
 ENT.Category = "Brainz"
 ENT.Author = "Wavy"
 
@@ -224,7 +225,9 @@ function ENT:OnSpawn()
 	end
 end
 
-function ENT:PerformDeath(dmginfo)
+function ENT:PerformDeath(dmginfo)	
+	self.Dying = true
+
 	self:EmitSound(self.DeathSounds[math.random(#self.DeathSounds)], 500, math.random(95, 105), 1, 2)
 	self:StopSound("wavy_zombie/chainsaw/chainsawidle.wav")
 	self:StopParticles()

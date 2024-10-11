@@ -234,8 +234,6 @@ sound.Add({
 
 -- Rainy Death (FUCK THIS BOTTLE)
 
--- BO4
-
 sound.Add({
 	name = 			"Perks_RD.Open",
 	channel = 		CHAN_AUTO,
@@ -264,9 +262,37 @@ sound.Add({
 	sound = 			"perks/rd/raise.mp3"
 })
 
+-- BO3 COMPLEX/T7COMPLEX
+
+sound.Add({
+	name = 			"Perks_T7C.Break",
+	channel = 		CHAN_AUTO,
+	volume = 		1.5,
+	sound = 			"perks/complex/break.mp3"
+})
+
+sound.Add({
+	name = 			"Perks_T7C.Open",
+	channel = 		CHAN_AUTO,
+	volume = 		0.5,
+	sound = 			"perks/complex/open.mp3"
+})
+
+sound.Add({
+	name = 			"Perks_T7C.Fizz",
+	channel = 		CHAN_AUTO,
+	volume = 		0.5,
+	sound = 			"perks/complex/fizz.mp3"
+})
+
+sound.Add({
+	name = 			"Perks_T7C.Cap",
+	channel = 		CHAN_AUTO,
+	volume = 		0.4,
+	sound = 			"perks/complex/cap.mp3"
+})
 
 if nzombies then
-    --local wep = ply:GetActiveWeapon()
     hook.Add("InitPostEntity", "latte_perks", function()
 	nzSpecialWeapons:AddDisplay("tfa_perk_can", false, function(wep)
             return SERVER and (wep.nzDeployTime + (wep:GetOwner():HasUpgrade("speed") and 1.65 or 3.2)) < CurTime()
@@ -301,5 +327,61 @@ if nzombies then
 	nzSpecialWeapons:AddDisplay("tfa_t7c_bottle", false, function(wep)
             return SERVER and (wep.nzDeployTime + (wep:GetOwner():HasUpgrade("speed") and 1.8 or 3.2)) < CurTime()
         end)
+    end)
+
+    hook.Add("PostGamemodeLoaded", "latte_perk_materials", function()
+        nzPerks:RegisterBottle("tfa_perk_can", "ColdWarPerkCan", {
+            [0] = "models/nz/perks/cold_war_can/can_",
+            [1] = "models/nz/perks/cold_war_can/logo_",
+            [2] = "models/nz/perks/cold_war_can/liquid_"
+        }, "models/nzr/2024/perks/bocw/world/wm_t9_can.mdl", Vector(0,0,50), Angle(0,180,0))
+
+        nzPerks:RegisterBottle("tfa_perk_candy", "IWCandy", {
+            [0] = "models/nz/perks/candy/logo_"
+        }, "models/nzr/2024/perks/infinite_warfare/world/wm_iw8_candy.mdl", Vector(0,0,50), Angle(0,0,0))
+ 
+        nzPerks:RegisterBottle("tfa_perk_gum", "Bo3Gobblegum", {
+            [0] = "models/nz/perks/gobblegum/t7_gum_",
+            [1] = "models/nz/perks/gobblegum/logo_"
+        }, "models/nzr/2024/perks/bo3/gum/world/wm_bo3_gum.mdl", Vector(0,0,55), Angle(0,180,0))
+
+        nzPerks:RegisterBottle("tfa_perk_goblet", "VGGoblet", {
+            [1] = "models/nz/perks/goblet/logo_",
+            [2] = "models/nz/perks/goblet/blood_"
+        }, "models/nzr/2024/perks/vangriddy/world/wm_s4_goblet.mdl", Vector(300,0,55), Angle(0,180,0))
+    
+        nzPerks:RegisterBottle("tfa_bo1_bottle", "Bo1Bottle", {
+            [0] = "models/nz/perks/bo1/logo_"
+        }, "models/nzr/2024/perks/bo1/world/wm_t5_perk_bottle.mdl", Vector(0,0,50), Angle(0,90,0))
+
+        nzPerks:RegisterBottle("tfa_bo3_nana", "Bo3Banana", {
+            [0] = "models/nz/perks/banana/logo_"
+        }, "models/nzr/2024/perks/bo3/banana/world/wm_perk_nana.mdl", Vector(0,0,50), Angle(0,90,0))
+
+        nzPerks:RegisterBottle("tfa_bo2_bottle", "Bo2Bottle", {
+            [0] = "models/nz/perks/bo2/logo_",
+            [1] = "models/nz/perks/bo2/bottle_"
+        }, "models/nzr/2024/perks/bo2/world/wm_t6_perk_bottle.mdl", Vector(0,0,50), Angle(0,90,0))
+
+        nzPerks:RegisterBottle("tfa_bo4_bottle", "Bo4Bottle", {
+    		[1] = "models/nzr/perk_bottles/bo3/bottle_",
+    		[2] = "models/nzr/perk_bottles/bo3/logo_"
+		}, "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
+
+        nzPerks:RegisterBottle("tfa_aae_bottle", "AAEBottle", {
+    		[1] = "models/nzr/perk_bottles/bo3/bottle_",
+    		[2] = "models/nzr/perk_bottles/bo3/logo_"
+		}, "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
+
+        nzPerks:RegisterBottle("tfa_rd_bottle", "RDBottle", {
+    		[2] = "models/nzr/perk_bottles/bo3/bottle_",
+    		[3] = "models/nzr/perk_bottles/bo3/logo_"
+		}, "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
+
+        nzPerks:RegisterBottle("tfa_t7c_bottle", "T7ComplexBottle", {
+    		[1] = "models/nzr/perk_bottles/bo3/bottle_",
+    		[2] = "models/nzr/perk_bottles/bo3/logo_"
+		}, "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
+
     end)
 end

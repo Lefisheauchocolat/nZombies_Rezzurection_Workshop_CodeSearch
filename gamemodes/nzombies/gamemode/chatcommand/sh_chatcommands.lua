@@ -23,7 +23,11 @@ nzChatCommand.Add("/fixme", SERVER, function(ply, text)
 		ply:SetUsingSpecialWeapon(false)
 		ply:EquipPreviousWeapon()
 		ply:ConCommand("snd_restart")
-		nzMapping:SendMapData(ply)
+
+		timer.Simple(0, function()
+			if not IsValid(ply) then print('fck') return end
+			nzMapping:SendMapData(ply)
+		end)
 
 		local wep = ply:GetActiveWeapon()
 		if IsValid(wep) and wep:HasNZModifier("pap") then
@@ -86,23 +90,23 @@ nzChatCommand.Add("/help", SERVER, function(ply, text)
 	end
 	ply:PrintMessage( HUD_PRINTTALK, "-----" )
 	ply:PrintMessage( HUD_PRINTTALK, "" )
-end, true, "   Print this list.")
+end, true, "Print this list.")
 
 nzChatCommand.Add("/ready", SERVER, function(ply, text)
 	ply:ReadyUp()
-end, true, "   Mark yourself as ready.")
+end, true, "Mark yourself as ready.")
 
 nzChatCommand.Add("/unready", SERVER, function(ply, text)
 	ply:UnReady()
-end, true, "   Mark yourself as unready.")
+end, true, "Mark yourself as unready.")
 
 nzChatCommand.Add("/dropin", SERVER, function(ply, text)
 	ply:DropIn()
-end, true, "   Drop into the next round.")
+end, true, "Drop into the next round.")
 
 nzChatCommand.Add("/dropout", SERVER, function(ply, text)
 	ply:DropOut()
-end, true, "   Drop out of the current round.")
+end, true, "Drop out of the current round.")
 
 nzChatCommand.Add("/create", SERVER, function(ply, text)
 	local plyToCreate
@@ -113,7 +117,7 @@ nzChatCommand.Add("/create", SERVER, function(ply, text)
 	else
 		ply:ChatPrint("[NZ] Could not find player '"..text[1].."', are you sure they exist?")
 	end
-end, false, "   Respawn in creative mode.")
+end, false, "Respawn in creative mode.")
 
 nzChatCommand.Add("/save", SERVER, function(ply, text)
 	if nzRound:InState( ROUND_CREATE ) then
@@ -123,7 +127,7 @@ nzChatCommand.Add("/save", SERVER, function(ply, text)
 	else
 		ply:PrintMessage( HUD_PRINTTALK, "[NZ] You can't save a config outside of creative mode." )
 	end
-end, false, "   Save your changes to a config.")
+end, false, "Save your changes to a config.")
 
 nzChatCommand.Add("/load", SERVER, function(ply, text)
 	if nzRound:InState( ROUND_CREATE) or nzRound:InState( ROUND_WAITING ) then
@@ -131,11 +135,14 @@ nzChatCommand.Add("/load", SERVER, function(ply, text)
 	else
 		ply:PrintMessage( HUD_PRINTTALK, "[NZ] You can't load while playing!" )
 	end
-end, false, "   Open the map config load dialog.")
+end, false, "Open the map config load dialog.")
 
 nzChatCommand.Add("/clean", SERVER, function(ply, text)
 	if nzRound:InState( ROUND_CREATE) or nzRound:InState( ROUND_WAITING ) then
 		nzMapping:ClearConfig()
+
+		local data = nzMapping.Settings
+		nzMapping:LoadMapSettings(data)
 	else
 		ply:PrintMessage( HUD_PRINTTALK, "[NZ] You can't clean while playing!" )
 	end
@@ -197,7 +204,7 @@ nzChatCommand.Add("/revive", SERVER, function(ply, text)
 			ply:ChatPrint("[NZ] Player could not be revived, are you sure they're down?")
 		end
 	end
-end, false, "[playerName]  Revive yourself or another player.")
+end, false, "[playerName] Revive yourself or another player.")
 
 nzChatCommand.Add("/givepoints", SERVER, function(ply, text)
 	if IsValid(ply) and ply:IsAdmin() then
@@ -221,7 +228,7 @@ nzChatCommand.Add("/givepoints", SERVER, function(ply, text)
 			ply:ChatPrint("[NZ] The player you have selected is either not valid or not alive.")
 		end
 	end
-end, false, "[playerName] pointAmount   Give points to yourself or another player.")
+end, false, "[playerName] pointAmount Give points to yourself or another player.")
 
 nzChatCommand.Add("/giveweapon", SERVER, function(ply, text)
 	if IsValid(ply) and ply:IsAdmin() then
@@ -245,7 +252,7 @@ nzChatCommand.Add("/giveweapon", SERVER, function(ply, text)
 			ply:ChatPrint("[NZ] The player you have selected is either not valid or not alive.")
 		end
 	end
-end, false, "[playerName] weaponName   Give a weapon to yourself or another player.")
+end, false, "[playerName] weaponName Give a weapon to yourself or another player.")
 
 nzChatCommand.Add("/giveperk", SERVER, function(ply, text)
 	if IsValid(ply) and ply:IsAdmin() then
@@ -271,7 +278,7 @@ nzChatCommand.Add("/giveperk", SERVER, function(ply, text)
 			ply:ChatPrint("[NZ] They player you have selected is either not valid or not alive.")
 		end
 	end
-end, false, "[playerName] perkID   Give a perk to yourself or another player.")
+end, false, "[playerName] perkID Give a perk to yourself or another player.")
 
 nzChatCommand.Add("/giveupgrade", SERVER, function(ply, text)
 	if IsValid(ply) and ply:IsAdmin() then
@@ -300,7 +307,7 @@ nzChatCommand.Add("/giveupgrade", SERVER, function(ply, text)
 			ply:ChatPrint("[NZ] They player you have selected is either not valid or not alive.")
 		end
 	end
-end, false, "[playerName] perkID   Give a perk upgrade to yourself or another player.")
+end, false, "[playerName] perkID Give a perk upgrade to yourself or another player.")
 
 nzChatCommand.Add("/removeperk", SERVER, function(ply, text)
 	if IsValid(ply) and ply:IsAdmin() then
@@ -328,7 +335,7 @@ nzChatCommand.Add("/removeperk", SERVER, function(ply, text)
 			ply:ChatPrint("[NZ] They player you have selected is either not valid or not alive.")
 		end
 	end
-end, false, "[playerName] perkID   Give a perk to yourself or another player.")
+end, false, "[playerName] perkID Give a perk to yourself or another player.")
 
 nzChatCommand.Add("/givegum", SERVER, function(ply, text)
 	if IsValid(ply) and ply:IsAdmin() then
@@ -355,16 +362,14 @@ nzChatCommand.Add("/givegum", SERVER, function(ply, text)
 			ply:ChatPrint("[NZ] They player you have selected is either not valid or not alive.")
 		end
 	end
-end, false, "[playerName] gumID   Give a gobble gum to yourself or another player.")
+end, false, "[playerName] gumID Give a gobble gum to yourself or another player.")
 
 nzChatCommand.Add("/reroll", SERVER, function(ply, text)
-	if IsValid(ply) and ply:IsAdmin() then
-		local wep = ply:GetActiveWeapon()
-		if IsValid(wep) then
-			nzCamos:RandomizeCamo(wep, wep.nzPaPCamo)
-		end
+	local wep = ply:GetActiveWeapon()
+	if IsValid(wep) then
+		nzCamos:RandomizeCamo(wep, wep.nzPaPCamo)
 	end
-end, false, "Randomizes currently held weapon's pap camo.")
+end, true, "Randomizes currently held weapon's pap camo.")
 
 nzChatCommand.Add("/pap", SERVER, function(ply, text)
 	if IsValid(ply) and ply:IsAdmin() then
@@ -423,15 +428,17 @@ nzChatCommand.Add("/aat", SERVER, function(ply, text)
 end, false, "Applys given 'Alt Ammo Type' to currently held weapon.")
 
 nzChatCommand.Add("/notarget", SERVER, function(ply, text)
-	if IsValid(ply) and ply:IsAdmin() then
-		local plyv = text[1] and player.GetByName(text[1]) or ply
-		if plyv:GetTargetPriority() == TARGET_PRIORITY_NONE then
-			plyv:SetTargetPriority(TARGET_PRIORITY_PLAYER)
-		else
-			plyv:SetTargetPriority(TARGET_PRIORITY_NONE)
-		end
+	local plyv = text[1] and player.GetByName(text[1]) or ply
+	if plyv:GetTargetPriority() == TARGET_PRIORITY_NONE then
+		plyv.NZNoTargetPlease = nil
+		plyv:ChatPrint("[NZ] Target priority set to PLAYER.")
+		plyv:SetTargetPriority(TARGET_PRIORITY_PLAYER)
+	else
+		plyv.NZNoTargetPlease = true
+		plyv:ChatPrint("[NZ] Target priority set to NONE.")
+		plyv:SetTargetPriority(TARGET_PRIORITY_NONE)
 	end
-end, false, "Toggles notarget on and off.")
+end, true, "Toggles notarget on and off.")
 
 nzChatCommand.Add("/targetpriority", SERVER, function(ply, text)
 	local plyToGiv
@@ -464,6 +471,26 @@ nzChatCommand.Add("/targetpriority", SERVER, function(ply, text)
 		ply:ChatPrint("[NZ] The player you have selected is either not valid or not alive.")
 	end
 end)
+
+nzChatCommand.Add("/turnon", SERVER, function(ply, text)
+	local plyv = text[1] and player.GetByName(text[1]) or ply
+	if IsValid(plyv) and plyv:IsAdmin() then
+		local ent = plyv:GetEyeTrace().Entity
+		if IsValid(ent) and ent.TurnOn then
+			ent:TurnOn()
+		end
+	end
+end, false, "Activates the perk machine you're looking at.")
+
+nzChatCommand.Add("/turnoff", SERVER, function(ply, text)
+	local plyv = text[1] and player.GetByName(text[1]) or ply
+	if IsValid(plyv) and plyv:IsAdmin() then
+		local ent = plyv:GetEyeTrace().Entity
+		if IsValid(ent) and ent.TurnOn then
+			ent:TurnOff()
+		end
+	end
+end, false, "Deactivates the perk machine you're looking at.")
 
 nzChatCommand.Add("/elec", SERVER, function(ply, text)
 	nzElec:Activate()
@@ -522,7 +549,7 @@ nzChatCommand.Add("/spawnpowerup", SERVER, function(ply, text)
 		if powerupcheatsheet[1][text[1]] then
 			local drop = ents.Create("drop_vulture")
 			drop:SetOwner(ply)
-			drop:SetPos(ply:GetEyeTrace().HitPos + ply:GetEyeTrace().HitNormal)
+			drop:SetPos(ply:GetEyeTrace().HitPos - ply:GetEyeTrace().HitNormal)
 			drop:SetAngles(Angle(0,math.random(-180,180),0))
 
 			if text[2] and nzPerks.VultureDropsTable and nzPerks.VultureDropsTable[text[2]] then
@@ -533,7 +560,7 @@ nzChatCommand.Add("/spawnpowerup", SERVER, function(ply, text)
 		elseif powerupcheatsheet[2][text[1]] then
 			local drop = ents.Create("drop_widows")
 			drop:SetOwner(ply)
-			drop:SetPos(ply:GetEyeTrace().HitPos + ply:GetEyeTrace().HitNormal)
+			drop:SetPos(ply:GetEyeTrace().HitPos - ply:GetEyeTrace().HitNormal)
 			drop:SetAngles(Angle(0,math.random(-180,180),0))
 			drop:Spawn()
 		elseif powerupcheatsheet[3][text[1]] then
@@ -543,7 +570,7 @@ nzChatCommand.Add("/spawnpowerup", SERVER, function(ply, text)
 			local drop = ents.Create("drop_tombstone")
 			drop:SetOwner(plyv)
 			drop:SetFunny(math.random(100) == 1 or text[2] == "funny")
-			drop:SetPos(plyv:GetEyeTrace().HitPos + ply:GetEyeTrace().HitNormal)
+			drop:SetPos(plyv:GetEyeTrace().HitPos - ply:GetEyeTrace().HitNormal)
 			drop:Spawn()
 
 			local weps = {}

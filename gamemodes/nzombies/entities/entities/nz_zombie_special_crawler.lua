@@ -2,7 +2,8 @@ AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
 ENT.Type = "nextbot"
-ENT.PrintName = "Killing Floor Crawler (no not a half body the jumping spider things)"
+--ENT.PrintName = "Killing Floor Crawler (no not a half body the jumping spider things)"
+ENT.PrintName = "Spider Crawler"
 ENT.Category = "Brainz"
 ENT.Author = "Wavy"
 ENT.Spawnable = true
@@ -152,7 +153,9 @@ function ENT:OnSpawn()
 	util.Effect("panzer_spawn_tp", effectData)
 end
 
-function ENT:PerformDeath(dmginfo)
+function ENT:PerformDeath(dmginfo)	
+	self.Dying = true
+
 	self:EmitSound(self.DeathSounds[math.random(#self.DeathSounds)], 500, math.random(95, 105), 1, 2)
 	self:BecomeRagdoll(dmginfo)
 end

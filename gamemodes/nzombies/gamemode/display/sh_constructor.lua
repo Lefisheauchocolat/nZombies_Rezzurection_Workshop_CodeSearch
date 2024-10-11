@@ -1,5 +1,5 @@
 if (CLIENT) then
-	local zmhud_icon_missing = Material("nz_moo/icons/statmon_warning_scripterrors.png", "unlitgeneric smooth")
+	zmhud_icon_missing = Material("nz_moo/icons/statmon_warning_scripterrors.png", "unlitgeneric smooth")
 
 	function GetFontType(id)
 		if id == "Classic NZ" 		then return "classic" 	end
@@ -24,36 +24,8 @@ if (CLIENT) then
 	end
 
 	function GetPerkIconMaterial(perk, usemmo)
-		if not perk then return zmhud_icon_missing end
-
 		local style = usemmo and nzMapping.Settings.mmohudtype or nzMapping.Settings.icontype
-		if style == "Rezzurrection" then return nzPerks:Get(perk).icon end
-		if style == "Infinite Warfare" then return nzPerks:Get(perk).icon_iw end
-		if style == "No Background" then return nzPerks:Get(perk).icon_glow end
-		if style == "World at War/ Black Ops 1" then return nzPerks:Get(perk).icon_waw end
-		if style == "Black Ops 2" then return nzPerks:Get(perk).icon_bo2 end
-		if style == "Black Ops 3" then return nzPerks:Get(perk).icon_bo3 end
-		if style == "Black Ops 4" then return nzPerks:Get(perk).icon_bo4 end
-		if style == "MW3 Zombies" then return nzPerks:Get(perk).icon_mwz end
-		if style == "Frosted Flakes" then return nzPerks:Get(perk).icon_cotd end
-		if style == "Modern Warfare" then return nzPerks:Get(perk).icon_mw end
-		if style == "Hololive" then return nzPerks:Get(perk).icon_holo end
-		if style == "Cold War" then return nzPerks:Get(perk).icon_cw end
-		if style == "April Fools" then return nzPerks:Get(perk).icon_dumb end
-		if style == "WW2" then return nzPerks:Get(perk).icon_ww2 end
-		if style == "Shadows of Evil" then return nzPerks:Get(perk).icon_soe end
-		if style == "Halloween" then return nzPerks:Get(perk).icon_halloween end
-		if style == "Christmas" then return nzPerks:Get(perk).icon_xmas end
-		if style == "Vanguard" then return nzPerks:Get(perk).icon_griddy end
-		if style == "Neon" then return nzPerks:Get(perk).icon_neon end
-		if style == "Overgrown" then return nzPerks:Get(perk).icon_grown end
-		if style == "Pickle Glow" then return nzPerks:Get(perk).icon_pickle end
-		if style == "Herrenhaus" then return nzPerks:Get(perk).icon_coggers end
-		if style == "Paper" then return nzPerks:Get(perk).icon_paper end
-		if style == "Cheese Cube" then return nzPerks:Get(perk).icon_cheese end
-		if style == "Ragnarok" then return nzPerks:Get(perk).icon_rag end
-		
-		return nzPerks:Get(perk).icon
+		return nzPerks:GetPerkIcon(perk, style)
 	end
 
 	function GetPowerupIconMaterial(powerup)
@@ -66,30 +38,9 @@ if (CLIENT) then
 		end
 	end
 
-	local zmhud_icon_frame = Material("nz_moo/icons/perk_frame.png", "unlitgeneric smooth")
-	local zmhud_icon_frame_mw3 = Material("nz_moo/icons/mw3_frame.png", "unlitgeneric smooth")
-	local zmhud_icon_frame_mw = Material("nz_moo/icons/mw_frame.png", "unlitgeneric smooth")
-	local zmhud_icon_frame_cheese = Material("nz_moo/icons/cheddar_frame.png", "unlitgeneric smooth")
-	local zmhud_icon_frame_coggers = Material("nz_moo/icons/herren_frame.png", "unlitgeneric smooth")
-	local zmhud_icon_frame_vanguard = Material("nz_moo/icons/griddy_frame.png", "unlitgeneric smooth")
-	local zmhud_icon_frame_pickle = Material("nz_moo/icons/pickle_frame.png", "unlitgeneric smooth")
-	local zmhud_icon_frame_atoms = Material("nz_moo/icons/iw_frame.png", "unlitgeneric smooth")
-	local zmhud_icon_frame_ragnarok = Material("nz_moo/icons/rag_frame.png", "unlitgeneric smooth")
-	local zmhud_icon_frame_bo3 = Material("nz_moo/icons/bo3_frame.png", "unlitgeneric smooth")
-
 	function GetPerkFrameMaterial(usemmo)
 		local style = usemmo and nzMapping.Settings.mmohudtype or nzMapping.Settings.icontype
-		if style == "Vanguard" then return zmhud_icon_frame_vanguard end
-		if style == "Pickle Glow" then return zmhud_icon_frame_pickle end
-		if style == "Cheese Cube" then return zmhud_icon_frame_cheese end
-		if style == "Herrenhaus" then return zmhud_icon_frame_coggers end
-		if style == "Infinite Warfare" then return zmhud_icon_frame_atoms end
-		if style == "MW3 Zombies" then return zmhud_icon_frame_mw3 end
-		if style == "Modern Warfare" then return zmhud_icon_frame_mw end
-		if style == "Black Ops 3" then return zmhud_icon_frame_bo3 end
-		if style == "Ragnarok" then return zmhud_icon_frame_ragnarok end
-
-		return zmhud_icon_frame
+		return nzPerks:GetPerkBorder(style)
 	end
 end
 
@@ -208,18 +159,19 @@ nzDisplay.hudstruct = {
 
 //for gumball
 nzDisplay.GumPosition = {
-	["Tranzit (Black Ops 2)"] = {x = 370, y = 244, icon_size = 72, ring_size = 32, width = 5, zcounter_x = 38, armor_x = 28},
-	["Black Ops 1"] = {x = 370, y = 264, icon_size = 72, ring_size = 32, width = 5, zcounter_x = 38, armor_x = 28},
-	["Buried"] = {x = 370, y = 244, icon_size = 72, ring_size = 32, width = 5, zcounter_x = 38, armor_x = 28},
-	["Mob of the Dead"] = {x = 370, y = 244, icon_size = 72, ring_size = 32, width = 5, zcounter_x = 38, armor_x = 28},
-	["Origins (Black Ops 2)"] = {x = 370, y = 244, icon_size = 72, ring_size = 32, width = 5, zcounter_x = 38, armor_x = 28},
+	["Tranzit (Black Ops 2)"] = {x = 370, y = 248, icon_size = 72, ring_size = 32, width = 5, zcounter_x = 42, armor_x = 32},
+	["Black Ops 1"] = {x = 370, y = 268, icon_size = 72, ring_size = 32, width = 5, zcounter_x = 42, armor_x = 32},
+	["Buried"] = {x = 370, y = 248, icon_size = 72, ring_size = 32, width = 5, zcounter_x = 42, armor_x = 32},
+	["Mob of the Dead"] = {x = 370, y = 248, icon_size = 72, ring_size = 32, width = 5, zcounter_x = 42, armor_x = 32},
+	["Origins (Black Ops 2)"] = {x = 370, y = 248, icon_size = 72, ring_size = 32, width = 5, zcounter_x = 42, armor_x = 32},
 	["Black Ops 3"] = {x = 162, y = 340, icon_size = 76, ring_size = 39, width = 6},
 	["Shadows of Evil"] = {x = 162, y = 340, icon_size = 76, ring_size = 39, width = 6},
-	["Snowglobe"] = {x = 370, y = 264, icon_size = 72, ring_size = 32, width = 5, zcounter_x = 38, armor_x = 28},
-	["Industrial Estate"] = {x = 370, y = 264, icon_size = 72, ring_size = 32, width = 5, zcounter_x = 38, armor_x = 28},
+	["Snowglobe"] = {x = 370, y = 268, icon_size = 72, ring_size = 32, width = 5, zcounter_x = 42, armor_x = 32},
+	["Industrial Estate"] = {x = 370, y = 268, icon_size = 72, ring_size = 32, width = 5, zcounter_x = 42, armor_x = 32},
 	["Origins (HD)"] = {x = 162, y = 340, icon_size = 76, ring_size = 39, width = 6},
 	["Encampment"] = {x = 132, y = 280, icon_size = 76, ring_size = 39, width = 6},
-	["World at War"] = {x = 384, y = 228, icon_size = 72, ring_size = 32, width = 5, armor_x = 28},
+	["World at War"] = {x = 4000, y = 4000, icon_size = 0, ring_size = 0, width = 1},
+	//["World at War"] = {x = 384, y = 234, icon_size = 72, ring_size = 32, width = 5, armor_x = 32},
 }
 
 //for use in adding custom powerup icon sets

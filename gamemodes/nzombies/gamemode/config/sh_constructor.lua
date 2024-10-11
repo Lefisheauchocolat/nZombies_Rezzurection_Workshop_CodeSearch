@@ -4,7 +4,8 @@ nzConfig = nzConfig or AddNZModule("Config")
 --  Defaults
 
 if not ConVarExists("nz_randombox_whitelist") then CreateConVar("nz_randombox_whitelist", 1, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
-if not ConVarExists("nz_downtime") then CreateConVar("nz_downtime", 45, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED}) end
+if not ConVarExists("nz_downtime") then CreateConVar("nz_downtime", 45, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_GAMEDLL}) end
+if not ConVarExists("nz_revivetime") then CreateConVar("nz_revivetime", 4, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_GAMEDLL}) end
 if not ConVarExists("nz_nav_grouptargeting") then CreateConVar("nz_nav_grouptargeting", 1, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED}) end
 if not ConVarExists("nz_round_special_interval") then CreateConVar("nz_round_special_interval", 6, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED}) end
 if not ConVarExists("nz_round_prep_time") then CreateConVar("nz_round_prep_time", 10, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED}) end
@@ -14,7 +15,7 @@ if not ConVarExists("nz_round_dropins_allow") then CreateConVar("nz_round_dropin
 --if not ConVarExists("nz_difficulty_max_zombies_alive") then CreateConVar("nz_difficulty_max_zombies_alive", 35, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED}) end
 if not ConVarExists("nz_difficulty_barricade_planks_max") then CreateConVar("nz_difficulty_barricade_planks_max", 6, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED}) end
 if not ConVarExists("nz_difficulty_powerup_chance") then CreateConVar("nz_difficulty_powerup_chance", 2, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED}) end
-if not ConVarExists("nz_difficulty_perks_max") then CreateConVar("nz_difficulty_perks_max", 4, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED}) end
+if not ConVarExists("nz_difficulty_perks_max") then CreateConVar("nz_difficulty_perks_max", 4, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_GAMEDLL}) end
 if not ConVarExists("nz_point_notification_clientside") then CreateConVar("nz_point_notification_clientside", 0, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED}) end
 if not ConVarExists("nz_zombie_lagcompensated") then CreateConVar("nz_zombie_lagcompensated", 1, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
 if not ConVarExists("nz_spawnpoint_update_rate") then CreateConVar("nz_spawnpoint_update_rate", 4, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
@@ -27,6 +28,23 @@ if not ConVarExists("nz_weapon_auto_reload") then CreateConVar("nz_weapon_auto_r
 if not ConVarExists("nz_zombie_eye_trails") then CreateConVar("nz_zombie_eye_trails", 0, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
 --if not ConVarExists("nz_oldtunes") then CreateConVar("nz_oldtunes", 0, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
 if not ConVarExists("nz_difficulty_zombie_stumble") then CreateConVar("nz_difficulty_zombie_stumble", 1, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
+
+cvars.AddChangeCallback("nz_downtime", function(name, old, new)
+	for _, ply in pairs(player.GetAll()) do
+		local gum = nzGum:GetActiveGum(ply)
+		if gum and gum == "coagulant" then
+			ply:SetBleedoutTime(tonumber(new) + 120)
+		else
+			ply:SetBleedoutTime(tonumber(new))
+		end
+	end
+end)
+
+cvars.AddChangeCallback("nz_revivetime", function(name, old, new)
+	for _, ply in pairs(player.GetAll()) do
+		ply:SetReviveTime(tonumber(new))
+	end
+end)
 
 local zombieconfig = {
 	"walker",
@@ -44,7 +62,7 @@ local zombieconfig = {
 	"walker_moon_guard",
 	"walker_moon_tech",
 	"walker_eisendrache",
-	--"walker_exo", "OUT DEMON OUT" - Owlie
+	"walker_exo",
 	"walker_exo_brg",
 	"walker_origins",
 	"walker_origins_classic",
@@ -69,7 +87,7 @@ local zombieconfig = {
 	"walker_zetsubou",
 	"walker_necromorph",
 	"walker_xeno",
-	--"walker_fredricks", Har har har har
+	"walker_fredricks",
 	"walker_former",
 	"walker_kleiner",
 	"walker_cheaple",
@@ -81,7 +99,7 @@ local zombieconfig = {
 	"walker_greenflu_hospital",
 	"walker_greenflu_riot",
 	"walker_greenflu",
-	--"walker_dierise", Duh Duh Duh Die Riseeeee
+	"walker_dierise",
 	"walker_prototype",
 	"walker_derriese",
 	"walker_prototype_enhanced",
@@ -106,6 +124,7 @@ local zombieconfig = {
 	"walker_blud",
 	"walker_elf",
 	"walker_headcrab",
+	"walker_nut",
 
 	"special_alien_scout",
 	"special_alien_scorpion",
@@ -130,6 +149,7 @@ local zombieconfig = {
 	"special_dog_zhd",
 	"special_dog_gas",
 	"special_dog_fire",
+	"special_dog_jup",
 	"special_facehugger",
 	"special_follower",
 	"special_frog",
@@ -139,8 +159,8 @@ local zombieconfig = {
 	"special_husk",
 	"special_keeper",
 	"special_licker",
-	--"special_leaper", Duh Duh Duh Die Riseeeee
-	--"special_l4d_hunter",
+	"special_leaper",
+	"special_l4d_hunter",
 	"special_mimic",
 	"special_nemacyte",
 	"special_nova",
@@ -157,6 +177,7 @@ local zombieconfig = {
 	"special_ss_fire",
 	"special_terrorist",
 	"special_tempest",
+	"special_tormentor",
 	"special_ticker",
 	"special_wildticker",
 	"special_wretch",
@@ -171,6 +192,7 @@ local zombieconfig = {
 	"special_spook",
 	"special_juggernaut",
 	"special_cloverfield",
+	"special_l4d_charger",
 }
 
 

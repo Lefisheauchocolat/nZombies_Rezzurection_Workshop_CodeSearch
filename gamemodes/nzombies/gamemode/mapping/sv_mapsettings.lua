@@ -112,7 +112,7 @@ function nzMapping:LoadMapSettings(data)
 
 		for k, v in pairs(nzPerks.Data) do
 			if !data.wunderfizzperklist[k] then
-				data.wunderfizzperklist[k] = {true, v.name}
+				data.wunderfizzperklist[k] = {false, v.name}
 			end
 		end
 
@@ -139,7 +139,7 @@ function nzMapping:LoadMapSettings(data)
 
 		for k, v in pairs(nzPowerUps.Data) do
 			if !data.poweruplist[k] then
-				data.poweruplist[k] = {true, v.name}
+				data.poweruplist[k] = {false, v.name}
 			end
 		end
 
@@ -166,7 +166,7 @@ function nzMapping:LoadMapSettings(data)
 
 		for k, v in pairs(nzGum.Gums) do
 			if !data.gumlist[k] then
-				data.gumlist[k] = {true, nzGum.RollCounts[data.rare or nzGum.RareTypes.DEFAULT]}
+				data.gumlist[k] = {false, nzGum.RollCounts[data.rare or nzGum.RareTypes.DEFAULT]}
 			end
 		end
 
@@ -217,6 +217,9 @@ function nzMapping:LoadMapSettings(data)
 	end
 
 	nzMapping.Settings.gumchanceresetrounds = data.gumchanceresetrounds or nzGum.RollChanceResetRounds
+	nzMapping.Settings.maxplayergumuses = data.maxplayergumuses and math.Round(data.maxplayergumuses) or 3
+	nzMapping.Settings.gumstartprice = data.gumstartprice and math.Round(data.gumstartprice) or 0
+	nzMapping.Settings.showgumstats = data.showgumstats == nil and true or tobool(data.showgumstats)
 
 	-- Map General --
 	nzMapping.Settings.gamemodeentities = data.gamemodeentities or nil
@@ -225,11 +228,7 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.bosstype = data.bosstype or "Panzer"
 	nzMapping.Settings.startpoints = data.startpoints and tonumber(data.startpoints) or 500
 	nzMapping.Settings.range = data.range and tonumber(data.range) or 2000
-	nzMapping.Settings.hp = data.hp and tonumber(data.hp) or 100
-
 	nzMapping.Settings.navgroupbased = data.navgroupbased or nil
-	nzMapping.Settings.sidestepping = data.sidestepping or nil
-	nzMapping.Settings.badattacks = data.badattacks or nil
 
 	-- Map Functionality --
 	nzMapping.Settings.antipowerups = data.antipowerups or false
@@ -237,12 +236,55 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.antipowerupstart = data.antipowerupstart or 2
 	nzMapping.Settings.antipowerupdelay = data.antipowerupdelay or 4
 
-	nzMapping.Settings.perkupgrades = tobool(data.perkupgrades) or false
+	nzMapping.Settings.cwfizz = tobool(data.cwfizz)
+	nzMapping.Settings.cwfizzprice = data.cwfizzprice or 1000
+	nzMapping.Settings.cwfizzperkslot = tobool(data.cwfizzperkslot)
+	nzMapping.Settings.cwfizzslotprice = data.cwfizzslotprice or 10000
+	nzMapping.Settings.cwfizzslotround = data.cwfizzslotround or 20
+	nzMapping.Settings.cwfizzround = data.cwfizzround or 15
+
+	nzMapping.Settings.movement = data.movement or 0
+	nzMapping.Settings.playerperkmax = data.playerperkmax or 4
+	nzMapping.Settings.perkupgrades = tobool(data.perkupgrades)
 	nzMapping.Settings.aats = data.aats or 2
 	nzMapping.Settings.roundperkbonus = data.roundperkbonus == nil and true or data.roundperkbonus
 	nzMapping.Settings.solorevive = data.solorevive or 3
 	nzMapping.Settings.modifierslot = data.modifierslot == nil and true or data.modifierslot
-	nzMapping.Settings.dontkeepperks = data.dontkeepperks or false
+	nzMapping.Settings.maxperkslots = data.maxperkslots or 8
+	nzMapping.Settings.dontkeepperks = tobool(data.dontkeepperks)
+	nzMapping.Settings.tacticalupgrades = tobool(data.tacticalupgrades)
+	nzMapping.Settings.tacticalkillcount = data.tacticalkillcount or 40
+	nzMapping.Settings.gravity = data.gravity or 600
+
+	nzMapping.Settings.papbeam = tobool(data.papbeam)
+	nzMapping.Settings.randompap = tobool(data.randompap)
+	nzMapping.Settings.randompapinterval = data.randompapinterval or 2
+	nzMapping.Settings.randompaptime = data.randompaptime or 0
+
+	/*nzMapping.Settings.nukedperks = tobool(data.nukedperks)
+	nzMapping.Settings.nukedroundincrease = data.nukedroundincrease or 4
+	nzMapping.Settings.nukedroundmin = data.nukedroundmin or 2
+	nzMapping.Settings.nukedroundmax = data.nukedroundmax or 5*/
+
+	-- Player Settings --
+	nzMapping.Settings.hp = data.hp and tonumber(data.hp) or 150
+	nzMapping.Settings.healthregendelay = data.healthregendelay and tonumber(data.healthregendelay) or 5
+	nzMapping.Settings.healthregenratio = data.healthregenratio and math.Clamp(tonumber(data.healthregenratio), 0.01, 1) or 0.1
+	nzMapping.Settings.healthregenrate = data.healthregenrate and tonumber(data.healthregenrate) or 0.05
+
+	nzMapping.Settings.stamina = data.stamina and tonumber(data.stamina) or 100
+	nzMapping.Settings.staminaregenamount = data.staminaregenamount and tonumber(data.staminaregenamount) or 4.5
+	nzMapping.Settings.staminaregendelay = data.staminaregendelay and tonumber(data.staminaregendelay) or 0.5
+
+	nzMapping.Settings.slidejump = tobool(data.slidejump)
+	nzMapping.Settings.slidecooldown = data.slidecooldown or 0.4
+	nzMapping.Settings.slideduration = data.slideduration or 0.6
+	nzMapping.Settings.slidespeed = data.slidespeed or 1.3
+	//nzMapping.Settings.slidestamina = data.slidestamina == nil and true or tobool(data.slidestamina)
+
+	nzMapping.Settings.revivetime = data.revivetime and tonumber(data.revivetime) or 4
+	nzMapping.Settings.downtime = data.downtime and tonumber(data.downtime) or 45
+	nzMapping.Settings.flashlight = data.flashlight == nil and true or data.flashlight
 
 	-- Map Visual --
 	nzMapping.Settings.powerupoutline = data.powerupoutline or 0
@@ -296,7 +338,6 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.pinkchance = data.pinkchance == nil and 85 or data.pinkchance
 	nzMapping.Settings.pinkrnd = data.pinkrnd == nil and 26 or data.pinkrnd
 
-
 	nzMapping.Settings.poisonchance = data.poisonchance == nil and 20 or data.poisonchance
 	nzMapping.Settings.poisonrnd = data.poisonrnd == nil and 10 or data.poisonrnd
 
@@ -308,7 +349,7 @@ function nzMapping:LoadMapSettings(data)
 
 	nzMapping.Settings.electricchance = data.electricchance == nil and 10 or data.electricchance
 	nzMapping.Settings.electricrnd = data.electricrnd == nil and 16 or data.electricrnd
-	
+
 	-- Timed Gameplay / Cold War Points --
 	nzMapping.Settings.timedgame = data.timedgame or nil
 	nzMapping.Settings.timedgametime = data.timedgametime == nil and 120 or data.timedgametime
@@ -323,17 +364,25 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.spawnsperplayer = data.spawnsperplayer == nil and 6 or data.spawnsperplayer
 	nzMapping.Settings.spawndelay = data.spawndelay == nil and 2 or data.spawndelay
 	nzMapping.Settings.speedmulti = data.speedmulti == nil and 4 or data.speedmulti
+	nzMapping.Settings.startspeed = data.startspeed == nil and 0 or data.startspeed
 	nzMapping.Settings.amountcap = data.amountcap == nil and 168 or data.amountcap -- change the message, my final word. good morning. :shushing_face:\
 	nzMapping.Settings.healthstart = data.healthstart == nil and 75 or data.healthstart
 	nzMapping.Settings.healthinc = data.healthinc == nil and 50 or data.healthinc
 	nzMapping.Settings.healthmod = data.healthmod == nil and 0.1 or data.healthmod
 	nzMapping.Settings.healthcap = data.healthcap == nil and 6660000 or data.healthcap
+	--nzMapping.Settings.speedcap = data.speedcap == nil and 300 or data.speedcap
+
+	nzMapping.Settings.sidestepping = data.sidestepping or false
+	nzMapping.Settings.badattacks = data.badattacks or false
+	nzMapping.Settings.dmgincrease = data.dmgincrease or false
+
 	NZZombiesMaxAllowed = nzMapping.Settings.startingspawns
 
 	-- Map Color Options --
 	nzMapping.Settings.zombieeyecolor = data.zombieeyecolor == nil and Color(0, 255, 255, 255) or Color(data.zombieeyecolor.r, data.zombieeyecolor.g, data.zombieeyecolor.b)
 	nzMapping.Settings.boxlightcolor = data.boxlightcolor == nil and Color(0, 150,200,255) or Color(data.boxlightcolor.r, data.boxlightcolor.g, data.boxlightcolor.b) 
 	nzMapping.Settings.textcolor = data.textcolor == nil and Color(0, 255, 255, 255) or Color(data.textcolor.r, data.textcolor.g, data.textcolor.b) 
+	nzMapping.Settings.paplightcolor = data.paplightcolor == nil and Color(156, 81, 182, 255) or Color(data.paplightcolor.r, data.paplightcolor.g, data.paplightcolor.b)
 	nzMapping.Settings.powerupcol = data.powerupcol or {
 		["global"] = {
 			[1] = Vector(0.196,1,0),
@@ -395,7 +444,15 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.actptime = data.actptime == nil and 5 or data.actptime
 
 	nzMapping:SendMapData()
+
 	nzSounds:RefreshSounds()
+
+	nzPerks:ResetMaxPlayerPerks()
+	nzPerks:UpdatePerkMachines()
+
+	GetConVar("nz_downtime"):SetFloat(nzMapping.Settings.downtime or 45)
+	GetConVar("nz_revivetime"):SetFloat(nzMapping.Settings.revivetime or 4)
+	RunConsoleCommand("sv_gravity", tostring(nzMapping.Settings.gravity or 600))
 end
 
 //thats right, were gonna fucking cheat

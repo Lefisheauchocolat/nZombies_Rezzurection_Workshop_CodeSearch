@@ -19,7 +19,6 @@ local voiceloopback = GetConVar("voice_loopback")
 local cl_drawhud = GetConVar("cl_drawhud")
 local sv_clientpoints = GetConVar("nz_point_notification_clientside")
 local nz_clientpoints = GetConVar("nz_hud_clientside_points")
-local nz_perkmax = GetConVar("nz_difficulty_perks_max")
 
 local nz_showhealth = GetConVar("nz_hud_show_health")
 local nz_showhealthmp = GetConVar("nz_hud_show_health_mp")
@@ -163,6 +162,58 @@ net.Receive("nz_points_notification_waw", function()
 	PointsNotification(ply, amount, profit_id)
 end)
 
+local Circles = {
+	[1] = {r = -1, col = Color(255,200,0,100)},
+	[2] = {r = 0, col = Color(255,255,0,100)},
+	[3] = {r = 1, col = Color(255,200,0,100)},
+}
+
+local function DrawGumCircle( X, Y, target_radius, value)
+	local endang = 360 * value
+	if endang == 0 then return end
+
+	for i = 1, #Circles do
+		local data = Circles[ i ]
+		local radius = target_radius + data.r
+		local segmentdist = endang / ( math.pi * radius / 3 )
+
+		for a = 0, endang, segmentdist do
+			surface.SetDrawColor(data.col)
+			surface.DrawLine( X + math.sin( -math.rad( a ) ) * radius, Y - math.cos( math.rad( a ) ) * radius, X + math.sin( -math.rad( a + segmentdist ) ) * radius, Y - math.cos( math.rad( a + segmentdist ) ) * radius )
+		end
+	end
+end
+
+local visual_prgr = 1
+local last_prgr_changetime = 0
+local last_prgr = 1
+local last_gum
+
+local function SmoothProgress(progress)
+	local ct = CurTime()
+	if progress != last_prgr then
+		last_prgr_changetime = ct
+		last_prgr = progress
+	end
+
+	if progress > visual_prgr then
+		visual_prgr = progress
+	end
+
+	if visual_prgr != progress and ct < last_prgr_changetime + 1 then
+		local step = math.ease.OutSine(ct - last_prgr_changetime)
+		if step >= 1 then
+			visual_prgr = progress
+		else
+			progress = Lerp(step, visual_prgr, progress)
+		end
+	else
+		visual_prgr = progress
+	end
+
+	return progress
+end
+
 //Equipment
 local function InventoryHUD_cod5()
 	if not cl_drawhud:GetBool() then return end
@@ -189,7 +240,85 @@ local function InventoryHUD_cod5()
 	local nz_key_trap = GetConVar("nz_key_trap")
 	local nz_key_shield = GetConVar("nz_key_shield")
 	local nz_key_specialist = GetConVar("nz_key_specialist")
+	local nz_key_gum = GetConVar("nz_key_gum")
 	local tfa_key_silence = GetConVar("cl_tfa_keys_silencer")
+
+	local gumid = nzGum:GetActiveGum(ply) or last_gum
+	if gumid and gumid ~= "" then
+		local gum = nzGum.Gums[gumid]
+
+		local icon = gum.icon
+		if not icon or icon:IsError() then
+			icon = zmhud_icon_missing
+		end
+
+		surface.SetMaterial(icon)
+		surface.SetDrawColor(color_white)
+		surface.DrawTexturedRect(w/2 - 32*scale, h - 96*scale, 64*scale, 64*scale)
+
+		local uses = nzGum:UsesRemain(ply)
+		local progress = 1
+		if gum.uses then
+			progress = nzGum:UsesRemain(ply) / gum.uses
+		end
+
+		if gum.type == nzGum.Types.USABLE or gum.type == nzGum.Types.SPECIAL then
+			if gum.uses then
+				progress = nzGum:UsesRemain(ply) / gum.uses
+			end
+
+			progress = SmoothProgress(progress)
+		elseif gum.type == nzGum.Types.USABLE_WITH_TIMER then
+			local timeleft = nzGum:TimerTimeLeft(ply)
+			local usesremain = nzGum:UsesRemain(ply)
+			if timeleft and nzGum:IsWorking(ply) then
+				local fuckery = (usesremain - 1) / gum.uses
+
+				local time_pgrs_left = 1 - (CurTime() - timeleft) / gum.time
+				if time_pgrs_left > 0 then
+					progress = fuckery + math.Remap(time_pgrs_left, 0, 1, 0, (1 / gum.uses))
+				end
+			else
+				progress = usesremain / gum.uses
+				//progress = SmoothProgress(progress)
+			end
+		elseif gum.type == nzGum.Types.ROUNDS then
+			progress = nzGum:RoundsRemain(ply) / gum.rounds
+
+			progress = SmoothProgress(progress)
+		elseif gum.type == nzGum.Types.TIME then
+			local timeleft = nzGum:TimerTimeLeft(ply)
+			if timeleft then
+				progress = (1 - (CurTime() - timeleft) / gum.time)
+			end
+		end
+
+		if progress > 0 or uses > 0 then
+			DrawGumCircle(w/2, h - 64*scale, 34*scale, 1*progress)
+
+			if (nzGum:IsUseBaseGum(ply) or nzGum:IsRoundBaseGum(ply)) then
+				local rounds = nzGum:RoundsRemain(ply)
+				if rounds > 0 then
+					uses = rounds
+				end
+			end
+
+			if gum.uses or gum.rounds then
+				draw.SimpleTextOutlined(uses, lowres and ammo2font or smallfont, w/2 + 25, h - (lowres and 34 or 24)*scale, uses == 0 and color_empty or color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, uses > 0 and color_black_50 or ColorAlpha(color_empty, 5))
+			end
+
+			if nz_key_gum then
+				local gumkey = nz_key_gum:GetInt() > 0 and nz_key_gum:GetInt() or 1
+				draw.SimpleTextOutlined("["..string_upper(input_getkeyname(gumkey)).."]", smallfont, (w/2), h, input_isbuttondown(gumkey) and color_used or color_grey, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, color_black_50)
+			end
+
+			if last_gum != gumid then
+				last_gum = gumid
+			end
+		else
+			last_gum = ""
+		end
+	end
 
 	// Special Weapon Categories
 	for _, wep in pairs(plyweptab) do
@@ -205,21 +334,21 @@ local function InventoryHUD_cod5()
 
 			surface.SetMaterial(icon)
 			surface.SetDrawColor(color_white)
-			surface.DrawTexturedRect(w/2 + 96*scale, h - 96*scale, 64*scale, 64*scale)
+			surface.DrawTexturedRect(w/2 + 160*scale, h - 96*scale, 64*scale, 64*scale)
 
 			local ammo = wep:GetPrimaryAmmoType()
 			if ammo > 0 and not wep.TrapCanBePlaced then
 				local ammocount = ply:GetAmmoCount(ammo) + wep:Clip1()
-				draw.SimpleTextOutlined(ammocount, lowres and ammo2font or smallfont, w/2 + 150*scale, h - (lowres and 34 or 24)*scale, ammocount == 0 and color_empty or color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, ammocount > 0 and color_black_50 or ColorAlpha(color_empty, 5))
+				draw.SimpleTextOutlined(ammocount, lowres and ammo2font or smallfont, w/2 + 214*scale, h - (lowres and 34 or 24)*scale, ammocount == 0 and color_empty or color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, ammocount > 0 and color_black_50 or ColorAlpha(color_empty, 5))
 
 				if (ammocount > 0 or wep.NZTrapSwitchEmpty) and nz_key_trap then
 					local trapkey = nz_key_trap:GetInt() > 0 and nz_key_trap:GetInt() or 1
-					draw.SimpleTextOutlined("["..string_upper(input_getkeyname(trapkey)).."]", smallfont, (w/2 + 128*scale), h, input_isbuttondown(trapkey) and color_used or color_grey, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, color_black_50)
+					draw.SimpleTextOutlined("["..string_upper(input_getkeyname(trapkey)).."]", smallfont, (w/2 + 192*scale), h, input_isbuttondown(trapkey) and color_used or color_grey, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, color_black_50)
 				end
 			else
 				if nz_key_trap then
 					local trapkey = nz_key_trap:GetInt() > 0 and nz_key_trap:GetInt() or 1
-					draw.SimpleTextOutlined("["..string_upper(input_getkeyname(trapkey)).."]", smallfont, (w/2 + 128*scale), h, input_isbuttondown(trapkey) and color_used or color_grey, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, color_black_50)
+					draw.SimpleTextOutlined("["..string_upper(input_getkeyname(trapkey)).."]", smallfont, (w/2 + 192*scale), h, input_isbuttondown(trapkey) and color_used or color_grey, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, color_black_50)
 				end
 			end
 		end
@@ -236,22 +365,22 @@ local function InventoryHUD_cod5()
 
 			surface.SetMaterial(icon)
 			surface.SetDrawColor(color_white)
-			surface.DrawTexturedRect(w/2, h - 96*scale, 64*scale, 64*scale)
+			surface.DrawTexturedRect(w/2 + 64, h - 96*scale, 64*scale, 64*scale)
 
 			local clip = wep:Clip1()
 			local clip1 = wep.Primary_TFA.ClipSize
 			if clip1 > 0 then
 				local clipscale = math.Round(math.Clamp(clip / clip1, 0, 1)*100)
-				draw.SimpleTextOutlined(clipscale, lowres and ammo2font or smallfont, w/2 + 32*scale, h - (lowres and 34 or 24)*scale, clip == 0 and color_empty or color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, clip > 0 and color_black_50 or ColorAlpha(color_empty, 5))
+				draw.SimpleTextOutlined(clipscale, lowres and ammo2font or smallfont, w/2 + 96*scale, h - (lowres and 34 or 24)*scale, clip == 0 and color_empty or color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, clip > 0 and color_black_50 or ColorAlpha(color_empty, 5))
 
 				if clip >= clip1 and nz_key_specialist then
 					local specialkey = nz_key_specialist:GetInt() > 0 and nz_key_specialist:GetInt() or 1
-					draw.SimpleTextOutlined("["..string_upper(input_getkeyname(specialkey)).."]", smallfont, (w/2 + 32*scale), h, input_isbuttondown(specialkey) and color_used or color_grey, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, color_black_50)
+					draw.SimpleTextOutlined("["..string_upper(input_getkeyname(specialkey)).."]", smallfont, (w/2 + 96*scale), h, input_isbuttondown(specialkey) and color_used or color_grey, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, color_black_50)
 				end
 			else
 				if nz_key_specialist then
 					local specialkey = nz_key_specialist:GetInt() > 0 and nz_key_specialist:GetInt() or 1
-					draw.SimpleTextOutlined("["..string_upper(input_getkeyname(specialkey)).."]", smallfont, (w/2 + 32*scale), h, input_isbuttondown(specialkey) and color_used or color_grey, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, color_black_50)
+					draw.SimpleTextOutlined("["..string_upper(input_getkeyname(specialkey)).."]", smallfont, (w/2 + 96*scale), h, input_isbuttondown(specialkey) and color_used or color_grey, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, color_black_50)
 				end
 			end
 		end
@@ -268,11 +397,11 @@ local function InventoryHUD_cod5()
 
 			surface.SetMaterial(icon)
 			surface.SetDrawColor(color_white)
-			surface.DrawTexturedRect((w/2 - 96*scale), h - 96*scale, 64*scale, 64*scale)
+			surface.DrawTexturedRect((w/2 - 128*scale), h - 96*scale, 64*scale, 64*scale)
 
 			if nz_key_shield then
 				local shieldkey = nz_key_shield:GetInt() > 0 and nz_key_shield:GetInt() or 1
-				draw.SimpleTextOutlined("["..string_upper(input_getkeyname(shieldkey)).."]", smallfont, (w/2 - 64*scale), h, input_isbuttondown(shieldkey) and color_used or color_grey, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, color_black_50)
+				draw.SimpleTextOutlined("["..string_upper(input_getkeyname(shieldkey)).."]", smallfont, (w/2 - 96*scale), h, input_isbuttondown(shieldkey) and color_used or color_grey, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, color_black_50)
 			end
 		end
 	end
@@ -292,19 +421,19 @@ local function InventoryHUD_cod5()
 
 		surface.SetMaterial(icon)
 		surface.SetDrawColor(color_white)
-		surface.DrawTexturedRect((w/2 - 96*scale), h - 96*scale, 64*scale, 64*scale)
+		surface.DrawTexturedRect((w/2 - 128*scale), h - 96*scale, 64*scale, 64*scale)
 
 		if wep.Secondary and wep.Secondary.ClipSize > 0 then
 			local clip2 = wep:Clip2()
 			local clip2rate = wep.Secondary.AmmoConsumption
 			local clip2i = math.floor(clip2/clip2rate)
 
-			draw.SimpleTextOutlined(clip2i, lowres and ammo2font or smallfont, w/2 - 40*scale, h - (lowres and 34 or 24)*scale, clip2 > 0 and color_white or color_empty, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, clip2 > 0 and color_black_50 or ColorAlpha(color_empty, 5))
+			draw.SimpleTextOutlined(clip2i, lowres and ammo2font or smallfont, w/2 - 72*scale, h - (lowres and 34 or 24)*scale, clip2 > 0 and color_white or color_empty, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, clip2 > 0 and color_black_50 or ColorAlpha(color_empty, 5))
 		end
 
 		if nz_key_shield then
 			local shieldkey = nz_key_shield:GetInt() > 0 and nz_key_shield:GetInt() or 1
-			draw.SimpleTextOutlined("["..string_upper(input_getkeyname(shieldkey)).."]", smallfont, (w/2 - 64*scale), h, input_isbuttondown(shieldkey) and color_used or color_grey, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, color_black_50)
+			draw.SimpleTextOutlined("["..string_upper(input_getkeyname(shieldkey)).."]", smallfont, (w/2 - 96*scale), h, input_isbuttondown(shieldkey) and color_used or color_grey, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, color_black_50)
 		end
 	end
 end
@@ -800,17 +929,17 @@ local function GunHud_cod5()
 
 				surface.SetMaterial(icon)
 				surface.SetDrawColor(wep:GetSilenced() and color_used or color_white)
-				surface.DrawTexturedRect((w/2 - 192*scale), h - 96*scale, 64*scale, 64*scale)
+				surface.DrawTexturedRect((w/2 - 224*scale), h - 96*scale, 64*scale, 64*scale)
 
 				local ammoTotal2 = ply:GetAmmoCount(wep:GetSecondaryAmmoType()) + (wep.Clip3 and wep:Clip3() or wep:Clip2())
 				if wep:GetSecondaryAmmoType() > 0 or ammoTotal2 > 0 then
-					draw.SimpleTextOutlined(ammoTotal2, lowres and ammo2font or pointsfont, w/2 - 160*scale, h - (lowres and 34 or 24)*scale, ammoTotal2 > 0 and (wep:GetSilenced() and color_used or color_white) or color_empty, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, ammoTotal2 > 0 and color_black_50 or ColorAlpha(color_empty, 5))
+					draw.SimpleTextOutlined(ammoTotal2, lowres and ammo2font or pointsfont, w/2 - 192*scale, h - (lowres and 34 or 24)*scale, ammoTotal2 > 0 and (wep:GetSilenced() and color_used or color_white) or color_empty, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, ammoTotal2 > 0 and color_black_50 or ColorAlpha(color_empty, 5))
 				end
 
 				local tfa_key_silence = GetConVar("cl_tfa_keys_silencer")
 				if tfa_key_silence then
 					local silencekey = tfa_key_silence:GetInt() > 0 and tfa_key_silence:GetInt() or 1
-					draw.SimpleTextOutlined("["..string_upper(input_getkeyname(silencekey)).."]", pointsfont, (w/2 - 160*scale), h, input_isbuttondown(silencekey) and color_used or color_grey, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, color_black_50)
+					draw.SimpleTextOutlined("["..string_upper(input_getkeyname(silencekey)).."]", pointsfont, (w/2 - 192*scale), h, input_isbuttondown(silencekey) and color_used or color_grey, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, color_black_50)
 				end
 			end
 
@@ -1239,6 +1368,7 @@ local function PowerUpsHud_cod5()
 	end
 end
 
+local stinkfade = 0
 local function PerksHud_cod5()
 	if not cl_drawhud:GetBool() then return end
 	local ply = LocalPlayer()
@@ -1250,6 +1380,7 @@ local function PerksHud_cod5()
 	local scale = (ScrW()/1920 + 1)/2
 
 	local perks = ply:GetPerks()
+	local maxperks = ply:GetMaxPerks()
 	local w = ScrW()/1920 + 5
 	local h = ScrH()
 	local size = 45
@@ -1261,17 +1392,17 @@ local function PerksHud_cod5()
 
 	//perk borders
 	local perk_borders = nz_showperkframe:GetInt()
-	if perk_borders > 0 and (nzRound:InProgress() or (#perks > 0)) then
+	if perk_borders > 0 and maxperks > 0 then
 		local modded = false
 		surface.SetMaterial(GetPerkFrameMaterial())
 		surface.SetDrawColor(color_white_100)
-		for i=1, nz_perkmax:GetInt() do
+		for i=1, maxperks do
 			if i == 4 and nzMapping.Settings.modifierslot and perk_borders < 2 then
 				surface.SetDrawColor(color_gold)
 				modded = true
 			end
 			if i > #perks then
-				surface.DrawTexturedRect(w + num_b*(size + 12)*scale, h - 210*scale - 64*row_b, 52*scale, 52*scale)
+				surface.DrawTexturedRect(w + num_b*(size + 12)*scale, h - 210*scale - (64*row_b)*scale, 52*scale, 52*scale)
 			end
 
 			if modded then
@@ -1296,23 +1427,31 @@ local function PerksHud_cod5()
 
 		surface.SetMaterial(icon)
 		surface.SetDrawColor(color_white)
-		surface.DrawTexturedRect(w + num*(size + 12)*scale, h - 210*scale - 64*row, 52*scale, 52*scale)
+		surface.DrawTexturedRect(w + num*(size + 12)*scale, h - 210*scale - (64*row)*scale, 52*scale, 52*scale)
 
 		if ply:HasUpgrade(perk) then
 			surface.SetDrawColor(color_gold)
 			surface.SetMaterial(GetPerkFrameMaterial())
-			surface.DrawTexturedRect(w + num*(size + 12)*scale, h - 210*scale - 64*row, 52*scale, 52*scale)
+			surface.DrawTexturedRect(w + num*(size + 12)*scale, h - 210*scale - (64*row)*scale, 52*scale, 52*scale)
 		end
 
-		if perk == "vulture" and ply:HasVultureStink() then
-			surface.SetMaterial(zmhud_vulture_glow)
-			surface.SetDrawColor(color_white)
-			surface.DrawTexturedRect((w + num*(size + 12)*scale) - 24*scale, (h - 210*scale - 64*row) - 24*scale, 100*scale, 100*scale)
-			
-			local stink = surface.GetTextureID("nz_moo/huds/t6/zm_hud_stink_ani_green")
-			surface.SetTexture(stink)
-			surface.SetDrawColor(color_white)
-			surface.DrawTexturedRect((w + num*(size + 12)*scale), (h - 210*scale - 64*row) - 62*scale, 64*scale, 64*scale)
+		if perk == "vulture" then
+			if ply:HasVultureStink() then
+				stinkfade = 1
+			end
+
+			if stinkfade > 0 then
+				surface.SetDrawColor(ColorAlpha(color_white, 255*stinkfade))
+
+				surface.SetMaterial(zmhud_vulture_glow)
+				surface.DrawTexturedRect((w + num*(size + 12)*scale) - 24*scale, (h - 210*scale - (64*row)*scale) - 24*scale, 100*scale, 100*scale)
+
+				local stink = surface.GetTextureID("nz_moo/huds/t6/zm_hud_stink_ani_green")
+				surface.SetTexture(stink)
+				surface.DrawTexturedRect((w + num*(size + 12)*scale), (h - 210*scale - (64*row)*scale) - 62*scale, 64*scale, 64*scale)
+
+				stinkfade = math.max(stinkfade - FrameTime()*3, 0)
+			end
 		end
 
 		num = num + 1
@@ -1523,9 +1662,10 @@ local function PlayerHealthHUD_cod5()
 		local row = 0
 		local num = 0
 		local perks = #ply:GetPerks()
-		if nz_perkmax:GetInt() > perks then
-			perks = nz_perkmax:GetInt()
+		if ply:GetMaxPerks() > perks then
+			perks = ply:GetMaxPerks()
 		end
+		perks = perks + #ply:GetPerks(true)
 
 		for i=1, perks do
 			if num%(nz_perkrowmod:GetInt()) == 0 then

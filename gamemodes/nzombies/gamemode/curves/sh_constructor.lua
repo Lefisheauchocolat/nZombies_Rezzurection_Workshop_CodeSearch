@@ -96,18 +96,60 @@ if SERVER then
 		local tbl = {}
 		local round = round
 		local multiplier = nzMapping.Settings.speedmulti or 4 -- Actual value used in BO3 onward. If you want Pre-BO3 Speed increases, use 8 instead.
-		local speed = 1 -- BO1 has this start at 1.
+		local speed = nzMapping.Settings.startspeed or 0
+
+		local cap = 999
+
+		if cap <= 0 then cap = 999 end -- If its set to 0, then default to 999(Idiot protection).
 
 		for i = 1,round do
-			speed = round * multiplier - multiplier -- Subbing by multiplier as well cause that seems to work.
+			speed = math.Clamp(round * multiplier - multiplier, 0, cap) -- Subbing by multiplier as well cause that seems to work.
 		end
 
-		if round == 1 then -- We always want walking zombies on the first round(Just like in the real games!).
-			tbl[0] = 100
-		else
-			tbl[speed] = 100 -- This calculates the base number for the zombies of the round to use, further speed adjustments are done in the zombie luas themselves if they support it.
-		end
+		speed = speed + nzMapping.Settings.startspeed
+
+		tbl[speed] = 100 -- This calculates the base number for the zombies of the round to use, further speed adjustments are done in the zombie luas themselves if they support it.
+
 		return tbl
+	end
+
+	-- Cold War Style Zombie attack damage increase.
+	function nzCurves.GenerateAttackDamage(round)
+
+		if nzMapping.Settings.dmgincrease == false then return 50 end
+
+		local damage_increase = {
+			{
+        		round = {
+        			from = 1, 
+        			to = 6
+        		},
+        		damage = 30
+    		},
+			{
+        		round = {
+        			from = 7, 
+        			to = 15
+        		},
+        		damage = 50
+    		},
+			{
+        		round = {
+        			from = 16, 
+        			to = 30
+        		},
+        		damage = 75
+    		},
+		}
+
+		if isnumber(round) and round <= 0 then return 50 end
+
+    	for _, hitdamage in pairs(damage_increase) do
+        	if round >= hitdamage.round.from and round <= hitdamage.round.to then
+            	return hitdamage.damage
+        	end
+    	end
+    	return 90
 	end
 end
 

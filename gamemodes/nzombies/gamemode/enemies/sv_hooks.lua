@@ -29,10 +29,37 @@ function nzEnemies:OnEnemyKilled(enemy, attacker, dmginfo, hitgroup)
         --print(nzRound:GetZombiesRemaining())
 	end
 
+	local wep = dmginfo:GetInflictor()
+	if IsValid(wep) then
+		if nzMapping.Settings.tacticalupgrades and wep.NZTacticalPaP then
+			for _, gun in pairs(attacker:GetWeapons()) do
+				if gun.NZTacticalPaP and not gun:HasNZModifier("pap") then
+					local tactkills = gun:GetNW2Int("nz.TactKills", 1)
+					if tactkills < (nzMapping.Settings.tacticalkillcount or 40) then
+						gun:SetNW2Int("nz.TactKills", tactkills + 1)
+					elseif tactkills == (nzMapping.Settings.tacticalkillcount or 40) then
+						nzSounds:PlayFile("nz_moo/effects/monkey_kill_confirm.wav", attacker)
+
+						gun:ApplyNZModifier("pap")
+					end
+				end
+			end
+		end
+
+		if wep:GetClass() == "perk_powerup_banana_slide" then
+			ParticleEffectAttach("nz_perks_banana_burst", PATTACH_ABSORIGIN_FOLLOW, enemy, 0)
+			enemy:EmitSound("nz_moo/effects/banana/explo_0"..math.random(0,3)..".wav", SNDLVL_NORM, math.random(97,103), 1, CHAN_STATIC)
+
+			local pply = wep:GetOwner()
+			if pply:HasPerk("banana") then
+				dmginfo:SetAttacker(pply)
+				attacker = pply
+			end
+		end
+	end
+
 	if enemy:IsValidZombie() and attacker:IsPlayer() and attacker:GetNotDowned() then
 		attacker:AddFrags(1)
-
-		local wep = dmginfo:GetInflictor()
 
 		if attacker:HasUpgrade("jugg") and hitgroup == HITGROUP_HEAD and dmginfo:IsBulletDamage() then
 			attacker:SetArmor(math.min(attacker:Armor() + 10, 200))
@@ -260,6 +287,13 @@ local function percent2uint(a, b, c) //credit to wgetJane's tf2 hitmarkers
 	return math.Clamp(math.floor(a / b * c + 0.5), 0, c)
 end
 
+local invalid_ammo = {
+	["nil"] = true,
+	["none"] = true,
+	["null"] = true,
+	[""] = true
+}
+
 function GM:EntityTakeDamage(zombie, dmginfo)
 	if zombie:IsPlayer() and dmginfo:IsDamageType(DMG_SLOWBURN) then return true end
 	if zombie:GetClass() == "whoswho_downed_clone" then return true end
@@ -350,9 +384,44 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 
 			local wep = dmginfo:GetInflictor()
 
-			if /*not zombie.HasTakenDamageThisTick and*/ isplayer and attacker:HasUpgrade("speed") and IsValid(wep) and wep:IsWeapon() then
+			/*if --[[not zombie.HasTakenDamageThisTick and]] isplayer and attacker:HasUpgrade("speed") and IsValid(wep) and wep:IsWeapon() then
 				if math.random(wep.NZWonderWeapon and 20 or 15) == 1 and attacker:GetNW2Int("nz.SpeedRefund", 0) < 100 then
 					attacker:SetNW2Int("nz.SpeedRefund", attacker:GetNW2Int("nz.SpeedRefund", 0) + 1)
+				end
+			end*/
+
+			if isplayer and attacker:HasUpgrade("candolier") and IsValid(wep) and wep:IsWeapon() and !wep:IsSpecial() then
+				if math.random(wep.NZWonderWeapon and 25 or 15) == 1 and attacker:GetNW2Int("nz.CandolierRefund", 0) < 100 then
+					attacker:SetNW2Int("nz.CandolierRefund", attacker:GetNW2Int("nz.CandolierRefund", 0) + 1)
+
+					local is_tfa = wep.IsTFAWeapon
+					local ammo = wep:GetPrimaryAmmoType()
+					local maxammo = is_tfa and wep:GetStatL("Primary.MaxAmmo") or wep.Primary.MaxAmmo
+					local count = attacker:GetAmmoCount(ammo)
+					local clipsize = is_tfa and wep:GetPrimaryClipSize() or wep.Primary.ClipSize
+					local defaultclip = is_tfa and wep:GetStatL("Primary.DefaultClip") or wep.Primary.DefaultClip
+
+					if !clipsize or clipsize <= 0 then
+						if count < maxammo then
+							attacker:SetAmmo(math.min(count + 1, maxammo), ammo)
+						end
+					else
+						local ammotype = is_tfa and wep:GetStatL("Primary.Ammo") or wep.Primary.Ammo
+						if (!ammotype or invalid_ammo[ammotype] or game.GetAmmoID(ammotype) < 0) then
+							if defaultclip > clipsize then
+								clipsize = defaultclip
+							end
+
+							if clipsize and clipsize > 0 and wep:Clip1() < clipsize then
+								wep:SetClip1(math.min(wep:Clip1() + 1, clipsize))
+							end
+						else
+							local count = attacker:GetAmmoCount(ammo)
+							if count < maxammo then
+								attacker:SetAmmo(math.min(count + 1, maxammo), ammo)
+							end
+						end
+					end
 				end
 			end
 

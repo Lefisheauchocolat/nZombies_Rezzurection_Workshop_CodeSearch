@@ -1,7 +1,8 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
-ENT.PrintName = "Fallout 4 Glowing Ghoul"
+--ENT.PrintName = "Fallout 4 Glowing Ghoul"
+ENT.PrintName = "Glowing One"
 ENT.Category = "Brainz"
 ENT.Author = "Wavy"
 
@@ -271,7 +272,9 @@ function ENT:OnSpawn()
 	end
 end
 
-function ENT:PerformDeath(dmginfo)
+function ENT:PerformDeath(dmginfo)	
+	self.Dying = true
+
 	self:StopSound("wavy_zombie/ghouls/npc_feralghoul_conscious_02_lp.wav")
 	local damagetype = dmginfo:GetDamageType()
 	if self.DeathRagdollForce == 0 or self:GetSpecialAnimation() or damagetype == DMG_MISSILEDEFENSE or damagetype == DMG_ENERGYBEAM then

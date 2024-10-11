@@ -282,6 +282,32 @@ function nzRound:AddBossType(id, class, funcs)
 	end
 end
 
+nzRound:AddBossType("Abomination", "nz_zombie_boss_abom", {
+	specialspawn = false,
+	health = 500,
+	scale = 1,
+	dmgmul = 1,
+	amountatonce = 1,
+	initalrnd = 12,
+	intermission = 4,
+	perplayer = 1,
+	maxperrnd = 2,
+	initfunc = function()
+	end,
+	spawnfunc = function(self)
+		--[[local data = nzRound:GetBossData(self.NZBossType)
+		local count = #player.GetAllPlaying()
+
+		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))]]
+	end,
+	deathfunc = function(self, killer, dmginfo, hitgroup)
+		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+			attacker:GivePoints(150) -- Give killer 500 points if not downed
+		end
+	end,
+})
+
 nzRound:AddBossType("Zaballa the Deceiver", "nz_zombie_boss_trickster", {
 	specialspawn = false,
 	health = 3500,
@@ -407,29 +433,6 @@ nzRound:AddBossType("Mangler Juggernaut", "nz_zombie_boss_raz_juggernaut", {
 		end
 	end,
 })
-
-nzRound:AddBossType("Gigan", "nz_zombie_boss_gigan", {
-	specialspawn = false,
-	health = 3500,
-	scale = 1,
-	dmgmul = 1,
-	amountatonce = 2,
-	initalrnd = 12,
-	intermission = 2,
-	perplayer = 2,
-
-	initfunc = function()
-	end,
-	spawnfunc = function(self)
-		BroadcastLua("surface.PlaySound('enemies/bosses/gigan/Awakens.mp3')")
-	end,
-	deathfunc = function(self, killer, dmginfo, hitgroup)
-		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
-			attacker:GivePoints(150) -- Give killer 500 points if not downed
-		end
-	end,
-})
-
 nzRound:AddBossType("Mangler", "nz_zombie_boss_raz", {
 	specialspawn = false,
 	health = 3500,
@@ -471,238 +474,6 @@ nzRound:AddBossType("The Director", "nz_zombie_boss_director", {
 		end
 	end,
 })
-
-nzRound:AddBossType("Brute (Dead Space)", "nz_zombie_boss_brute", {
-	specialspawn = true,
-	health = 3000,
-	scale = 1000,
-	dmgmul = 0.5,
-	amountatonce = 2, 	-- Amount of this enemy that can be alive at once.
-	initalrnd = 8, 		-- The inital round this enemy can appear.
-	intermission = 5, 	-- The amount of rounds that need to pass in order for the enemy to spawn again.
-	perplayer = 1, 		-- The number of this enemy that can spawn depending on player count.
-	initfunc = function()
-	end,
-	spawnfunc = function(self)
-		local data = nzRound:GetBossData(self.NZBossType)
-		local count = #player.GetAllPlaying()
-
-		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-	end,
-	deathfunc = function(self, killer, dmginfo, hitgroup)
-		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
-			attacker:GivePoints(150) -- Give killer 500 points if not downed
-		end
-	end,
-})
-
-nzRound:AddBossType("Divider (Dead Space)", "nz_zombie_boss_Divider", {
-	specialspawn = true,
-	health = 4000,
-	scale = 250,
-	dmgmul = 1,
-	amountatonce = 3, 	-- Amount of this enemy that can be alive at once.
-	initalrnd = 11, 		-- The inital round this enemy can appear.
-	intermission = 3, 	-- The amount of rounds that need to pass in order for the enemy to spawn again.
-	perplayer = 1, 		-- The number of this enemy that can spawn depending on player count.
-	initfunc = function()
-	end,
-	spawnfunc = function(self)
-		local data = nzRound:GetBossData(self.NZBossType)
-		local count = #player.GetAllPlaying()
-
-		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-	end,
-	deathfunc = function(self, killer, dmginfo, hitgroup)
-		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
-			attacker:GivePoints(150) -- Give killer 500 points if not downed
-		end
-	end,
-})
-
-
-nzRound:AddBossType("William Birkin", "nz_zombie_boss_G1", {
-	specialspawn = true,
-	health = 2000,
-	scale = 510,
-	dmgmul = 1,
-	amountatonce = 1, 	-- Amount of this enemy that can be alive at once.
-	initalrnd = 8, 		-- The inital round this enemy can appear.
-	intermission = 6, 	-- The amount of rounds that need to pass in order for the enemy to spawn again.
-	perplayer = 1, 		-- The number of this enemy that can spawn depending on player count.
-	initfunc = function()
-	end,
-	spawnfunc = function(self)
-		local data = nzRound:GetBossData(self.NZBossType)
-		local count = #player.GetAllPlaying()
-
-		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-	end,
-	deathfunc = function(self, killer, dmginfo, hitgroup)
-		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
-			attacker:GivePoints(150) -- Give killer 500 points if not downed
-		end
-	end,
-})
-
-
-nzRound:AddBossType("William Birkin (2nd Form)", "nz_zombie_boss_G2", {
-	specialspawn = true,
-	health = 3500,
-	scale = 700,
-	dmgmul = 0.9,
-	amountatonce = 1, 	-- Amount of this enemy that can be alive at once.
-	initalrnd = 10, 		-- The inital round this enemy can appear.
-	intermission = 6, 	-- The amount of rounds that need to pass in order for the enemy to spawn again.
-	perplayer = 1, 		-- The number of this enemy that can spawn depending on player count.
-	initfunc = function()
-	end,
-	spawnfunc = function(self)
-		local data = nzRound:GetBossData(self.NZBossType)
-		local count = #player.GetAllPlaying()
-
-		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-	end,
-	deathfunc = function(self, killer, dmginfo, hitgroup)
-		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
-			attacker:GivePoints(150) -- Give killer 500 points if not downed
-		end
-	end,
-})
-
-nzRound:AddBossType("Nemesis", "nz_zombie_boss_Nemesis", {
-	specialspawn = true,
-	health = 4000,
-	scale = 2000,
-	dmgmul = 0.75,
-	amountatonce = 1, 	-- Amount of this enemy that can be alive at once.
-	initalrnd = 12, 		-- The inital round this enemy can appear.
-	intermission = 6, 	-- The amount of rounds that need to pass in order for the enemy to spawn again.
-	perplayer = 1, 		-- The number of this enemy that can spawn depending on player count.
-	initfunc = function()
-	end,
-	spawnfunc = function(self)
-		local data = nzRound:GetBossData(self.NZBossType)
-		local count = #player.GetAllPlaying()
-
-		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-	end,
-	deathfunc = function(self, killer, dmginfo, hitgroup)
-		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
-			attacker:GivePoints(150) -- Give killer 500 points if not downed
-		end
-	end,
-})
-
-nzRound:AddBossType("William Birkin (Final Form)", "nz_zombie_boss_G3", {
-	specialspawn = true,
-	health = 4000,
-	scale = 1500,
-	dmgmul = 0.75,
-	amountatonce = 1, 	-- Amount of this enemy that can be alive at once.
-	initalrnd = 14, 		-- The inital round this enemy can appear.
-	intermission = 6, 	-- The amount of rounds that need to pass in order for the enemy to spawn again.
-	perplayer = 1, 		-- The number of this enemy that can spawn depending on player count.
-	initfunc = function()
-	end,
-	spawnfunc = function(self)
-		local data = nzRound:GetBossData(self.NZBossType)
-		local count = #player.GetAllPlaying()
-
-		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-	end,
-	deathfunc = function(self, killer, dmginfo, hitgroup)
-		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
-			attacker:GivePoints(150) -- Give killer 500 points if not downed
-		end
-	end,
-})
-
-nzRound:AddBossType("Flood Tank", "nz_zombie_boss_gary", {
-	specialspawn = true,
-	health = 4500,
-	scale = 750,
-	dmgmul = 1,
-	amountatonce = 3, 	-- Amount of this enemy that can be alive at once.
-	initalrnd = 7, 		-- The inital round this enemy can appear.
-	intermission = 3, 	-- The amount of rounds that need to pass in order for the enemy to spawn again.
-	perplayer = 1, 		-- The number of this enemy that can spawn depending on player count.
-	maxperrnd = 3,
-	initfunc = function()
-	end,
-	spawnfunc = function(self)
-		local data = nzRound:GetBossData(self.NZBossType)
-		local count = #player.GetAllPlaying()
-
-		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-	end,
-	deathfunc = function(self, killer, dmginfo, hitgroup)
-		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
-			attacker:GivePoints(150) -- Give killer 500 points if not downed
-		end
-	end,
-})
-
-nzRound:AddBossType("Fuel Junkie Zombie", "nz_zombie_boss_junkie", {
-	specialspawn = false,
-	health = 250,
-	scale = 250,
-	dmgmul = 1,
-	amountatonce = 1,
-	initalrnd = 8,
-	intermission = 2,
-	perplayer = 1,
-	maxperrnd = 3,
-	initfunc = function()
-	end,
-	spawnfunc = function(self)
-		BroadcastLua("surface.PlaySound('nz_moo/zombies/vox/_napalm/spawn/evt/evt_napalm_zombie_spawn_00.mp3')")
-
-		local data = nzRound:GetBossData(self.NZBossType)
-		local count = #player.GetAllPlaying()
-
-		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-	end,
-	deathfunc = function(self, killer, dmginfo, hitgroup)
-		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
-			attacker:GivePoints(150) -- Give killer 500 points if not downed
-		end
-	end,
-})
-
-nzRound:AddBossType("Ubermorph", "nz_zombie_boss_ubermorph", {
-	specialspawn = true,
-	health = 4000,
-	scale = 2000,
-	dmgmul = 0.8,
-	amountatonce = 2, 	-- Amount of this enemy that can be alive at once.
-	initalrnd = 7, 		-- The inital round this enemy can appear.
-	intermission = 2, 	-- The amount of rounds that need to pass in order for the enemy to spawn again.
-	perplayer = 1, 		-- The number of this enemy that can spawn depending on player count.
-	initfunc = function()
-	end,
-	spawnfunc = function(self)
-		local data = nzRound:GetBossData(self.NZBossType)
-		local count = #player.GetAllPlaying()
-
-		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-	end,
-	deathfunc = function(self, killer, dmginfo, hitgroup)
-		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
-			attacker:GivePoints(150) -- Give killer 500 points if not downed
-		end
-	end,
-})
-
 nzRound:AddBossType("Margwa", "nz_zombie_boss_margwa", {
 	specialspawn = false,
 	health = 500,
@@ -871,56 +642,6 @@ nzRound:AddBossType("Tyrant", "nz_zombie_boss_tyrant", {
 	end,
 })
 
-nzRound:AddBossType("Terminator", "nz_zombie_boss_arnold", {
-	specialspawn = false,
-	health = 20000,
-	scale = 1,
-	dmgmul = 1,
-	amountatonce = 1,
-	initalrnd = 10,
-	intermission = 3,
-	perplayer = 1,
-	maxperrnd = 1,
-	initfunc = function()
-	end,
-	spawnfunc = function(self)
-		local data = nzRound:GetBossData(self.NZBossType)
-		local count = #player.GetAllPlaying()
-
-		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-	end,
-	deathfunc = function(self, killer, dmginfo, hitgroup)
-		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
-			attacker:GivePoints(150) -- Give killer 500 points if not downed
-		end
-	end,
-})
-nzRound:AddBossType("Panzermorder", "nz_zombie_boss_meatflower", {
-	specialspawn = false,
-	health = 50000,
-	scale = 200,
-	dmgmul = 0.75,
-	amountatonce = 1,
-	initalrnd = 13,
-	intermission = 5,
-	perplayer = 1,
-	maxperrnd = 1,
-	initfunc = function()
-	end,
-	spawnfunc = function(self)
-		local data = nzRound:GetBossData(self.NZBossType)
-		local count = #player.GetAllPlaying()
-
-		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-	end,
-	deathfunc = function(self, killer, dmginfo, hitgroup)
-		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
-			attacker:GivePoints(150) -- Give killer 500 points if not downed
-		end
-	end,
-})
 nzRound:AddBossType("Scrake", "nz_zombie_boss_scrake", {
 	specialspawn = false,
 	health = 500,
@@ -1235,6 +956,33 @@ nzRound:AddBossType("Shrieker Zombie", "nz_zombie_boss_shrieker", {
 		end
 	end,
 })
+nzRound:AddBossType("Fuel Junkie Zombie", "nz_zombie_boss_junkie", {
+	specialspawn = false,
+	health = 250,
+	scale = 250,
+	dmgmul = 1,
+	amountatonce = 1,
+	initalrnd = 8,
+	intermission = 2,
+	perplayer = 1,
+	maxperrnd = 3,
+	initfunc = function()
+	end,
+	spawnfunc = function(self)
+		BroadcastLua("surface.PlaySound('nz_moo/zombies/vox/_napalm/spawn/evt/evt_napalm_zombie_spawn_00.mp3')")
+
+		local data = nzRound:GetBossData(self.NZBossType)
+		local count = #player.GetAllPlaying()
+
+		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+	end,
+	deathfunc = function(self, killer, dmginfo, hitgroup)
+		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+			attacker:GivePoints(150) -- Give killer 500 points if not downed
+		end
+	end,
+})
 nzRound:AddBossType("Thrasher", "nz_zombie_boss_thrasher", {
 	specialspawn = false,
 	health = 3500,
@@ -1247,6 +995,164 @@ nzRound:AddBossType("Thrasher", "nz_zombie_boss_thrasher", {
 	maxperrnd = 4,
 	initfunc = function()
 		--nzRound:SetNextBossRound(8) -- Randomly spawn in rounds 6-8
+	end,
+	spawnfunc = function(self)
+		local data = nzRound:GetBossData(self.NZBossType)
+		local count = #player.GetAllPlaying()
+
+		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+	end,
+	deathfunc = function(self, killer, dmginfo, hitgroup)
+		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+			attacker:GivePoints(150) -- Give killer 500 points if not downed
+		end
+	end,
+})
+
+-- Laby enemies below here.
+
+nzRound:AddBossType("William Birkin (2nd Form)", "nz_zombie_boss_G2", {
+	specialspawn = true,
+	health = 3500,
+	scale = 700,
+	dmgmul = 0.9,
+	amountatonce = 1, 	-- Amount of this enemy that can be alive at once.
+	initalrnd = 10, 		-- The inital round this enemy can appear.
+	intermission = 6, 	-- The amount of rounds that need to pass in order for the enemy to spawn again.
+	perplayer = 1, 		-- The number of this enemy that can spawn depending on player count.
+	maxperrnd = 1,
+	initfunc = function()
+	end,
+	spawnfunc = function(self)
+		local data = nzRound:GetBossData(self.NZBossType)
+		local count = #player.GetAllPlaying()
+
+		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+	end,
+	deathfunc = function(self, killer, dmginfo, hitgroup)
+		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+			attacker:GivePoints(150) -- Give killer 500 points if not downed
+		end
+	end,
+})
+
+nzRound:AddBossType("William Birkin (Final Form)", "nz_zombie_boss_G3", {
+	specialspawn = true,
+	health = 4000,
+	scale = 1500,
+	dmgmul = 0.75,
+	amountatonce = 1, 	-- Amount of this enemy that can be alive at once.
+	initalrnd = 14, 		-- The inital round this enemy can appear.
+	intermission = 6, 	-- The amount of rounds that need to pass in order for the enemy to spawn again.
+	perplayer = 1, 		-- The number of this enemy that can spawn depending on player count.
+	maxperrnd = 1,
+	initfunc = function()
+	end,
+	spawnfunc = function(self)
+		local data = nzRound:GetBossData(self.NZBossType)
+		local count = #player.GetAllPlaying()
+
+		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+	end,
+	deathfunc = function(self, killer, dmginfo, hitgroup)
+		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+			attacker:GivePoints(150) -- Give killer 500 points if not downed
+		end
+	end,
+})
+
+nzRound:AddBossType("Brute (Dead Space)", "nz_zombie_boss_brute", {
+	specialspawn = true,
+	health = 3000,
+	scale = 1000,
+	dmgmul = 0.5,
+	amountatonce = 2, 	-- Amount of this enemy that can be alive at once.
+	initalrnd = 8, 		-- The inital round this enemy can appear.
+	intermission = 5, 	-- The amount of rounds that need to pass in order for the enemy to spawn again.
+	perplayer = 1, 		-- The number of this enemy that can spawn depending on player count.
+	maxperrnd = 1,
+	initfunc = function()
+	end,
+	spawnfunc = function(self)
+		local data = nzRound:GetBossData(self.NZBossType)
+		local count = #player.GetAllPlaying()
+
+		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+	end,
+	deathfunc = function(self, killer, dmginfo, hitgroup)
+		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+			attacker:GivePoints(150) -- Give killer 500 points if not downed
+		end
+	end,
+})
+
+nzRound:AddBossType("Divider (Dead Space)", "nz_zombie_boss_Divider", {
+	specialspawn = true,
+	health = 4000,
+	scale = 250,
+	dmgmul = 1,
+	amountatonce = 3, 	-- Amount of this enemy that can be alive at once.
+	initalrnd = 11, 		-- The inital round this enemy can appear.
+	intermission = 3, 	-- The amount of rounds that need to pass in order for the enemy to spawn again.
+	perplayer = 1, 		-- The number of this enemy that can spawn depending on player count.
+	maxperrnd = 1,
+	initfunc = function()
+	end,
+	spawnfunc = function(self)
+		local data = nzRound:GetBossData(self.NZBossType)
+		local count = #player.GetAllPlaying()
+
+		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+	end,
+	deathfunc = function(self, killer, dmginfo, hitgroup)
+		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+			attacker:GivePoints(150) -- Give killer 500 points if not downed
+		end
+	end,
+})
+
+nzRound:AddBossType("William Birkin", "nz_zombie_boss_G1", {
+	specialspawn = true,
+	health = 2000,
+	scale = 510,
+	dmgmul = 1,
+	amountatonce = 1, 	-- Amount of this enemy that can be alive at once.
+	initalrnd = 8, 		-- The inital round this enemy can appear.
+	intermission = 6, 	-- The amount of rounds that need to pass in order for the enemy to spawn again.
+	perplayer = 1, 		-- The number of this enemy that can spawn depending on player count.
+	maxperrnd = 1,
+	initfunc = function()
+	end,
+	spawnfunc = function(self)
+		local data = nzRound:GetBossData(self.NZBossType)
+		local count = #player.GetAllPlaying()
+
+		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+	end,
+	deathfunc = function(self, killer, dmginfo, hitgroup)
+		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+			attacker:GivePoints(150) -- Give killer 500 points if not downed
+		end
+	end,
+})
+
+nzRound:AddBossType("Ubermorph", "nz_zombie_boss_ubermorph", {
+	specialspawn = true,
+	health = 4000,
+	scale = 2000,
+	dmgmul = 0.8,
+	amountatonce = 2, 	-- Amount of this enemy that can be alive at once.
+	initalrnd = 7, 		-- The inital round this enemy can appear.
+	intermission = 2, 	-- The amount of rounds that need to pass in order for the enemy to spawn again.
+	perplayer = 1, 		-- The number of this enemy that can spawn depending on player count.
+	maxperrnd = 1,
+	initfunc = function()
 	end,
 	spawnfunc = function(self)
 		local data = nzRound:GetBossData(self.NZBossType)
@@ -1289,7 +1195,27 @@ nzRound:AddBossType("Hedorah", "nz_zombie_boss_smelly", {
 	end,
 })
 
--- Laby enemies below here.
+nzRound:AddBossType("Gigan", "nz_zombie_boss_gigan", {
+	specialspawn = false,
+	health = 3500,
+	scale = 1,
+	dmgmul = 1,
+	amountatonce = 2,
+	initalrnd = 12,
+	intermission = 2,
+	perplayer = 2,
+	maxperrnd = 6,
+	initfunc = function()
+	end,
+	spawnfunc = function(self)
+		BroadcastLua("surface.PlaySound('enemies/bosses/gigan/Awakens.mp3')")
+	end,
+	deathfunc = function(self, killer, dmginfo, hitgroup)
+		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+			attacker:GivePoints(150) -- Give killer 500 points if not downed
+		end
+	end,
+})
 
 nzRound:AddBossType("Larry the Lobster", "nz_zombie_boss_larry", {
 	specialspawn = false,
@@ -1327,7 +1253,7 @@ nzRound:AddBossType("Nemesis", "nz_zombie_boss_Nemesis", {
 	initalrnd = 12, 		-- The inital round this enemy can appear.
 	intermission = 6, 	-- The amount of rounds that need to pass in order for the enemy to spawn again.
 	perplayer = 1, 		-- The number of this enemy that can spawn depending on player count.
-	maxperrnd = 2,		   
+	maxperrnd = 2,
 	initfunc = function()
 	end,
 	spawnfunc = function(self)
@@ -1353,7 +1279,7 @@ nzRound:AddBossType("Licker (Boss)", "nz_zombie_special_licker", {
 	initalrnd = 7, 		-- The inital round this enemy can appear.
 	intermission = 3, 	-- The amount of rounds that need to pass in order for the enemy to spawn again.
 	perplayer = 2, 		-- The number of this enemy that can spawn depending on player count.
-	maxperrnd = 10,			
+	maxperrnd = 10,
 	initfunc = function()
 	end,
 	spawnfunc = function(self)
@@ -1379,7 +1305,7 @@ nzRound:AddBossType("Hunter (Boss)", "nz_zombie_special_hunterbeta", {
 	initalrnd = 8, 		-- The inital round this enemy can appear.
 	intermission = 4, 	-- The amount of rounds that need to pass in order for the enemy to spawn again.
 	perplayer = 1, 		-- The number of this enemy that can spawn depending on player count.
-	maxperrnd = 8,	   
+	maxperrnd = 8,
 	initfunc = function()
 	end,
 	spawnfunc = function(self)
@@ -1405,7 +1331,7 @@ nzRound:AddBossType("Sentinel Bot (Boss)", "nz_zombie_special_bot", {
 	initalrnd = 7, 		-- The inital round this enemy can appear.
 	intermission = 4, 	-- The amount of rounds that need to pass in order for the enemy to spawn again.
 	perplayer = 1, 		-- The number of this enemy that can spawn depending on player count.
-	maxperrnd = 10,			
+	maxperrnd = 10,
 	initfunc = function()
 	end,
 	spawnfunc = function(self)
@@ -1457,7 +1383,7 @@ nzRound:AddBossType("Lambent Gunker", "nz_zombie_boss_gunker", {
 	initalrnd = 11, 		-- The inital round this enemy can appear.
 	intermission = 5, 	-- The amount of rounds that need to pass in order for the enemy to spawn again.
 	perplayer = 1, 		-- The number of this enemy that can spawn depending on player count.
-	maxperrnd = 2,  
+	maxperrnd = 2,
 	initfunc = function()
 	end,
 	spawnfunc = function(self)
@@ -1483,7 +1409,83 @@ nzRound:AddBossType("Boomer", "nz_zombie_boss_boomer", {
 	initalrnd = 8, 		-- The inital round this enemy can appear.
 	intermission = 4, 	-- The amount of rounds that need to pass in order for the enemy to spawn again.
 	perplayer = 1, 		-- The number of this enemy that can spawn depending on player count.
-	maxperrnd = 6,	   
+	maxperrnd = 6,
+	initfunc = function()
+	end,
+	spawnfunc = function(self)
+		local data = nzRound:GetBossData(self.NZBossType)
+		local count = #player.GetAllPlaying()
+
+		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+	end,
+	deathfunc = function(self, killer, dmginfo, hitgroup)
+		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+			attacker:GivePoints(150) -- Give killer 500 points if not downed
+		end
+	end,
+})
+--Currently not in moo's dev build
+nzRound:AddBossType("Terminator", "nz_zombie_boss_arnold", {
+	specialspawn = false,
+	health = 20000,
+	scale = 1,
+	dmgmul = 1,
+	amountatonce = 1,
+	initalrnd = 10,
+	intermission = 3,
+	perplayer = 1,
+	maxperrnd = 1,
+	initfunc = function()
+	end,
+	spawnfunc = function(self)
+		local data = nzRound:GetBossData(self.NZBossType)
+		local count = #player.GetAllPlaying()
+
+		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+	end,
+	deathfunc = function(self, killer, dmginfo, hitgroup)
+		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+			attacker:GivePoints(150) -- Give killer 500 points if not downed
+		end
+	end,
+})
+nzRound:AddBossType("Panzermorder", "nz_zombie_boss_meatflower", {
+	specialspawn = false,
+	health = 50000,
+	scale = 200,
+	dmgmul = 0.75,
+	amountatonce = 1,
+	initalrnd = 13,
+	intermission = 5,
+	perplayer = 1,
+	maxperrnd = 1,
+	initfunc = function()
+	end,
+	spawnfunc = function(self)
+		local data = nzRound:GetBossData(self.NZBossType)
+		local count = #player.GetAllPlaying()
+
+		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+	end,
+	deathfunc = function(self, killer, dmginfo, hitgroup)
+		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+			attacker:GivePoints(150) -- Give killer 500 points if not downed
+		end
+	end,
+})
+nzRound:AddBossType("Flood Tank", "nz_zombie_boss_gary", {
+	specialspawn = true,
+	health = 4500,
+	scale = 750,
+	dmgmul = 1,
+	amountatonce = 3, 	-- Amount of this enemy that can be alive at once.
+	initalrnd = 7, 		-- The inital round this enemy can appear.
+	intermission = 3, 	-- The amount of rounds that need to pass in order for the enemy to spawn again.
+	perplayer = 1, 		-- The number of this enemy that can spawn depending on player count.
+	maxperrnd = 3,
 	initfunc = function()
 	end,
 	spawnfunc = function(self)

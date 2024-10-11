@@ -72,8 +72,17 @@ nzGum.Skins = {
 	},
 }
 
+//client convar
+if CLIENT then
+	//if you purist
+	if GetConVar("nz_hud_show_gumstats") == nil then
+		CreateClientConVar("nz_hud_show_gumstats", 1, true, false, "Enable or disable displaying the additional information shown when using the gobble gum machine. (0 false, 1 true), Default is 1.", 0, 1)
+	end
+end
+
 //for selecting a random gum
-nzGum.RollData = {}
+nzGum.RollData = {} //on the client this table is just roll counts
+nzGum.TotalGumCount = 0
 
 //default chance for all gums
 nzGum.RollChance = 10
@@ -127,3 +136,7 @@ nzGum.RoundPrices = {
 nzGum.TemporalGiftTime = 0
 nzGum.ProfitSharingDist = 1024^2
 nzGum.ProfitSharingPlayers = {}
+
+nzGum.UnbreakableFunc = {
+	["callPhone_Body"] = true,
+}

@@ -1,7 +1,8 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
-ENT.PrintName = "Astronaut(Assdonut) or THE CYCLOPS"
+--ENT.PrintName = "Astronaut(Assdonut) or THE CYCLOPS"
+ENT.PrintName = ""
 ENT.Category = "Brainz"
 ENT.Author = "Laby and GhostlyMoo"
 
@@ -238,7 +239,9 @@ function ENT:OnSpawn()
 	ParticleEffect("bo3_astronaut_pulse",self:LocalToWorld(Vector(0,0,50)),Angle(0,0,0),nil)
 end
 
-function ENT:PerformDeath(dmgInfo)
+function ENT:PerformDeath(dmgInfo)	
+	self.Dying = true
+
 	self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
 	self:StopSound("nz_moo/zombies/vox/_astro/breath.wav")
 	self:Explode(0)

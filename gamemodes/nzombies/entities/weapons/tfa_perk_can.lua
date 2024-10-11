@@ -6,7 +6,7 @@ SWEP.UseHands = true
 SWEP.Type_Displayed = "Misc"
 SWEP.Author = "Latte"
 SWEP.Slot = 0
-SWEP.PrintName = "Perk Can (CW)"
+SWEP.PrintName = "Perk Can (BOCW)"
 SWEP.DrawCrosshair = false
 SWEP.DrawCrosshairIronSights = false
 SWEP.AutoSwitchTo = false
@@ -14,9 +14,9 @@ SWEP.AutoSwitchFrom = false
 SWEP.DrawAmmo = false
 
 --[Model]--
-SWEP.ViewModel = "models/nz/perks/vm_t9_can.mdl"
+SWEP.ViewModel = "models/nzr/2024/perks/bocw/vm_t9_can.mdl"
 SWEP.ViewModelFOV = 65
-SWEP.WorldModel = "models/nz/perks/wm_t9_can.mdl"
+SWEP.WorldModel = "models/nzr/2024/perks/bocw/world/wm_t9_can.mdl"
 SWEP.HoldType = "slam"
 SWEP.CameraAttachmentOffsets = {}
 SWEP.CameraAttachmentScale = 1
@@ -94,7 +94,7 @@ SWEP.SpeedColaActivities = {
 }
 
 SWEP.EventTable = {
-[ACT_VM_DRAW] = {
+["draw"] = {
 { ["time"] = 0, ["type"] = "lua", value = function(self)
 	if self:GetOwner():HasUpgrade("speed") then
 		self.SequenceRateOverride[ACT_VM_DRAW] = 45 / 30
@@ -106,6 +106,21 @@ end, client = true, server = true},
 { ["time"] = 17 / 30, ["type"] = "sound", ["value"] = Sound("Perks_CW.Open") },
 { ["time"] = 25 / 30, ["type"] = "sound", ["value"] = Sound("Perks_CW.Grab") },
 { ["time"] = 55 / 30, ["type"] = "sound", ["value"] = Sound("Perks_CW.Drink") },
+{ ["time"] = 65 / 30, ["type"] = "lua", value = function(self) self:GetOwner():PerkBlur(0.8) end, client = false, server = true},
+{ ["time"] = 85 / 30, ["type"] = "sound", ["value"] = Sound("Perks_CW.Toss") },
+},
+
+["draw_roblox"] = {
+{ ["time"] = 0, ["type"] = "lua", value = function(self)
+	if self:GetOwner():HasUpgrade("speed") then
+		self.SequenceRateOverride[ACT_VM_DRAW] = 45 / 40
+	else
+		self.SequenceRateOverride[ACT_VM_DRAW] = 30 / 40
+	end
+end, client = true, server = true},
+{ ["time"] = 0, ["type"] = "lua", value = function(self) self:GetOwner():SetUsingSpecialWeapon(true) end, client = false, server = true},
+{ ["time"] = 13 / 30, ["type"] = "sound", ["value"] = Sound("Perks_RB.Open") },
+{ ["time"] = 55 / 30, ["type"] = "sound", ["value"] = Sound("Perks_RB.Drink") },
 { ["time"] = 65 / 30, ["type"] = "lua", value = function(self) self:GetOwner():PerkBlur(0.8) end, client = false, server = true},
 { ["time"] = 85 / 30, ["type"] = "sound", ["value"] = Sound("Perks_CW.Toss") },
 },
@@ -134,11 +149,33 @@ function SWEP:SetupDataTables(...)
 end
 
 function SWEP:PreDrawViewModel(...)
-	if self:VMIV() and self.GetPerk then
-		self.Skin = tonumber(nzPerks:Get(self:GetPerk()).material)
+	local vm = self.OwnerViewModel
+
+	local perk = self.GetPerk and self:GetPerk() or ""
+	if perk and perk ~= "" then
+		local mattable = nzPerks:GetBottleTextures(self:GetClass())
+		if mattable then
+			for id, mat in pairs(mattable) do
+				vm:SetSubMaterial(id, mat..perk)
+			end
+		end
 	end
 
 	return BaseClass.PreDrawViewModel(self, ...)
+end
+
+function SWEP:DrawWorldModel(...)
+	local perk = self.GetPerk and self:GetPerk() or ""
+	if perk and perk ~= "" then
+		local mattable = nzPerks:GetBottleTextures(self:GetClass())
+		if mattable then
+			for id, mat in pairs(mattable) do
+				self:SetSubMaterial(id, mat..perk)
+			end
+		end
+	end
+
+	return BaseClass.DrawWorldModel(self, ...)
 end
 
 function SWEP:Think2(...)

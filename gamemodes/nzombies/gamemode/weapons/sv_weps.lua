@@ -38,6 +38,12 @@ function GetPriorityWeaponSlot(ply)
 	if first then return 1, first else return 1 end
 end
 
+local usesammo = {
+	["grenade"] = "nz_grenade",
+	["specialgrenade"] = "nz_specialgrenade",
+	["equipment"] = "nz_equipment",
+}
+
 local function OnWeaponAdded( wep )
 	if not wep:IsSpecial() then
 		wep.Weight = 10000
@@ -50,23 +56,42 @@ local function OnWeaponAdded( wep )
 		local ply = wep:GetOwner()
 		if not IsValid(ply) or not ply:IsPlayer() then return end
 
-		if !nzRound:InState(ROUND_CREATE) and !heldwep and !wep:IsSpecial() then
-			local slot, exists = GetPriorityWeaponSlot(ply)
-			wep:SetNWInt("SwitchSlot", slot)
+		if !nzRound:InState(ROUND_CREATE) and !heldwep then
+			if wep.NZSpecialCategory and wep.NZSpecialCategory == "trap" then
+				if wep.IsTFAWeapon then
+					local oldammo = wep.Primary_TFA.Ammo
+					local newammo = GetNZAmmoID("equipment")
 
-			if wep.IsTFAWeapon then
-				local oldammo = wep.Primary_TFA.Ammo
-				local newammo = wep:GetPrimaryAmmoType()
+					wep.Primary.Ammo = game.GetAmmoName(newammo)
+					wep.Primary_TFA.Ammo = game.GetAmmoName(newammo)
+					wep.Primary_TFA.OldAmmo = oldammo
+					wep:ClearStatCache("Primary.Ammo")
+				else
+					local oldammo = wep.Primary.Ammo
+					local newammo = GetNZAmmoID("equipment")
 
-				wep.Primary_TFA.Ammo = game.GetAmmoName(newammo)
-				wep.Primary_TFA.OldAmmo = oldammo
-				wep:ClearStatCache("Primary.Ammo")
-			else
-				local oldammo = wep.Primary.Ammo
-				local newammo = wep:GetPrimaryAmmoType()
+					wep.Primary.Ammo = game.GetAmmoName(newammo)
+					wep.Primary.OldAmmo = oldammo
+				end
+			elseif !wep.NZSpecialCategory then
+				local slot, exists = GetPriorityWeaponSlot(ply)
+				wep:SetNWInt("SwitchSlot", slot)
 
-				wep.Primary.Ammo = game.GetAmmoName(newammo)
-				wep.Primary.OldAmmo = oldammo
+				if wep.IsTFAWeapon then
+					local oldammo = wep.Primary_TFA.Ammo
+					local newammo = wep:GetPrimaryAmmoType()
+
+					wep.Primary.Ammo = game.GetAmmoName(newammo)
+					wep.Primary_TFA.Ammo = game.GetAmmoName(newammo)
+					wep.Primary_TFA.OldAmmo = oldammo
+					wep:ClearStatCache("Primary.Ammo")
+				else
+					local oldammo = wep.Primary.Ammo
+					local newammo = wep:GetPrimaryAmmoType()
+
+					wep.Primary.Ammo = game.GetAmmoName(newammo)
+					wep.Primary.OldAmmo = oldammo
+				end
 			end
 		end
 
@@ -75,7 +100,51 @@ local function OnWeaponAdded( wep )
 			wep.NZPaPME = nil
 		end
 
-		if wep:IsSpecial() then return end
+		local gum = nzGum:GetActiveGum(ply)
+		if (gum == "all_powered_up") and not wep:HasNZModifier("pap") and (!wep.NZSpecialCategory or (wep.NZSpecialCategory and wep.OnPaP)) then
+			wep:ApplyNZModifier("pap")
+
+			ply:EmitSound("nz_moo/perkacolas/pap/ready.mp3", SNDLVL_GUNFIRE)
+			nzGum:TakeUses(ply)
+
+			if wep.NZPaPReplacement then
+				local wep2 = ply:Give(wep.NZPaPReplacement)
+				if IsValid(wep2) then
+					wep2:ApplyNZModifier("pap")
+					wep2:GiveMaxAmmo()
+				end
+			end
+		end
+
+		local wepdata = wep.NZSpecialWeaponData
+		if wepdata then
+			local ammo = wepdata.AmmoType
+			if wep.NZSpecialCategory == "trap" then
+				ammo = GetNZAmmoID("equipment")
+			end
+			local maxammo = wepdata.MaxAmmo
+			if wep.NZRegenTakeClip then
+				maxammo = maxammo - wep:Clip1()
+			end
+
+			if ammo and maxammo and ammo ~= "" and maxammo > 0 then
+				if wep.NoSpawnAmmo then
+					if wep.StoredNZAmmo then
+						ply:SetAmmo(wep.StoredNZAmmo, GetNZAmmoID(ammo) or ammo)
+						wep.StoredNZAmmo = nil
+
+						if wep.StoredNZAmmo2 then
+							ply:SetAmmo(wep.StoredNZAmmo2, wep:GetSecondaryAmmoType())
+							wep.StoredNZAmmo2 = nil
+						end
+					end
+				else
+					ply:SetAmmo(maxammo, GetNZAmmoID(ammo) or ammo) -- Special weapon ammo or just that ammo
+				end
+			end
+		end
+
+		if wep.NZSpecialCategory then return end
 
 		if not wep.NZSpecialCategory then
 			if ply:HasPerk("staminup") then
@@ -108,19 +177,16 @@ local function OnWeaponAdded( wep )
 				wep:RevertNZModifier("vigor")
 			end
 
-			if (nzGum:GetActiveGum(ply) and nzGum:GetActiveGumData(ply).name == "All Powered Up") and not wep:HasNZModifier("pap") then
-				wep:ApplyNZModifier("pap")
+			if ply:HasPerk("candolier") then
+				wep:ApplyNZModifier("candolier")
+			elseif heldwep and wep:HasNZModifier("candolier") then
+				wep:RevertNZModifier("candolier")
+			end
 
-				ply:EmitSound("nz_moo/perkacolas/pap/ready.mp3", SNDLVL_GUNFIRE)
-				nzGum:TakeUses(ply)
-
-				if wep.NZPaPReplacement then
-					local wep2 = ply:Give(wep.NZPaPReplacement)
-					if IsValid(wep2) then
-						wep2:ApplyNZModifier("pap")
-						wep2:GiveMaxAmmo()
-					end
-				end
+			if ply:HasUpgrade("speed") then
+				wep:ApplyNZModifier("speed")
+			elseif heldwep and wep:HasNZModifier("speed") then
+				wep:RevertNZModifier("speed")
 			end
 
 			if !heldwep then
@@ -138,7 +204,7 @@ local function OnWeaponAdded( wep )
 
 		if wep.StoredNZAmmo then
 			local ammo1 = wep.NZSpecialCategory and wep:GetPrimaryAmmoType() or GetNZAmmoID(wep:GetNWInt("SwitchSlot", 0))
-			ply:SetAmmo(wep.StoredNZAmmo, ammo1)
+			ply:SetAmmo(wep.StoredNZAmmo, GetNZAmmoID(ammo1) or ammo1)
 			wep.StoredNZAmmo = nil
 		end
 		if wep.StoredNZAmmo2 then

@@ -31,10 +31,8 @@ end)
 hook.Add("PlayerSwitchWeapon", "nzPlayerWeaponSwap", function(ply, oldWep, newWep)
 	if not IsValid(ply) or not IsValid(newWep) then return end
 
-	if not ply:HasPerk("mulekick") then
-		if newWep:GetNWInt("SwitchSlot", 0) == 3 then
-			return true
-		end
+	if not ply:HasPerk("mulekick") and newWep:GetNWInt("SwitchSlot", 0) == 3 then
+		return true
 	end
 end)
 
@@ -67,21 +65,19 @@ hook.Add("PlayerSpawn", "SetupHands", function(ply)
 end)
 
 hook.Add("OnPlayerHitGround", "nzPlayerHitGround", function(ply, inWater, onFloater, speed)
-	if ply:HasPerk("phd") then
-		if speed >= 400 then
-			if IsFirstTimePredicted() then
-				ply:ViewPunch(Angle(10, math.random(-5,5), math.random(-5,5)))
+	if ply:HasPerk("phd") and speed >= 400 then
+		if IsFirstTimePredicted() then
+			ply:ViewPunch(Angle(10, math.random(-5,5), math.random(-5,5)))
 
-				ParticleEffect("nz_perks_phd", ply:GetPos() + vector_up*4, angle_zero)
-				ply:EmitSound("NZ.PHD.Wubz")
-				ply:EmitSound("NZ.PHD.Impact")
-			end
+			ParticleEffect("nz_perks_phd", ply:GetPos() + vector_up*4, angle_zero)
+			ply:EmitSound("NZ.PHD.Wubz")
+			ply:EmitSound("NZ.PHD.Impact")
+		end
 
-			if SERVER then
-				local mult = math.min(math.floor(speed/400), 3)
-				util.BlastDamage(ply:GetActiveWeapon(), ply, ply:GetPos(), 150*mult, 2500*mult)
-				util.ScreenShake(ply:GetPos(), 10*mult, 255, 1.5, 200*mult)
-			end
+		if SERVER then
+			local mult = math.min(math.floor(speed/400), 3)
+			util.BlastDamage(ply:GetActiveWeapon(), ply, ply:GetPos(), 150*mult, 4000*mult)
+			util.ScreenShake(ply:GetPos(), 10*mult, 5, 1.5, 200*mult)
 		end
 	end
 end)

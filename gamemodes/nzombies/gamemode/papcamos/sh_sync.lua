@@ -147,6 +147,8 @@ if SERVER then
 end
 
 if CLIENT then
+	local developer = GetConVar("developer")
+
 	local function IsGoodMaterial(name)
 		local bannedmatnames = {
 			"_scope", "_sight",
@@ -253,14 +255,12 @@ if CLIENT then
 		end
 	end
 
-	local cvar_dev = GetConVar("developer")
-
 	local function GenerateCamo(wep, velements)
 		if not IsValid(wep) then return end
 		wep.PaPOverrideMat = {}
 
 		cmdl = ClientsideModel(wep:GetWeaponViewModel())
-		local dev = cvar_dev:GetInt() > 0
+		local dev = developer:GetInt() > 0
 		if dev then print("------------------------------------------------") print(cmdl) print(wep:GetWeaponViewModel())end
 		if IsValid(cmdl) then
 			local mats = cmdl:GetMaterials()
@@ -288,7 +288,7 @@ if CLIENT then
 		wep.TPaPOverrideMat = {}
 
 		local mats = wep:GetMaterials()
-		local dev = cvar_dev:GetInt() > 0
+		local dev = developer:GetInt() > 0
 		if dev then print("------------------------------------------------") print(wep) print(wep:GetWeaponWorldModel()) PrintTable(mats) end
 
 		for k, v in pairs(mats) do
@@ -317,7 +317,9 @@ if CLIENT then
 		local bool = net.ReadBool()
 		local velements = bool and net.ReadTable() or {}
 
-		print('Firstperson camo generation received...')
+		if developer:GetBool() then
+			print('Firstperson camo generation received...')
+		end
 
 		if !load_queue_cl[ply] then
 			load_queue_cl[ply] = {}
@@ -354,7 +356,9 @@ if CLIENT then
 		local bool = net.ReadBool()
 		local welements = bool and net.ReadTable() or {}
 
-		print('Thirdperson camo generation received...')
+		if developer:GetBool() then
+			print('Thirdperson camo generation received...')
+		end
 
 		if !load_queue_3p[ply] then
 			load_queue_3p[ply] = {}
@@ -393,7 +397,7 @@ if CLIENT then
 				if IsValid(wep) and wep:IsWeapon() then
 					if not data.halt then data.halt = true continue end //acts as a delay
 					local own = wep:GetOwner()
-					if IsValid(own) then
+					if developer:GetBool() and IsValid(own) then
 						print("Thirdperson camo generated for "..(own:IsPlayer() and own:Nick() or own:GetClass()).."'s "..wep.PrintName)
 					end
 
@@ -412,7 +416,7 @@ if CLIENT then
 				local wep = Entity(data.wep)
 				if IsValid(wep) and wep:IsWeapon() then
 					local own = wep:GetOwner()
-					if IsValid(own) then
+					if developer:GetBool() and IsValid(own) then
 						print("Firstperson camo generated for "..(own:IsPlayer() and own:Nick() or own:GetClass()).."'s "..wep.PrintName)
 					end
 

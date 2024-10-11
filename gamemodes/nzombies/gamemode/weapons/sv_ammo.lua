@@ -44,6 +44,7 @@ end
 local usesammo = {
 	["grenade"] = "nz_grenade",
 	["specialgrenade"] = "nz_specialgrenade",
+	["trap"] = "nz_equipment",
 }
 
 local plymeta = FindMetaTable("Player")
@@ -55,13 +56,17 @@ function plymeta:GiveMaxAmmo(papoverwrite)
 			local wepdata = v.NZSpecialWeaponData
 			if !wepdata then continue end
 
-			local ammo = usesammo[v:GetSpecialCategory()] or wepdata.AmmoType
+			local ammo = wepdata.AmmoType
+			if v.NZSpecialCategory == "trap" then
+				ammo = GetNZAmmoID("equipment")
+			end
+
 			local maxammo = wepdata.MaxAmmo
 			if v.NZRegenTakeClip then
 				maxammo = maxammo - v:Clip1()
 			end
 
-			if ammo and maxammo then
+			if ammo and maxammo and ammo ~= "" and maxammo > 0 then
 				self:SetAmmo(maxammo, GetNZAmmoID(ammo) or ammo) -- Special weapon ammo or just that ammo
 			end
 		end
@@ -105,18 +110,22 @@ function meta:GiveMaxAmmo(papoverwrite)
 	ply:GiveAmmo(give_ammo, ammo_type)
 	ply:SetAmmo(max_ammo, ammo_type)
 	
-		if self:IsSpecial() then -- Give Max Ammo for special weapons when first getting them.
+	if self:IsSpecial() then -- Give Max Ammo for special weapons when first getting them.
 		local wepdata = self.NZSpecialWeaponData
 		if !wepdata then return end
 
-		local ammo = usesammo[self:GetSpecialCategory()] or wepdata.AmmoType
-		local maxammo = wepdata.MaxAmmo
-		if self.NZRegenTakeClip then
-			maxammo = maxammo - self:Clip1()
+		local ammo = wepdata.AmmoType
+		if self.NZSpecialCategory == "trap" then
+			ammo = GetNZAmmoID("equipment")
 		end
 
-		if ammo and maxammo then
-			self.Owner:SetAmmo(maxammo, GetNZAmmoID(ammo) or ammo) -- Special weapon ammo or just that ammo
+		local maxammo = wepdata.MaxAmmo
+		if self.NZRegenTakeClip then
+			maxammo = maxammo - v:Clip1()
+		end
+
+		if ammo and maxammo and ammo ~= "" and maxammo > 0 then
+			ply:SetAmmo(maxammo, GetNZAmmoID(ammo) or ammo) -- Special weapon ammo or just that ammo
 		end
 	end
 end

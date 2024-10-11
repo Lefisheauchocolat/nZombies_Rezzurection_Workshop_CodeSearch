@@ -20,13 +20,14 @@ local cvar_tfaattachments = GetConVar("nz_tfa_attachments")
 
 -- Any other custom event can be used with weapon:ApplyNZModifier(event)
 
-function nzWeps:AddWeaponModification(id, event, condition, apply, revert)
+function nzWeps:AddWeaponModification(id, event, condition, apply, revert, reapply)
 	if !WeaponModificationFunctions[event] then WeaponModificationFunctions[event] = {} end
 	
 	WeaponModificationFunctions[event][id] = {
 		condition = condition, -- Condition is checked on both revert and apply
 		apply = apply, -- Applies changes, all changes are restored when reverted automatically
-		revert = revert -- If you need some special revert function, this is optional
+		revert = revert, -- If you need some special revert function, this is optional
+		reapply = reapply -- If modification should run again after weapon is pack a punch'ed
 	}
 end
 
@@ -86,18 +87,56 @@ function wepmeta:ApplyNZModifier(modifier, blocknetwork)
 			modded = true
 		end
 
+		local oldmods = {}
 		if !modded then
 			if modifier == "pap" and self.OnPaP then
+				//this is awful, but it works (probably not)
+				for k, data in pairs(WeaponModificationFunctions) do
+					for _, tab in pairs(data) do
+						if self:HasNZModifier(k) and tab.reapply and tab.condition(self) then
+							self:RevertNZModifier(k, true)
+							oldmods[k] = true
+						end
+					end
+				end
+
 				self:OnPaP()
 				modded = true
+
+				for k, data in pairs(WeaponModificationFunctions) do
+					for _, tab in pairs(data) do
+						if tab.reapply and tab.condition(self) and oldmods[k] then
+							self:ApplyNZModifier(k, true)
+						end
+					end
+				end
+
 				if SERVER and not self.NoSpawnAmmo then
 					self:GiveMaxAmmo()
 				end
 			elseif modifier == "repap" and self.OnRePaP then
+				for k, data in pairs(WeaponModificationFunctions) do
+					for _, tab in pairs(data) do
+						if tab.reapply and tab.condition(self) and self:HasNZModifier(k) then
+							self:RevertNZModifier(k, true)
+							oldmods[k] = true
+						end
+					end
+				end
+
 				self:OnRePaP()
 				if nzMapping.Settings.aats ~= nil and nzMapping.Settings.aats < 2 then
 					modded = true
 				end
+
+				for k, data in pairs(WeaponModificationFunctions) do
+					for _, tab in pairs(data) do
+						if tab.reapply and tab.condition(self) and oldmods[k] then
+							self:ApplyNZModifier(k, true)
+						end
+					end
+				end
+
 				if SERVER and not self.NoSpawnAmmo then
 					self:GiveMaxAmmo()
 				end
@@ -164,6 +203,7 @@ function wepmeta:RevertNZModifier(modifier, blocknetwork)
 		if SERVER and !blocknetwork then
 			nzWeps:SendSync(self.Owner, self, modifier, true)
 		end
+
 
 		if !self.NZModifiers then self.NZModifiers = {} end
 		self.NZModifiers[modifier] = nil
@@ -239,6 +279,7 @@ function wepmeta:RevertNZModifier_TFA(modifier, blocknetwork)
 end
 
 function wepmeta:HasNZModifier(id)
+	if self.NZModifiers == nil then return false end
 	if !self.NZModifiers then return false end
 	return self.NZModifiers[id] and true or false
 end
@@ -251,7 +292,7 @@ nzWeps:AddWeaponModification("staminup_tfa", "staminup", function(wep) return we
 
 	wep:ClearStatCache("MoveSpeed")
 	wep:ClearStatCache("IronSightsMoveSpeed")
-end)
+end, nil, true)
 
 nzWeps:AddWeaponModification("deadshot_tfa", "deadshot", function(wep) return wep.IsTFAWeapon end, function(wep)
 	if not wep.NZSpecialCategory and wep:GetMuzzleAttachment() then
@@ -285,7 +326,7 @@ nzWeps:AddWeaponModification("deadshot_tfa", "deadshot", function(wep) return we
 	wep:ClearStatCache("ChangeStateAccuracyMultiplier")
 	wep:ClearStatCache("JumpAccuracyMultiplier")
 	wep:ClearStatCache("WalkAccuracyMultiplier")
-end)
+end, nil, true)
 
 nzWeps:AddWeaponModification("vigor_tfa", "vigor", function(wep) return wep.IsTFAWeapon end, function(wep)
 	if not wep.Primary_TFA.Projectile then
@@ -301,7 +342,7 @@ nzWeps:AddWeaponModification("vigor_tfa", "vigor", function(wep) return wep.IsTF
 		wep:ClearStatCache("Primary.BlastRadius")
 		wep:ClearStatCache("Primary.ImpactEffect")
 	end
-end)
+end, nil, true)
 
 nzWeps:AddWeaponModification("dtap2_tfa", "dtap2", function(wep) return wep.IsTFAWeapon end, function(wep)
 	local ply = wep:GetOwner()
@@ -340,7 +381,7 @@ nzWeps:AddWeaponModification("dtap2_tfa", "dtap2", function(wep) return wep.IsTF
 		wep.Primary_TFA.NumShots = math.Clamp(math.floor(wep.Primary_TFA.NumShots * 2), 2 ,math.Max(wep.Primary_TFA.NumShots, 24)) //limiting numshots to 24 unless base is higher
 		wep:ClearStatCache("Primary.NumShots")
 	end
-end)
+end, nil, true)
 
 nzWeps:AddWeaponModification("dtap_tfa", "dtap", function(wep) return wep.IsTFAWeapon end, function(wep)
 	local ply = wep:GetOwner()
@@ -371,7 +412,72 @@ nzWeps:AddWeaponModification("dtap_tfa", "dtap", function(wep) return wep.IsTFAW
 		wep.Secondary_TFA.RPM = math.floor(wep.NZStoredRPM2 * rate)
 		wep:ClearStatCache("Secondary.RPM")
 	end
-end)
+end, nil, true)
+
+nzWeps:AddWeaponModification("speed_tfa", "speed", function(wep) return wep.IsTFAWeapon end, function(wep)
+	local ply = wep:GetOwner()
+	if not IsValid(ply) then return end
+
+	if ply:HasUpgrade("speed") and (wep.LoopedReload or wep.Shotgun) then
+		local clipsize = wep:GetStatL("Primary.ClipSize") or wep.Primary_TFA.ClipSize
+		if clipsize > 0 then
+			wep.LoopedReloadInsertAmount = clipsize
+			wep:ClearStatCache("LoopedReloadInsertAmount")
+		end
+	end
+end, nil, true)
+
+nzWeps:AddWeaponModification("candolier_tfa", "candolier", function(wep) return wep.IsTFAWeapon end, function(wep)
+	local ply = wep:GetOwner()
+	if not IsValid(ply) then return end
+
+	local invalid_ammo = {
+		["nil"] = true,
+		["none"] = true,
+		["null"] = true,
+		[""] = true
+	}
+
+	local ammo = wep:GetStatL("Primary.MaxAmmo") or wep.Primary_TFA.MaxAmmo or wep.Primary.MaxAmmo
+	if !ammo or ammo >= 700 then return end
+
+	local clipsize = wep:GetStatL("Primary.ClipSize") or wep.Primary_TFA.ClipSize
+	if !clipsize or clipsize <= 0 then
+		clipsize = wep:GetStatL("Primary.DefaultClip") or wep.Primary_TFA.DefaultClip
+		clipsize = math.max(clipsize, math.min(clipsize*2, 700))
+
+		wep.Primary.DefaultClip = clipsize
+		wep.Primary_TFA.DefaultClip = clipsize
+		wep:ClearStatCache("Primary.DefaultClip")
+
+		wep.Primary.MaxAmmo = clipsize
+		wep.Primary_TFA.MaxAmmo = clipsize
+		wep:ClearStatCache("Primary.MaxAmmo")
+	else
+		local amount = clipsize*2
+
+		local ammotype = wep:GetStatL("Primary.Ammo") or wep.Primary_TFA.Ammo
+		if (!ammotype or invalid_ammo[ammotype] or game.GetAmmoID(ammotype) < 0) then
+			if clipsize and clipsize > 0 then
+				wep.Primary.ClipSize = math.max(wep.Primary.ClipSize, math.min(amount, 700))
+				wep.Primary_TFA.ClipSize = math.max(wep.Primary_TFA.ClipSize, math.min(amount, 700))
+				wep:ClearStatCache("Primary.ClipSize")
+
+				wep.Primary.DefaultClip = wep.Primary_TFA.ClipSize
+				wep.Primary_TFA.DefaultClip = wep.Primary_TFA.ClipSize
+				wep:ClearStatCache("Primary.DefaultClip")
+			end
+
+			wep.Primary.MaxAmmo = math.max(ammo, math.min(amount, 700))
+			wep.Primary_TFA.MaxAmmo = math.max(ammo, math.min(amount, 700))
+			wep:ClearStatCache("Primary.MaxAmmo")
+		else
+			wep.Primary.MaxAmmo = math.max(ammo, math.min(ammo + amount, 700))
+			wep.Primary_TFA.MaxAmmo = math.max(ammo, math.min(ammo + amount, 700))
+			wep:ClearStatCache("Primary.MaxAmmo")
+		end
+	end
+end, nil, true)
 
 nzWeps:AddWeaponModification("tfa_attachmentmod", "equip", function(wep) return wep.IsTFAWeapon end, function(wep)
 	if SERVER then

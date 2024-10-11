@@ -74,6 +74,7 @@ end
 if CLIENT then
 	//hopefully this fixes things randomly not working on the client
 	local load_queue_cl = {}
+	local developer = GetConVar("developer")
 
 	local function ReceiveSync( length )
 		local ply = LocalPlayer()
@@ -123,12 +124,12 @@ if CLIENT then
 					local own = wep:GetOwner()
 
 					if revert then
-						if IsValid(own) and wep.PrintName then
+						if developer:GetBool() and IsValid(own) and wep.PrintName then
 							print("Reverting ["..mod.."] modifier for "..(own:IsPlayer() and own:Nick() or own:GetClass()).."'s "..wep.PrintName)
 						end
 						wep:RevertNZModifier(mod)
 					else
-						if IsValid(own) and wep.PrintName then
+						if developer:GetBool() and IsValid(own) and wep.PrintName then
 							print("Applying ["..mod.."] modifier for "..(own:IsPlayer() and own:Nick() or own:GetClass()).."'s "..wep.PrintName)
 						end
 						wep:ApplyNZModifier(mod)

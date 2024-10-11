@@ -14,9 +14,9 @@ SWEP.AutoSwitchFrom = false
 SWEP.DrawAmmo = false
 
 --[Model]--
-SWEP.ViewModel = "models/nz/perks/vm_perk_nana.mdl"
+SWEP.ViewModel = "models/nzr/2024/perks/bo3/banana/vm_perk_nana.mdl"
 SWEP.ViewModelFOV = 65
-SWEP.WorldModel = "models/nz/perks/wm_perk_nana.mdl"
+SWEP.WorldModel = "models/nzr/2024/perks/bo3/banana/world/wm_perk_nana.mdl"
 SWEP.HoldType = "slam"
 SWEP.CameraAttachmentOffsets = {}
 SWEP.CameraAttachmentScale = 1
@@ -133,11 +133,33 @@ function SWEP:SetupDataTables(...)
 end
 
 function SWEP:PreDrawViewModel(...)
-	if self:VMIV() and self.GetPerk then
-		self.Skin = tonumber(nzPerks:Get(self:GetPerk()).material)
+	local vm = self.OwnerViewModel
+
+	local perk = self.GetPerk and self:GetPerk() or ""
+	if perk and perk ~= "" then
+		local mattable = nzPerks:GetBottleTextures(self:GetClass())
+		if mattable then
+			for id, mat in pairs(mattable) do
+				vm:SetSubMaterial(id, mat..perk)
+			end
+		end
 	end
 
 	return BaseClass.PreDrawViewModel(self, ...)
+end
+
+function SWEP:DrawWorldModel(...)
+	local perk = self.GetPerk and self:GetPerk() or ""
+	if perk and perk ~= "" then
+		local mattable = nzPerks:GetBottleTextures(self:GetClass())
+		if mattable then
+			for id, mat in pairs(mattable) do
+				self:SetSubMaterial(id, mat..perk)
+			end
+		end
+	end
+
+	return BaseClass.DrawWorldModel(self, ...)
 end
 
 function SWEP:Think2(...)
@@ -155,6 +177,8 @@ function SWEP:Think2(...)
 
 	return BaseClass.Think2(self, ...)
 end
+
+
 
 -- Disable functions that should not be used
 function SWEP:IsSpecial()

@@ -61,7 +61,7 @@ hook.Add("PlayerShouldTakeDamage", "nzPlayerIgnoreDamage", function(ply, ent)
 		return false
 	end
 
-	if ply:IsSpectating() then
+	if !nzRound:InState(ROUND_CREATE) and !ply:IsPlaying() then
 		return false
 	end
 
@@ -167,12 +167,12 @@ hook.Add("EntityTakeDamage", "nzPlayerTakeDamage", function(ply, dmginfo)
 	end
 
 	if IsValid(ent) and not ent:IsPlayer() and dmginfo:IsDamageType(DMG_VEHICLE) then //assdonut teleport
+		dmginfo:SetDamage(ply:Health() - 25)
+
 		local perks = ply:GetPerks()
 		if not table.IsEmpty(perks) then
 			ply:RemovePerk(perks[math.random(#perks)], true)
 		end
-
-		dmginfo:SetDamage(ply:Health() - 25)
 
 		local available = ents.FindByClass("nz_spawn_zombie_special")
 		local pos = ply:GetPos()
@@ -211,7 +211,7 @@ hook.Add("EntityTakeDamage", "nzPlayerTakeDamage", function(ply, dmginfo)
 		ply:SetPos(pos)
 	end
 
-	if bit.band(dmginfo:GetDamageType(), bit.bor(DMG_RADIATION, DMG_POISON, DMG_SHOCK)) ~= 0 and ply:HasPerk("mask") then
+	if bit.band(dmginfo:GetDamageType(), bit.bor(DMG_VEHICLE, DMG_RADIATION, DMG_POISON, DMG_SHOCK)) ~= 0 and ply:HasPerk("mask") then
 		dmginfo:ScaleDamage(0.15)
 	end
 
@@ -268,8 +268,6 @@ hook.Add("PostEntityTakeDamage", "nzPostPlayerTakeDamage", function(ply, dmginfo
 end)
 
 hook.Add("PlayerSpawn", "nzPlayerSpawnVars", function(ply, trans)
-	ply:SetNW2Bool("nz.GinMod", false)
-
 	ply:SetNW2Float("nz.DeadshotDecay", 1)
 	ply:SetNW2Int("nz.DeadshotChance", 0)
 
@@ -287,6 +285,9 @@ hook.Add("PlayerSpawn", "nzPlayerSpawnVars", function(ply, trans)
 
 	ply:SetNW2Float("nz.WailDelay", 1)
 	ply:SetNW2Int("nz.WailCount", 3)
+
+	ply:SetNW2Float("nz.BananaDelay", 1)
+	ply:SetNW2Int("nz.BananaCount", 7)
 
 	ply:SetNW2Int("nz.SoloReviveCount", #player.GetAll() <= 1 and (nzMapping.Settings.solorevive or 3) or 0)
 end)
@@ -336,6 +337,18 @@ hook.Add("PlayerDowned", "nzPlayerDown", function(ply)
 end)
 
 hook.Add("PlayerPostThink", "nzStatsRestePlayer", function(ply)
+	if ply:HasPerk("banana") then
+		if ply:GetNW2Float("nz.BananaDelay", 0) < CurTime() and ply:GetNW2Int("nz.BananaCount", 0) < (ply:HasUpgrade("banana") and 9 or 7) then
+			if !ply.NZBananaRegenDelay then
+				ply.NZBananaRegenDelay = 0
+			end
+
+			if ply.NZBananaRegenDelay < CurTime() then
+				ply:SetNW2Int("nz.BananaCount", math.min(ply:GetNW2Int("nz.BananaCount", 0) + 1, (ply:HasUpgrade("banana") and 9 or 7)))
+				ply.NZBananaRegenDelay = CurTime() + 5
+			end
+		end
+	end
 	if ply:HasPerk("tortoise") then
 		if ply:GetNW2Float("nz.TortDelay", 0) < CurTime() and ply:GetNW2Int("nz.TortCount", 0) > 0 then
 			ply:SetNW2Int("nz.TortCount", 0)

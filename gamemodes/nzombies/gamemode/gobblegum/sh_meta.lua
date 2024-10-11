@@ -34,17 +34,6 @@ local function StartTimer(ply, gumid)
 	ply:SetNWBool("nz_GumTimerProceed", true)
 end
 
-function nzGum:TimerTimeLeft(ply)
-	local gumid = nzGum:GetActiveGum(ply)
-	if !gumid then
-		return 0
-	end
-	if CLIENT then
-		return ply.nz_gum_timerstart or 0
-	end
-	return timer.TimeLeft("nzGumTimer_" .. gumid .. "_" .. ply:EntIndex()) or 0
-end
-
 function nzGum:SetActiveGum(ply, gumid)
 	local gumdata = nzGum:GetData(gumid)
 	if !gumdata then
@@ -71,6 +60,72 @@ function nzGum:SetActiveGum(ply, gumid)
 	if gumdata.ongain then
 		gumdata.ongain(ply)
 	end
+end
+
+function nzGum:GetActiveGum(ply)
+	if not IsValid(ply) or not ply:IsPlayer() then return end
+
+	local gum = ply:GetNWString("nzCurrentGum", "")
+	if !gum or gum == "" then
+		return
+	end
+	return gum
+end
+
+function nzGum:GetActiveGumData(ply)
+	local gum = nzGum:GetActiveGum(ply)
+	if !gum then return end
+
+	return nzGum.Gums[gum]
+end
+
+function nzGum:RemoveActiveGum(ply)
+	ply:SetNWString("nzCurrentGum", "")
+end
+
+function nzGum:GetGumRare(gumid)
+	local gum = nzGum.Gums[gumid]
+	if !gum then return end
+
+	return gum.rare or nzGum.RareTypes.DEFAULT
+end
+
+function nzGum:CanUse(ply)
+	local gumdata = nzGum:GetActiveGumData(ply)
+	if !gumdata then
+		return false
+	end
+
+	if gumdata.type == nzGum.Types.SPECIAL and gumdata.uses then
+		return false
+	end
+
+	if gumdata.type == nzGum.Types.ROUNDS then
+		return false
+	end
+
+	if gumdata.type == nzGum.Types.TIME then
+		return false
+	end
+
+	if !ply:Alive() or !ply:GetNotDowned() or ply:GetUsingSpecialWeapon() then
+		if CLIENT then
+			nzGum:DenyNotifcation()
+		end
+		return false
+	end
+
+	if gumdata.canuse and !gumdata.canuse(ply) then
+		if CLIENT then
+			nzGum:DenyNotifcation()
+		end
+		return false
+	end
+
+	local wep = ply:GetActiveWeapon()
+	local gum_chewer = (IsValid(wep) and wep:GetClass() == "tfa_nz_bubble")
+
+	return !ply.nzGum_isbubbling and nzGum:UsesRemain(ply) > 0 and !nzGum:IsWorking(ply) and !gum_chewer
 end
 
 function nzGum:UseGum(ply)
@@ -160,6 +215,17 @@ end
 
 ---------------------------------------------------------------------- TIMERS
 ---------------------------------------------------------------------- TIMERS
+function nzGum:TimerTimeLeft(ply)
+	local gumid = nzGum:GetActiveGum(ply)
+	if !gumid then
+		return 0
+	end
+	if CLIENT then
+		return ply.nz_gum_timerstart or 0
+	end
+	return timer.TimeLeft("nzGumTimer_" .. gumid .. "_" .. ply:EntIndex()) or 0
+end
+
 function nzGum:IsWorking(ply)
 	local gum = nzGum:GetActiveGumData(ply)
 	if !gum then
@@ -176,66 +242,11 @@ function nzGum:IsWorking(ply)
 
 	return false
 end
-
-function nzGum:UsesRemain(ply)
-	local uses = ply:GetNWInt("nzCurrentGum_UsesRemain", 0)
-	if uses < 0 then
-		return 0
-	end
-	return uses
-end
 ---------------------------------------------------------------------- TIMERS
 ---------------------------------------------------------------------- TIMERS
 
-function nzGum:IsUseBaseGum(ply)
-	local gum = nzGum:GetActiveGumData(ply)
-	if !gum then
-		return false
-	end
-
-	local gum_usetypes = {
-		[nzGum.Types.USABLE_WITH_TIMER] = true,
-		[nzGum.Types.USABLE] = true,
-	}
-
-	return gum_usetypes[gum.type] or (gum.type == nzGum.Types.SPECIAL and gum.uses)
-end
-
-function nzGum:GetGumRare(gumid)
-	local gum = nzGum.Gums
-	if !gum then return end
-
-	return gum.rare or nzGum.RareTypes.DEFAULT
-end
-
-function nzGum:CanUse(ply)
-	local gumdata = nzGum:GetActiveGumData(ply)
-	if !gumdata then
-		return false
-	end
-
-	if gumdata.type == nzGum.Types.SPECIAL and gumdata.uses then
-		return false
-	end
-
-	local wep = ply:GetActiveWeapon()
-	if !ply:Alive() or !ply:GetNotDowned() or ply:GetUsingSpecialWeapon() or (IsValid(wep) and wep:GetClass() == "tfa_nz_bubble") then
-		if CLIENT then
-			nzGum:DenyNotifcation()
-		end
-		return false
-	end
-
-	if gumdata.canuse and !gumdata.canuse(ply) then
-		if CLIENT then
-			nzGum:DenyNotifcation()
-		end
-		return false
-	end
-
-	return !ply.nzGum_isbubbling and nzGum:UsesRemain(ply) > 0 and !nzGum:IsWorking(ply) and !nzGum:IsRoundBaseGum(ply)
-end
-
+---------------------------------------------------------------------- USES
+---------------------------------------------------------------------- USES
 function nzGum:SetUses(ply, uses)
 	ply:SetNWInt("nzCurrentGum_UsesRemain", uses)
 end
@@ -256,28 +267,35 @@ function nzGum:TakeUses(ply)
 	end
 end
 
-function nzGum:RemoveActiveGum(ply)
-	ply:SetNWString("nzCurrentGum", "")
+function nzGum:UsesRemain(ply)
+	local uses = ply:GetNWInt("nzCurrentGum_UsesRemain", 0)
+	if uses < 0 then
+		return 0
+	end
+	return uses
 end
 
-function nzGum:GetActiveGumData(ply)
-	local gum = nzGum:GetActiveGum(ply)
-	if !gum then return end
+function nzGum:IsUseBaseGum(ply)
+	local gum = nzGum:GetActiveGumData(ply)
+	if !gum then
+		return false
+	end
 
-	return nzGum.Gums[gum]
-end
+	local gum_usetypes = {
+		[nzGum.Types.USABLE_WITH_TIMER] = true,
+		[nzGum.Types.USABLE] = true,
+	}
 
-function nzGum:SetPlayerPriceMultiplayer(ply, multiplier)
-	ply:SetNWInt("nzGumPriceMultiplier", multiplier)
+	return gum_usetypes[gum.type] or (gum.type == nzGum.Types.SPECIAL and gum.uses)
 end
+---------------------------------------------------------------------- USES
+---------------------------------------------------------------------- USES
 
 if SERVER then
 	util.AddNetworkString("nz_UseGum")
 
 	hook.Add("OnRoundInit", "nzGums", function()
-		for id, data in pairs(nzMapping.Settings.gumlist) do
-			nzGum.RollData[id] = {count = data[2], chance = nzGum.RollChance, roundgotin = 0}
-		end
+		nzGum:RebuildRollCounts()
 
 		local gums = {}
 		for id, data in pairs(nzGum.RollData) do
@@ -293,7 +311,8 @@ if SERVER then
 			local gumdata = nzGum.Gums[id]
 			if !gumdata then continue end
 
-			local rarity = gumdata.rare or nzGum.RareTypes.DEFAULT
+			local roll_updated = false
+			local rarity = nzGum:GetGumRare(id)
 
 			local max = nzGum.RollCounts[rarity]
 			if nzMapping.Settings.gumlist and nzMapping.Settings.gumlist[id] then
@@ -306,32 +325,57 @@ if SERVER then
 			end
 
 			if (data.count < max) and (data.roundgotin + roll_reset) <= num then
-				if GetGlobal2Bool("nzGumsEmpty", false) then
-					SetGlobal2Bool("nzGumsEmpty", false)
-				end
+				roll_updated = true
+
+				local old_count = data.count
 				nzGum.RollData[id].count = max
 				nzGum.RollData[id].roundgotin = 0
 
-				print("Reset '"..gumdata.name.."' gum count to: "..max.." from: "..data.count)
+				nzGum:UpdateTotalCount(nzGum:GetTotalCount() + (max - old_count))
+
+				print("Reset '"..gumdata.name.."' gum count to: "..max.." from: "..old_count)
 			end
 
 			local chance_reset = (nzMapping.Settings.gumchanceresetrounds or nzGum.RollChanceResetRounds)
-			if num%(chance_reset) == 0 then
+			if data.chance < nzGum.RollChance and num%(chance_reset) == 0 then
+				roll_updated = true
+
 				print("Reset '"..gumdata.name.."' gum chance to: "..nzGum.RollChance.." from: "..nzGum.RollData[id].chance)
 				nzGum.RollData[id].chance = nzGum.RollChance
+			end
+
+			if roll_updated then
+				if nzGum:GetTotalCount() > 0 then
+					for k, v in pairs(ents.FindByClass("nz_gummachine")) do
+						if v.GumsEmpty then
+							v:RefillGums()
+						end
+					end
+				end
+				nzGum:SendRollSync(id)
 			end
 		end
 
 		for _, ply in pairs(player.GetAll()) do
 			if !IsValid(ply) then continue end
-			nzGum:SetPlayerPriceMultiplayer(ply, 0)
 			nzGum:ResetTotalBuys(ply)
+			nzGum:SetPlayerPriceMultiplier(ply, 0)
 		end
 	end)
 
 	hook.Add("OnRoundEnd", "nzGums", function()
+		nzGum:UpdateTotalCount(0)
+		nzGum:SendRollResetSync()
+		for k, v in pairs(ents.FindByClass("nz_gummachine")) do
+			if v.GumsEmpty then
+				v:RefillGums()
+			end
+		end
+
 		for _, ply in pairs(player.GetAll()) do
 			nzGum:EraseGum(ply)
+			nzGum:ResetTotalBuys(ply)
+			nzGum:SetPlayerPriceMultiplier(ply, 0)
 		end
 	end)
 
@@ -420,87 +464,4 @@ else
 			net.SendToServer()
 		end
 	end)*/
-end
-
-//Stock Options metafunc override
-local wepmeta = FindMetaTable("Weapon")
-if wepmeta then
-	local illegalspecials = {
-		["specialweapon"] = true, //would do nothing
-		["grenade"] = true, //would do nothing
-		["knife"] = true,
-		["display"] = true,
-	}
-
-	local old_setclip1 = wepmeta.SetClip1
-	function wepmeta:SetClip1(amount, ...)
-		if nzPowerUps:IsPowerupActive("infinite") and (self.IsTFAWeapon or self.NZInfiniteSafe) and (!self.NZSpecialWeapon or illegalspecials[self.NZSpecialWeapon]) then
-			if amount >= self:Clip1() then
-				return old_setclip1(self, amount, ...)
-			end
-			return self:Clip1()
-		end
-		if self.NZSpeedRegenerating then
-			return old_setclip1(self, amount, ...)
-		end
-
-		local ply = self:GetOwner()
-		if IsValid(ply) and ply:IsPlayer() and self.IsTFAWeapon then
-			local gum = nzGum:GetActiveGum(ply)
-
-			if gum and gum == "stock_option" then
-				local ammostring = self:GetStatL("Primary.Ammo")
-
-				if ply:IsPlayer() and self:Ammo1() > 0 and self:GetPrimaryAmmoType() > 0 and (ammostring ~= ("none" or "")) and amount < self.Primary_TFA.ClipSize then
-					local new = math.max(self:Clip1() - amount, 0)
-
-					ply:RemoveAmmo(new, self:GetPrimaryAmmoType())
-					return amount
-				else
-					return old_setclip1(self, amount, ...)
-				end
-			else
-				return old_setclip1(self, amount, ...)
-			end
-		else
-			return old_setclip1(self, amount, ...)
-		end
-	end
-
-	local old_setclip2 = wepmeta.SetClip2
-	function wepmeta:SetClip2(amount, ...)
-		if nzPowerUps:IsPowerupActive("infinite") and (self.IsTFAWeapon or self.NZInfiniteSafe) and (!self.NZSpecialWeapon or illegalspecials[self.NZSpecialWeapon]) then
-			if amount >= self:Clip2() then
-				return old_setclip2(self, amount, ...)
-			end
-			return self:Clip2()
-		end
-		if self.NZSpeedRegenerating then
-			return old_setclip2(self, amount, ...)
-		end
-
-		local ply = self:GetOwner()
-		if IsValid(ply) and ply:IsPlayer() and self.IsTFAWeapon then
-			local gum = nzGum:GetActiveGum(ply)
-
-			if gum and gum == "stock_option" then
-				local ammotype = self.Akimbo and self:GetPrimaryAmmoType() or self:GetSecondaryAmmoType()
-				local ammo = self.Akimbo and self:Ammo1() or self:Ammo2()
-				local ammostring = self.Akimbo and self:GetStatL("Primary.Ammo") or self:GetStatL("Secondary.Ammo")
-
-				if ply:IsPlayer() and ammo > 0 and ammotype > 0 and (ammostring ~= ("none" or "")) and amount < self.Secondary_TFA.ClipSize then
-					local new = math.max(self:Clip2() - amount, 0)
-
-					ply:RemoveAmmo(new, ammotype)
-					return amount
-				else
-					return old_setclip2(self, amount, ...)
-				end
-			else
-				return old_setclip2(self, amount, ...)
-			end
-		else
-			return old_setclip2(self, amount, ...)
-		end
-	end
 end

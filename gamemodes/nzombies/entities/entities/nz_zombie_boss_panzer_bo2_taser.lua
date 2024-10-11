@@ -1,7 +1,7 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombie_boss_panzer"
-ENT.PrintName = "Panzer Soldat(Origins Taser)"
+ENT.PrintName = "Panzer Soldat"
 ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 
