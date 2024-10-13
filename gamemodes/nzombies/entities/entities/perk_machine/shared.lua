@@ -417,10 +417,10 @@ function ENT:Update()
 			UpgradePrice 	= {PerkData.upgradeprice},
 			Jingle 			= {PerkData.jingle},
 			Sting 			= {PerkData.sting},
-			PowerOnSnd 		= {"nz_moo/perkacolas/fountain/zmb_fntn_zm_blood_on.mp3"},
-			AmbSnd 			= {"nz_moo/perkacolas/fountain/zmb_fntn_main_lp.wav"},
-			AllowJingle 	= {false},
-			AllowMist 		= {false},
+			PowerOnSnd 		= {"effects/perk_turn_on.ogg"},
+			AmbSnd 			= {"nz_moo/perkacolas/hum_loop.wav"},
+			AllowJingle 	= {true},
+			AllowMist 		= {true},
 		},
 	}
 
@@ -876,7 +876,6 @@ function ENT:Think()
 					self:ShowMachine()
 				end
 			elseif !self:GetSelected() and !self:GetNoDraw() then
-				self:SetSelected(false)
 				self.MarkedForRemoval = true
 			end
 		end

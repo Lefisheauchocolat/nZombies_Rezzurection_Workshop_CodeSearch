@@ -1794,9 +1794,18 @@ local function PerksHud_t7_zod()
 
 	local perks = ply:GetPerks()
 	local maxperks = ply:GetMaxPerks()
-	local w = ScrW()/1920 + 206
+	local w = ScrW()/1920 + (206*pscale)
 	local h = ScrH()
 	local size = 50
+
+	if nz_showhealth:GetBool() then
+		w = w + (64*pscale)
+		if nz_showcompass:GetBool() and nz_showzcounter:GetBool() then
+			w = w + (6*pscale)
+		end
+	elseif nz_showcompass:GetBool() and nz_showzcounter:GetBool() then
+		w = w + (70*pscale)
+	end
 
 	local num = 0
 	local row = 0
@@ -1913,6 +1922,7 @@ local function VultureVision_t7_zod()
 
 	for k, v in nzLevel.GetVultureArray() do
 		if not IsValid(v) then continue end
+		if v:GetNoDraw() then continue end
 
 		local data = v:WorldSpaceCenter():ToScreen()
 		if not data.visible then continue end
@@ -2055,7 +2065,7 @@ local function RoundHud_t7_zod()
 		local timer = v.state - CurTime()
 		local T = v.istally
 		local offset = ((k-1)*spacing)
-		local hi = T and 140 or 140
+		local hi = T and 145 or 140
 		if nz_showcompass:GetBool() then
 			hi = hi - 10
 		end
@@ -2063,31 +2073,31 @@ local function RoundHud_t7_zod()
 		if timer > 3 then
 			surface.SetMaterial(roundassets["burnt"][v.image])
 			surface.SetDrawColor(color_white)
-			surface.DrawTexturedRectUV(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, (T and tallysize or digitsize.y) * (4-timer), 0, 0, 1, 4-timer)
+			surface.DrawTexturedRectUV(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, (T and tallysize or digitsize.y) * (4-timer), 0, 0, 1, 4-timer)
 		elseif timer > 2 then
 			surface.SetMaterial(roundassets["burnt"][v.image])
 			surface.SetDrawColor(color_white)
-			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 			surface.SetMaterial(roundassets["heat"][v.image])
 			surface.SetDrawColor(Color(255,255,99,255*(3-timer)))
-			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 		elseif timer > 1 and !v.fade then
 			surface.SetMaterial(roundassets["normal"][v.image])
 			surface.SetDrawColor(Color(255,255,255,255*(2-timer)))
-			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 			surface.SetMaterial(roundassets["burnt"][v.image])
 			surface.SetDrawColor(Color(255,255,255,1024*(timer-1)))
-			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 			surface.SetMaterial(roundassets["heat"][v.image])
 			surface.SetDrawColor(Color(255,80 + (175*(timer-1)),99*(timer-1)))
-			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 		elseif timer > 0 and !v.fade then
 			surface.SetMaterial(roundassets["normal"][v.image])
 			surface.SetDrawColor(color_white)
-			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 			surface.SetMaterial(roundassets["heat"][v.image])
 			surface.SetDrawColor(Color(255,80,0,255*timer))
-			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 		elseif v.fade then
 			local fade_colora = ColorAlpha(color_white, 255*timer)
 			local fade_colorb = ColorAlpha(color_white, 255*(1-timer))
@@ -2095,26 +2105,26 @@ local function RoundHud_t7_zod()
 			if timer > 1 then
 				surface.SetMaterial(roundassets["normal"][v.image])
 				surface.SetDrawColor(fade_colora)
-				surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+				surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 				surface.SetMaterial(roundassets["burnt"][v.image])
 				surface.SetDrawColor(fade_colorb)
-				surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+				surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 			else
 				surface.SetMaterial(roundassets["burnt"][v.image])
 				surface.SetDrawColor(fade_colora)
-				surface.DrawTexturedRectUV(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y, 0, 0, 1, 1 - math.sin(math.pi*(0.5 + timer/2)))
-				--surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+				surface.DrawTexturedRectUV(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y, 0, 0, 1, 1 - math.sin(math.pi*(0.5 + timer/2)))
+				--surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 			end
 		else
 			surface.SetMaterial(roundassets["normal"][v.image])
 			surface.SetDrawColor(color_white)
-			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 			if nzRound:InState(ROUND_PREP) then
 				local prep_color = ColorAlpha(color_white, 127.5 + (127.5*math.sin(CurTime()*8)))
 
 				surface.SetMaterial(roundassets["heat"][v.image])
 				surface.SetDrawColor(prep_color)
-				surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+				surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 			end
 		end
 	end
@@ -2133,7 +2143,7 @@ local function RoundHud_t7_zod()
 					local mod2 = math.ceil(movement)
 					local mod3 = mod1 == mod2 and 1 or (movement % 1)
 					local X = 10 + (T and 0 or v.offset)
-					local Y = v.offsetheight or (T and 175 or 160)
+					local Y = v.offsetheight or (T and 145 or 140)
 					local SIZE = v.overridesize or 1
 					if b[mod1] and b[mod2] then
 						local x1 = b[mod1][1] * (T and tallycoordmult or 1)

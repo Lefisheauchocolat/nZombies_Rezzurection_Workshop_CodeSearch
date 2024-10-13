@@ -753,9 +753,11 @@ function ENT:AI()
 	end
 
 	-- Pounce Attack
-	if self:GetCrawler() and self.IsStalking and IsValid(target) and !target.MonkeyBomb and !target.BHBomb and !self:IsAttackBlocked() and math.random(100) <= 50 then
+	if self:GetCrawler() and self.IsStalking and IsValid(target) and !target.MonkeyBomb and !target.BHBomb and !self:IsAttackBlocked() and math.random(100) <= 75 then
 		if self:TargetInRange(350) and !self:TargetInRange(125) then
 			self:TempBehaveThread(function(self)
+				--if !self:SequenceHasSpace("nz_base_hunter_attack_lunge_high") then return end
+
 				self:SetSpecialAnimation(true)
 				self:PlaySequenceAndMove("nz_base_hunter_attack_lunge_high", 1, self.FaceEnemy)
 				self:SetSpecialAnimation(false)
@@ -768,6 +770,8 @@ function ENT:AI()
 			end)
 		elseif self:TargetInRange(600) and !self:TargetInRange(350) then
 			self:TempBehaveThread(function(self)
+				--if !self:SequenceHasSpace("nz_base_hunter_attack_lunge_low") then return end
+
 				self:SetSpecialAnimation(true)
 				self:PlaySequenceAndMove("nz_base_hunter_attack_lunge_low", 1, self.FaceEnemy)
 				self:SetSpecialAnimation(false)

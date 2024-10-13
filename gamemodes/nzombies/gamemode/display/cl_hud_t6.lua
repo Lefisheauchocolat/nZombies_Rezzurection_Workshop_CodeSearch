@@ -323,7 +323,7 @@ local function ScoreHud_t6()
 	local offset = 5
 	local healthmodder = (not nz_healthbarstyle:GetBool() and nz_showhealth:GetBool())
 	if nz_showcompass:GetBool() then
-		offset = healthmodder and 35*scale or 20*scale
+		offset = healthmodder and 35*scale or 40*scale
 	end
 	if healthmodder then
 		offset = offset + 35*scale
@@ -1302,6 +1302,7 @@ local function VultureVision_t6()
 
 	for k, v in nzLevel.GetVultureArray() do
 		if not IsValid(v) then continue end
+		if v:GetNoDraw() then continue end
 
 		local data = v:WorldSpaceCenter():ToScreen()
 		if not data.visible then continue end

@@ -317,8 +317,8 @@ function ENT:MoveLocation()
 	end
 end
 
-local red = Color(255,0,0)
-local green = Color(0,255,0)
+local color_red = Color(255,0,0)
+local color_green = Color(0,255,0)
 local onlight = Material( "sprites/physg_glow1" )
 local usedcolor = Color(255,240,225)
 
@@ -422,11 +422,11 @@ if CLIENT then
 				self.LightningEffects3 = CreateParticleSystem(self, "bo3_vending_wonder_light", PATTACH_POINT_FOLLOW, 7)
 			end
 			if !self.LightningEffects4 or !IsValid(self.LightningEffects4) then
-				self.LightningEffects4 = CreateParticleSystem(self, "bo3_vending_wonder_idle", PATTACH_ABSORIGIN_FOLLOW, 1)
+				self.LightningEffects4 = CreateParticleSystem(self, "bo3_vending_wonder_idle", PATTACH_POINT_FOLLOW, 0)
 			end
 
 			render.SetMaterial(onlight)
-			render.DrawSprite((being_used and self:GetAttachment(9).Pos or self:GetAttachment(8).Pos), 8, 8, being_used and red or green)
+			render.DrawSprite((being_used and self:GetAttachment(9).Pos or self:GetAttachment(8).Pos), 8, 8, being_used and color_red or color_green)
 		else
 			if self.VendingEffects1 and IsValid(self.VendingEffects1) then
 				self.VendingEffects1:StopEmission()
@@ -451,7 +451,7 @@ if CLIENT then
 			end
 
 			render.SetMaterial(onlight)
-			render.DrawSprite((being_used and self:GetAttachment(9).Pos or self:GetAttachment(8).Pos), 8, 8, being_used and red or green)
+			render.DrawSprite(self:GetAttachment(9).Pos, 8, 8, color_red)
 		end
 	end
 end

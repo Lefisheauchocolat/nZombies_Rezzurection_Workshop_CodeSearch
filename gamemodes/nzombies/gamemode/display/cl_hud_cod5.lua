@@ -1471,6 +1471,7 @@ local function VultureVision_cod5()
 
 	for k, v in nzLevel.GetVultureArray() do
 		if not IsValid(v) then continue end
+		if v:GetNoDraw() then continue end
 
 		local data = v:WorldSpaceCenter():ToScreen()
 		if not data.visible then continue end

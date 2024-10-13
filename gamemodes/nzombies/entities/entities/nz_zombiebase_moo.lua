@@ -3344,24 +3344,32 @@ if SERVER then
 		end
 	end
 
-	function ENT:DoDeathAnimation(seq,noragdoll)
+	function ENT:DoDeathAnimation(seq,noragdoll,triggerfakekill)
 		self.BehaveThread = coroutine.create(function()
 			if self:HasSequence(seq) then
 				self:SetSpecialAnimation(true)
 				self:PlaySequenceAndMove(seq, 1)
 			else
-				-- If for some reason there is no sequence, just remove
-				if IsValid(DamageInfo()) then
-					self:Remove(DamageInfo())
+				if !triggerfakekill then
+					-- If for some reason there is no sequence, just remove
+					if IsValid(DamageInfo()) then
+						self:Remove(DamageInfo())
+					else
+						self:Remove()
+					end
 				else
-					self:Remove()
+					self:FakeKillZombie(true)
 				end
 			end
 
-			if !noragdoll then
-				self:BecomeRagdoll(DamageInfo())
+			if !triggerfakekill then
+				if !noragdoll then
+					self:BecomeRagdoll(DamageInfo())
+				else
+					self:Remove(DamageInfo())
+				end
 			else
-				self:Remove(DamageInfo())
+				self:FakeKillZombie(true)
 			end
 		end)
 	end
@@ -3863,7 +3871,7 @@ if SERVER then
 				// compute distance traveled along path so far
 				local dist = 0
 
-				if ( IsValid( ladder ) ) then
+--[[			if ( IsValid( ladder ) ) then
 					dist = ladder:GetLength()
 				elseif ( length > 0 ) then
 					// optimization to avoid recomputing length
@@ -3871,7 +3879,7 @@ if SERVER then
 				else
 					dist = (area:GetCenter() - fromArea:GetCenter()):GetLength()
 				end
-
+]]--
 				local cost = dist + fromArea:GetCostSoFar()
 
 				// check height change
@@ -4421,14 +4429,12 @@ if SERVER then
 					return -- In case for whatever reason there wasn't a spawn around... Just return and try again.
 				end
 			else
-				self:FakeKillZombie(true)
-			end
-		else
-			local seq = self.ZombieDespawnSequences[math.random(#self.ZombieDespawnSequences)]
-			if self:HasSequence(seq) then
-				self:DoDeathAnimation(seq, true)
-			else
-				self:Remove()
+				local seq = self.ZombieDespawnSequences[math.random(#self.ZombieDespawnSequences)]
+				if self:HasSequence(seq) then
+					self:DoDeathAnimation(seq, true, true)
+				else
+					self:Remove()
+				end
 			end
 		end
 		print("Uh oh Mario, I've been mildly inconvenienced. (at: " .. tostring(self:GetPos()) .. ")")
@@ -4978,7 +4984,7 @@ if SERVER then
 		elseif IsValid(self.Target) and self.Target.BHBomb and self.BlackholeMovementSequence then
 			self:ResetSequence(self.BlackholeMovementSequence)
 			self.CurrentSeq = self.BlackholeMovementSequence
-		elseif self:ZombieWaterLevel() >= 2 and self.LowgMovementSequence then
+		elseif (nzMapping.Settings.gravity <= 300 or self:ZombieWaterLevel() >= 2) and self.LowgMovementSequence then
 			self:ResetSequence(self.LowgMovementSequence)
 			self.CurrentSeq = self.LowgMovementSequence
 		elseif self.IsTurned and self.TurnedMovementSequence then

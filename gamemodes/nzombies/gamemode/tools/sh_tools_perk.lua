@@ -226,19 +226,48 @@ if SERVER then
 		timer.Simple(0, function()
 			local machines = ents.FindByClass("perk_machine")
 			if nzMapping.Settings.randompap then
-				for k, v in pairs(machines) do
-					if v:GetPerkID() == "pap" then
-						v:SetSelected(false)
-					end
-				end
-
-				for k, v in RandomPairs(machines) do
-					if v:GetPerkID() == "pap" and !v:GetSelected() then
-						v:SetSelected(true)
-						if (!v.HideBehindDoor or v.DoorRevealed) then
-							v:ShowMachine()
+				local paptime = nzMapping.Settings.randompaptime
+				if paptime and paptime > 0 then
+					timer.Create("nzPaPShuffler", paptime, 0, function()
+						local machines = ents.FindByClass("perk_machine")
+						for k, v in pairs(machines) do
+							if v:GetSelected() then
+								nzPerks.LastPaPMachine = v
+								v.MarkedForRemoval = true
+							end
 						end
-						break
+
+						for k, v in RandomPairs(machines) do
+							if v:GetPerkID() == "pap" then
+								if nzPerks.LastPaPMachine and nzPerks.LastPaPMachine == v then continue end
+
+								v:SetSelected(true)
+
+								ParticleEffect("driese_tp_arrival_phase2", v:GetPos(), Angle(0,0,0))
+								v:EmitSound("amb/weather/lightning/lightning_flash_0"..math.random(0,3)..".wav", 511, 100, 1, CHAN_STATIC)
+
+								if (!v.HideBehindDoor or v.DoorRevealed) then
+									v:ShowMachine()
+								end
+								break
+							end
+						end
+					end)
+				else
+					for k, v in pairs(machines) do
+						if v:GetPerkID() == "pap" then
+							v:SetSelected(false)
+						end
+					end
+
+					for k, v in RandomPairs(machines) do
+						if v:GetPerkID() == "pap" and !v:GetSelected() then
+							v:SetSelected(true)
+							if (!v.HideBehindDoor or v.DoorRevealed) then
+								v:ShowMachine()
+							end
+							break
+						end
 					end
 				end
 			end
@@ -259,7 +288,7 @@ if SERVER then
 		local machines = ents.FindByClass("perk_machine")
 		if round <= 1 then return end
 
-		if nzMapping.Settings.randompap and nzMapping.Settings.randompapinterval > 0 and round%(nzMapping.Settings.randompapinterval) == 0 then
+		if nzMapping.Settings.randompap and (!nzMapping.Settings.randompaptime or nzMapping.Settings.randompaptime <= 0) and nzMapping.Settings.randompapinterval > 0 and round%(nzMapping.Settings.randompapinterval) == 0 then
 			for k, v in pairs(machines) do
 				if v:GetSelected() then
 					nzPerks.LastPaPMachine = v
@@ -337,5 +366,6 @@ if SERVER then
 		for _, v in pairs(ents.FindByClass("perk_machine")) do
 			v:Reset()
 		end
+		timer.Remove("nzPaPShuffler")
 	end)
 end

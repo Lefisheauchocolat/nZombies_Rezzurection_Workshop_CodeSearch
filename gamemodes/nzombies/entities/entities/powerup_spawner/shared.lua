@@ -41,7 +41,7 @@ function ENT:Initialize()
 
 	self:SetColor(Color(255, 255, 255, 100))
 	self:SetRenderMode(RENDERMODE_GLOW)
-	self:SetRenderFX(16)
+	self:SetRenderFX(15)
 
 	if CLIENT then return end
 

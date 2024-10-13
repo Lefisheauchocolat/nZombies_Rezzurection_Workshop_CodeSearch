@@ -473,7 +473,7 @@ nzTools:CreateTool("settings", {
 		PaPRandomizeTimer:Setup("Generic")
 		PaPRandomizeTimer:SetValue(valz["RandomPaPTime"])
 		PaPRandomizeTimer.DataChanged = function( _, val ) valz["RandomPaPTime"] = tonumber(val) end
-		PaPRandomizeTimer:SetTooltip("How long, in seconds, before the Pack-a-Punch moves locations. SET TO 0 TO DISABLE. (Overwrites round based randomization)")
+		PaPRandomizeTimer:SetTooltip("How long, in seconds, before the Pack-a-Punch moves locations. SET TO 0 TO DISABLE. (Overrides round based randomization)")
 
 		--[[-------------------------------------------------------------------------
 		Timed Gameplay
