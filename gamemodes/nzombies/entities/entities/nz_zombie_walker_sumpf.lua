@@ -9,8 +9,8 @@ ENT.Spawnable = true
 
 if CLIENT then 
 	ENT.EyeColorTable = {
-		[0] = Material("models/moo/codz/t7_honorguard/mtl_c_zom_dlchd_zombie_eyes.vmt"),
-		[1] = Material("models/moo/codz/t7_honorguard/mtl_c_zom_dlchd_zombie_eyes_bloat.vmt"),
+		[0] = Material("models/moo/codz/_common/mtl_c_zom_dlchd_zombie_eyes.vmt"),
+		[1] = Material("models/moo/codz/_common/mtl_c_zom_dlchd_zombie_eyes_bloat.vmt"),
 	}
 	return 
 end -- Client doesn't really need anything beyond the basics

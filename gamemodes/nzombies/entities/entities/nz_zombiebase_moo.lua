@@ -1872,7 +1872,7 @@ if SERVER then
 			end
 		end
 
-		if bit.band(dmginfo:GetDamageType(), bit.bor(DMG_BURN, DMG_SLOWBURN)) ~= 0 then
+		if bit.band(dmginfo:GetDamageType(), bit.bor(DMG_BURN, DMG_SLOWBURN)) ~= 0 and (!self.IsMooBossZombie and !self.NZBossType) then
 			-- Zombies will handle taking flame damage themselves. It allows for them to always be killed.
 			if attacker and inflictor then -- This is how 3arc made the Flamethower always kill, by doing damage with the Zombie's max health * numbers 0.1 to 0.15
 				self:TakeDamage(self:GetMaxHealth() * math.Rand(0.1, 0.15), attacker, inflictor) -- Granted this changes depending on the round in the actual game, I just included the multipliers that are used past round 11.
@@ -3283,7 +3283,7 @@ if SERVER then
 				self:DoDeathAnimation(self.BlackHoleDeathSequences[math.random(#self.BlackHoleDeathSequences)])
 			end
 		end
-		if self.DeathRagdollForce == 0 or self:GetSpecialAnimation() then
+		if self.DeathRagdollForce == 0 or self:GetSpecialAnimation() or !self.DeathSequences then
 			if self.DeathSounds and !self.Launched then
 				self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
 			end
@@ -3871,15 +3871,16 @@ if SERVER then
 				// compute distance traveled along path so far
 				local dist = 0
 
---[[			if ( IsValid( ladder ) ) then
+				--[[
+				if ( IsValid( ladder ) ) then
 					dist = ladder:GetLength()
 				elseif ( length > 0 ) then
 					// optimization to avoid recomputing length
 					dist = length
 				else
 					dist = (area:GetCenter() - fromArea:GetCenter()):GetLength()
-				end
-]]--
+				end]]
+
 				local cost = dist + fromArea:GetCostSoFar()
 
 				// check height change

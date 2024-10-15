@@ -161,6 +161,7 @@ local zombieconfig = {
 	"special_licker",
 	"special_leaper",
 	"special_l4d_hunter",
+	"special_l4d_smoker",
 	"special_mimic",
 	"special_nemacyte",
 	"special_nova",

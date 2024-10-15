@@ -19,6 +19,9 @@ PrecacheParticleSystem("zmb_dog_spawn_fireball")
 
 PrecacheParticleSystem("zmb_abom_beam")
 
+PrecacheParticleSystem("zmb_smoker_aura")
+PrecacheParticleSystem("zmb_smoker_cloud")
+
 PrecacheParticleSystem("zmb_disciple_aura")
 PrecacheParticleSystem("zmb_disciple_blast")
 PrecacheParticleSystem("zmb_disciple_hand_blast")

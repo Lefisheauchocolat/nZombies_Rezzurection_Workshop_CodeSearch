@@ -9,8 +9,8 @@ ENT.Spawnable = true
 
 if CLIENT then 
 	ENT.EyeColorTable = {
-		[0] = Material("models/moo/codz/t7_honorguard/mtl_c_zom_dlchd_zombie_eyes.vmt"),
-		[1] = Material("models/moo/codz/t7_honorguard/mtl_c_zom_dlchd_zombie_eyes_bloat.vmt"),
+		[0] = Material("models/moo/codz/_common/mtl_c_zom_dlchd_zombie_eyes.vmt"),
+		[1] = Material("models/moo/codz/_common/mtl_c_zom_dlchd_zombie_eyes_bloat.vmt"),
 	}
 	return 
 end -- Client doesn't really need anything beyond the basics
@@ -20,9 +20,12 @@ ENT.IsMooZombie = true
 ENT.RedEyes = true
 
 ENT.Models = {
+	{Model = "models/moo/_codz_ports/t7/temple/moo_codz_t7_temple_fem.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t7/temple/moo_codz_t7_temple_fem.mdl", Skin = 1, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t7/temple/moo_codz_t7_temple_nva.mdl", Skin = 0, Bodygroups = {0,0}},
 	{Model = "models/moo/_codz_ports/t7/temple/moo_codz_t7_temple_nva.mdl", Skin = 0, Bodygroups = {0,0}},
 	{Model = "models/moo/_codz_ports/t7/temple/moo_codz_t7_temple_vietcong.mdl", Skin = 0, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/t7/temple/moo_codz_t7_temple_female.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t7/temple/moo_codz_t7_temple_vietcong.mdl", Skin = 0, Bodygroups = {0,0}},
 }
 
 local spawnslow = {"nz_spawn_ground_v1", "nz_spawn_ground_ad_v2", "nz_spawn_ground_v2", "nz_spawn_ground_v2_altb"}
@@ -717,15 +720,14 @@ ENT.SequenceTables = {
 			MovementSequence = {
 				--"nz_legacy_sprint_v5",
 				"nz_legacy_jap_run_v3",
-				"nz_sprint_ad1",
-				"nz_sprint_ad2",
+				"nz_t9_base_sprint_ad_v01",
+				"nz_t9_base_sprint_ad_v02",
+				"nz_t9_base_sprint_ad_v05",
+				"nz_t9_base_sprint_ad_v21",
+				"nz_t9_base_sprint_ad_v22",
+				"nz_t9_base_sprint_ad_v23",
 				"nz_sprint_ad3",
 				"nz_sprint_ad4",
-				"nz_sprint_ad5",
-				"nz_sprint_ad21",
-				"nz_sprint_ad22",
-				"nz_sprint_ad23",
-				"nz_sprint_ad24",
 				"nz_fast_sprint_v1",
 				"nz_fast_sprint_v2",
 			},
@@ -806,15 +808,15 @@ ENT.SequenceTables = {
 			MovementSequence = {
 				--"nz_legacy_sprint_v5",
 				"nz_legacy_jap_run_v3",
-				"nz_sprint_au1",
-				"nz_sprint_au2",
+				"nz_t9_base_sprint_au_v01",
+				"nz_t9_base_sprint_au_v02",
+				"nz_t9_base_sprint_au_v20",
+				"nz_t9_base_sprint_au_v21",
+				"nz_t9_base_sprint_au_v22",
+				"nz_t9_base_sprint_au_v25",
 				"nz_sprint_au3",
 				"nz_sprint_au4",
-				"nz_sprint_au20",
-				"nz_sprint_au21",
-				"nz_sprint_au22",
-				"nz_sprint_au25",
-				"nz_fast_sprint_v1",
+				"nz_fast_sprint_v3",
 				"nz_fast_sprint_v2",
 			},
 			LowgMovementSequence = {
@@ -982,9 +984,6 @@ ENT.SequenceTables = {
 		{
 			SpawnSequence = {spawnsuperfast},
 			MovementSequence = {
-				"nz_l4d_run_05",
-				"nz_pb_zombie_sprint_v7",
-				"nz_pb_zombie_sprint_v9",
 				"nz_supersprint_au1",
 				"nz_supersprint_au2",
 				"nz_supersprint_au3",

@@ -115,6 +115,7 @@ nzEnemies:AddValidZombieType("nz_zombie_special_frog")
 
 --nzEnemies:AddValidZombieType("nz_zombie_special_cosmo_monkey")
 nzEnemies:AddValidZombieType("nz_zombie_special_l4d_hunter")
+nzEnemies:AddValidZombieType("nz_zombie_special_l4d_smoker")
 
 nzEnemies:AddValidZombieType("nz_zombie_special_alien_scout")
 nzEnemies:AddValidZombieType("nz_zombie_special_alien_scorpion")
