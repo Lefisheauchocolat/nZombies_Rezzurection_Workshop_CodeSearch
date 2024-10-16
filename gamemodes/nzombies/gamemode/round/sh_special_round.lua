@@ -1568,3 +1568,82 @@ nzRound:AddSpecialRoundType("Glowing Ghouls", {
 		dog:SetHealth(hp)
 	end
 end) -- No round func or end func
+
+nzRound:AddSpecialRoundType("WTF", {
+	normalTypes = {
+		["nz_zombie_special_catalyst_plasma"] = {chance = 100},
+		["nz_zombie_special_catalyst_water"] = {chance = 100},
+		["nz_zombie_special_catalyst_decay"] = {chance = 100},
+		["nz_zombie_special_catalyst_electric"] = {chance = 100},
+		["nz_zombie_special_alien_scout"] = {chance = 100},
+		["nz_zombie_special_alien_scorpion"] = {chance = 100},
+		["nz_zombie_special_alien_seeker"] = {chance = 100},
+		["nz_zombie_special_hunterbeta"] = {chance = 100},
+		["nz_zombie_special_frog"] = {chance = 100},
+		["nz_zombie_special_screamer"] = {chance = 100},
+		["nz_zombie_special_siz"] = {chance = 100},
+		["nz_zombie_special_tormentor"] = {chance = 100},
+		["nz_zombie_special_sprinter"] = {chance = 100},
+		["nz_zombie_special_roach"] = {chance = 100},
+		["nz_zombie_special_bot"] = {chance = 100},
+		["nz_zombie_special_bomba"] = {chance = 100},
+		["nz_zombie_special_terrorist"] = {chance = 100},
+		["nz_zombie_special_grenade"] = {chance = 100},
+		["nz_zombie_special_juggernaut"] = {chance = 100},
+		["nz_zombie_special_spook"] = {chance = 100},
+		["nz_zombie_special_cloaker"] = {chance = 100},
+		["nz_zombie_special_crawler"] = {chance = 100},
+		["nz_zombie_special_xeno_runner"] = {chance = 100},
+		["nz_zombie_special_xeno_spitter"] = {chance = 100},
+		["nz_zombie_special_xeno_brute"] = {chance = 100},
+		["nz_zombie_special_ss_fire"] = {chance = 100},
+		["nz_zombie_special_clown"] = {chance = 100},
+		["nz_zombie_special_fury"] = {chance = 100},
+		["nz_zombie_special_dog"] = {chance = 100},
+		["nz_zombie_special_dog_zhd"] = {chance = 100},
+		["nz_zombie_special_dog_jup"] = {chance = 100},
+		["nz_zombie_special_dog_gas"] = {chance = 100},
+		["nz_zombie_special_dog_fire"] = {chance = 100},
+		["nz_zombie_special_keeper"] = {chance = 100},
+		["nz_zombie_special_tempest"] = {chance = 100},
+		["nz_zombie_special_nova"] = {chance = 100},
+		["nz_zombie_special_nova_bomber"] = {chance = 100},
+		["nz_zombie_special_nova_electric"] = {chance = 100},
+		["nz_zombie_special_licker"] = {chance = 100},
+		["nz_zombie_special_raptor"] = {chance = 100},
+		["nz_zombie_special_pack"] = {chance = 100},
+		["nz_zombie_special_spooder"] = {chance = 100},
+		["nz_zombie_special_wretch"] = {chance = 100},
+		["nz_zombie_special_sire"] = {chance = 100},
+		["nz_zombie_special_nemacyte"] = {chance = 100},
+		["nz_zombie_special_deathclaw"] = {chance = 100},
+		["nz_zombie_special_ghost"] = {chance = 100},
+		["nz_zombie_special_ticker"] = {chance = 100},
+		["nz_zombie_special_glowingone"] = {chance = 100},
+		["nz_zombie_special_cloverfield"] = {chance = 100},
+		["nz_zombie_special_disciple"] = {chance = 100},
+		["nz_zombie_special_follower"] = {chance = 100},
+		["nz_zombie_special_l4d_charger"] = {chance = 100},
+		["nz_zombie_special_l4d_smoker"] = {chance = 100},
+		["nz_zombie_special_l4d_hunter"] = {chance = 100},
+		["nz_zombie_special_mimic"] = {chance = 100},
+	},
+	normalDelay = 0.75,
+	normalCountMod = function(original) return math.floor(original * 0.5) end,
+})
+
+function nzRound:GetSpecialType(id)
+	if SERVER then
+		if class then
+			local data = {}
+			-- Which entity to spawn
+			data.class = class
+			nzRound.AdditionalZombieData[id] = data
+		else
+			nzRound.AdditionalZombieData[id] = nil -- Remove it if no valid class was added
+		end
+	else
+		-- Clients only need it for the dropdown, no need to actually know the data and such
+		nzRound.AdditionalZombieData[id] = class
+	end
+end

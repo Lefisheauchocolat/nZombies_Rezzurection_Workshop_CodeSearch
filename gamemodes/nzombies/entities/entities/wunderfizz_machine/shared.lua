@@ -2,7 +2,7 @@ AddCSLuaFile()
 
 ENT.Type			= "anim"
 
-ENT.PrintName		= "wundefizz_machine"
+ENT.PrintName		= "Der Wunderfizz"
 ENT.Author			= "Zet0r"
 ENT.Contact			= "youtube.com/Zet0r"
 ENT.Purpose			= ""
@@ -26,27 +26,33 @@ local blockedperks = {
 
 function ENT:DecideOutcomePerk(ply, specific)
 	if specific then self:SetPerkID(specific) return end
-	
-	if self.TimesUsed > 1 and math.random(100) <= 20 and #ents.FindByClass("wunderfizz_machine") > 1 then
+
+	if self.TimesUsed > self.MaxUses and #ents.FindByClass("wunderfizz_machine") > 1 then
 		return hook.Call("OnPlayerBuyWunderfizz", nil, ply, "teddy") or "teddy"
 	else
 		local wunderfizzlist = {}
 		for k,v in pairs(nzPerks:GetList()) do
-			if k != "wunderfizz" and k != "pap" then
+			if blockedperks[k] then
 				wunderfizzlist[k] = {true, v}
 			end
 		end
 
 		local available = nzMapping.Settings.wunderfizzperklist or wunderfizzlist
+
 		local tbl = {}
 		for k,v in pairs(available) do
 			if !self:GetUser():HasPerk(k) and !blockedperks[k] then
-				if (v[1] == nil || v[1] == true) then
+				if v[1] then
 					table.insert(tbl, k)
 				end
 			end
 		end
-		if #tbl <= 0 then return hook.Call("OnPlayerBuyWunderfizz", nil, ply, "teddy") or "teddy" end -- Teddy bear for no more perks D:
+
+		-- Teddy bear for no more perks D:
+		if #tbl <= 0 then
+			return hook.Call("OnPlayerBuyWunderfizz", nil, ply, "teddy") or "teddy"
+		end
+
 		local outcome = tbl[math.random(#tbl)]
 		return hook.Call("OnPlayerBuyWunderfizz", nil, ply, outcome) or outcome
 	end
@@ -79,6 +85,7 @@ function ENT:Initialize()
 		self:SetAutomaticFrameAdvance(true)
 		self:TurnOff(true)
 		self.TimesUsed = 0
+		self.MaxUses = math.random(nzMapping.Settings.minfizzuses or 4, nzMapping.Settings.maxfizzuses or 7)
 	end
 end
 
@@ -98,6 +105,7 @@ function ENT:Update()
 		self:ResetSequence(idle)
 	end
 	self:StopSound("nz_moo/perkacolas/hum_loop.wav", 65, 100, 1, 3)
+	self.MaxUses = math.random(nzMapping.Settings.minfizzuses or 4, nzMapping.Settings.maxfizzuses or 7)
 end
 
 function ENT:TurnOn()
@@ -111,6 +119,7 @@ function ENT:TurnOn()
 	self:ResetSequence(turnon)
 	self.GoIdle = CurTime() + dur -- Delay when to go idle (after turn on animation)
 	self:EmitSound("nz_moo/perks/wonderfizz/ball_drop.mp3", 100)
+	self.MaxUses = math.random(nzMapping.Settings.minfizzuses or 4, nzMapping.Settings.maxfizzuses or 7)
 end
 
 function ENT:TurnOff(spawn)
@@ -166,7 +175,7 @@ function ENT:Use(activator, caller)
 
 		local b_no_perks = true
 		for k, v in pairs(nzMapping.Settings.wunderfizzperklist) do
-			if !blockedperks[k] and (v[1] == nil || v[1] == true) and !activator:HasPerk(k) then
+			if !blockedperks[k] and v[1] and !activator:HasPerk(k) then
 				b_no_perks = false
 				break
 			end
@@ -212,13 +221,13 @@ function ENT:Use(activator, caller)
 					end
 
 					self.Bottle.WMachine = self
-					self.Bottle:SetPerk(self.OutcomePerk)
+					self.Bottle:SetPerkID(self.OutcomePerk)
 					self.Bottle:SetParent(self)
 					self.Bottle:Spawn()
 
 					self.TimesUsed = self.TimesUsed + 1
 
-					local id, dur = self:LookupSequence("vend")
+					local id = self:LookupSequence("vend")
 					if id > 0 then
 						self:SetCycle(0)
 						self:ResetSequence(id)
@@ -226,43 +235,20 @@ function ENT:Use(activator, caller)
 					return true
 				end)
 			end
-		elseif !self.Bottle:GetWinding() and !self:GetIsTeddy() then
-			if nzMapping.Settings.sharing then
-				if activator == self:GetUser() or self:GetSharing() then
-					if self:GetSharing() and #activator:GetPerks() >= activator:GetMaxPerks() then
-						activator:PrintMessage(HUD_PRINTTALK, "[NZ] You may only have "..activator:GetMaxPerks().." perks!")
-						return
-					end
-
-					local perk = self:GetPerkID()
-					local wep = activator:Give(nzMapping.Settings.bottle or "tfa_perk_bottle")
-					if IsValid(wep) then
-						wep:SetPerk(perk)
-					end
-					activator:GivePerk(perk)
-					self:EmitSound("nz_moo/perkacolas/wonderfizz_sting_1.mp3", 75, math.random(97, 103), 1, CHAN_STATIC)
-
-					self:Reset()
-				end
-			else
-				if activator == self:GetUser() then	
-					if #activator:GetPerks() >= activator:GetMaxPerks() then
-						activator:PrintMessage(HUD_PRINTTALK, "[NZ] You have outsmarted the system.")
-					end
-
-					local perk = self:GetPerkID()
-					local wep = activator:Give(nzMapping.Settings.bottle or "tfa_perk_bottle")
-					if IsValid(wep) then
-						wep:SetPerk(perk)
-					end
-					activator:GivePerk(perk)
-					self:EmitSound("nz_moo/perkacolas/wonderfizz_sting_1.mp3", 75, math.random(97, 103), 1, CHAN_STATIC)
-
-					self:Reset()
-				else
-					activator:PrintMessage( HUD_PRINTTALK, "[NZ] This is " .. self:GetUser():Nick() .. "'s perk. You cannot take it." )
-				end
+		elseif !self.Bottle:GetWinding() and !self:GetIsTeddy() and (activator == self:GetUser() or self:GetSharing()) then
+			if #activator:GetPerks() >= activator:GetMaxPerks() then
+				activator:PrintMessage(HUD_PRINTTALK, "[NZ] You have outsmarted the system.")
 			end
+
+			local perk = self:GetPerkID()
+			local wep = activator:Give(nzMapping.Settings.bottle or "tfa_perk_bottle")
+			if IsValid(wep) then
+				wep:SetPerk(perk)
+			end
+			activator:GivePerk(perk)
+			self:EmitSound("nz_moo/perkacolas/wonderfizz_sting_1.mp3", 75, math.random(97, 103), 1, CHAN_STATIC)
+
+			self:Reset()
 		end
 	end
 end
@@ -295,7 +281,9 @@ function ENT:Reset()
 end
 
 function ENT:OnRemove()
-	if IsValid(self.Bottle) then self.Bottle:Remove() end
+	if IsValid(self.Bottle) then
+		self.Bottle:Remove()
+	end
 end
 
 function ENT:MoveLocation()
@@ -426,7 +414,7 @@ if CLIENT then
 			end
 
 			render.SetMaterial(onlight)
-			render.DrawSprite((being_used and self:GetAttachment(9).Pos or self:GetAttachment(8).Pos), 8, 8, being_used and color_red or color_green)
+			render.DrawSprite((being_used and self:GetAttachment(9).Pos or self:GetAttachment(8).Pos), math.Rand(7,8), math.Rand(7,8), being_used and color_red or color_green)
 		else
 			if self.VendingEffects1 and IsValid(self.VendingEffects1) then
 				self.VendingEffects1:StopEmission()
@@ -451,7 +439,7 @@ if CLIENT then
 			end
 
 			render.SetMaterial(onlight)
-			render.DrawSprite(self:GetAttachment(9).Pos, 8, 8, color_red)
+			render.DrawSprite(self:GetAttachment(9).Pos, math.Rand(7,8), math.Rand(7,8), color_red)
 		end
 	end
 end

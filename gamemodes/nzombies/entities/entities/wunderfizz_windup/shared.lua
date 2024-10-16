@@ -2,18 +2,16 @@ AddCSLuaFile()
 
 ENT.Type = "anim"
  
-ENT.PrintName		= "wunderfizz_windup"
+ENT.PrintName		= "Windup"
 ENT.Author			= "Zet0r"
 ENT.Contact			= "youtube.com/Zet0r"
 ENT.Purpose			= ""
 ENT.Instructions	= ""
 
-local teddymat = "models/perk_bottle/c_perk_bottle_teddy"
-
 function ENT:SetupDataTables()
 	self:NetworkVar("Bool", 0, "Winding")
 	self:NetworkVar("Bool", 1, "Sharing")
-	self:NetworkVar("String", 0, "Perk")
+	self:NetworkVar("String", 0, "PerkID")
 
 	if (CLIENT) then
 		self:NetworkVarNotify("Sharing", function(ent)
@@ -99,17 +97,20 @@ function ENT:Initialize()
 
 	timer.Simple(self.TimeSlipped and 2 or 4, function()
 		self:SetWinding(false)
-		timer.Simple(8, function()
-			if IsValid(self) and IsValid(self.WMachine) and !self:GetSharing() then
-				self.WMachine:SetSharing(true)
-				self:SetSharing(true)
-			end
-		end)
+
+		if nzMapping.Settings.sharing then
+			timer.Simple(8, function()
+				if IsValid(self) and IsValid(self.WMachine) and !self:GetSharing() then
+					self.WMachine:SetSharing(true)
+					self:SetSharing(true)
+				end
+			end)
+		end
 
 		self:EmitSound("nz_moo/perks/wonderfizz/elec/hit/random_perk_imp_0"..math.random(0, 2)..".mp3", SNDLVL_TALKING, math.random(97, 103), 1, CHAN_STATIC)
 
 		local machine = self.WMachine
-		if self:GetPerk() == "teddy" then
+		if self:GetPerkID() == "teddy" then
 			local mattable = nzPerks:GetBottleTextures(nzMapping.Settings.bottle)
 			if mattable then
 				for id, mat in pairs(mattable) do
@@ -131,21 +132,23 @@ function ENT:Initialize()
 			local mattable = nzPerks:GetBottleTextures(nzMapping.Settings.bottle)
 			if mattable then
 				for id, mat in pairs(mattable) do
-					self:SetSubMaterial(id, mat..self:GetPerk())
+					self:SetSubMaterial(id, mat..self:GetPerkID())
 				end
 			else
-				local skinid = nzPerks:Get(self:GetPerk()).material
+				local skinid = nzPerks:Get(self:GetPerkID()).material
 				if skinid then
 					self:SetSkin(skinid)
 				end
 			end
 		end
 
-		machine:SetPerkID(self:GetPerk())
+		machine:SetPerkID(self:GetPerkID())
 
-		local idle = machine:LookupSequence("idle")
-		machine:SetCycle(0)
-		machine:ResetSequence(idle)
+		local id = machine:LookupSequence("idle")
+		if id > 0 then
+			machine:SetCycle(0)
+			machine:ResetSequence(id)
+		end
 	end)
 
 	SafeRemoveEntityDelayed(self, 15)
@@ -180,9 +183,11 @@ end
 
 function ENT:Draw()
 	self:DrawModel()
+
 	if !self.LightningEffects1 or !IsValid(self.LightningEffects1) then
 		self.LightningEffects1 = CreateParticleSystem(self, self:GetSharing() and "bo3_vending_wonder_perk_share" or "bo3_vending_wonder_perk", PATTACH_POINT_FOLLOW, 0)
 	end
+
 	if self:GetWinding() then
 		if !self:GetRenderAngles() then
 			local ang = self:GetAngles()

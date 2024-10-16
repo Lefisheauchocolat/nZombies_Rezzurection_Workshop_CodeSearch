@@ -132,6 +132,8 @@ function ENT:Initialize()
 		return
 	end
 
+	local nearest = self:FindNearestPlayer(self:GetPos())
+
 	if self:GetSpawnedPowerUp() then
 		self:SetActivateTime(CurTime())
 		self:SetBlinking(false)
@@ -146,7 +148,6 @@ function ENT:Initialize()
 		self:SetBlinking(false)
 
 		local distfac = 0
-		local nearest = self:FindNearestPlayer(self:GetPos())
 		if IsValid(nearest) then
 			local dist = self:GetPos():DistToSqr(nearest:GetPos())
 			distfac = 1 - math.Clamp(dist / 40000, 0, 1) //200^2

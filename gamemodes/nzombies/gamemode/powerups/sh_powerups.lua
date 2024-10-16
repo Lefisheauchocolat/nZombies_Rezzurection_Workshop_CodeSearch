@@ -62,7 +62,7 @@ if SERVER then
 			self:SendSync()
 		end
 
-		if isstring(PowerupData.announcement) then
+		if PowerupData.announcement then
 			local name = string.Replace(PowerupData.name, " ", "") -- Sound Events don't have spaces
 			nzSounds:Play(name)
 		end
@@ -83,7 +83,7 @@ if SERVER then
 		also allow players to manipulate it by meeting criteria that stop other drops from spawning.
 	]]
 	local dropsthisround = 0
-	local maxdrops = 4
+	//local maxdrops = 4
 
 	-- For reference so these are ALWAYS inserted into the core drops table if any of them are enabled in the map settings.
 	local ogdrops = {
@@ -117,11 +117,11 @@ if SERVER then
 
 	hook.Add("OnRoundStart", "NODROPSFUCKU", function() 
 		dropsthisround = 0
-		if nzRound:IsSpecial() then
+		/*if nzRound:IsSpecial() then
 			maxdrops = 0 -- No drops on special rounds :wind_blowing_face:
 		else
 			maxdrops = 4
-		end
+		end*/
 		if nzRound:GetNumber() <= 1 then -- Reset everything on the first round... Or negative one... For some fucking reason idk, Justin Case.
 			coredrops = {}
 			dropped = {}
@@ -200,68 +200,11 @@ if SERVER then
 		end
 	end
 
-	function nzPowerUps:SelectAntiPowerup(powerups)
-		local barricades = ents.FindByClass("breakable_entry")
-
+	function nzPowerUps:SelectAntiPowerup(powerups, pos)
 		for k, v in pairs(powerups) do
-			if k == "zombieblood" and #player.GetAllPlaying() <= 1 then
+			if v.anticondition and !v.anticondition(k, pos) then
 				powerups[k] = nil
 				continue
-			end
-			if k == "godmode" and #player.GetAllPlaying() <= 1 then
-				powerups[k] = nil
-				continue
-			end
-			if k == "firesale" and !nzPowerUps:GetBoxMoved() then
-				powerups[k] = nil
-				continue
-			end
-			if k == "timewarp" and nzRound:GetNumber() < 9 then
-				powerups[k] = nil
-				continue
-			end
-			if k == "bottle" and nzRound:GetNumber() < 15 then
-				powerups[k] = nil
-				continue
-			end
-			if k == "weapondrop" and nzRound:GetNumber() < (#player.GetAllPlaying() > 1 and 6 or 13) then
-				powerups[k] = nil
-				continue
-			end
-			if k == "bottleslot" and (nzRound:GetNumber() < 16 or GetConVar("nz_difficulty_perks_max"):GetInt() <= 4) then
-				powerups[k] = nil
-				continue
-			end
-			if k == "emptybottle" and (nzRound:GetNumber() < 16 or GetConVar("nz_difficulty_perks_max"):GetInt() <= 4) then
-				powerups[k] = nil
-				continue
-			end
-			if k == "packapunch" and !nzPowerUps:GetHasPaped() then
-				powerups[k] = nil
-				continue
-			end
-			if k == "bonfiresale" and !nzPowerUps:GetHasPaped() then
-				powerups[k] = nil
-				continue
-			end
-			if k == "carpenter" then
-				if IsValid(barricades[1]) then
-					local b_allbroke = true
-					for _, ent in pairs(barricades) do 
-						if ent:GetHasPlanks() and ent:GetNumPlanks() > 0 then
-							b_allbroke = false
-							break
-						end
-					end
-
-					if b_allbroke then
-						powerups[k] = nil
-						continue
-					end
-				else
-					powerups[k] = nil
-					continue
-				end
 			end
 		end
 
@@ -269,35 +212,30 @@ if SERVER then
 	end
 
 	function nzPowerUps:SpawnPowerUp(pos, specific)
-		if specific or (dropsthisround < maxdrops or nzPowerUps.DisableDropLimit) then -- If the drop is specific then it should ALWAYS spawn no matter what.
+		if specific or ((dropsthisround < (nzMapping.Settings.maxpowerupdrops or 4) or nzPowerUps.DisableDropLimit) and !nzRound:IsSpecial()) then -- If the drop is specific then it should ALWAYS spawn no matter what.
+			if not pos or not isvector(pos) then
+				pos = Entity(1):GetPos()
+			end
 
-			local barricades = ents.FindByClass("breakable_entry")
+			local rounddata = nzMapping.Settings.poweruprounds
 
 			-- Queue all possible powerups
 			if not specific then
 				for k, v in pairs(self.Data) do
-					if k ~= "maxammo" and nzRound:IsSpecial() then continue end -- Only allow max ammos on special rounds.
-					if k == "bloodmoney" then continue end -- WHO ARE YOU?!
-					if k == "zombieblood" and #player.GetAllPlaying() <= 1 then continue end
-					if k == "godmode" and #player.GetAllPlaying() <= 1 then continue end
-					if k == "firesale" and !nzPowerUps:GetBoxMoved() then continue end
-					if k == "timewarp" and nzRound:GetNumber() < 9 then continue end
-					if k == "bottleslot" and GetConVar("nz_difficulty_perks_max"):GetInt() >= 8 then continue end -- NOOOOO MOOOOORE INFINITE PERK SLOTS!!!!
-					if k == "carpenter" then
-						if #barricades >= 4 then
-							local barricades_broken = 0
-							for _,barricade in pairs(barricades) do 
-								if barricade:GetHasPlanks() and (barricade:GetNumPlanks() <= 0) then
-									barricades_broken = barricades_broken + 1
-								end
-							end
-
-							if (barricades_broken < 5) then
-								continue
-							end
-						else
+					-- Only allow max ammos on special rounds.
+					if nzRound:IsSpecial() then
+						if k ~= "maxammo" then
 							continue
 						end
+					else
+						if nzMapping.Settings.poweruproundbased and rounddata and rounddata[k] and rounddata[k] > nzRound:GetNumber() then
+							continue
+						end
+					end
+
+					//test if powerup should be able to spawn
+					if v.condition and !v.condition(k, pos) then
+						continue
 					end
 
 					if k ~= "ActivePowerUps" and !dropped[k] and allowedPowerups[k] then -- Now tweaked to check if the powerup is enabled.
@@ -328,7 +266,7 @@ if SERVER then
 			//INTERCEPTION
 			if !nzPowerUps:GetAntiPowerUpChance() then nzPowerUps:ResetAntiPowerUpChance() end
 			if nzMapping.Settings.antipowerups and !specific and math.Rand(0, nzMapping.Settings.antipowerupchance) < nzPowerUps:GetAntiPowerUpChance() and !nzRound:IsSpecial() then
-				nzPowerUps:SpawnAntiPowerUp(pos, nzPowerUps:SelectAntiPowerup(antidropchances))
+				nzPowerUps:SpawnAntiPowerUp(pos, nzPowerUps:SelectAntiPowerup(antidropchances, pos))
 				nzPowerUps:ResetAntiPowerUpChance()
 				antidropchances = defaultantichances
 			else
@@ -337,7 +275,6 @@ if SERVER then
 				id = hook.Call("OnPowerUpSpawned", nil, id, ent) or id
 				if not IsValid(ent) then return end -- If a hook removed the powerup
 
-				if not pos then pos = Entity(1):GetPos() end
 				pos = pos + Vector(0, 0, 50)
 
 				ent:SetPowerUp(id)
@@ -349,7 +286,6 @@ if SERVER then
 			end
 
 			if id ~= specific and !specific then -- If the drop was specific/set, then it was probably important thus not having it count towards the cycle.
-				--if id == "insta" or id == "dp" or id == "maxammo" or id == "nuke" then
 				if iscoredrop[id] and !dropped[id] then
 					table.insert(coredrops, id)
 				end
@@ -473,7 +409,7 @@ if CLIENT then
 					if ent.GlobalPowerup then //global powerups
 						cvec = nzMapping.Settings.powerupcol["global"][1]
 					end
-					if ent.GetDropType then //vulture & treasure drops
+					if ent.GetDropType then //vulture drops
 						cvec = nzMapping.Settings.powerupcol["mini"][1]
 					end
 					if ent.GetAnti and ent:GetAnti() then //anti powerups
@@ -484,6 +420,9 @@ if CLIENT then
 					end
 					if ent.GetFunny then //tombstone drop
 						cvec = nzMapping.Settings.powerupcol["tombstone"][1]
+					end
+					if ent.GetTreasure then //treasure drops
+						cvec = nzMapping.Settings.powerupcol["treasure"][1]
 					end
 
 					ourcolor = Color(math.Round(cvec[1]*255),math.Round(cvec[2]*255),math.Round(cvec[3]*255),255)
@@ -583,11 +522,82 @@ function nzPowerUps:Get(id)
 	return self.Data[id]
 end
 
+--[[Example
+nzPowerUps:NewPowerUp("unique_id", {
+	name = "Power-Up Name",
+	model = "path/to/model.mdl",
+	desc = "description of what powerup does",
+	angle = Angle(0,0,0), //angle offset on spawn
+	scale = int, //custom model scale
+
+	global = bool, //effect applies to all players
+	chance = int, //currently does nothing, originally worked like random box rarity
+	duration = int, //how long powerup lasts after being picked up (if time based)
+	natural = bool, //sets whether the powerup is automatically enabled when default map settings are first created
+	pressuse = bool, //enable for powerup to require pressing the use key to pickup
+	rare = bool, //for if the powerup should be treated differently in some scenarios
+	(e.g. in powerup scrolling default powerups scroll in 1 second, rare powerups scroll in 0.25 seconds)
+
+	announcement = bool, //enables announcer line for powerup, if it exists in sh_sounds
+
+	loopsound = "path/to/looping_sound.wav", //delete if not needed or not time based
+	stopsound = "path/to/sound.wav", //delete if not needed or not time based
+
+	addpitch = int, //unsure of what this does
+	nopitchshift = int, //unsure of what this does
+
+	//this will get reworked later down the line
+	icon_t5 = Material("path/to/icon.png", "unlitgeneric"),
+	icon_t6 = Material("path/to/icon.png", "unlitgeneric"),
+	icon_t7 = Material(path/to/icon.png", "unlitgeneric"),
+	icon_t7zod = Material("path/to/icon.png", "unlitgeneric"),
+	icon_t8 = Material("path/to/icon.png", "unlitgeneric"),
+	icon_t9 = Material("path/to/icon.png", "unlitgeneric"),
+
+	//for if the powerup requires certain conditions met to spawn (does not apply to forced powerups)
+	condition = function(id, position)
+		return bool //if this always returns false, the powerup will never naturally spawn and can only be spawned thru code
+	end,
+
+	spawnfunc = fuinction(id, ent) //run when the powerup entity is initialized, delete if not needed
+		//useful for if powerup is a 'pressuse' type and youd like to apply a custom hint string
+		//hint string will start with 'Press (+USE) - ' automatically
+		ent:SetHintString("Pickup Power-Up")
+	end,
+
+	func = function(id, ply) //required, does not have to contain any actual code to run
+	end,
+
+	expirefunc = function(id, ply) //delete if not needed or not time based
+	end,
+
+	//anti stuff if you feel like coding it
+	antidesc = "description of what anti powerup does",
+	antiduration = int, //how long anti powerup version lasts, set to 0 if not time based
+
+	anticondition = function(id, position)
+		return bool //same as normal condition function, delete if not needed
+	end,
+
+	antifunc = function(id, ply)
+	end,
+
+	antiexpirefunc = function(id, ply)
+	end,
+
+	//this is run when a local anti-powerup spawns and tries to roll for a player to inflict its effect on
+	anticond = function(ply) //delete if not needed
+	end,
+})
+]]
+
 -- Double Points
 nzPowerUps:NewPowerUp("dp", {
 	name = "Double Points",
 	model = "models/powerups/w_double.mdl",
-	global = true, -- Global means it will appear for any player and will refresh its own time if more
+	desc = "All players gain doubled points",
+	antidesc = "All players are unable to gain points",
+	global = true,
 	angle = Angle(25,0,0),
 	scale = 1,
 	chance = 4,
@@ -596,7 +606,7 @@ nzPowerUps:NewPowerUp("dp", {
 	addpitch = 50,
 	nopitchshift = 0,
 	natural = true,
-	announcement = "",
+	announcement = true,
 	loopsound = "nz_moo/powerups/doublepoints_loop_zhd.wav",
 	stopsound = "nz_moo/powerups/doublepoints_end.mp3",
 	icon_t5 = Material("nz_moo/icons/bo1/classic_clean_powerup_double.png", "unlitgeneric"),
@@ -623,6 +633,8 @@ nzPowerUps:NewPowerUp("dp", {
 nzPowerUps:NewPowerUp("maxammo", {
 	name = "Max Ammo",
 	model = "models/powerups/w_maxammo.mdl",
+	desc = "All players weapon ammo, grenades, tacticals, equipment, specialist, and shield chargers are refilled",
+	antidesc = "All players active weapons reserve ammo is emptied",
 	global = true,
 	angle = Angle(0,0,25),
 	scale = 1,
@@ -679,6 +691,8 @@ nzPowerUps:NewPowerUp("maxammo", {
 nzPowerUps:NewPowerUp("insta", {
 	name = "Insta Kill",
 	model = "models/powerups/w_insta.mdl",
+	desc = "All zombies die instantly from any source of damage",
+	antidesc = "All players health are set to 1 and health regeneration is disabled",
 	global = true,
 	angle = Angle(0,0,0),
 	scale = 1,
@@ -688,7 +702,7 @@ nzPowerUps:NewPowerUp("insta", {
 	addpitch = 5,
 	nopitchshift = 0,
 	natural = true,
-	announcement = "",
+	announcement = true,
 	loopsound = "nz_moo/powerups/instakill_loop_zhd.wav",
 	stopsound = "nz_moo/powerups/instakill_end.mp3",
 	icon_t5 = Material("nz_moo/icons/bo1/classic_clean_powerup_instakill_alt.png", "unlitgeneric"),
@@ -727,6 +741,8 @@ nzPowerUps:NewPowerUp("insta", {
 nzPowerUps:NewPowerUp("nuke", {
 	name = "Nuke",
 	model = "models/powerups/w_nuke.mdl",
+	desc = "Eliminates all normal zombies currently on the map",
+	antidesc = "All players are set on fire, stunned, and disoriented",
 	global = true,
 	angle = Angle(10,0,0),
 	scale = 1,
@@ -734,7 +750,7 @@ nzPowerUps:NewPowerUp("nuke", {
 	duration = 8,
 	antiduration = 0,
 	natural = true,
-	announcement = "",
+	announcement = true,
 	noflashing = true,
 	icon_t5 = Material("vgui/bo1_nuke.png", "unlitgeneric"),
 	icon_t6 = Material("vgui/bo2_nuke.png", "unlitgeneric"),
@@ -785,6 +801,8 @@ nzPowerUps:NewPowerUp("nuke", {
 nzPowerUps:NewPowerUp("firesale", {
 	name = "Fire Sale",
 	model = "models/powerups/w_firesale.mdl",
+	desc = "All box locations become active and box rolls are only 10 cents a pop",
+	antidesc = "Random Box becomes unusable",
 	global = true,
 	angle = Angle(45,0,0),
 	scale = 0.75,
@@ -792,7 +810,7 @@ nzPowerUps:NewPowerUp("firesale", {
 	duration = 30,
 	antiduration = 15,
 	natural = true,
-	announcement = "",
+	announcement = true,
 	loopsound = "nz_moo/powerups/mus_chap205_19.wav", -- This makes the Firesale Jingle 2d. Its also a good way to prank Youtubers by giving them a Copyright Claim! Now thats what I call goofy.
 	stopsound = "nz_moo/powerups/doublepoints_end.mp3",
 	icon_t5 = Material("nz_moo/icons/bo1/classic_clean_powerup_sale_alt.png", "unlitgeneric"),
@@ -801,9 +819,12 @@ nzPowerUps:NewPowerUp("firesale", {
 	icon_t7zod = Material("nz_moo/icons/t7_zod/specialty_firesale_zombies.png", "unlitgeneric"),
 	icon_t8 = Material("nz_moo/icons/bo4/t8_hud_robit_powerup_firesale.png", "unlitgeneric"),
 	icon_t9 = Material("vgui/robit_cw_powerup_firesale.png", "unlitgeneric"),
-	func = (function(id, ply)
+	condition = function(id, pos)
+		return nzPowerUps:GetBoxMoved()
+	end,
+	func = function(id, ply)
 		--nzPowerUps:FireSale()
-	end),
+	end,
 	expirefunc = function()
 		--This is handled in the box ent itself now.
 
@@ -820,6 +841,9 @@ nzPowerUps:NewPowerUp("firesale", {
 				end
 			end
 		end]]
+	end,
+	anticondition = function(id, pos)
+		return nzPowerUps:GetBoxMoved()
 	end,
 	antifunc = (function(id, ply)
 		net.Start("nzPowerUps.PickupHud")
@@ -852,6 +876,8 @@ nzPowerUps:NewPowerUp("firesale", {
 nzPowerUps:NewPowerUp("carpenter", {
 	name = "Carpenter",
 	model = "models/powerups/w_carpenter.mdl",
+	desc = "Repairs all barricades currently damage on the map",
+	antidesc = "All barricades are destroyed",
 	global = true,
 	angle = Angle(45,0,0),
 	scale = 1,
@@ -868,6 +894,21 @@ nzPowerUps:NewPowerUp("carpenter", {
 	icon_t7zod = Material("vgui/bo3_carpenter.png", "unlitgeneric"),
 	icon_t8 = Material("vgui/bo4_carpenter.png", "unlitgeneric"),
 	icon_t9 = Material("vgui/robit_cw_powerup_carpenter.png", "unlitgeneric"),
+	condition = function(id, pos)
+		local barricades = ents.FindByClass("breakable_entry")
+		if #barricades >= 4 then
+			local barricades_broken = 0
+			for _, ent in pairs(barricades) do 
+				if ent:GetHasPlanks() and (ent:GetNumPlanks() <= 0) then
+					barricades_broken = barricades_broken + 1
+				end
+			end
+
+			return barricades_broken >= 4
+		else
+			return false
+		end
+	end,
 	func = (function(id, ply)
 		local pos = vector_origin
 		if IsValid(ply) then
@@ -888,6 +929,22 @@ nzPowerUps:NewPowerUp("carpenter", {
 			ply:GivePoints(200)
 		end
 	end),
+	anticondition = function(id, pos)
+		local barricades = ents.FindByClass("breakable_entry")
+		if IsValid(barricades[1]) then
+			local b_hasplanks = false
+			for _, ent in pairs(barricades) do 
+				if ent:GetHasPlanks() and ent:GetNumPlanks() > 0 then
+					b_hasplanks = true
+					break
+				end
+			end
+
+			return b_hasplanks
+		else
+			return false
+		end
+	end,
 	antifunc = (function(id, ply)
 		net.Start("nzPowerUps.PickupHud")
 			net.WriteString("Anti Carpenter!")
@@ -907,6 +964,8 @@ nzPowerUps:NewPowerUp("carpenter", {
 nzPowerUps:NewPowerUp("zombieblood", {
 	name = "Zombie Blood",
 	model = "models/powerups/w_zombieblood.mdl",
+	desc = "Player is ignored by all enemies",
+	antidesc = "Player is targeted by all enemies",
 	global = false, -- Only applies to the player picking it up and time is handled individually per player
 	angle = Angle(0,0,0),
 	scale = 1,
@@ -916,7 +975,7 @@ nzPowerUps:NewPowerUp("zombieblood", {
 	addpitch = 5,
 	nopitchshift = 0,
 	natural = true,
-	announcement = "nz/powerups/zombie_blood.wav",
+	announcement = true,
 	loopsound = "nz_moo/powerups/zombieblood_loop.wav",
 	stopsound = "nz_moo/powerups/zombieblood_stop.mp3",
 	icon_t5 = Material("nz_moo/icons/bo1/classic_clean_powerup_blood_alt_alt.png", "unlitgeneric"),
@@ -925,6 +984,9 @@ nzPowerUps:NewPowerUp("zombieblood", {
 	icon_t7zod = Material("nz_moo/icons/t7/specialty_giant_blood_zombies.png", "unlitgeneric"),
 	icon_t8 = Material("nz_moo/icons/bo4/t8_hud_robit_powerup_blood.png", "unlitgeneric"),
 	icon_t9 = Material("vgui/cw_blood.png", "unlitgeneric"),
+	condition = function(id, pos)
+		return #player.GetAllPlaying() > 1
+	end,
 	func = (function(id, ply)
 		if IsValid(ply) then
 			ply:SetTargetPriority(TARGET_PRIORITY_NONE)
@@ -941,6 +1003,9 @@ nzPowerUps:NewPowerUp("zombieblood", {
 		end
 		return false
 	end),
+	anticondition = function(id, pos)
+		return #player.GetAllPlaying() > 1
+	end,
 	antifunc = (function(id, ply)
 		if not IsValid(ply) then return end
 
@@ -957,7 +1022,7 @@ nzPowerUps:NewPowerUp("zombieblood", {
 		ply:EmitSound("NZ.POP.Turned.Impact")
 
 		local timername = "AntiBloodRetarget"..ply:EntIndex()
-		timer.Create(timername, 1, 0, function()
+		timer.Create(timername, 0.5, 0, function()
 			if not IsValid(ply) then timer.Remove(timername) return end
 			if !nzPowerUps:IsPlayerAntiPowerupActive(ply, "zombieblood") then timer.Remove(timername) return end
 			UpdateAllZombieTargets(ply)
@@ -983,6 +1048,8 @@ nzPowerUps:NewPowerUp("zombieblood", {
 nzPowerUps:NewPowerUp("deathmachine", {
 	name = "Death Machine",
 	model = "models/powerups/w_deathmachine.mdl",
+	desc = "Player gains a powerful weapon with unlimited ammo",
+	antidesc = "Player is forced to use a weakened starting pistol",
 	global = false,
 	angle = Angle(0,0,0),
 	scale = 1,
@@ -990,7 +1057,7 @@ nzPowerUps:NewPowerUp("deathmachine", {
 	duration = 30,
 	antiduration = 15,
 	natural = true,
-	announcement = "",
+	announcement = true,
 	icon_t5 = Material("nz_moo/icons/bo1/classic_clean_powerup_deathmachine.png", "unlitgeneric"),
 	icon_t6 = Material("nz_moo/icons/bo2/charred_powerup_deathmachine.png", "unlitgeneric"),
 	icon_t7 = Material("nz_moo/icons/t7/t7_hud_zm_powerup_giant_deathmachine.png", "unlitgeneric"),
@@ -1039,10 +1106,38 @@ nzPowerUps:NewPowerUp("deathmachine", {
 	end,
 })
 
---Blood Money
+//local bonus points
+nzPowerUps:NewPowerUp("bloodmoney", {
+	name = "Blood Money",
+	model = "models/powerups/w_zmoney.mdl",
+	desc = "Player gains a random amount of points",
+	global = false,
+	angle = Angle(0,0,0),
+	scale = 1,
+	chance = 0,
+	duration = 0,
+	natural = false,
+	icon_t5 = Material("vgui/bo1_bonus.png", "unlitgeneric"),
+	icon_t6 = Material("vgui/bo2_bonus.png", "unlitgeneric"),
+	icon_t7 = Material("vgui/bo3_bonus.png", "unlitgeneric"),
+	icon_t7zod = Material("vgui/bo3_bonus.png", "unlitgeneric"),
+	icon_t8 = Material("vgui/bo4_bonus.png", "unlitgeneric"),
+	icon_t9 = Material("vgui/robit_cw_powerup_bonus_points.png", "unlitgeneric"),
+	announcement = true,
+	condition = function(id, pos)
+		return false //never spawn naturally
+	end,
+	func = (function(self, ply)
+		ply:GivePoints(math.random(1,6)*50)
+	end),
+})
+
+//global bonus points
 nzPowerUps:NewPowerUp("bonuspoints", {
 	name = "Bonus Points",
 	model = "models/powerups/w_zmoney.mdl",
+	desc = "All players gain a random amount of points",
+	antidesc = "All players lose a random amount of points",
 	global = true, --Bo4 enstated that Bonus Points are Rated E for everyone!
 	angle = Angle(0,0,0),
 	scale = 1,
@@ -1050,7 +1145,7 @@ nzPowerUps:NewPowerUp("bonuspoints", {
 	duration = 0,
 	antiduration = 0,
 	natural = true,
-	announcement = "",
+	announcement = true,
 	icon_t5 = Material("vgui/bo1_bonus.png", "unlitgeneric"),
 	icon_t6 = Material("vgui/bo2_bonus.png", "unlitgeneric"),
 	icon_t7 = Material("vgui/bo3_bonus.png", "unlitgeneric"),
@@ -1082,6 +1177,8 @@ nzPowerUps:NewPowerUp("bonuspoints", {
 nzPowerUps:NewPowerUp("bottleslot", {
 	name = "Broken Bottle",
 	model = "models/powerups/w_brokenbottle.mdl",
+	desc = "All players gain an additional perk slot",
+	antidesc = "All players lose a perk slot",
 	rare = true,
 	global = true,
 	angle = Angle(0,0,0),
@@ -1090,19 +1187,29 @@ nzPowerUps:NewPowerUp("bottleslot", {
 	duration = 0,
 	antiduration = 0,
 	natural = false,
-	announcement = "",
+	announcement = true,
 	icon_t5 = Material("vgui/bo1_brokenbottle.png", "unlitgeneric"),
 	icon_t6 = Material("vgui/bo2_broken_bottle.png", "unlitgeneric"),
 	icon_t7 = Material("vgui/bo3_brokenperk.png", "unlitgeneric"),
 	icon_t7zod = Material("vgui/bo3_brokenperk.png", "unlitgeneric"),
 	icon_t8 = Material("vgui/bo4_perk.png", "unlitgeneric"),
 	icon_t9 = Material("vgui/cw_brokenbottle.png", "unlitgeneric"),
+	condition = function(id, pos)
+		return GetConVar("nz_difficulty_perks_max"):GetInt() < 8
+	end,
 	func = (function(id, ply)
 		local cvar_maxperks = GetConVar("nz_difficulty_perks_max")
 		cvar_maxperks:SetInt(cvar_maxperks:GetInt() + 1)
 
 		nzPerks:IncreaseAllPlayersMaxPerks(1) //see 154 of perks/sh_meta
 	end),
+	anticondition = function(id, pos)
+		if GetConVar("nz_difficulty_perks_max"):GetInt() <= 4 then
+			return false
+		end
+
+		return nzMapping.Settings.poweruprestriction or nzRound:GetNumber() > 15
+	end,
 	antifunc = (function(id, ply)
 		nzSounds:Play("Laugh")
 
@@ -1122,6 +1229,8 @@ nzPowerUps:NewPowerUp("bottleslot", {
 nzPowerUps:NewPowerUp("bottle", {
 	name = "Perk Bottle",
 	model = "models/powerups/w_perkbottle.mdl",
+	desc = "All players gain a random perk not currently held",
+	antidesc = "All players lose a random perk from their deck",
 	rare = true,
 	global = true,
 	angle = Angle(0,0,0),
@@ -1130,7 +1239,7 @@ nzPowerUps:NewPowerUp("bottle", {
 	duration = 0,
 	antiduration = 0,
 	natural = false,
-	announcement = "",
+	announcement = true,
 	icon_t5 = Material("vgui/bo1_perk.png", "unlitgeneric"),
 	icon_t6 = Material("vgui/bo2_bottle.png", "unlitgeneric"),
 	icon_t7 = Material("vgui/bo3_perk.png", "unlitgeneric"),
@@ -1171,6 +1280,8 @@ nzPowerUps:NewPowerUp("bottle", {
 nzPowerUps:NewPowerUp("emptybottle", {
 	name = "Empty Perk Bottle",
 	model = "models/powerups/w_perkbottle.mdl",
+	desc = "Player gains an additional perk slot",
+	antidesc = "Player loses a perk slot",
 	rare = true,
 	global = false,
 	angle = Angle(0,0,0),
@@ -1179,7 +1290,7 @@ nzPowerUps:NewPowerUp("emptybottle", {
 	duration = 0,
 	antiduration = 0,
 	natural = false,
-	announcement = "",
+	announcement = true,
 	icon_t5 = Material("vgui/bo1_perk.png", "unlitgeneric"),
 	icon_t6 = Material("vgui/bo2_bottle.png", "unlitgeneric"),
 	icon_t7 = Material("vgui/bo3_perk.png", "unlitgeneric"),
@@ -1194,6 +1305,13 @@ nzPowerUps:NewPowerUp("emptybottle", {
 
 		ply:SetMaxPerks(ply:GetMaxPerks() + 1)
 	end),
+	anticondition = function(id, pos)
+		if GetConVar("nz_difficulty_perks_max"):GetInt() <= 4 then
+			return false
+		end
+
+		return nzMapping.Settings.poweruprestriction or nzRound:GetNumber() > 15
+	end,
 	antifunc = (function(id, ply)
 		nzSounds:PlayEnt("Laugh", ply)
 
@@ -1210,6 +1328,8 @@ nzPowerUps:NewPowerUp("emptybottle", {
 nzPowerUps:NewPowerUp("bonfiresale", {
 	name = "BonFire Sale",
 	model = "models/powerups/w_bonfire.mdl",
+	desc = "All Pack-a-Punch locations become active and upgrades are 1/5th the price",
+	antidesc = "All Pack-a-Punch machines become unusable",
 	rare = true,
 	global = true,
 	angle = Angle(0,0,0),
@@ -1220,7 +1340,7 @@ nzPowerUps:NewPowerUp("bonfiresale", {
 	addpitch = 5,
 	nopitchshift = 0,
 	natural = false,
-	announcement = "",
+	announcement = true,
 	loopsound = "nz_moo/powerups/omnov001l_1_l_stereo.wav",
 	stopsound = "nz_moo/powerups/doublepoints_end.mp3",
 	icon_t5 = Material("nz_moo/icons/bo1/classic_clean_powerup_bonfire.png", "unlitgeneric"),
@@ -1231,48 +1351,41 @@ nzPowerUps:NewPowerUp("bonfiresale", {
 	icon_t9 = Material("vgui/cw_bonfire.png", "unlitgeneric"),
 	func = (function(id, ply)
 	end),
+	anticondition = function(id, pos)
+		return nzPowerUps:GetHasPaped()
+	end,
 	antifunc = (function(id, ply)
 		net.Start("nzPowerUps.PickupHud")
 			net.WriteString("Anti Bonfire Sale!")
 			net.WriteBool(false)
 		net.Broadcast()
 
-		local ent
 		for k, v in pairs(ents.FindByClass("perk_machine")) do
 			if v.GetPerkID and v:GetPerkID() == "pap" then
-				ent = v
-				break
+				local timername = "wait_to_apply_hack"..v:EntIndex()
+				timer.Create(timername, engine.TickInterval(), 0, function()
+					if not IsValid(v) then timer.Remove(timername) return end
+					if !v.PapWpn or !IsValid(v.PapWpn) then
+						v:SetBeingUsed(true)
+						v.PerkUseCoolDown = CurTime() + math.huge
+						timer.Remove(timername)
+						return
+					end
+				end)
 			end
-		end
-
-		if IsValid(ent) then
-			local timername = "wait_to_apply_hack"..ent:EntIndex()
-			timer.Create(timername, engine.TickInterval(), 0, function()
-				if not IsValid(ent) then timer.Remove(timername) return end
-				if !ent.PapWpn or !IsValid(ent.PapWpn) then
-					ent:SetBeingUsed(true)
-					ent.PerkUseCoolDown = CurTime() + math.huge
-					timer.Remove(timername)
-					return
-				end
-			end)
 		end
 	end),
 	antiexpirefunc = (function(id, ply)
-		local ent
 		for k, v in pairs(ents.FindByClass("perk_machine")) do
 			if v.GetPerkID and v:GetPerkID() == "pap" then
-				ent = v
-				break
+				v:SetBeingUsed(false)
+				v.PerkUseCoolDown = CurTime()
+
+				local timername = "wait_to_apply_hack"..v:EntIndex()
+				if timer.Exists(timername) then
+					timer.Remove(timername)
+				end
 			end
-		end
-
-		if IsValid(ent) then
-			ent:SetBeingUsed(false)
-			ent.PerkUseCoolDown = CurTime()
-
-			local timername = "wait_to_apply_hack"..ent:EntIndex()
-			if timer.Exists(timername) then timer.Remove(timername) end
 		end
 	end),
 })
@@ -1280,6 +1393,8 @@ nzPowerUps:NewPowerUp("bonfiresale", {
 nzPowerUps:NewPowerUp("timewarp", {
 	name = "TimeWarp",
 	model = "models/wavy/powerups/w_timewarp.mdl",
+	desc = "All zombies are slowed to shambling speeds and cannot attack players",
+	antidesc = "All zombies run at super sprinting speed and spawn at the max spawn rate",
 	rare = true,
 	global = true,
 	angle = Angle(0,0,0),
@@ -1290,7 +1405,7 @@ nzPowerUps:NewPowerUp("timewarp", {
 	addpitch = 5,
 	nopitchshift = 0,
 	natural = true,
-	announcement = "",
+	announcement = true,
 	loopsound = "nz_moo/powerups/timewarp_loop.wav",
 	stopsound = "nz_moo/powerups/instakill_end.mp3",
 	icon_t5 = Material("vgui/classic_clean_powerup_slow.png", "unlitgeneric"),
@@ -1299,12 +1414,18 @@ nzPowerUps:NewPowerUp("timewarp", {
 	icon_t7zod = Material("vgui/icon_timewarp.png", "unlitgeneric"),
 	icon_t8 = Material("nz_moo/icons/bo4/powerups/t8_hud_robit_powerup_time_warp.png", "unlitgeneric"),
 	icon_t9 = Material("vgui/cw_time_alt.png", "unlitgeneric"),
+	condition = function(id, pos)
+		return nzMapping.Settings.poweruprestriction or nzRound:GetNumber() >= 9
+	end,
 	func = (function(id, ply)
 		net.Start("nzPowerUps.PickupHud")
 			net.WriteString("Time-Warp!")
 			net.WriteBool(true)
 		net.Broadcast()
 	end),
+	anticondition = function(id, pos)
+		return nzMapping.Settings.poweruprestriction or nzRound:GetNumber() >= 9
+	end,
 	antifunc = (function(id, ply)
 		net.Start("nzPowerUps.PickupHud")
 			net.WriteString("Anti Time-Warp!")
@@ -1340,6 +1461,8 @@ nzPowerUps:NewPowerUp("timewarp", {
 nzPowerUps:NewPowerUp("berzerk", {
 	name = "Berzerk",
 	model = "models/wavy/powerups/w_fullpower.mdl",
+	desc = "Player becomes enraged and is unable to take damage, but is reduced to just their fists that instantly kill enemies",
+	antidesc = "Player becomes weak and is knocked around easily by zombies",
 	global = false,
 	angle = Angle(0,0,0),
 	scale = 1.2,
@@ -1349,7 +1472,7 @@ nzPowerUps:NewPowerUp("berzerk", {
 	addpitch = 5,
 	nopitchshift = 0,
 	natural = true,
-	announcement = "",
+	announcement = true,
 	loopsound = "powerups/berzerk_loop.wav",
 	stopsound = "powerups/berzerk_end.wav",
 	icon_t5 = Material("vgui/t5_bzk.png", "unlitgeneric"),
@@ -1397,6 +1520,8 @@ nzPowerUps:NewPowerUp("berzerk", {
 nzPowerUps:NewPowerUp("infinite", {
 	name = "Infinite Ammo",
 	model = "models/powerups/w_infinite.mdl",
+	desc = "All players weapons dont consume ammo",
+	antidesc = "All players are unable to fire their weapons",
 	rare = true,
 	global = true,
 	angle = Angle(25,0,0),
@@ -1407,7 +1532,7 @@ nzPowerUps:NewPowerUp("infinite", {
 	addpitch = 50,
 	nopitchshift = 0,
 	natural = true,
-	announcement = "",
+	announcement = true,
 	loopsound = "powerups/infiniteammo_loop.wav",
 	stopsound = "powerups/infiniteammo_end.mp3",
 	icon_t5 = Material("vgui/bo1_infinite.png", "unlitgeneric"),
@@ -1489,6 +1614,8 @@ nzPowerUps:NewPowerUp("infinite", {
 nzPowerUps:NewPowerUp("random", {
 	name = "Mystery",
 	model = "models/powerups/w_random.mdl",
+	desc = "Activates a random Power-Up",
+	antidesc = "Activates a random Anti Power-Up",
 	global = true,
 	angle = Angle(25,0,0),
 	scale = 1.2,
@@ -1536,17 +1663,19 @@ nzPowerUps:NewPowerUp("random", {
 nzPowerUps:NewPowerUp("packapunch", {
 	name = "Pack A Punch",
 	model = "models/powerups/w_packapunch.mdl",
+	desc = "Players held weapon is upgraded",
+	antidesc = "Players held weapon is downgraded",
 	rare = true,
 	global = false,
 	angle = Angle(25,0,0),
 	scale = 0.8,
-	chance = 0,
+	chance = 1,
 	duration = 0,
 	antiduration = 0,
 	addpitch = 50,
 	nopitchshift = 0,
 	natural = false,
-	announcement = "",
+	announcement = true,
 	icon_t5 = Material("vgui/bo1_pap.png", "unlitgeneric"),
 	icon_t6 = Material("vgui/bo2_pap.png", "unlitgeneric"),
 	icon_t7 = Material("vgui/bo3_pap.png", "unlitgeneric"),
@@ -1587,6 +1716,9 @@ nzPowerUps:NewPowerUp("packapunch", {
 			hook.Call("OnPlayerBuyPackAPunch", nil, ply, wep, nil)
 		end
 	end),
+	anticondition = function(id, pos)
+		return nzPowerUps:GetHasPaped()
+	end,
 	anticond = (function(ply)
 		if IsValid(ply) and ply:Alive() then
 			for k, v in ipairs(ply:GetWeapons()) do
@@ -1627,6 +1759,8 @@ nzPowerUps:NewPowerUp("packapunch", {
 nzPowerUps:NewPowerUp("godmode", {
 	name = "Invulnerability",
 	model = "models/powerups/w_godmode.mdl",
+	desc = "Player is granted god mode, but all zombies target the player",
+	antidesc = "Enemies take no damage from the player, and no points are earned",
 	rare = true,
 	global = false,
 	angle = Angle(0, 0, 0),
@@ -1636,8 +1770,8 @@ nzPowerUps:NewPowerUp("godmode", {
 	antiduration = 10,
 	addpitch = 5,
 	nopitchshift = 0,
-	natural = true,
-	announcement = "",
+	natural = false,
+	announcement = true,
 	loopsound = "powerups/lattegodmode_loop.wav",
 	stopsound = "powerups/godmode_end.mp3",
 	icon_t5 = Material("vgui/bo1_greyson.png", "unlitgeneric"),
@@ -1646,6 +1780,9 @@ nzPowerUps:NewPowerUp("godmode", {
 	icon_t7zod = Material("vgui/bo3_greyson.png", "unlitgeneric"),
 	icon_t8 = Material("vgui/bo4/bo4_greyson.png", "unlitgeneric"),
 	icon_t9 = Material("vgui/cw_greyson.png", "unlitgeneric"),
+	condition = function(id, pos)
+		return #player.GetAllPlaying() > 1
+	end,
 	func = (function(id, ply)
 		ply:SetTargetPriority(TARGET_PRIORITY_SPECIAL)
 		UpdateAllZombieTargets(ply)
@@ -1654,6 +1791,9 @@ nzPowerUps:NewPowerUp("godmode", {
 		if IsValid(ply) then
 			ply:SetTargetPriority(TARGET_PRIORITY_PLAYER)
 		end
+	end,
+	anticondition = function(id, pos)
+		return #player.GetAllPlaying() > 1
 	end,
 	anticond = (function(ply)
 		if IsValid(ply) and ply:Alive() and ply:GetNotDowned() then
@@ -1677,6 +1817,8 @@ nzPowerUps:NewPowerUp("godmode", {
 nzPowerUps:NewPowerUp("weapondrop", {
 	name = "Random Weapon",
 	model = "models/powerups/w_randomgun.mdl",
+	desc = "Player acquires a random weapon from the weapon box list",
+	antidesc = "Players weapon is stolen by zombies",
 	global = false,
 	angle = Angle(0,0,0),
 	scale = 1,
@@ -1686,7 +1828,7 @@ nzPowerUps:NewPowerUp("weapondrop", {
 	addpitch = 5,
 	nopitchshift = 0,
 	natural = true,
-	announcement = "",
+	announcement = true,
 	icon_t5 = Material("vgui/bo1_randomgun.png", "unlitgeneric"),
 	icon_t6 = Material("vgui/bo2_randomgun.png", "unlitgeneric"),
 	icon_t7 = Material("vgui/bo3_randomgun.png", "unlitgeneric"),
@@ -1742,7 +1884,7 @@ nzPowerUps:NewPowerUp("weapondrop", {
 						ent.WeaponPickup = weapon.ClassName
 						ent:SetHintString(ply:Nick().."'s "..weapon.PrintName)
 						ent:SetModel(weapon.WorldModel or weapon:GetWeaponWorldModel())
-						timer.Simple(engine.TickInterval(), function()
+						timer.Simple(0, function()
 							if not IsValid(ent) then return end
 							ent:StopParticles()
 						end)
@@ -1800,6 +1942,9 @@ nzPowerUps:NewPowerUp("weapondrop", {
 
 		ply:Give(class)
 	end),
+	anticondition = function(id, pos)
+		return nzMapping.Settings.poweruprestriction or nzRound:GetNumber() > (#player.GetAllPlaying() > 1 and 6 or 12)
+	end,
 	anticond = (function(ply)
 		if IsValid(ply) and ply:Alive() and ply:GetNotDowned() then
 			return true
@@ -1845,6 +1990,8 @@ nzPowerUps:NewPowerUp("weapondrop", {
 nzPowerUps:NewPowerUp("quickfoot", {
 	name = "Quick Foot",
 	model = "models/powerups/w_quickfoot.mdl",
+	desc = "Players movespeed is greatly increased",
+	antidesc = "Players movespeed is greatly decreased",
 	global = false,
 	angle = Angle(0,0,0),
 	scale = 1.2,
@@ -1853,8 +2000,8 @@ nzPowerUps:NewPowerUp("quickfoot", {
 	antiduration = 15,
 	addpitch = 5,
 	nopitchshift = 0,
-	natural = true,
-	announcement = "",
+	natural = false,
+	announcement = true,
 	loopsound = "powerups/quick_loop.wav",
 	stopsound = "nz_moo/powerups/zombieblood_stop.mp3",
 	icon_t5 = Material("vgui/bo1_quick.png", "unlitgeneric"),
@@ -1903,6 +2050,8 @@ nzPowerUps:NewPowerUp("quickfoot", {
 nzPowerUps:NewPowerUp("fullarmor", {
 	name = "Full Armor",
 	model = "models/powerups/wm_s4_full_armor.mdl",
+	desc = "All players gain full armor",
+	antidesc = "All players lose their armor",
 	global = true,
 	angle = Angle(0,0,0),
 	scale = 1.2,
@@ -1912,13 +2061,13 @@ nzPowerUps:NewPowerUp("fullarmor", {
 	addpitch = 5,
 	nopitchshift = 0,
 	natural = true,
-	announcement = "",
-	icon_t5 = Material("vgui/bo1_quick.png", "unlitgeneric"),
-	icon_t6 = Material("vgui/bo2_quick.png", "unlitgeneric"),
-	icon_t7 = Material("vgui/bo3_quick.png", "unlitgeneric"),
-	icon_t7zod = Material("vgui/bo3_quick.png", "unlitgeneric"),
-	icon_t8 = Material("nz_moo/icons/bo4/t8_hud_robit_powerup_fast_feet.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/cw_fast.png", "unlitgeneric"),
+	announcement = true,
+	icon_t5 = Material("vgui/bo1_mystery.png", "unlitgeneric"),
+	icon_t6 = Material("vgui/bo2_mystery.png", "unlitgeneric"),
+	icon_t7 = Material("vgui/bo3_mystery.png", "unlitgeneric"),
+	icon_t7zod = Material("vgui/bo3_mystery.png", "unlitgeneric"),
+	icon_t8 = Material("vgui/bo4_mystery.png", "unlitgeneric"),
+	icon_t9 = Material("vgui/cw_mystery.png", "unlitgeneric"),
 	func = (function(id, ply)
 		net.Start("nzPowerUps.PickupHud")
 			net.WriteString("Full Armor!")
@@ -1946,6 +2095,7 @@ nzPowerUps:NewPowerUp("fullarmor", {
 nzPowerUps:NewPowerUp("random_gum", {
 	name = "Random Gum",
 	model = "models/powerups/wm_gumball.mdl",
+	desc = "Player acquires a random Gobble Gum",
 	global = false,
 	angle = Angle(0,0,0),
 	scale = 6,
@@ -1954,14 +2104,14 @@ nzPowerUps:NewPowerUp("random_gum", {
 	antiduration = 0,
 	addpitch = 5,
 	nopitchshift = 0,
-	natural = true,
-	announcement = "",
-	icon_t5 = Material("vgui/bo1_quick.png", "unlitgeneric"),
-	icon_t6 = Material("vgui/bo2_quick.png", "unlitgeneric"),
-	icon_t7 = Material("vgui/bo3_quick.png", "unlitgeneric"),
-	icon_t7zod = Material("vgui/bo3_quick.png", "unlitgeneric"),
-	icon_t8 = Material("nz_moo/icons/bo4/t8_hud_robit_powerup_fast_feet.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/cw_fast.png", "unlitgeneric"),
+	natural = false,
+	announcement = true,
+	icon_t5 = Material("vgui/bo1_mystery.png", "unlitgeneric"),
+	icon_t6 = Material("vgui/bo2_mystery.png", "unlitgeneric"),
+	icon_t7 = Material("vgui/bo3_mystery.png", "unlitgeneric"),
+	icon_t7zod = Material("vgui/bo3_mystery.png", "unlitgeneric"),
+	icon_t8 = Material("vgui/bo4_mystery.png", "unlitgeneric"),
+	icon_t9 = Material("vgui/cw_mystery.png", "unlitgeneric"),
 	pressuse = true,
 	spawnfunc = (function(id, ent)
 		if not IsValid(ent) then return end
@@ -2000,6 +2150,59 @@ nzPowerUps:NewPowerUp("random_gum", {
 			wep:SetGum(gum)
 		end
 	end,
-	antifunc = function(id, ply)
-	end,
+})
+
+nzPowerUps:NewPowerUp("restock", {
+	name = "Ammo Restock",
+	model = "models/powerups/w_maxammo.mdl",
+	desc = "Players weapon ammo, grenades, tacticals, and equipment are refilled",
+	antidesc = "Players active weapons reserve ammo is emptied",
+	global = false,
+	angle = Angle(0,0,25),
+	scale = 1,
+	chance = 1,
+	duration = 0,
+	antiduration = 0,
+	natural = false,
+	icon_t5 = Material("vgui/bo1_max.png", "unlitgeneric"),
+	icon_t6 = Material("vgui/bo2_max.png", "unlitgeneric"),
+	icon_t7 = Material("vgui/bo3_max.png", "unlitgeneric"),
+	icon_t7zod = Material("vgui/bo3_max.png", "unlitgeneric"),
+	icon_t8 = Material("vgui/bo4_maxammo.png", "unlitgeneric"),
+	icon_t9 = Material("vgui/robit_cw_powerup_max_ammo.png", "unlitgeneric"),
+	func = (function(id, ply)
+		if not IsValid(ply) then return end
+
+		nzSounds:PlayEnt("MaxAmmo", ply)
+
+		net.Start("nzPowerUps.PickupHud")
+			net.WriteString("Ammo Restocked!")
+			net.WriteBool(true)
+		net.Send(ply)
+
+		ply:GiveMaxAmmo()
+	end),
+	antifunc = (function(id, ply)
+		if not IsValid(ply) then return end
+
+		net.Start("nzPowerUps.PickupHud")
+			net.WriteString("Anti Ammo Restock!")
+			net.WriteBool(false)
+		net.Send(ply)
+
+		nzSounds:PlayEnt("Laugh", ply)
+
+		local wep = ply:GetActiveWeapon()
+		if not IsValid(wep) then return end
+
+		local ammo = wep:GetPrimaryAmmoType()
+		if ammo > 0 then
+			ply:SetAmmo(0, ammo)
+		end
+
+		local ammo2 = wep:GetSecondaryAmmoType()
+		if ammo2 > 0 then
+			ply:SetAmmo(0, ammo2)
+		end
+	end),
 })

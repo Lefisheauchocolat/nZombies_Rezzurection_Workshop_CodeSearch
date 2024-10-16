@@ -49,6 +49,13 @@ function ENT:SetupDataTables()
 			end
 		end)
 	end
+	if (SERVER) then
+		self:NetworkVarNotify("PerkID", function(ent, name, old, new)
+			if nzRound and nzRound:InProgress() and ((tostring(old) == "pap") or (tostring(new) == "pap")) then
+				nzPerks:RebuildPaPCount()
+			end
+		end)
+	end
 end
 
 function ENT:Initialize()
@@ -985,8 +992,10 @@ function ENT:GetRandomPerk(reroll)
 	else
 		if self.StoredReroll and self.RandomizeRoundStart then
 			for _, ent in pairs(machines) do
-				if (!ent.RandomizeRoundStart or ent.RandomizeRoundInterval ~= self.RandomizeRoundInterval) and random_perks[ent.RolledPerk] and !ent.RandomizeFizzlist then
-					random_perks[ent.RolledPerk] = nil
+				if (!ent.RandomizeRoundStart or ent.RandomizeRoundInterval ~= self.RandomizeRoundInterval) then
+					if random_perks[ent.RolledPerk or ent:GetPerkID()] and !ent.RandomizeFizzlist then
+						random_perks[ent.RolledPerk or ent:GetPerkID()] = nil
+					end
 				end
 			end
 		end
@@ -1190,6 +1199,9 @@ function ENT:OnRemove()
 	if CLIENT then
 		if self.IdleAmbience or IsValid(self.IdleAmbience) then
 			self:StopSound(self.IdleAmbience)
+		end
+		if self.Beam and IsValid(self.Beam) then
+			self.Beam:StopEmissionAndDestroyImmediately()
 		end
 	end
 end

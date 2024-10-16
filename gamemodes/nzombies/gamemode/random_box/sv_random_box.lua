@@ -53,25 +53,26 @@ function nzRandomBox.Remove()
 end
 
 function nzRandomBox.DecideWep(ply)
-
 	-- A copy of how 3arc did Teddybear chances in BO1 and most likely W@W.
 
 	local random = math.random(100)
-	local minuses = 4
+	local minuses = nzMapping.Settings.minboxhit or 3
+	local maxuses = nzMapping.Settings.maxboxhit or 13
+	local maxjoker = nzMapping.Settings.maxteddypercent or 50
 
 	local chanceofjoker = 0
 
-	if nzRandomBox:GetBoxUses() < minuses or nzPowerUps:IsPowerupActive("firesale") then
+	if nzRandomBox:GetBoxUses() <= minuses or nzPowerUps:IsPowerupActive("firesale") then
 		chanceofjoker = -1 -- No teddy if the box was only used 3 times, or if theres a Firesale active.
 	else
 		chanceofjoker = nzRandomBox:GetBoxUses() + 20
 
-		if !nzPowerUps:GetBoxMoved() and nzRandomBox:GetBoxUses() >= 8 then
+		if !nzPowerUps:GetBoxMoved() and nzRandomBox:GetBoxUses() >= nzMapping.Settings.boxstartuses then
 			chanceofjoker = 100 -- Force Teddy after 8 uses.
 		end
 
-		if nzRandomBox:GetBoxUses() >= 4 and nzRandomBox:GetBoxUses() <= 8 then
-			if random < 15 then -- 15% Chance of Teddy
+		if nzRandomBox:GetBoxUses() > minuses and nzRandomBox:GetBoxUses() <= math.Round(maxuses*0.6) then
+			if random < math.Round(maxjoker*0.3) then -- 15% Chance of Teddy
 				chanceofjoker = 100
 			else
 				chanceofjoker = -1
@@ -79,16 +80,16 @@ function nzRandomBox.DecideWep(ply)
 		end
 
 		if nzPowerUps:GetBoxMoved() then
-			if nzRandomBox:GetBoxUses() >= 8 and nzRandomBox:GetBoxUses() <= 13 then
-				if random < 30 then -- 30% Chance of Teddy
+			if nzRandomBox:GetBoxUses() > math.Round(maxuses*0.6) and nzRandomBox:GetBoxUses() <= maxuses then
+				if random < math.Round(maxjoker*0.6) then -- 30% Chance of Teddy
 					chanceofjoker = 100
 				else
 					chanceofjoker = -1
 				end
 			end
 
-			if nzRandomBox:GetBoxUses() >= 13 then
-				if random < 50 then -- 50% Chance of Teddy
+			if nzRandomBox:GetBoxUses() > maxuses then
+				if random < maxjoker then -- 50% Chance of Teddy
 					chanceofjoker = 100
 				else
 					chanceofjoker = -1

@@ -115,8 +115,8 @@ local function PHDExplode(ply, pos)
 		local slidetime = math.max(0.1, nzMapping.Settings.slideduration) * ((bananad and ply:GetNW2Int("nz.BananaCount", 0) > 0) and 1.2 or 1)
 		local mult = math.Clamp(1 - (ply:GetSlidingTime() - CurTime()) / (slidetime*ply:GetSlidingStamina()), 0, 1)
 
-		util.BlastDamage(ply:GetActiveWeapon(), ply, pos + vector_up, math.max(300*mult, 100), 4000)
-		util.ScreenShake(pos, 5, 5, 2*mult, math.max(500*mult, 150))
+		util.BlastDamage(ply:GetActiveWeapon(), ply, pos + vector_up, math.max(300*mult, 150), 4000)
+		util.ScreenShake(pos, 5, 5, math.max(2*mult, 1), math.max(500*mult, 150))
 	end
 end
 

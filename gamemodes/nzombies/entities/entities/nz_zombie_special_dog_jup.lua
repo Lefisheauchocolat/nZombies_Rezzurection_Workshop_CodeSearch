@@ -334,12 +334,34 @@ function ENT:OnSpawn(animation, grav, dirt)
 	end
 end
 
+function ENT:DogExplode()
+	if self.Exploded then self:Remove() return end
+
+	self.Exploded = true -- Prevent a possible infinite loop that causes crashes.
+
+	local firepit = ents.Create("hellhound_firepit")
+    firepit:SetPos(self:GetPos() + Vector(0,0,5))
+	firepit:SetAngles(Angle(0,0,0))
+    firepit:Spawn()
+
+    self:Explode( math.random( 25, 50 ))
+
+	if IsValid(self) then
+		self:Remove()
+	end
+end
+
 function ENT:PerformDeath(dmginfo)
 	self.Dying = true
 
 	self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
 	self:PlaySound(self.DeathSoulSounds[math.random(#self.DeathSoulSounds)], 100, math.random(85, 105))
-	self:DoDeathAnimation(self.DeathSequences[math.random(#self.DeathSequences)])
+
+	if !self:GetSpecialAnimation() then
+		self:DoDeathAnimation(self.DeathSequences[math.random(#self.DeathSequences)], true)
+	else
+		self:DogExplode()
+	end
 end
 
 function ENT:IsValidTarget( ent )
@@ -387,23 +409,13 @@ function ENT:CustomAnimEvent(a,b,c,d,e)
 		self:EmitSound(self.SpawnExploSounds[math.random(#self.SpawnExploSounds)], 511, math.random(85, 105))
 	end
 	if e == "dog_explode" then
-		if IsValid(self) then
-			if self.Exploded then self:Remove() return end
-
-			self.Exploded = true -- Prevent a possible infinite loop that causes crashes.
-
-			local firepit = ents.Create("hellhound_firepit")
-        	firepit:SetPos(self:GetPos() + Vector(0,0,5))
-			firepit:SetAngles(Angle(0,0,0))
-        	firepit:Spawn()
-
-        	self:Explode( math.random( 25, 50 ))
-
-			self:Remove()
-		end
+		self:DogExplode()
 	end
 end
 
 function ENT:OnRemove()
+	if self.NoRagdoll and !self.Exploded then
+		self:DogExplode()
+	end
 	self:StopSound("nz_moo/zombies/vox/_devildog/_t10/xsound_1b53c53a4a04f38.wav")
 end

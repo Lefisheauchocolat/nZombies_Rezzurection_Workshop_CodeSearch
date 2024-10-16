@@ -1421,7 +1421,7 @@ local function VultureVision_t5()
 
 		if nzDisplay.vultureHUDicons[class] then
 			icon = nzDisplay.vultureHUDicons[class]
-		elseif class == "perk_machine" then
+		elseif v.GetPerkID then
 			local perk = v:GetPerkID()
 			if perk == "pap" then
 				icon = nzDisplay.vultureHUDicons["pap"]

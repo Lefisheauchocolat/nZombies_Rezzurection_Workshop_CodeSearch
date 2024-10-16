@@ -31,6 +31,7 @@ if CLIENT then
 	hook.Add("CreateClientsideRagdoll", "noSmokerBodygroups", function(ent, ragdoll)
         if not IsValid(ent) or not IsValid(ragdoll) then return end
         if not ent:IsValidZombie() then return end
+        if ent:GetClass() ~= "nz_zombie_special_l4d_smoker" then return end
         
         for k, v in pairs(player.GetAll()) do
         	if IsValid(v) and (nzGum:GetActiveGum(v) and nzGum:GetActiveGumData(v).name == "Newtonian Negation") then
@@ -367,8 +368,7 @@ function ENT:OnSpawn()
 	effectData:SetEntity(nil)
 	util.Effect("panzer_spawn_tp", effectData)
 
-	self:SetCollisionBounds(Vector(-16,-16, 0), Vector(16, 16, 72))
-	self:SetSurroundingBounds(Vector(-28, -28, 0), Vector(28, 28, 80))
+	self:SetCollisionBounds(Vector(-6,-6, 0), Vector(6, 6, 72))	
 		
 	self:SolidMaskDuringEvent(MASK_SOLID_BRUSHONLY)
 	self:SetInvulnerable(true)

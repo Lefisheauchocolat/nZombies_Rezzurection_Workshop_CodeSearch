@@ -55,6 +55,11 @@ nzTools:CreateTool("colorsettings", {
 				[1] = Vector(0.568,0,1),
 				[2] = Vector(0.705,0.392,1),
 				[3] = Vector(0.431,0,0.784),
+			},
+			["treasure"] = {
+				[1] = Vector(1,0.475,0),
+				[2] = Vector(1,0.705,0.184),
+				[3] = Vector(0.785,0.38,0),
 			}
 		}
 		valz["PAPMuzzle"] = data.papmuzzlecol or {
@@ -108,6 +113,11 @@ nzTools:CreateTool("colorsettings", {
 						[1] = Vector(0.568,0,1),
 						[2] = Vector(0.705,0.392,1),
 						[3] = Vector(0.431,0,0.784),
+					},
+					["treasure"] = {
+						[1] = Vector(1,0.475,0),
+						[2] = Vector(1,0.705,0.184),
+						[3] = Vector(0.785,0.38,0),
 					}
 				}
 			else
@@ -896,6 +906,71 @@ nzTools:CreateTool("colorsettings", {
 				valz["PowerupColors"]["tombstone"][1] = Vector(0.568,0,1)
 				valz["PowerupColors"]["tombstone"][2] = Vector(0.705,0.392,1)
 				valz["PowerupColors"]["tombstone"][3] = Vector(0.431,0,0.784)
+			end
+
+			local treasurestored = nzMapping.Settings.powerupcol and nzMapping.Settings.powerupcol["treasure"][1] or valz["PowerupColors"]["treasure"][1]
+			local colorChooseTrzr = vgui.Create("DColorMixer", thefuckening)
+			colorChooseTrzr:SetColor(Color(math.Round(treasurestored[1]*255),math.Round(treasurestored[2]*255),math.Round(treasurestored[3]*255), 255))
+			colorChooseTrzr:SetPalette(false)
+			colorChooseTrzr:SetAlphaBar(false)
+			colorChooseTrzr:SetPos(5, 780)
+			colorChooseTrzr:SetSize(150, 120)
+
+			colorChooseTrzr.ValueChanged = function(col)
+				timer.Simple(0, function()
+					local cum = colorChooseTrzr:GetColor()
+					valz["PowerupColors"]["treasure"][1] = Vector(cum.r/255, cum.g/255, cum.b/255)
+				end)
+			end
+
+			local treasurestored2 = nzMapping.Settings.powerupcol and nzMapping.Settings.powerupcol["treasure"][2] or valz["PowerupColors"]["treasure"][2]
+			local colorChooseTrzr2 = vgui.Create("DColorMixer", thefuckening)
+			colorChooseTrzr2:SetColor(Color(math.Round(treasurestored2[1]*255),math.Round(treasurestored2[2]*255),math.Round(treasurestored2[3]*255), 255))
+			colorChooseTrzr2:SetPalette(false)
+			colorChooseTrzr2:SetAlphaBar(false)
+			colorChooseTrzr2:SetPos(160, 780)
+			colorChooseTrzr2:SetSize(150, 120)
+
+			colorChooseTrzr2.ValueChanged = function(col)
+				timer.Simple(0, function()
+					local cum = colorChooseTrzr2:GetColor()
+					valz["PowerupColors"]["treasure"][2] = Vector(cum.r/255, cum.g/255, cum.b/255)
+				end)
+			end
+
+			local treasurestored3 = nzMapping.Settings.powerupcol and nzMapping.Settings.powerupcol["treasure"][3] or valz["PowerupColors"]["treasure"][3]
+			local colorChooseTrzr3 = vgui.Create("DColorMixer", thefuckening)
+			colorChooseTrzr3:SetColor(Color(math.Round(treasurestored3[1]*255),math.Round(treasurestored3[2]*255),math.Round(treasurestored3[3]*255), 255))
+			colorChooseTrzr3:SetPalette(false)
+			colorChooseTrzr3:SetAlphaBar(false)
+			colorChooseTrzr3:SetPos(315, 780)
+			colorChooseTrzr3:SetSize(150, 120)
+
+			colorChooseTrzr3.ValueChanged = function(col)
+				timer.Simple(0, function()	
+					local cum = colorChooseTrzr3:GetColor()
+					valz["PowerupColors"]["treasure"][3] = Vector(cum.r/255, cum.g/255, cum.b/255)
+				end)
+			end
+
+			local ptype6 = vgui.Create("DLabel", thefuckening)
+			ptype6:SetText("Treasure")
+			ptype6:SetFont("Trebuchet18")
+			ptype6:SetTextColor(color_red)
+			ptype6:SizeToContents()
+			ptype6:SetPos(180, 765)
+
+			local treasurereset = vgui.Create("DButton", thefuckening)
+			treasurereset:SetText("Reset Treasure Colors")
+			treasurereset:SetPos(5, 760)
+			treasurereset:SizeToContents()
+			treasurereset.DoClick = function()
+				colorChooseTrzr:SetColor(Color(math.Round(1*255),math.Round(0.475*255),0, 255))
+				colorChooseTrzr2:SetColor(Color(math.Round(1*255),math.Round(0.705*255),math.Round(0.184*255), 255))
+				colorChooseTrzr3:SetColor(Color(math.Round(0.785*255),math.Round(0.38*255),0, 255))
+				valz["PowerupColors"]["treasure"][1] = Vector(1,0.475,0)
+				valz["PowerupColors"]["treasure"][2] = Vector(1,0.705,0.184)
+				valz["PowerupColors"]["treasure"][3] = Vector(0.785,0.38,0)
 			end
 		end
 

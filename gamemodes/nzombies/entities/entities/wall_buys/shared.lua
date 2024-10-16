@@ -304,6 +304,7 @@ if SERVER then
 				price = 0
 			end
 
+		if activator:CanAfford(price) then
 			activator:Buy(price, self, function()
 				self:SetBought(true)
 				activator:EmitSound("nz_moo/effects/purchases/buy_00.mp3", SNDLVL_TALKING)
@@ -320,6 +321,10 @@ if SERVER then
 				end
 				return true
 			end)
+		else
+			activator:EmitSound("nz_moo/effects/purchases/deny.wav")
+		end
+
 		elseif string.lower(ammo_type) != "none" and ammo_type != -1 then
 			if giveboolet then
 				if self.saveGun == 1 then
@@ -341,7 +346,10 @@ if SERVER then
 					max = data.MaxAmmo
 				end
 
-				if activator:GetAmmoCount(ammo) >= max then return end
+				if activator:GetAmmoCount(ammo) >= max then 
+					activator:EmitSound("nz_moo/effects/purchases/deny.wav")
+					return
+				end
 
 				activator:Buy(ammo_price, self, function()
 					if not self:GetBought() then
@@ -354,12 +362,16 @@ if SERVER then
 				return
 			end
 
-			if give_ammo == 0 or self.wop:Clip1() >= self.wop.Primary.ClipSize then return end
+			if give_ammo <= 0 then
+				activator:EmitSound("nz_moo/effects/purchases/deny.wav")
+			return end
 
 			activator:Buy(self.wop:HasNZModifier("pap") and ammo_price_pap or ammo_price, self, function()
 				self.wop:GiveMaxAmmo()
 				return true
 			end)
+		else
+			activator:EmitSound("nz_moo/effects/purchases/deny.wav")
 		end
 	end
 end

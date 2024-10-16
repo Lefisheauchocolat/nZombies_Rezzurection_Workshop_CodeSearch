@@ -323,6 +323,8 @@ function ENT:OnSpawn()
 end
 
 function ENT:PerformDeath(dmgInfo)
+	self.Dying = true
+
 	self:SetBodygroup(3,1)
 	self:EmitSound("nz_moo/zombies/vox/_cellbreaker/death_lightning.mp3", 511, math.random(95,105))
 	ParticleEffectAttach("driese_tp_arrival_ambient",PATTACH_ABSORIGIN,self,0)

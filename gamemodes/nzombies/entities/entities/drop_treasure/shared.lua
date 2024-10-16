@@ -9,7 +9,7 @@ ENT.Purpose			= ""
 ENT.Instructions	= ""
 
 function ENT:SetupDataTables()
-	self:NetworkVar("String", 0, "DropType")
+	self:NetworkVar("String", 0, "Treasure")
 
 	self:NetworkVar("Bool", 1, "Blinking")
 
@@ -33,9 +33,9 @@ local vulturedrops = {
 			self:DrawModel()
 
 			if !self.loopglow or !IsValid(self.loopglow) then
-				local colorvec1 = nzMapping.Settings.powerupcol["mini"][1]
-				local colorvec2 = nzMapping.Settings.powerupcol["mini"][2]
-				local colorvec3 = nzMapping.Settings.powerupcol["mini"][3]
+				local colorvec1 = nzMapping.Settings.powerupcol["treasure"][1]
+				local colorvec2 = nzMapping.Settings.powerupcol["treasure"][2]
+				local colorvec3 = nzMapping.Settings.powerupcol["treasure"][3]
 
 				if nzMapping.Settings.powerupstyle then
 					local style = nzPowerUps:GetStyle(nzMapping.Settings.powerupstyle)
@@ -82,9 +82,9 @@ local vulturedrops = {
 			self:DrawModel()
 
 			if !self.loopglow or !IsValid(self.loopglow) then
-				local colorvec1 = nzMapping.Settings.powerupcol["mini"][1]
-				local colorvec2 = nzMapping.Settings.powerupcol["mini"][2]
-				local colorvec3 = nzMapping.Settings.powerupcol["mini"][3]
+				local colorvec1 = nzMapping.Settings.powerupcol["treasure"][1]
+				local colorvec2 = nzMapping.Settings.powerupcol["treasure"][2]
+				local colorvec3 = nzMapping.Settings.powerupcol["treasure"][3]
 
 				if nzMapping.Settings.powerupstyle then
 					local style = nzPowerUps:GetStyle(nzMapping.Settings.powerupstyle)
@@ -109,15 +109,15 @@ local vulturedrops = {
 }
 
 function ENT:Draw()
-	vulturedrops[self:GetDropType()].draw(self)
+	vulturedrops[self:GetTreasure()].draw(self)
 end
 
 function ENT:Initialize()
 	if SERVER then
-		self:SetDropType(table.Random(vulturedrops).id)
+		self:SetTreasure(table.Random(vulturedrops).id)
 	end
 
-	self:SetModel(vulturedrops[self:GetDropType()].model)
+	self:SetModel(vulturedrops[self:GetTreasure()].model)
 	self:SetMaterial("models/weapons/powerups/mtl_x2icon_gold")
 
 	self:PhysicsInit(SOLID_NONE)
@@ -126,12 +126,12 @@ function ENT:Initialize()
 	self:SetSolid(SOLID_NONE)
 	self:UseTriggerBounds(true, 8)
 
-	self:SetBlinkTime(CurTime() + vulturedrops[self:GetDropType()].timer - 5)
-	self:SetKillTime(CurTime() + vulturedrops[self:GetDropType()].timer)
+	self:SetBlinkTime(CurTime() + vulturedrops[self:GetTreasure()].timer - 5)
+	self:SetKillTime(CurTime() + vulturedrops[self:GetTreasure()].timer)
 	self:SetBlinking(false)
 	self.NextDraw = CurTime()
 
-	vulturedrops[self:GetDropType()].initialize(self)
+	vulturedrops[self:GetTreasure()].initialize(self)
 
 	if CLIENT then return end
 	self:SetTrigger(true)
@@ -139,13 +139,13 @@ function ENT:Initialize()
 end
 
 function ENT:StartTouch(ent)
-	if IsValid(ent) and ent:IsPlayer() and vulturedrops[self:GetDropType()].effect(ent) then
+	if IsValid(ent) and ent:IsPlayer() and vulturedrops[self:GetTreasure()].effect(ent) then
 		self:Remove()
 	end
 end
 
 function ENT:Think()
-	if not self:GetBlinking() and self:GetBlinkTime() < CurTime() and vulturedrops[self:GetDropType()].blink then
+	if not self:GetBlinking() and self:GetBlinkTime() < CurTime() and vulturedrops[self:GetTreasure()].blink then
 		self:SetBlinking(true)
 	end
 
@@ -173,12 +173,12 @@ end
 function ENT:OnRemove()
 	if IsValid(self) then
 		self:StopParticles()
-		if SERVER and !vulturedrops[self:GetDropType()].nopoof then
+		if SERVER and !vulturedrops[self:GetTreasure()].nopoof then
 			local fx = EffectData()
 			fx:SetOrigin(self:WorldSpaceCenter()) //position
 			fx:SetAngles(angle_zero) //angle
 			fx:SetNormal(Vector(0.65,0.65,0.65)) //size (dont ask why its a vector)
-			fx:SetFlags(3) //powerup type, see nzPowerUps.PowerUpGlowTypes in gamemode/powerups/sh_constructor
+			fx:SetFlags(6) //powerup type, see nzPowerUps.PowerUpGlowTypes in gamemode/powerups/sh_constructor
 
 			local filter = RecipientFilter()
 			filter:AddPVS(self:GetPos())

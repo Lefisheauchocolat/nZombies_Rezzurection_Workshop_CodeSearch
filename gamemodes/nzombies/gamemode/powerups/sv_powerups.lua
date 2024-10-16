@@ -164,7 +164,7 @@ function nzPowerUps:Carpenter(nopoints, pos)
 	for i=1, #barricades do
 		local ent = barricades[i]
 		if not IsValid(ent) then continue end
-		sortedcades[i] = ent:GetPos():Distance(pos)
+		sortedcades[i] = ent:GetPos():DistToSqr(pos)
 	end
 
 	local count = 0
@@ -182,7 +182,6 @@ function nzPowerUps:Carpenter(nopoints, pos)
 		if t > highesttime then
 			highesttime = t
 		end
-		--print(t)
 
 		timer.Simple(t, function()
 			if IsValid(ent) and !IsValid(ent.ZombieUsing) then

@@ -547,6 +547,15 @@ nzMapping:AddSaveModule("RandomBoxSpawns", {
 	cleanents = {"random_box_spawns"},
 })
 
+nzMapping:AddSaveModule("PerkCratePiles", {
+	savefunc = function()
+		return {}
+	end,
+	loadfunc = function(data)
+	end,
+	cleanents = {"perk_cratepile"},
+})
+
 nzMapping:AddSaveModule("PerkMachineSpawns", {
 	savefunc = function()
 		local perk_machinespawns = {}

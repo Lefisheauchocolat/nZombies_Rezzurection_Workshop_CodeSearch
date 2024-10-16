@@ -40,7 +40,7 @@ nzTools:CreateTool("settings", {
 		valz["Row5"] = data.scriptinfo or ""
 		valz["Row6"] = data.gamemodeentities or false
 		valz["Row7"] = data.specialroundtype or "Hellhounds"
-		valz["Row8"] = data.bosstype or "Panzer"
+		valz["Row8"] = data.bosstype or "None"
 		valz["Row9"] = data.startingspawns == nil and 35 or data.startingspawns
 		valz["Row10"] = data.spawnperround == nil and 0 or data.spawnperround
 		valz["Row11"] = data.maxspawns == nil and 35 or data.maxspawns
@@ -75,6 +75,7 @@ nzTools:CreateTool("settings", {
 		valz["Row52"] = data.sidestepping or false
 		valz["Row54"] = data.badattacks or false
 		valz["DmgIncrease"] = data.dmgincrease or false
+		valz["Stumble"] = data.stumble or false --Owlie Stumble Edit
 		valz["ZStartSpeed"] = data.startspeed or 0
 		--valz["ZSpeedCap"] = data.speedcap or 300
 		valz["Row56"] = data.zct or false
@@ -116,11 +117,24 @@ nzTools:CreateTool("settings", {
 		valz["Row93"] = data.tacticalupgrades or false
 		valz["Row94"] = data.tacticalkillcount or 40
 		valz["Row95"] = data.maxperkslots or 8
-
+		valz["Row96"] = data.minboxhit or 3
+		valz["Row97"] = data.maxboxhit or 13
+		valz["Row98"] = data.boxstartuses or 8
+		valz["Row99"] = data.poweruproundbased or false
+		valz["Row100"] = data.minfizzuses or 4
+		valz["Row101"] = data.maxfizzuses or 7
+		valz["Row102"] = data.maxpowerupdrops or 4
+		valz["Row103"] = data.maxteddypercent or 50
+		valz["Colorless"] = data.monochrome or false
 		valz["PaPBeam"] = data.papbeam or false
 		valz["RandomPaP"] = data.randompap or false
 		valz["RandomPaPRound"] = data.randompapinterval or 2
 		valz["RandomPaPTime"] = data.randompaptime or 0
+
+		valz["NukedPerks"] = data.nukedperks or false
+		valz["NukedRandom"] = data.nukedrandom == nil and true or data.nukedrandom
+		valz["NukedRandomMin"] = data.nukedroundmin or 3
+		valz["NukedRandomMax"] = data.nukedroundmax or 5
 
 		valz["Movement"] = data.movement or 0
 		valz["Gravity"] = data.gravity or 600
@@ -207,6 +221,12 @@ nzTools:CreateTool("settings", {
 		end
 		valz["GumsList"] = data.gumlist or gumlist
 
+		local poweruprounds = {}
+		for k, v in pairs(nzPowerUps.Data) do
+			poweruprounds[k] = v.rare and (v.chance > 0 and 10 or 20) or 0
+		end
+		valz["PowerUpRounds"] = data.poweruprounds or poweruprounds
+
 		for k, v in pairs(nzSounds.struct) do
 			valz["SndRow" .. k] = data[v] or {}
 		end
@@ -228,7 +248,7 @@ nzTools:CreateTool("settings", {
 		---------------------------------------------------------------------------]]
 		local Row16 = 			DProperties:CreateRow("Map Cosmetics", "HUD")
 		local Row41 = 			DProperties:CreateRow("Map Cosmetics", "Perk Icons")
-		local Row59 = 			DProperties:CreateRow("Map Cosmetics", "Powerup Icons")
+		local Row59 = 			DProperties:CreateRow("Map Cosmetics", "Power-Up Icons")
 		local Row60 = 			DProperties:CreateRow("Map Cosmetics", "Perk Stats Icons")
 		local Row18 = 			DProperties:CreateRow("Map Cosmetics", "Perk Machine Skins")
 		local Row19 = 			DProperties:CreateRow("Map Cosmetics", "Mystery Box Skin")
@@ -238,8 +258,9 @@ nzTools:CreateTool("settings", {
 		local bottlerow = 		DProperties:CreateRow("Map Cosmetics", "Perk Bottle")
 		local syretterow = 		DProperties:CreateRow("Map Cosmetics", "Revive Syrette")
 		local Row61 = 			DProperties:CreateRow("Map Cosmetics", "Downed Ambience")
-		local powerupstylerow = DProperties:CreateRow("Map Cosmetics", "Powerup Effect Style")
-		local Row70 =			DProperties:CreateRow("Map Cosmetics", "Powerup Outlines")
+		local powerupstylerow = DProperties:CreateRow("Map Cosmetics", "Power-Up Effect Style")
+		local Row70 =			DProperties:CreateRow("Map Cosmetics", "Power-Up Outlines")
+		local Colorlessrow =	DProperties:CreateRow("Map Cosmetics", "Monochrome Vision Until Power On")
 
 		Row16:Setup( "Combo" )
 		for k, v in pairs(nzRound.HudSelectData) do
@@ -341,6 +362,10 @@ nzTools:CreateTool("settings", {
 		Row70.DataChanged = function( _, val ) valz["Row70"] = val end
 		Row70:SetTooltip("More of an accessibility option, enables a glowing halo around powerups, ignorez makes the outline show through walls.")
 
+		Colorlessrow:Setup("Boolean")
+		Colorlessrow:SetValue(valz["Colorless"])
+		Colorlessrow.DataChanged = function( _, val) valz["Colorless"] = tobool(val) end
+		Colorlessrow:SetTooltip("Enable for players vision to be monochrome until the power is turned on.")
 		--[[-------------------------------------------------------------------------
 		Map Functionality
 		---------------------------------------------------------------------------]]
@@ -349,11 +374,11 @@ nzTools:CreateTool("settings", {
 		local deathmachinerow = DProperties:CreateRow("Map Functionality", "Death Machine")
 		local shieldrow = 		DProperties:CreateRow("Map Functionality", "Shield")
 		local Row62 = 			DProperties:CreateRow("Map Functionality", "Solo Revives Count")
-		local Row76 = 			DProperties:CreateRow("Map Functionality", "Perk Slot Count")
+		local Row76 = 			DProperties:CreateRow("Map Functionality", "Starting Perk Slot Count")
+		local Row95 = 			DProperties:CreateRow("Map Functionality", "Max Perk Slot Count")
 		local Row42 = 			DProperties:CreateRow("Map Functionality", "Perk Upgrades")
 		local Row71 = 			DProperties:CreateRow("Map Functionality", "Perk Slot Rewards")
 		local Row63 = 			DProperties:CreateRow("Map Functionality", "Perk Modifier Slot")
-		local Row95 = 			DProperties:CreateRow("Map Functionality", "Max Player Perk Slots")
 		local Row64 = 			DProperties:CreateRow("Map Functionality", "Lose All Perks on Down")
 		local CWPoints = 		DProperties:CreateRow("Map Functionality", "Cold War Points System")
 		local Row93 = 			DProperties:CreateRow("Map Functionality", "Special Grenade Upgrading")
@@ -446,6 +471,34 @@ nzTools:CreateTool("settings", {
 		Row94:SetValue(valz["Row94"])
 		Row94.DataChanged = function( _, val ) valz["Row94"] = tonumber(val) end
 		Row94:SetTooltip("Amount of special grenade kills required to become upgraded. (Default 40)")
+
+		--[[-------------------------------------------------------------------------
+		Nuked Settings
+		---------------------------------------------------------------------------]]
+		local nukedperkrow = 	DProperties:CreateRow("Nuketown Perk Settings", "Enable Nuketown Falling Perks")
+		local nukedrandomrow =	DProperties:CreateRow("Nuketown Perk Settings", "Shuffle Perks on Game Start")
+		local nukedminrow = 	DProperties:CreateRow("Nuketown Perk Settings", "Falling Perk Round Random Min")
+		local nukedmaxrow = 	DProperties:CreateRow("Nuketown Perk Settings", "Falling Perk Round Random Max")
+
+		nukedperkrow:Setup("Boolean")
+		nukedperkrow:SetValue(valz["NukedPerks"])
+		nukedperkrow.DataChanged = function( _, val) valz["NukedPerks"] = tobool(val) end
+		nukedperkrow:SetTooltip("Enable for perk machines to drop from the sky every so many rounds like in nuketown. (Perk machines that are hidden behind doors will be visible regardless)")
+
+		nukedrandomrow:Setup("Boolean")
+		nukedrandomrow:SetValue(valz["NukedRandom"])
+		nukedrandomrow.DataChanged = function( _, val ) valz["NukedRandom"] = tobool(val) end
+		nukedrandomrow:SetTooltip("Enable for perks to be shuffled before dropping from the sky. (Default TRUE)")
+
+		nukedminrow:Setup("Generic")
+		nukedminrow:SetValue(valz["NukedRandomMin"])
+		nukedminrow.DataChanged = function( _, val ) valz["NukedRandomMin"] = tonumber(val) end
+		nukedminrow:SetTooltip("Minimum amount of rounds before the next perk machine drops. (Default 2)")
+
+		nukedmaxrow:Setup("Generic")
+		nukedmaxrow:SetValue(valz["NukedRandomMax"])
+		nukedmaxrow.DataChanged = function( _, val ) valz["NukedRandomMax"] = tonumber(val) end
+		nukedmaxrow:SetTooltip("Maximum amount of rounds before the next perk machine drops. (Default 5)")
 
 		--[[-------------------------------------------------------------------------
 		PaP Settings
@@ -918,6 +971,11 @@ nzTools:CreateTool("settings", {
 		Row54.DataChanged = function( _, val ) valz["Row54"] = val end
 		Row54:SetTooltip("Enable this if you want zombies to use their Bo3 attack animations as a posed to their Bo4 ones.")
 
+		local Stumble = DProperties3:CreateRow( "Zombie Extras", "Zombie Stumbling Animations" ) --Owlie Stumble Edit
+		Stumble:Setup( "Boolean" )
+		Stumble:SetValue( valz["Stumble"] )
+		Stumble.DataChanged = function( _, val ) valz["Stumble"] = val end
+		Stumble:SetTooltip("Enable this if you want the zombie stumbling animations that are standard post Bo4.")
 		--[[-------------------------------------------------------------------------
 		Catalysts and ZCT and Burning
 		---------------------------------------------------------------------------]]
@@ -1102,7 +1160,7 @@ nzTools:CreateTool("settings", {
 			if !valz["Row5"] or valz["Row5"] == "" then data.scriptinfo = nil else data.scriptinfo = valz["Row5"] end
 			if !valz["Row6"] or valz["Row6"] == "0" then data.gamemodeentities = nil else data.gamemodeentities = tobool(valz["Row6"]) end
 			if !valz["Row7"] then data.specialroundtype = "Hellhounds" else data.specialroundtype = valz["Row7"] end
-			if !valz["Row8"] then data.bosstype = "Panzer" else data.bosstype = valz["Row8"] end
+			if !valz["Row8"] then data.bosstype = "None" else data.bosstype = valz["Row8"] end
 			if !tonumber(valz["Row9"]) then data.startingspawns = 4 else data.startingspawns = tonumber(valz["Row9"]) end
 			if !tonumber(valz["Row10"]) then data.spawnperround = 1 else data.spawnperround = tonumber(valz["Row10"]) end
 			if !tonumber(valz["Row11"]) then data.maxspawns = 24 else data.maxspawns = tonumber(valz["Row11"]) end
@@ -1135,6 +1193,7 @@ nzTools:CreateTool("settings", {
 			if !valz["Row51"] then data.navgroupbased = nil else data.navgroupbased = valz["Row51"] end
 			if !valz["Row52"] then data.sidestepping = false else data.sidestepping = valz["Row52"] end
 			if !valz["DmgIncrease"] then data.dmgincrease = false else data.dmgincrease = valz["DmgIncrease"] end
+			if !valz["Stumble"] then data.stumble = false else data.stumble = valz["Stumble"] end -- Owlie Stumble Edit
 			if !valz["ZStartSpeed"] then data.startspeed = 0 else data.startspeed = tonumber(valz["ZStartSpeed"]) end
 			--if !valz["ZSpeedCap"] then data.speedcap = 300 else data.speedcap = tonumber(valz["ZSpeedCap"]) end
 			if !valz["Row54"] then data.badattacks = false else data.badattacks = valz["Row54"] end
@@ -1177,7 +1236,20 @@ nzTools:CreateTool("settings", {
 			if valz["Row93"] == nil then data.tacticalupgrades = false else data.tacticalupgrades = tobool(valz["Row93"]) end
 			if valz["Row94"] == nil then data.tacticalkillcount = 40 else data.tacticalkillcount = tonumber(valz["Row94"]) end
 			if valz["Row95"] == nil then data.maxperkslots = 8 else data.maxperkslots = tonumber(valz["Row95"]) end
+			if valz["Row96"] == nil then data.minboxhit = 3 else data.minboxhit = tonumber(valz["Row96"]) end
+			if valz["Row97"] == nil then data.maxboxhit = 13 else data.maxboxhit = tonumber(valz["Row97"]) end
+			if valz["Row98"] == nil then data.boxstartuses = 8 else data.boxstartuses = tonumber(valz["Row98"]) end
+			if valz["Row99"] == nil then data.poweruproundbased = false else data.poweruproundbased = tobool(valz["Row99"]) end
+			if valz["Row100"] == nil then data.minfizzuses = 4 else data.minfizzuses = tonumber(valz["Row100"]) end
+			if valz["Row101"] == nil then data.maxfizzuses = 7 else data.maxfizzuses = tonumber(valz["Row101"]) end
+			if valz["Row102"] == nil then data.maxpowerupdrops = 4 else data.maxpowerupdrops = tonumber(valz["Row102"]) end
+			if valz["Row103"] == nil then data.maxteddypercent = 50 else data.maxteddypercent = tonumber(valz["Row103"]) end
+			if valz["Colorless"] == nil then data.monochrome = false else data.monochrome = tobool(valz["Colorless"]) end
 			if valz["PaPBeam"] == nil then data.papbeam = false else data.papbeam = tobool(valz["PaPBeam"]) end
+			if valz["NukedPerks"] == nil then data.nukedperks = false else data.nukedperks = tobool(valz["NukedPerks"]) end
+			if valz["NukedRandom"] == nil then data.nukedrandom = true else data.nukedrandom = tobool(valz["NukedRandom"]) end
+			if valz["NukedRandomMin"] == nil then data.nukedroundmin = 3 else data.nukedroundmin = tonumber(valz["NukedRandomMin"]) end
+			if valz["NukedRandomMax"] == nil then data.nukedroundmax = 5 else data.nukedroundmax = tonumber(valz["NukedRandomMax"]) end
 			if valz["RandomPaP"] == nil then data.randompap = false else data.randompap = tobool(valz["RandomPaP"]) end
 			if valz["RandomPaPRound"] == nil then data.randompapinterval = 2 else data.randompapinterval = tonumber(valz["RandomPaPRound"]) end
 			if valz["RandomPaPTime"] == nil then data.randompaptime = 0 else data.randompaptime = tonumber(valz["RandomPaPTime"]) end
@@ -1188,6 +1260,7 @@ nzTools:CreateTool("settings", {
 			if !valz["RBoxWeps"] or table.Count(valz["RBoxWeps"]) < 1 then data.rboxweps = nil else data.rboxweps = valz["RBoxWeps"] end
 			if valz["Wunderfizz"] == nil then data.wunderfizzperklist = wunderfizzlist else data.wunderfizzperklist = valz["Wunderfizz"] end
 			if valz["PowerUps"] == nil then data.poweruplist = poweruplist else data.poweruplist = valz["PowerUps"] end
+			if valz["PowerUpRounds"] == nil then data.poweruprounds = poweruprounds else data.poweruprounds = valz["PowerUpRounds"] end
 			if valz["GumsList"] == nil then data.gumlist = gumlist else data.gumlist = valz["GumsList"] end
 			if valz["GumRoundPrices"] == nil then data.gumpricelist = nzGum.RoundPrices else data.gumpricelist = valz["GumRoundPrices"] end
 			if valz["GumChanceMults"] == nil then data.gummultipliers = nzGum.ChanceMultiplier else data.gummultipliers = valz["GumChanceMults"] end
@@ -1310,12 +1383,12 @@ nzTools:CreateTool("settings", {
 			local numweplist = 0
 
 			local rboxpanel = vgui.Create("DPanel", sheet)
-			sheet:AddSheet( "Box Weapons", rboxpanel, "icon16/box.png", false, false, "Set which weapons appear in the Random Box.")
+			sheet:AddSheet( "Random Box", rboxpanel, "icon16/box.png", false, false, "Set which weapons appear in the Random Box.")
 			rboxpanel.Paint = function() return end
 
 			local rbweplist = vgui.Create("DScrollPanel", rboxpanel)
-			rbweplist:SetPos(0, 0)
-			rbweplist:SetSize(465, 350)
+			rbweplist:SetPos(0, 110)
+			rbweplist:SetSize(465, 250)
 			rbweplist:SetPaintBackground(true)
 			rbweplist:SetBackgroundColor(color_grey_200)
 
@@ -1341,7 +1414,7 @@ nzTools:CreateTool("settings", {
 				if tooltip then
 					dhover:SetTooltip(tooltip)
 				end
-					
+
 				local dweight = vgui.Create("DNumberWang", weplist[class])
 				dweight:SetPos(295, 1)
 				dweight:SetSize(40, 14)
@@ -1369,6 +1442,51 @@ nzTools:CreateTool("settings", {
 				end
 
 				numweplist = numweplist + 1
+			end
+
+			local boxproperties = vgui.Create( "DProperties", rboxpanel )
+			boxproperties:SetSize(465, 105)
+			boxproperties:SetPos(0, 0)
+
+			local Row96 = 			boxproperties:CreateRow("Settings", "Minimum Box Uses")
+			local Row97 = 			boxproperties:CreateRow("Settings", "Maximum Box Uses")
+			local Row98 = 			boxproperties:CreateRow("Settings", "Maximum Starting Box Uses")
+			local Row103 =			boxproperties:CreateRow("Settings", "Maximum Teddy Chance")
+
+			Row96:Setup("Generic")
+			Row96:SetValue(valz["Row96"])
+			Row96.DataChanged = function( _, val ) valz["Row96"] = tonumber(val) end
+			Row96:SetTooltip("How many times the Random Box can be used before there is a chance to roll Teddy. (Default 3)")
+
+			Row97:Setup("Generic")
+			Row97:SetValue(valz["Row97"])
+			Row97.DataChanged = function( _, val ) valz["Row97"] = tonumber(val) end
+			Row97:SetTooltip("How many times the Random Box can be used before every use has the maximum chance of Teddy. (Default 13)")
+
+			Row98:Setup("Generic")
+			Row98:SetValue(valz["Row98"])
+			Row98.DataChanged = function( _, val ) valz["Row98"] = tonumber(val) end
+			Row98:SetTooltip("How many times the starting Random Box can be used before it is forced to move, ONLY APPLIES TO FIRST BOX OF THE GAME. (Default 8)")
+
+			Row103:Setup("Generic")
+			Row103:SetValue(valz["Row103"])
+			Row103.DataChanged = function( _, val ) valz["Row103"] = math.Round(tonumber(val)) end
+			Row103:SetTooltip("Maximum percentage to roll Teddy. (Default 50%)")
+
+			local thefucker0 = boxproperties.Categories["Settings"]
+			local resetsettins = vgui.Create("DButton", thefucker0)
+			resetsettins:SetText("Reset")
+			resetsettins:SetPos(65, 2)
+			resetsettins:SetSize(40, 20)
+			resetsettins.DoClick = function()
+				Row96:SetValue(3)
+				Row97:SetValue(13)
+				Row98:SetValue(8)
+				Row103:SetValue(50)
+				valz["Row96"] = 3
+				valz["Row97"] = 13
+				valz["Row98"] = 8
+				valz["Row103"] = 50
 			end
 
 			if nzMapping.Settings.rboxweps then
@@ -1401,7 +1519,7 @@ nzTools:CreateTool("settings", {
 			end
 
 			local wepentry = vgui.Create( "DComboBox", rboxpanel )
-			wepentry:SetPos( 0, 355 )
+			wepentry:SetPos( 0, 365 )
 			wepentry:SetSize( 146, 20 )
 			wepentry:SetValue( "Weapon ..." )
 			for k,v in pairs(weapons.GetList()) do
@@ -1419,7 +1537,7 @@ nzTools:CreateTool("settings", {
 
 			local wepadd = vgui.Create( "DButton", rboxpanel )
 			wepadd:SetText( "Add" )
-			wepadd:SetPos( 150, 355 )
+			wepadd:SetPos( 150, 365 )
 			wepadd:SetSize( 53, 20 )
 			wepadd.DoClick = function()
 				local v = weapons.Get(wepentry:GetOptionData(wepentry:GetSelectedID()))
@@ -1436,7 +1554,7 @@ nzTools:CreateTool("settings", {
 
 			local wepmore = vgui.Create( "DButton", rboxpanel )
 			wepmore:SetText( "More ..." )
-			wepmore:SetPos( 207, 355 )
+			wepmore:SetPos( 207, 365 )
 			wepmore:SetSize( 53, 20 )
 			wepmore.DoClick = function()
 				local morepnl = vgui.Create("DFrame")
@@ -1633,12 +1751,12 @@ nzTools:CreateTool("settings", {
 		------------------------------------------------------------------------
 		local function AddGumStuff()
 			local gumspanel = vgui.Create("DPanel", sheet)
-			sheet:AddSheet("Gobble Gums", gumspanel, "icon16/sport_8ball.png", false, false, "Set which powerups can be dropped from zombies.")
+			sheet:AddSheet("Gobble Gums", gumspanel, "icon16/sport_8ball.png", false, false, "Set which gums can be rolled at the gobble gum machine.")
 			gumspanel.Paint = function() return end
 
 			local gumslistpanel = vgui.Create("DScrollPanel", gumspanel)
-			gumslistpanel:SetPos(0, 200)
-			gumslistpanel:SetSize(465, 195)
+			gumslistpanel:SetPos(0, 145)
+			gumslistpanel:SetSize(465, 250)
 			gumslistpanel:SetPaintBackground(true)
 			gumslistpanel:SetBackgroundColor( color_grey_200 )
 
@@ -1687,7 +1805,7 @@ nzTools:CreateTool("settings", {
 
 				local rarity = data.rare or nzGum.RareTypes.DEFAULT
 
-				local gumdesc = "("..id..") "..data.desc or "No Description Available"
+				local gumdesc = "["..id.."]\n"..data.desc or "No Description Available"
 				if nzGum:GetHowActivatesText(id) ~= "" then
 					gumdesc = gumdesc.." ("..nzGum:GetHowActivatesText(id)..")"
 				end
@@ -1748,7 +1866,7 @@ nzTools:CreateTool("settings", {
 			end
 
 			local gumproperties = vgui.Create( "DProperties", gumspanel )
-			gumproperties:SetSize(465, 200)
+			gumproperties:SetSize(455, 140)
 			gumproperties:SetPos(0, 0)
 
 			local gumsettings1 = gumproperties:CreateRow("Settings", "Max Player Gum Rolls")
@@ -2014,9 +2132,9 @@ nzTools:CreateTool("settings", {
 
 				local text = "["..tostring(k).."]"
 				if perkdata.desc then
-					text = text.." "..perkdata.desc
+					text = text.."\nBase: "..perkdata.desc
 					if perkdata.desc2 then
-						text = text.."\n Modifier: "..perkdata.desc2
+						text = text.."\nModifier: "..perkdata.desc2
 					end
 				end
 				perkitem:SetTooltip(text)
@@ -2128,9 +2246,45 @@ nzTools:CreateTool("settings", {
 			powerupchecklist:SetSpaceY( 5 )
 			powerupchecklist:SetSpaceX( 5 )
 
-			for k,v in SortedPairsByMemberValue(poweruplist, 2) do
+			local locals = {}
+			local globals = {}
+			for k, v in pairs(poweruplist) do
+				local pdata = nzPowerUps:Get(k)
+				if pdata.global then
+					globals[k] = pdata.name
+				else
+					locals[k] = pdata.name
+				end
+			end
+
+			local sorted_powerups = {}
+			for k, v in SortedPairsByValue(locals) do
+				sorted_powerups[#sorted_powerups + 1] = k
+			end
+			for k, v in SortedPairsByValue(globals) do
+				sorted_powerups[#sorted_powerups + 1] = k
+			end
+
+			for _, k in pairs(sorted_powerups) do
+				local powerupdata = nzPowerUps:Get(k)
+
 				local powerupitem = powerupchecklist:Add("DPanel")
 				powerupitem:SetSize( 148, 42 )
+
+				local text = "["..tostring(k).."]"
+				if powerupdata.desc then
+					text = text.."\nDefault: "..powerupdata.desc
+					if powerupdata.duration and powerupdata.duration > 0 then
+						text = text.." ("..powerupdata.duration.."s)"
+					end
+					if powerupdata.antidesc then
+						text = text.."\nAnti: "..powerupdata.antidesc
+					end
+					if powerupdata.antiduration and powerupdata.antiduration > 0 then
+						text = text.." ("..powerupdata.antiduration.."s)"
+					end
+				end
+				powerupitem:SetTooltip(text)
 
 				local check = powerupitem:Add("DCheckBox")
 				check:SetPos(2,2)
@@ -2140,8 +2294,6 @@ nzTools:CreateTool("settings", {
 				else
 					check:SetValue(true)
 				end
-
-				local powerupdata = nzPowerUps:Get(k)
 
 				check.OnChange = function(self, val)
 					if !valz["PowerUps"][k] then
@@ -2159,35 +2311,35 @@ nzTools:CreateTool("settings", {
 				local desca = powerupitem:Add("DLabel")
 				desca:SetTextColor(Color(255*col_vec[1], 255*col_vec[2], 255*col_vec[3]))
 				desca:SetSize(60, 20)
-				desca:SetPos(4,24)
+				desca:SetPos(3,24)
 				desca:SetFont("Trebuchet18")
 				desca:SetText(powerupdata.global and "Global" or "Local")
 
 				local descb = powerupitem:Add("DLabel")
 				descb:SetTextColor(desca:GetTextColor())
 				descb:SetSize(60, 20)
-				descb:SetPos(6,24)
+				descb:SetPos(5,24)
 				descb:SetFont("Trebuchet18")
 				descb:SetText(desca:GetText())
 
 				local descc = powerupitem:Add("DLabel")
 				descc:SetTextColor(desca:GetTextColor())
 				descc:SetSize(60, 20)
-				descc:SetPos(5,25)
+				descc:SetPos(4,25)
 				descc:SetFont("Trebuchet18")
 				descc:SetText(desca:GetText())
 
 				local descd = powerupitem:Add("DLabel")
 				descd:SetTextColor(desca:GetTextColor())
 				descd:SetSize(60, 20)
-				descd:SetPos(5,23)
+				descd:SetPos(4,23)
 				descd:SetFont("Trebuchet18")
 				descd:SetText(desca:GetText())
 
 				local desc = powerupitem:Add("DLabel")
 				desc:SetTextColor(color_grey_50)
 				desc:SetSize(60, 20)
-				desc:SetPos(5,24)
+				desc:SetPos(4,24)
 				desc:SetFont("Trebuchet18")
 				desc:SetText(desca:GetText())
 
@@ -2195,47 +2347,75 @@ nzTools:CreateTool("settings", {
 				name:SetTextColor(color_grey_50)
 				name:SetSize(105, 20)
 				name:SetPos(20,1)
-				name:SetText(v[2])
+				name:SetText(powerupdata.name)
+
+				local wang = powerupitem:Add("DNumberWang")
+				wang:SetSize(28, 18)
+				wang:SetPos(80, 20)
+				wang:SetMin(0)
+				wang:SetMax(1000)
+				wang:SetDecimals(0)
+				wang:SetValue(nzMapping.Settings.poweruprounds and nzMapping.Settings.poweruprounds[k] or poweruprounds[k])
+				wang:SetTooltip("Activation round number.")
+				wang.OnValueChanged = function(val)
+					timer.Simple(0, function()
+						valz["PowerUpRounds"][k] = wang:GetValue()
+					end)
+				end
 			end
 
 			local pproperties = vgui.Create( "DProperties", poweruppanel )
 			pproperties:SetSize(455, 105)
 			pproperties:SetPos(0, 0)
 
-			local Row66 = pproperties:CreateRow("Anti Powerups", "Enable Anti Powerups")
+			local Row99 = pproperties:CreateRow("Settings", "Enable Round Based Power-Ups")
+			Row99:Setup("Boolean")
+			Row99:SetValue(valz["Row99"])
+			Row99.DataChanged = function( _, val ) valz["Row99"] = tobool(val) end
+			Row99:SetTooltip("Enable for powerups to only spawn after X amount of rounds.")
+
+			local Row102 = pproperties:CreateRow("Settings", "Max Power-Ups Per Round")
+			Row102:Setup("Generic")
+			Row102:SetValue(valz["Row102"])
+			Row102.DataChanged = function( _, val ) valz["Row102"] = tonumber(val) end
+			Row102:SetTooltip("How many powerups can spawn naturally in a single round.")
+
+			local Row66 = pproperties:CreateRow("Settings", "Enable Anti Power-Ups")
 			Row66:Setup("Boolean")
 			Row66:SetValue(valz["Row66"])
-			Row66.DataChanged = function( _, val ) valz["Row66"] = val end
+			Row66.DataChanged = function( _, val ) valz["Row66"] = tobool(val) end
 			Row66:SetTooltip("Enable anti powerups spawning on this config")
 
-			local Row67 = pproperties:CreateRow("Anti Powerups", "Max Anti Powerups Chance")
+			local Row67 = pproperties:CreateRow("Settings", "Max Anti Power-Ups Chance")
 			Row67:Setup("Generic")
 			Row67:SetValue(valz["Row67"])
 			Row67.DataChanged = function( _, val ) valz["Row67"] = tonumber(val) end
-			Row67:SetTooltip("How many Powerups to spawn before having a 100% chance of an Anti Powerup. (Default 40)")
+			Row67:SetTooltip("How many Power-Ups to spawn before having a 100% chance of an Anti Power-Up. (Default 40)")
 
-			local Row68 = pproperties:CreateRow("Anti Powerups", "Powerup Count Before Anti Powerups")
+			local Row68 = pproperties:CreateRow("Settings", "Power-Up Count Before Anti Power-Ups")
 			Row68:Setup("Generic")
 			Row68:SetValue(valz["Row68"])
 			Row68.DataChanged = function( _, val ) valz["Row68"] = tonumber(val) end
-			Row68:SetTooltip("Amount of Powerups that must be picked up before Anti Powerups have a chance to start spawning. (Default is 2)")
+			Row68:SetTooltip("Amount of Power-Ups that must be picked up before Anti Power-Ups have a chance to start spawning. (Default is 2)")
 
-			local Row69 = pproperties:CreateRow("Anti Powerups", "Anti Powerup Spawn Delay")
+			local Row69 = pproperties:CreateRow("Settings", "Anti Power-Up Spawn Delay")
 			Row69:Setup("Generic")
 			Row69:SetValue(valz["Row69"])
 			Row69.DataChanged = function( _, val ) valz["Row69"] = tonumber(val) end
-			Row69:SetTooltip("Time (in seconds) it takes for Anti Powerups to activate after spawning. (Default is 4)")
+			Row69:SetTooltip("Time (in seconds) it takes for Anti Power-Ups to activate after spawning. (Default is 4)")
 		
-			local thefucker0 = pproperties.Categories["Anti Powerups"]
+			local thefucker0 = pproperties.Categories["Settings"]
 			local resetpowerups = vgui.Create("DButton", thefucker0)
 			resetpowerups:SetText("Reset")
-			resetpowerups:SetPos(95, 2)
+			resetpowerups:SetPos(65, 2)
 			resetpowerups:SetSize(40, 20)
 			resetpowerups.DoClick = function()
+				Row99:SetValue(0)
 				Row66:SetValue(0)
 				Row67:SetValue(40)
 				Row68:SetValue(2)
 				Row69:SetValue(4)
+				valz["Row99"] = false
 				valz["Row66"] = false
 				valz["Row67"] = 40
 				valz["Row68"] = 2

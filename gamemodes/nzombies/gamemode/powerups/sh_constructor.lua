@@ -28,14 +28,50 @@ nzPowerUps.PowerUpGlowTypes = {
 	[2] = "local",
 	[3] = "mini",
 	[4] = "anti",
-	[5] = "tombstone"
+	[5] = "tombstone",
+	[6] = "treasure"
 }
 
+//used for syncing powerup hud
 nzPowerUps.EntityClasses = {
 	["drop_powerup"] = true,
 	["drop_vulture"] = true,
 	["drop_tombstone"] = true,
 	["drop_widows"] = true,
+	["drop_treasure"] = true,
+}
+
+nzPowerUps.DefaultPowerUpColors = {
+	["global"] = {
+		[1] = Vector(0.196,1,0),
+		[2] = Vector(0.568,1,0.29),
+		[3] = Vector(0.262,0.666,0),
+	},
+	["local"] = {
+		[1] = Vector(0.372,1,0.951),
+		[2] = Vector(0.556,1,0.99),
+		[3] = Vector(0,0.64,0.666),
+	},
+	["mini"] = {
+		[1] = Vector(1,0.823,0),
+		[2] = Vector(1,0.854,0.549),
+		[3] = Vector(0.627,0.431,0),
+	},
+	["anti"] = {
+		[1] = Vector(1,0.156,0.156),
+		[2] = Vector(1,0.392,0.392),
+		[3] = Vector(0.705,0,0),
+	},
+	["tombstone"] = {
+		[1] = Vector(0.568,0,1),
+		[2] = Vector(0.705,0.392,1),
+		[3] = Vector(0.431,0,0.784),
+	},
+	["treasure"] = {
+		[1] = Vector(1,0.475,0),
+		[2] = Vector(1,0.705,0.184),
+		[3] = Vector(0.785,0.38,0),
+	}
 }
 
 function nzPowerUps:NewStyle(id, data)

@@ -1,4 +1,357 @@
 if SERVER then
+	//randomized perk machines
+	hook.Add("OnGameBegin", "nz.PerkMachineRolling", function()
+		timer.Simple(0, function()
+			local machines = ents.FindByClass("perk_machine")
+
+			nzPerks:RebuildPaPCount()
+
+			if nzMapping.Settings.randompap then
+				local paptime = nzMapping.Settings.randompaptime
+				if paptime and paptime > 0 then
+					timer.Create("nzPaPShuffler", paptime, 0, function()
+						if nzPerks.PackAPunchCount <= 1 then return end
+
+						local machines = ents.FindByClass("perk_machine")
+						for k, v in pairs(machines) do
+							if v:GetSelected() then
+								nzPerks.LastPaPMachine = v
+								v.MarkedForRemoval = true
+							end
+						end
+
+						for k, v in RandomPairs(machines) do
+							if v:GetPerkID() == "pap" then
+								if nzPerks.LastPaPMachine and nzPerks.LastPaPMachine == v then continue end
+
+								v:SetSelected(true)
+
+								ParticleEffect("driese_tp_arrival_phase2", v:GetPos(), Angle(0,0,0))
+								v:EmitSound("amb/weather/lightning/lightning_flash_0"..math.random(0,3)..".wav", 511, 100, 1, CHAN_STATIC)
+
+								if (!v.HideBehindDoor or v.DoorRevealed) then
+									v:ShowMachine()
+								end
+								break
+							end
+						end
+					end)
+				elseif nzPerks.PackAPunchCount > 1 then
+					for k, v in pairs(machines) do
+						if v:GetPerkID() == "pap" then
+							v:SetSelected(false)
+						end
+					end
+
+					for k, v in RandomPairs(machines) do
+						if v:GetPerkID() == "pap" and !v:GetSelected() then
+							v:SetSelected(true)
+							if (!v.HideBehindDoor or v.DoorRevealed) then
+								v:ShowMachine()
+							end
+							break
+						end
+					end
+				end
+			end
+
+			for _, v in pairs(machines) do
+				if v.HideBehindDoor then
+					v:HideMachine()
+					continue
+				end
+				if v.Randomize then
+					v:StartRolling()
+				end
+			end
+		end)
+	end)
+
+	hook.Add("OnRoundPreparation", "nz.PerkMachineRolling", function(round)
+		local machines = ents.FindByClass("perk_machine")
+		if round <= 1 then return end
+
+		if nzMapping.Settings.randompap and (nzPerks.PackAPunchCount or 0) > 1 and (!nzMapping.Settings.randompaptime or nzMapping.Settings.randompaptime <= 0) and nzMapping.Settings.randompapinterval > 0 and round%(nzMapping.Settings.randompapinterval) == 0 then
+			for k, v in pairs(machines) do
+				if v:GetSelected() then
+					nzPerks.LastPaPMachine = v
+					v.MarkedForRemoval = true
+				end
+			end
+
+			for k, v in RandomPairs(machines) do
+				if v:GetPerkID() == "pap" then
+					if nzPerks.LastPaPMachine and nzPerks.LastPaPMachine == v then continue end
+
+					v:SetSelected(true)
+
+					ParticleEffect("driese_tp_arrival_phase2", v:GetPos(), Angle(0,0,0))
+					v:EmitSound("amb/weather/lightning/lightning_flash_0"..math.random(0,3)..".wav", 511, 100, 1, CHAN_STATIC)
+
+					if (!v.HideBehindDoor or v.DoorRevealed) then
+						v:ShowMachine()
+					end
+					break
+				end
+			end
+		end
+
+		for k, v in pairs(machines) do
+			if v.Randomize and (!v.HideBehindDoor or v.DoorRevealed) and v.RandomizeRoundStart and v.RandomizeRoundInterval then
+				if round%(v.RandomizeRoundInterval) == 0 and round ~= 1 then
+					v:StartRolling(true)
+				end
+			end
+		end
+	end)
+
+	hook.Add("OnDoorUnlocked", "NZ.PerkMachineRolling", function(ent, link, rebuyable, ply)
+		for _, v in pairs(ents.FindByClass("perk_machine")) do
+			if v.HideBehindDoor and !v.DoorRevealed then
+				local door_flags = {}
+				if v.DoorFlag then
+					door_flags[v.DoorFlag] = true
+				end
+				if v.DoorFlag2 then
+					door_flags[v.DoorFlag2] = true
+				end
+				if v.DoorFlag3 then
+					door_flags[v.DoorFlag3] = true
+				end
+
+				if door_flags[tostring(link)] then
+					if v:GetPerkID() == "pap" then
+						if nzMapping.Settings.randompap and (nzPowerUps:IsPowerupActive("bonfiresale") or v:GetSelected() or (nzPerks.PackAPunchCount or 0) <= 1) then
+							v:ShowMachine(true)
+						else
+							v.DoorRevealed = true
+						end
+					else
+						v:ShowMachine(true)
+					end
+
+					if v.Randomize then
+						v:StartRolling()
+					end
+				end
+			end
+		end
+	end)
+
+	hook.Add("OnRoundInit", "nz.PerkMachineRolling", function()
+		for _, v in pairs(ents.FindByClass("perk_machine")) do
+			v:Reset()
+		end
+	end)
+
+	hook.Add("OnRoundEnd", "nz.PerkMachineRolling", function()
+		nzPerks.LastPaPMachine = nil
+		nzPerks.PackAPunchCount = nil
+		for _, v in pairs(ents.FindByClass("perk_machine")) do
+			v:Reset()
+		end
+		timer.Remove("nzPaPShuffler")
+	end)
+
+	//nuked perk machines
+	hook.Add("OnRoundInit", "nz.NukedPerks", function()
+		if !nzMapping.Settings.nukedperks then return end
+
+		local singleplayer = game.SinglePlayer() or #player.GetAll() <= 1
+		if !singleplayer then
+			nzPerks.NextNukedRound = math.random(nzMapping.Settings.nukedroundmin, nzMapping.Settings.nukedroundmax)
+		end
+
+		local spawns = ents.FindByClass("player_spawns")
+		local center_of_spawn = Vector(math.random(-10,10),math.random(-10,10),math.random(-10,10))
+		local sorted_machines = {}
+		local map_perks = {}
+		local total_machines = {}
+
+		for _, spawn in pairs(spawns) do
+			center_of_spawn = center_of_spawn + spawn:GetPos()
+		end
+
+		center_of_spawn = (center_of_spawn / #spawns)
+
+		local machines = ents.FindByClass("perk_machine")
+		for _, ent in pairs(machines) do
+			if ent:GetPerkID() == "revive" then continue end
+			map_perks[#map_perks + 1] = ent:GetPerkID()
+		end
+		table.Add(total_machines, machines)
+
+		local fizzies = ents.FindByClass("wunderfizz_machine")
+		for _, ent in pairs(fizzies) do
+			map_perks[#map_perks + 1] = "wunderfizz"
+		end
+		table.Add(total_machines, fizzies)
+
+		if nzMapping.Settings.nukedrandom then
+			for _, ent in RandomPairs(total_machines) do
+				if not IsValid(ent) then continue end
+
+				if ent:GetClass() == "wunderfizz_machine" then
+					local ourperk = "wunderfizz"
+					for index, perk in RandomPairs(map_perks) do
+						ourperk = perk
+						map_perks[index] = nil
+						break
+					end
+
+					//print('////////////////// Original Perk wunderfizz')
+					//print('////////////////// Rolled Perk '..ourperk)
+
+					nzMapping:PerkCratePile(ent:GetPos(), ent:GetAngles(), {id = ourperk}, "wunderfizz")
+					SafeRemoveEntityDelayed(ent, 0)
+				else
+					local ourperk = ent:GetPerkID()
+					local storedperk = ourperk
+
+					if (!singleplayer or ourperk ~= "revive") then
+						for i, perk in RandomPairs(map_perks) do
+							ourperk = perk
+							map_perks[i] = nil
+							break
+						end
+					end
+
+					local data = {
+						id = ourperk,
+						random = ent.Randomize,
+						fizzlist = ent.RandomizeFizzlist,
+						randomround = ent.RandomizeRoundStart,
+						roundnum = ent.RandomizeRoundInterval,
+						door = ent.HideBehindDoor,
+						doorflag = ent.DoorFlag,
+						doorflag2 = ent.DoorFlag2,
+						doorflag3 = ent.DoorFlag3,
+					}
+
+					//print('////////////////// Original Perk '..ent:GetPerkID())
+					//print('////////////////// Rolled Perk '..ourperk)
+
+					local cratepile = nzMapping:PerkCratePile(ent:GetPos(), ent:GetAngles(), data, ent:GetPerkID())
+					if storedperk == "revive" and !nzPerks.StartingNukedPerk then
+						nzPerks.StartingNukedPerk = cratepile
+					end
+
+					SafeRemoveEntityDelayed(ent, 0)
+				end
+			end
+		else
+			for _, ent in pairs(total_machines) do
+				if ent:GetClass() == "wunderfizz_machine" then
+					nzMapping:PerkCratePile(ent:GetPos(), ent:GetAngles(), {id = "wunderfizz"})
+					SafeRemoveEntityDelayed(ent, 0)
+				else
+					local data = {
+						id = ent:GetPerkID(),
+						random = ent.Randomize,
+						fizzlist = ent.RandomizeFizzlist,
+						randomround = ent.RandomizeRoundStart,
+						roundnum = ent.RandomizeRoundInterval,
+						door = ent.HideBehindDoor,
+						doorflag = ent.DoorFlag,
+						doorflag2 = ent.DoorFlag2,
+						doorflag3 = ent.DoorFlag3,
+					}
+
+					nzMapping:PerkCratePile(ent:GetPos(), ent:GetAngles(), data)
+					SafeRemoveEntityDelayed(ent, 0)
+				end
+			end
+		end
+	end)
+
+	hook.Add("OnRoundPreparation", "nz.NukedPerks", function(round)
+		if !nzMapping.Settings.nukedperks then return end
+		if round < 1 then return end
+
+		if nzPerks.NextNukedRound <= round then
+			if round == 1 then
+				nzSounds:PlayFile("nz_moo/perkacola/perk_siren.wav")
+			else
+				timer.Simple(5, function()
+					nzSounds:PlayFile("nz_moo/perkacola/perk_siren.wav")
+				end)
+			end
+		end
+	end)
+
+	hook.Add("OnRoundStart", "nz.NukedPerks", function(round)
+		if !nzMapping.Settings.nukedperks then return end
+
+		if nzPerks.NextNukedRound <= round then
+			local nukedspawns = ents.FindByClass("perk_cratepile")
+
+			if nzPerks.StartingNukedPerk and IsValid(nzPerks.StartingNukedPerk) then
+				//print('////////////////// Launching revive Machine')
+				local fucker = nzPerks.StartingNukedPerk
+				if round == 1 then
+					timer.Simple(4, function()
+						if not IsValid(fucker) then return end
+						fucker:Launch()
+					end)
+				else
+					fucker:Launch()
+				end
+				nzPerks.StartingNukedPerk = nil
+			else
+				for k, v in RandomPairs(nukedspawns) do
+					if (v.PerkMachine or v.TimeToImpact) then continue end
+
+					if round == 1 then
+						timer.Simple(4, function()
+							if not IsValid(v) then return end
+							v:Launch()
+						end)
+					else
+						v:Launch()
+					end
+					//print('////////////////// Launching '..v.PerkData["id"]..' Machine')
+					break
+				end
+			end
+
+			local b_alldone = true
+			for k, v in pairs(nukedspawns) do
+				if !v.PerkMachine then
+					if v.TimeToImpact then
+						continue
+					end
+					b_alldone = false
+				end
+			end
+
+			if b_alldone then
+				nzPerks.NextNukedRound = math.huge
+			else
+				nzPerks.NextNukedRound = round + math.random(nzMapping.Settings.nukedroundmin, nzMapping.Settings.nukedroundmax)
+			end
+
+			//print('////////////////// Next Nuked Perk Round '..nzPerks.NextNukedRound)
+		end
+	end)
+
+	hook.Add("OnRoundEnd", "nz.NukedPerks", function()
+		nzPerks.NextNukedRound = 0
+		nzPerks.StartingNukedPerk = nil
+		for _, v in pairs(ents.FindByClass("perk_cratepile")) do
+			if v.PerkMachine and IsValid(v.PerkMachine) then
+				SafeRemoveEntityDelayed(v.PerkMachine, 0)
+			end
+
+			local newdata = v.PerkData
+			if v.StoredPerk then
+				newdata["id"] = v.StoredPerk
+			end
+			nzMapping:PerkMachine(v:GetPos(), v:GetAngles(), newdata)
+
+			v:Remove()
+		end
+	end)
+
 	local boobookeys = {
 		[IN_RELOAD] = true,
 		[IN_ATTACK] = true,
@@ -529,10 +882,51 @@ if CLIENT then
 		["$pp_colour_mulb"] = 0,
 	}
 
+	local easy_tab = {
+		["$pp_colour_addr"] = 0,
+		["$pp_colour_addg"] = 0,
+		["$pp_colour_addb"] = 0,
+		["$pp_colour_brightness"] = 0,
+		["$pp_colour_contrast"] = 1,
+		["$pp_colour_colour"] = 0,
+		["$pp_colour_mulr"] = 0,
+		["$pp_colour_mulg"] = 0,
+		["$pp_colour_mulb"] = 0,
+	}
+
 	local stinkfade = 0
+	local AGH_MY_EYES = false
+	local THX_SOUND_FX = 0
 	local function ScreenEffects()
 		local ply = LocalPlayer()
 		if not IsValid(ply) then return end
+
+		if nzMapping.Settings.monochrome and not nzElec:IsOn() and !nzRound:InState(ROUND_CREATE) then
+			if !AGH_MY_EYES then
+				AGH_MY_EYES = true
+				THX_SOUND_FX = 1
+			end
+			DrawColorModify(easy_tab)
+		elseif AGH_MY_EYES then
+			if THX_SOUND_FX > 0 then
+				THX_SOUND_FX = math.max(THX_SOUND_FX - FrameTime()*0.5, 0)
+			end
+
+			easy_tab["$pp_colour_contrast"] = math.Remap(THX_SOUND_FX, 0, 1, 1, 1.5)
+			easy_tab["$pp_colour_colour"] = math.min(1, math.Remap(1 - (1*THX_SOUND_FX), 0, 1, 0, 1.5))
+
+			if THX_SOUND_FX <= 0 then
+				AGH_MY_EYES = false
+			end
+
+			DrawColorModify(easy_tab)
+
+			if !AGH_MY_EYES then
+				easy_tab["$pp_colour_contrast"] = 1
+				easy_tab["$pp_colour_colour"] = 0
+			end
+			MyDrawBokehDOF(math.Remap(THX_SOUND_FX, 0, 1, 0, 2))
+		end
 
 		if ply:HasVultureStink() then
 			stinkfade = math.Approach(stinkfade, 1, 0.125)

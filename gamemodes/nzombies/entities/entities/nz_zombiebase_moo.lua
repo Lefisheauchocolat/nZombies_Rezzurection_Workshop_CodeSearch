@@ -114,7 +114,7 @@ if CLIENT then
 end
 
 local eyetrails 	= GetConVar("nz_zombie_eye_trails")
-local allowstumble  = GetConVar("nz_difficulty_zombie_stumble"):GetInt()
+local allowstumble  = GetConVar("nz_difficulty_zombie_stumble"):GetInt() --shummer
 local comedyday 	= os.date("%d-%m") == "01-04"
 local miricalday 	= os.date("%d-%m") == "25-12"
 
@@ -2863,7 +2863,7 @@ if SERVER then
 
 				-- 11/1/23: Have to double check the CurTime() > self.LastStun in order to stop the Zombie from being able to stumble two times in a row.
 				if !self.IsBeingStunned and !self:GetSpecialAnimation() then
-					if allowstumble == 1 then
+					if allowstumble == 1 and nzMapping.Settings.stumble == 1 then --Owlie Stumble Edit
 						if hitgroup == HITGROUP_HEAD and self:RagdollForceTest(hitforce) and CurTime() > self.LastStun then
 							if self.PainSounds and !self:GetDecapitated() then
 								self:EmitSound(self.PainSounds[math.random(#self.PainSounds)], 100, math.random(85, 105), 1, 2)
@@ -3346,26 +3346,14 @@ if SERVER then
 
 	function ENT:DoDeathAnimation(seq,noragdoll,triggerfakekill)
 		self.BehaveThread = coroutine.create(function()
-			if self:HasSequence(seq) then
-				self:SetSpecialAnimation(true)
-				self:PlaySequenceAndMove(seq, 1)
-			else
-				if !triggerfakekill then
-					-- If for some reason there is no sequence, just remove
-					if IsValid(DamageInfo()) then
-						self:Remove(DamageInfo())
-					else
-						self:Remove()
-					end
-				else
-					self:FakeKillZombie(true)
-				end
-			end
+			self:SetSpecialAnimation(true)
+			self:PlaySequenceAndMove(seq, 1)
 
 			if !triggerfakekill then
 				if !noragdoll then
 					self:BecomeRagdoll(DamageInfo())
 				else
+					self.NoRagdoll = true
 					self:Remove(DamageInfo())
 				end
 			else

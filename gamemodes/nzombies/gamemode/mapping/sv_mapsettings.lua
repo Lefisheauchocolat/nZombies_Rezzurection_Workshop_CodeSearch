@@ -26,13 +26,6 @@ function nzMapping:LoadMapSettings(data)
 		end
 	end
 
-	if data.nomodifierslot then //temporary fix for configs with previous mapsetting name 
-		nzMapping.Settings.nomodifierslot = nil
-		data.nomodifierslot = nil
-
-		data.modifierslot = !tobool(data.nomodifierslot) //invert
-	end
-
 	if data.knife then
 		nzMapping.Settings.knife = weapons.Get(data.knife) and data.knife or "tfa_bo1_knife"
 	else
@@ -225,7 +218,7 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.gamemodeentities = data.gamemodeentities or nil
 	nzMapping.Settings.specialroundtype = data.specialroundtype or "Hellhounds"
 	nzMapping.Settings.zombietype = data.zombietype or "Kino der Toten"
-	nzMapping.Settings.bosstype = data.bosstype or "Panzer"
+	nzMapping.Settings.bosstype = data.bosstype or "None"
 	nzMapping.Settings.startpoints = data.startpoints and tonumber(data.startpoints) or 500
 	nzMapping.Settings.range = data.range and tonumber(data.range) or 2000
 	nzMapping.Settings.navgroupbased = data.navgroupbased or nil
@@ -235,6 +228,31 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.antipowerupchance = data.antipowerupchance or 40
 	nzMapping.Settings.antipowerupstart = data.antipowerupstart or 2
 	nzMapping.Settings.antipowerupdelay = data.antipowerupdelay or 4
+
+	nzMapping.Settings.poweruproundbased = tobool(data.poweruproundbased)
+	nzMapping.Settings.maxpowerupdrops = data.maxpowerupdrops or 4
+	if data.poweruprounds then
+		for k, v in pairs(data.poweruprounds) do
+			if (!nzPowerUps.Data[k]) then
+				data.poweruprounds[k] = nil
+			end
+		end
+
+		for k, v in pairs(nzPowerUps.Data) do
+			if !data.poweruprounds[k] then
+				data.poweruprounds[k] = v.rare and (v.chance > 0 and 10 or 20) or 0
+			end
+		end
+
+		nzMapping.Settings.poweruprounds = data.poweruprounds
+	else
+		local poweruprounds = {}
+		for k, v in pairs(nzPowerUps.Data) do
+			poweruprounds[k] = v.rare and (v.chance > 0 and 10 or 20) or 0
+		end
+
+		nzMapping.Settings.poweruprounds = poweruprounds
+	end
 
 	nzMapping.Settings.cwfizz = tobool(data.cwfizz)
 	nzMapping.Settings.cwfizzprice = data.cwfizzprice or 1000
@@ -255,16 +273,21 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.tacticalupgrades = tobool(data.tacticalupgrades)
 	nzMapping.Settings.tacticalkillcount = data.tacticalkillcount or 40
 	nzMapping.Settings.gravity = data.gravity or 600
-
 	nzMapping.Settings.papbeam = tobool(data.papbeam)
 	nzMapping.Settings.randompap = tobool(data.randompap)
 	nzMapping.Settings.randompapinterval = data.randompapinterval or 2
 	nzMapping.Settings.randompaptime = data.randompaptime or 0
+	nzMapping.Settings.minboxhit = data.minboxhit or 3
+	nzMapping.Settings.maxboxhit = data.maxboxhit or 13
+	nzMapping.Settings.boxstartuses = data.boxstartuses or 8
+	nzMapping.Settings.maxteddypercent = data.maxteddypercent or 50
+	nzMapping.Settings.minfizzuses = data.minfizzuses or 3
+	nzMapping.Settings.maxfizzuses = data.maxfizzuses or 6
 
-	/*nzMapping.Settings.nukedperks = tobool(data.nukedperks)
-	nzMapping.Settings.nukedroundincrease = data.nukedroundincrease or 4
-	nzMapping.Settings.nukedroundmin = data.nukedroundmin or 2
-	nzMapping.Settings.nukedroundmax = data.nukedroundmax or 5*/
+	nzMapping.Settings.nukedperks = tobool(data.nukedperks)
+	nzMapping.Settings.nukedrandom = data.nukedrandom == nil and true or data.nukedrandom
+	nzMapping.Settings.nukedroundmin = data.nukedroundmin or 3
+	nzMapping.Settings.nukedroundmax = data.nukedroundmax or 5
 
 	-- Player Settings --
 	nzMapping.Settings.hp = data.hp and tonumber(data.hp) or 150
@@ -287,6 +310,7 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.flashlight = data.flashlight == nil and true or data.flashlight
 
 	-- Map Visual --
+	nzMapping.Settings.monochrome = tobool(data.monochrome)
 	nzMapping.Settings.powerupoutline = data.powerupoutline or 0
 	nzMapping.Settings.powerupstyle = data.powerupstyle or "style_classic"
 
@@ -375,7 +399,7 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.sidestepping = data.sidestepping or false
 	nzMapping.Settings.badattacks = data.badattacks or false
 	nzMapping.Settings.dmgincrease = data.dmgincrease or false
-
+	nzMapping.Settings.stumble = data.stumble or false
 	NZZombiesMaxAllowed = nzMapping.Settings.startingspawns
 
 	-- Map Color Options --
@@ -383,33 +407,24 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.boxlightcolor = data.boxlightcolor == nil and Color(0, 150,200,255) or Color(data.boxlightcolor.r, data.boxlightcolor.g, data.boxlightcolor.b) 
 	nzMapping.Settings.textcolor = data.textcolor == nil and Color(0, 255, 255, 255) or Color(data.textcolor.r, data.textcolor.g, data.textcolor.b) 
 	nzMapping.Settings.paplightcolor = data.paplightcolor == nil and Color(156, 81, 182, 255) or Color(data.paplightcolor.r, data.paplightcolor.g, data.paplightcolor.b)
-	nzMapping.Settings.powerupcol = data.powerupcol or {
-		["global"] = {
-			[1] = Vector(0.196,1,0),
-			[2] = Vector(0.568,1,0.29),
-			[3] = Vector(0.262,0.666,0),
-		},
-		["local"] = {
-			[1] = Vector(0.372,1,0.951),
-			[2] = Vector(0.556,1,0.99),
-			[3] = Vector(0,0.64,0.666),
-		},
-		["mini"] = {
-			[1] = Vector(1,0.823,0),
-			[2] = Vector(1,0.854,0.549),
-			[3] = Vector(0.627,0.431,0),
-		},
-		["anti"] = {
-			[1] = Vector(1,0.156,0.156),
-			[2] = Vector(1,0.392,0.392),
-			[3] = Vector(0.705,0,0),
-		},
-		["tombstone"] = {
-			[1] = Vector(0.568,0,1),
-			[2] = Vector(0.705,0.392,1),
-			[3] = Vector(0.431,0,0.784),
-		}
-	}
+	if data.powerupcol then
+		for k, v in pairs(data.powerupcol) do
+			if (!nzPowerUps.DefaultPowerUpColors[k]) then
+				data.powerupcol[k] = nil
+			end
+		end
+
+		for k, v in pairs(nzPowerUps.DefaultPowerUpColors) do
+			if (!data.powerupcol[k]) then
+				data.powerupcol[k] = v
+			end
+		end
+
+		nzMapping.Settings.powerupcol = data.powerupcol
+	else
+		nzMapping.Settings.powerupcol = nzPowerUps.DefaultPowerUpColors
+	end
+
 	nzMapping.Settings.papmuzzlecol = data.papmuzzlecol or {
 		[1] = Vector(0.470,0,1),
 		[2] = Vector(0.431,0.156,1),

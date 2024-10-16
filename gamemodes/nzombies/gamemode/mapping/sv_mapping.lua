@@ -679,10 +679,31 @@ function nzMapping:SpawnPowerupSpawner(pos, ang, ply, data)
 	return ent
 end
 
+function nzMapping:PerkCratePile(pos, ang, data, oldperk)
+	if not data then return end
+
+	local perk = ents.Create("perk_cratepile")
+	perk:SetPos(pos)
+	perk:SetAngles(ang)
+	perk.PerkData = data
+	perk.StoredPerk = oldperk
+	perk:Spawn()
+	perk.StoredPerk = oldperk
+
+	local phys = perk:GetPhysicsObject()
+	if IsValid(phys) then
+		phys:EnableMotion(false)
+	end
+
+	return perk
+end
+
 function nzMapping:PerkMachine(pos, ang, data, ply)
 	if not data then return end
 
 	if istable(data) then
+		if not data.id then return end
+
 		if data.id == "wunderfizz" then
 			local perk = ents.Create("wunderfizz_machine")
 			perk:SetPos(pos)
