@@ -170,7 +170,7 @@ function ENT:Initialize()
 		pdata.spawnfunc(self:GetPowerUp(), self)
 	end
 
-	if IsValid(nearest) then
+	if IsValid(nearest) and !self:GetSpawnedPowerUp() then
 		self:OOBTest(nearest)
 	end
 end

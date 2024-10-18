@@ -58,6 +58,7 @@ function ENT:Initialize()
     self.MiscSpawns = {}
 
     self.TotalSpawns = 0
+    self.MarkRound = false
 
     self.CurrentSpawnType = "nil"
     self:UpdateSpawnType()
@@ -350,12 +351,19 @@ function ENT:ChanceExtraEnemySpawn()
 
             -- Get the chance of the spawner.
             local rnd = nzRound:GetNumber()
+            local active = spawn:GetActiveRound()
+
             if rnd == -1 then
                 rnd = 1
             end
 
+            if spawn:GetActiveRound() == -1 and nzElec:IsOn() and !spawn.MarkRound then
+                spawn.MarkRound = true
+                active = rnd
+            end
+            
             local chance = spawn:GetSpawnChance()
-            local multi = math.Clamp(nzRound:GetNumber() - spawn:GetActiveRound(), 0, math.huge)
+            local multi = math.Clamp(rnd - active, 0, math.huge)
             local limit = chance * 2
 
             if chance < 100 then
@@ -365,7 +373,7 @@ function ENT:ChanceExtraEnemySpawn()
             end
 
             if #alive < spawn:GetAliveAmount() and spawn:GetAliveAmount() ~= 0 then
-                if math.Rand(0,100) < chance and spawn.TotalSpawns < spawn:GetTotalSpawns() or spawn:GetTotalSpawns() == 0 then
+                if math.Rand(0,100) < chance and (spawn.TotalSpawns < spawn:GetTotalSpawns() or spawn:GetTotalSpawns() == 0) then
                     table.insert(spawntbl, spawn)
                 end 
             end
@@ -401,6 +409,9 @@ end
 hook.Add("OnRoundStart", "ResetTotalSpawns", function()
     for k,v in nzLevel.GetZombieSpawnArray() do
         v.TotalSpawns = 0
+        if nzRound:GetNumber() == 1 then
+            v.MarkRound = false
+        end
     end
 end)
 

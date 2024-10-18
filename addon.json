@@ -1,9 +1,12 @@
 {
-  "title": "Moo's nZombies Content Pack",
-  "type": "servercontent",
+  "title": "nZombies Rezzurrection Gamemode",
+  "type": "gamemode",
   "tags": [
     "fun",
-    "build"
+    "roleplay",
+    "realism"
   ],
-  "ignore": []
+  "ignore": [
+    ".wav"
+  ]
 }
