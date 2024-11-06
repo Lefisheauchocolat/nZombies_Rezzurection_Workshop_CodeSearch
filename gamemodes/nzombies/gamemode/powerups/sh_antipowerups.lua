@@ -29,7 +29,6 @@ if SERVER then
 		for k,v in pairs(nzPowerUps.ActivePlayerAntiPowerUps[self]) do
 			self:RemoveAntiPowerUp(k, true)
 		end
-
 		nzPowerUps:SendPlayerSync(self)
 	end
 
@@ -124,6 +123,13 @@ if SERVER then
 			end
 		end
 	end)
+end
+
+local plyMeta = FindMetaTable("Player")
+
+function plyMeta:AllActiveAntiPowerUps()
+	if not nzPowerUps.ActivePlayerAntiPowerUps[self] then nzPowerUps.ActivePlayerAntiPowerUps[self] = {} end
+	return nzPowerUps.ActivePlayerAntiPowerUps[self]
 end
 
 function nzPowerUps:IsAntiPowerupActive(id)

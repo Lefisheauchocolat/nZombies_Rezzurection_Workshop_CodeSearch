@@ -16,7 +16,7 @@ if CLIENT then
 			-- Credit: FlamingFox for Code and fighting the PVS monster -- 
 			if !IsValid(self) then return end
 			if (!self.Draw_FX or !self.Draw_FX:IsValid()) then
-				self.Draw_FX = CreateParticleSystem(self, "novagas_trail", PATTACH_POINT_FOLLOW, 2)
+				self.Draw_FX = CreateParticleSystem(self, "zmb_gas_trail", PATTACH_POINT_FOLLOW, 2)
 			end
 		end
 	end
@@ -27,72 +27,102 @@ ENT.SpeedBasedSequences = true
 ENT.IsMooZombie = true
 ENT.RedEyes = false
 ENT.IsMooSpecial = true
+ENT.MooSpecialZombie = true
 
 ENT.Models = {
-	{Model = "models/moo/_codz_ports/t8/male_ofc/moo_codz_t8_quad.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t5/quad/moo_codz_t5_quad_crawler.mdl", Skin = 0, Bodygroups = {0,0}},
 }
 
 ENT.DeathSequences = {
-	"nz_quad_death_v1",
-	"nz_quad_death_v2",
-	"nz_quad_death_v3",
-	"nz_quad_death_v4",
-	"nz_quad_death_v5",
-	"nz_quad_death_v6"
+	"nz_base_quad_death_01",
+	"nz_base_quad_death_02",
+	"nz_base_quad_death_03",
+	"nz_base_quad_death_04",
+	"nz_base_quad_death_05",
+	"nz_base_quad_death_06",
+}
+
+ENT.ElectrocutionSequences = {
+	"nz_base_quad_death_tesla_01",
+	"nz_base_quad_death_tesla_02",
+	"nz_base_quad_death_tesla_03",
+	"nz_base_quad_death_tesla_04",
 }
 
 ENT.BarricadeTearSequences = {
 	--Leave this empty if you don't intend on having a special enemy use tear anims.
 }
 
-local SpawnSequences = {"nz_quad_traverse_ground_fast"}
+local spawnslow = {"nz_base_quad_traverse_ground_slow"}
+local spawnfast = {"nz_base_quad_traverse_ground_fast"}
 
 local AttackSequences = {
-	{seq = "nz_quad_attack_v1"},
-	{seq = "nz_quad_attack_v2"},
-	{seq = "nz_quad_attack_v3"},
-	{seq = "nz_quad_attack_v4"},
-	{seq = "nz_quad_attack_v5"},
-	{seq = "nz_quad_attack_v6"},
-	{seq = "nz_quad_attack_double_v1"},
-	{seq = "nz_quad_attack_double_v2"},
-	{seq = "nz_quad_attack_double_v3"},
-	{seq = "nz_quad_attack_double_v4"},
-	{seq = "nz_quad_attack_double_v5"},
-	{seq = "nz_quad_attack_double_v6"},
+	{seq = "nz_base_quad_attack_01"},
+	{seq = "nz_base_quad_attack_02"},
+	{seq = "nz_base_quad_attack_03"},
+	{seq = "nz_base_quad_attack_04"},
+	{seq = "nz_base_quad_attack_05"},
+	{seq = "nz_base_quad_attack_06"},
+	{seq = "nz_base_quad_attack_double_01"},
+	{seq = "nz_base_quad_attack_double_02"},
+	{seq = "nz_base_quad_attack_double_03"},
+	{seq = "nz_base_quad_attack_double_04"},
+	{seq = "nz_base_quad_attack_double_05"},
+	{seq = "nz_base_quad_attack_double_06"},
+}
+
+local SprintAttackSequences = {
+	{seq = "nz_base_quad_attack_leap_01"},
 }
 
 local JumpSequences = {
-	{seq = "nz_quad_traverse_mantle_36"},
+	{seq = "nz_barricade_crawl_1"},
+	{seq = "nz_barricade_crawl_2"},
 }
 
 local walksounds = {
-	Sound("nz_moo/zombies/vox/_quad/amb/amb_00.mp3"),
-	Sound("nz_moo/zombies/vox/_quad/amb/amb_01.mp3"),
-	Sound("nz_moo/zombies/vox/_quad/amb/amb_02.mp3"),
-	Sound("nz_moo/zombies/vox/_quad/amb/amb_03.mp3"),
-	Sound("nz_moo/zombies/vox/_quad/amb/amb_04.mp3"),
-	Sound("nz_moo/zombies/vox/_quad/amb/amb_05.mp3"),
-	Sound("nz_moo/zombies/vox/_quad/amb/amb_06.mp3"),
-	Sound("nz_moo/zombies/vox/_quad/amb/amb_07.mp3"),
-	Sound("nz_moo/zombies/vox/_quad/amb/amb_08.mp3"),
-	Sound("nz_moo/zombies/vox/_quad/amb/amb_09.mp3"),
-	Sound("nz_moo/zombies/vox/_quad/amb/amb_10.mp3"),
-	Sound("nz_moo/zombies/vox/_quad/amb/amb_11.mp3"),
-	Sound("nz_moo/zombies/vox/_quad/amb/amb_12.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/amb/quad_ambient_00.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/amb/quad_ambient_01.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/amb/quad_ambient_02.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/amb/quad_ambient_03.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/amb/quad_ambient_04.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/amb/quad_ambient_05.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/amb/quad_ambient_06.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/amb/quad_ambient_07.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/amb/quad_ambient_08.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/amb/quad_ambient_09.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/amb/quad_ambient_10.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/amb/quad_ambient_11.mp3"),
 }
 
-ENT.IdleSequence = "nz_quad_idle_v1"
+ENT.IdleSequence = "nz_base_quad_idle_01"
+ENT.IdleSequenceAU = "nz_base_quad_idle_02"
+ENT.NoTargetIdle = "nz_base_quad_idle_02"
 
 ENT.SequenceTables = {
 	{Threshold = 0, Sequences = {
 		{
 			MovementSequence = {
-				"nz_quad_crawl_walk_v1",
-				"nz_quad_crawl_walk_v2",
-				"nz_quad_crawl_walk_v3",
+				"nz_base_quad_crawl_01",
+				"nz_base_quad_crawl_02",
+				"nz_base_quad_crawl_03",
 			},
-			SpawnSequence = {SpawnSequences},
+			LowgMovementSequence = {
+				"nz_base_quad_crawl_moon_01",
+				"nz_base_quad_crawl_moon_02",
+			},
+			BlackholeMovementSequence = {
+				"nz_base_quad_blackhole_crawl_slow_01",
+				"nz_base_quad_blackhole_crawl_slow_02",
+			},
+			CrawlMovementSequence = {
+				"nz_crawl_slow_v1",
+				"nz_crawl_slow_v2",
+				"nz_crawl_slow_v3",
+				"nz_crawl_on_hands",
+				"nz_crawl_on_hands_c",
+			},
+			SpawnSequence = {spawnslow},
 			AttackSequences = {AttackSequences},
 			JumpSequences = {JumpSequences},
 			PassiveSounds = {walksounds},
@@ -101,11 +131,31 @@ ENT.SequenceTables = {
 	{Threshold = 36, Sequences = {
 		{
 			MovementSequence = {
-				"nz_quad_crawl_run_v2",
-				"nz_quad_crawl_run_v3",
-				"nz_quad_crawl_run_v5",
+				"nz_base_quad_crawl_run_01",
+				"nz_base_quad_crawl_run_02",
+				"nz_base_quad_crawl_run_03",
+				"nz_base_quad_crawl_run_04",
+				"nz_base_quad_crawl_run_05",
 			},
-			SpawnSequence = {SpawnSequences},
+			LowgMovementSequence = {
+				"nz_base_quad_crawl_run_moon_01",
+				"nz_base_quad_crawl_run_moon_02",
+				"nz_base_quad_crawl_run_moon_03",
+				"nz_base_quad_crawl_run_moon_04",
+				"nz_base_quad_crawl_run_moon_05",
+			},
+			BlackholeMovementSequence = {
+				"nz_base_quad_blackhole_crawl_fast_01",
+				"nz_base_quad_blackhole_crawl_fast_02",
+			},
+			CrawlMovementSequence = {
+				"nz_crawl_slow_v1",
+				"nz_crawl_slow_v2",
+				"nz_crawl_slow_v3",
+				"nz_crawl_on_hands",
+				"nz_crawl_on_hands_c",
+			},
+			SpawnSequence = {spawnfast},
 			AttackSequences = {AttackSequences},
 			JumpSequences = {JumpSequences},
 			PassiveSounds = {walksounds},
@@ -114,139 +164,349 @@ ENT.SequenceTables = {
 	{Threshold = 71, Sequences = {
 		{
 			MovementSequence = {
-				"nz_quad_crawl_sprint_v2",
-				"nz_quad_crawl_sprint_v3", -- Theres a v1 sprint anim but it looks like shit so you don't get to have it.
+				"nz_base_quad_crawl_sprint_01",
+				"nz_base_quad_crawl_sprint_02",
+				"nz_base_quad_crawl_sprint_03",
 			},
-			SpawnSequence = {SpawnSequences},
+			LowgMovementSequence = {
+				"nz_base_quad_crawl_sprint_moon_01",
+				"nz_base_quad_crawl_sprint_moon_02",
+				"nz_base_quad_crawl_sprint_moon_03",
+			},
+			BlackholeMovementSequence = {
+				"nz_base_quad_blackhole_crawl_fast_01",
+				"nz_base_quad_blackhole_crawl_fast_02",
+			},
+			CrawlMovementSequence = {
+				"nz_crawl_slow_v1",
+				"nz_crawl_slow_v2",
+				"nz_crawl_slow_v3",
+				"nz_crawl_on_hands",
+				"nz_crawl_on_hands_c",
+			},
+			SpawnSequence = {spawnfast},
 			AttackSequences = {AttackSequences},
 			JumpSequences = {JumpSequences},
 			PassiveSounds = {walksounds},
 		},
-	}}
+	}},
+	{Threshold = 155, Sequences = {
+		{
+			MovementSequence = {
+				"nz_base_quad_crawl_supersprint_01",
+			},
+			LowgMovementSequence = {
+				"nz_base_quad_crawl_sprint_moon_01",
+				"nz_base_quad_crawl_sprint_moon_02",
+				"nz_base_quad_crawl_sprint_moon_03",
+			},
+			BlackholeMovementSequence = {
+				"nz_base_quad_blackhole_crawl_fast_01",
+				"nz_base_quad_blackhole_crawl_fast_02",
+			},
+			CrawlMovementSequence = {
+				"nz_crawl_slow_v1",
+				"nz_crawl_slow_v2",
+				"nz_crawl_slow_v3",
+				"nz_crawl_on_hands",
+				"nz_crawl_on_hands_c",
+			},
+			SpawnSequence = {spawnfast},
+			StandAttackSequences = {AttackSequences},
+			AttackSequences = {SprintAttackSequences},
+			JumpSequences = {JumpSequences},
+			PassiveSounds = {walksounds},
+		},
+	}},
 }
 
-ENT.AttackHitSounds = {
-	"nz/zombies/attack/player_hit_0.wav",
-	"nz/zombies/attack/player_hit_1.wav",
-	"nz/zombies/attack/player_hit_2.wav",
-	"nz/zombies/attack/player_hit_3.wav",
-	"nz/zombies/attack/player_hit_4.wav",
-	"nz/zombies/attack/player_hit_5.wav"
+ENT.ZombieLandSequences = {
+	"nz_base_quad_traverse_land", 
+}
+
+ENT.LowCeilingDropSpawnSequences = {
+	"nz_base_quad_traverse_wall_l",
+}
+
+ENT.HighCeilingDropSpawnSequences = {
+	"nz_base_quad_traverse_wall_h",
+}
+
+ENT.TauntSequences = {
+	"nz_base_quad_taunt_01",
+	"nz_base_quad_taunt_02",
+	"nz_base_quad_taunt_03",
+	"nz_base_quad_taunt_04",
+	"nz_base_quad_taunt_05",
+	"nz_base_quad_taunt_06",
+}
+
+ENT.LongPhaseSequences = {
+	"nz_base_quad_phaseforward_long_01",
+	--"nz_base_quad_phaseforward_long_02",
+	"nz_base_quad_phaseleft_long_01",
+	--"nz_base_quad_phaseleft_long_02",
+	"nz_base_quad_phaseright_long_01",
+	--"nz_base_quad_phaseright_long_02",
+}
+
+ENT.ShortPhaseSequences = {
+	"nz_base_quad_phaseforward_short_01",
+	--"nz_base_quad_phaseforward_short_02",
+	"nz_base_quad_phaseleft_short_01",
+	--"nz_base_quad_phaseleft_short_02",
+	"nz_base_quad_phaseright_short_01",
+	--"nz_base_quad_phaseright_short_02",
+}
+
+ENT.SparkySequences = {
+	"nz_base_quad_stunned_electrobolt",
+	"nz_base_quad_stunned_electrobolt",
+	"nz_base_quad_stunned_electrobolt",
+	"nz_base_quad_stunned_electrobolt",
+	"nz_base_quad_stunned_electrobolt",
+	"nz_base_quad_stunned_electrobolt",
+	"nz_base_quad_stunned_electrobolt",
+	"nz_base_quad_stunned_electrobolt",
+	"nz_base_quad_stunned_electrobolt",
+}
+
+ENT.UnawareSequences = {
+	"nz_base_quad_idle_02",
+	"nz_base_quad_idle_02",
+	"nz_base_quad_idle_02",
+	"nz_base_quad_idle_02",
+}
+
+ENT.FreezeSequences = {
+	"nz_base_quad_death_freeze_01",
+	"nz_base_quad_death_freeze_02",
+	"nz_base_quad_death_freeze_01",
+	"nz_base_quad_death_freeze_02",
+}
+
+ENT.IceStaffSequences = {
+	"nz_base_quad_death_freeze_01",
+	"nz_base_quad_death_freeze_02",
+	"nz_base_quad_death_freeze_01",
+	"nz_base_quad_death_freeze_02",
+	"nz_base_quad_death_freeze_01",
+	"nz_base_quad_death_freeze_02",
+	"nz_base_quad_death_freeze_01",
+	"nz_base_quad_death_freeze_02",
+}
+
+ENT.ThunderGunSequences = {
+	"nz_base_quad_knockdown_facedown_blend",
+	"nz_base_quad_knockdown_faceup_blend",
+	"nz_base_quad_knockdown_facedown_blend",
+	"nz_base_quad_knockdown_faceup_blend",
+	"nz_base_quad_knockdown_facedown_blend",
+	"nz_base_quad_knockdown_faceup_blend",
+	"nz_base_quad_knockdown_facedown_blend",
+	"nz_base_quad_knockdown_faceup_blend",
+	"nz_base_quad_knockdown_facedown_blend",
+	"nz_base_quad_knockdown_faceup_blend",
+	"nz_base_quad_knockdown_facedown_blend",
+	"nz_base_quad_knockdown_faceup_blend",
+	"nz_base_quad_knockdown_facedown_blend",
+	"nz_base_quad_knockdown_faceup_blend",
+}
+
+ENT.SlipGunSequences = {
+	"nz_base_quad_knockdown_facedown_blend",
+	"nz_base_quad_knockdown_faceup_blend",
+	"nz_base_quad_knockdown_facedown_blend",
+	"nz_base_quad_knockdown_faceup_blend",
+	"nz_base_quad_knockdown_facedown_blend",
+	"nz_base_quad_knockdown_faceup_blend",
+	"nz_base_quad_knockdown_facedown_blend",
+	"nz_base_quad_knockdown_faceup_blend",
+	"nz_base_quad_knockdown_facedown_blend",
+	"nz_base_quad_knockdown_faceup_blend",
+	"nz_base_quad_knockdown_facedown_blend",
+	"nz_base_quad_knockdown_faceup_blend",
+	"nz_base_quad_knockdown_facedown_blend",
+	"nz_base_quad_knockdown_faceup_blend",
+}
+
+ENT.MicrowaveSequences = {
+	"nz_base_quad_death_microwave_01",
+	"nz_base_quad_death_microwave_02",
+	"nz_base_quad_death_microwave_03",
+}
+
+ENT.CrawlBlackHoleDeathSequences = {
+	"nz_base_quad_death_blackhole_01",
+	"nz_base_quad_death_blackhole_02",
+	"nz_base_quad_death_blackhole_01",
+	"nz_base_quad_death_blackhole_02",
+	"nz_base_quad_death_blackhole_01",
+	"nz_base_quad_death_blackhole_02",
+}
+
+ENT.BlackHoleDeathSequences = {
+	"nz_base_quad_death_blackhole_01",
+	"nz_base_quad_death_blackhole_02",
+	"nz_base_quad_death_blackhole_01",
+	"nz_base_quad_death_blackhole_02",
+	"nz_base_quad_death_blackhole_01",
+	"nz_base_quad_death_blackhole_02",
 }
 
 ENT.DeathSounds = {
-	"nz_moo/zombies/vox/_quad/death/death_00.mp3",
-	"nz_moo/zombies/vox/_quad/death/death_01.mp3",
-	"nz_moo/zombies/vox/_quad/death/death_02.mp3",
-	"nz_moo/zombies/vox/_quad/death/death_03.mp3",
-	"nz_moo/zombies/vox/_quad/death/death_04.mp3",
-	"nz_moo/zombies/vox/_quad/death/death_05.mp3",
-	"nz_moo/zombies/vox/_quad/death/death_06.mp3",
-	"nz_moo/zombies/vox/_quad/death/death_07.mp3",
+	Sound("nz_moo/zombies/vox/_quad/_classic/death/quad_death_00.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/death/quad_death_01.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/death/quad_death_02.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/death/quad_death_03.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/death/quad_death_04.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/death/quad_death_05.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/death/quad_death_06.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/death/quad_death_07.mp3"),
 }
 
 ENT.AttackSounds = {
-	"nz_moo/zombies/vox/_quad/attack/attack_00.mp3",
-	"nz_moo/zombies/vox/_quad/attack/attack_01.mp3",
-	"nz_moo/zombies/vox/_quad/attack/attack_02.mp3",
-	"nz_moo/zombies/vox/_quad/attack/attack_03.mp3",
-	"nz_moo/zombies/vox/_quad/attack/attack_04.mp3",
-	"nz_moo/zombies/vox/_quad/attack/attack_05.mp3",
-	"nz_moo/zombies/vox/_quad/attack/attack_06.mp3",
-	"nz_moo/zombies/vox/_quad/attack/attack_07.mp3",
-	"nz_moo/zombies/vox/_quad/attack/attack_08.mp3",
-	"nz_moo/zombies/vox/_quad/attack/attack_09.mp3",
-	"nz_moo/zombies/vox/_quad/attack/attack_10.mp3",
-	"nz_moo/zombies/vox/_quad/attack/attack_11.mp3",
-	"nz_moo/zombies/vox/_quad/attack/attack_12.mp3",
-	"nz_moo/zombies/vox/_quad/attack/attack_13.mp3",
+	Sound("nz_moo/zombies/vox/_quad/_classic/attack/quad_attack_00.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/attack/quad_attack_01.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/attack/quad_attack_02.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/attack/quad_attack_03.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/attack/quad_attack_04.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/attack/quad_attack_05.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/attack/quad_attack_06.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/attack/quad_attack_07.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/attack/quad_attack_08.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/attack/quad_attack_09.mp3"),
 }
 
-ENT.BehindSoundDistance = 200 -- When the zombie is within 200 units of a player, play these sounds instead
-ENT.BehindSounds = {
-	Sound("nz_moo/zombies/vox/_quad/behind/behind_00.mp3"),
-	Sound("nz_moo/zombies/vox/_quad/behind/behind_01.mp3"),
+ENT.SpawnStingSounds = {
+	Sound("nz_moo/zombies/vox/_quad/_classic/spawn/tell/quad_00.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/spawn/tell/quad_01.mp3"),
 }
+
+ENT.SpawnSounds = {
+	Sound("nz_moo/zombies/vox/_quad/_classic/spawn/quad_spawn_00.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/spawn/quad_spawn_01.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/spawn/quad_spawn_02.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/spawn/quad_spawn_03.mp3"),
+}
+
+ENT.TauntSounds = {
+	Sound("nz_moo/zombies/vox/_quad/_classic/spawn/quad_spawn_00.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/spawn/quad_spawn_01.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/spawn/quad_spawn_02.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/spawn/quad_spawn_03.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/spawn/quad_spawn_00.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/spawn/quad_spawn_01.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/spawn/quad_spawn_02.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/spawn/quad_spawn_03.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/spawn/quad_spawn_00.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/spawn/quad_spawn_01.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/spawn/quad_spawn_02.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/spawn/quad_spawn_03.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/spawn/quad_spawn_00.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/spawn/quad_spawn_01.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/spawn/quad_spawn_02.mp3"),
+	Sound("nz_moo/zombies/vox/_quad/_classic/spawn/quad_spawn_03.mp3"),
+}
+
+ENT.BehindSoundDistance = 0
 
 function ENT:StatsInitialize()
 	if SERVER then
-		self:SetMooSpecial(true)
-		if nzRound:GetNumber() == -1 then
-			self:SetRunSpeed( math.random(20, 105) )
-			self:SetHealth( math.random(100, 1500) )
+		local speeds = nzRound:GetZombieCoDSpeeds()
+		if speeds then
+			self:SetRunSpeed( nzMisc.WeightedRandom(speeds) + math.random(0,35) )
 		else
-			local speeds = nzRound:GetZombieSpeeds()
-			if speeds then
-				self:SetRunSpeed( nzMisc.WeightedRandom(speeds) )
-			else
-				self:SetRunSpeed( 100 )
-			end
-			self:SetHealth( nzRound:GetZombieHealth() or 75 )
+			self:SetRunSpeed( 100 )
 		end
+		self:SetHealth( nzRound:GetZombieHealth() or 75 )
+
+		self:SetCollisionBounds(Vector(-6,-6, 0), Vector(6, 6, 45))
+		self:SetSurroundingBounds(Vector(-32, -32, 0), Vector(32, 32, 56))
 
 		self.Exploded = false
 
+		self.MoonBehaviour = false
+		self.PhaseCooldown = CurTime() + 1
 	end
 end
 
-function ENT:OnSpawn()
-	local spawn
-	local types = {
-		["nz_spawn_zombie_normal"] = true,
-		["nz_spawn_zombie_special"] = true,
-		["nz_spawn_zombie_extra1"] = true,
-		["nz_spawn_zombie_extra2"] = true,
-		["nz_spawn_zombie_extra3"] = true,
-		["nz_spawn_zombie_extra4"] = true,
-	}
-	for k,v in pairs(ents.FindInSphere(self:GetPos(), 10)) do
-		if types[v:GetClass()] then
-			if !v:GetMasterSpawn() then
-				spawn = v
-			end
-		end
+function ENT:OnSpawn(animation, grav, dirt)
+	animation = animation or self:SelectSpawnSequence()
+	grav = grav
+	dirt = dirt
+
+	local stype
+
+	if IsValid(self.SpawnIndex) then
+		stype = self.SpawnIndex:GetSpawnType()
 	end
-	local SpawnMatSound = {
-		[MAT_DIRT] = "nz_moo/zombies/spawn/dirt/pfx_zm_spawn_dirt_0"..math.random(0,1)..".mp3",
-		[MAT_SNOW] = "nz_moo/zombies/spawn/snow/pfx_zm_spawn_snow_0"..math.random(0,1)..".mp3",
-		[MAT_SLOSH] = "nz_moo/zombies/spawn/mud/pfx_zm_spawn_mud_00.mp3",
-		[0] = "nz_moo/zombies/spawn/default/pfx_zm_spawn_default_00.mp3",
-	}
-	SpawnMatSound[MAT_GRASS] = SpawnMatSound[MAT_DIRT]
-	SpawnMatSound[MAT_SAND] = SpawnMatSound[MAT_DIRT]
 
-	local norm = (self:GetPos()):GetNormalized()
-	local tr = util.QuickTrace(self:GetPos(), norm*10, self)
+	self:EmitSound(self.SpawnSounds[math.random(#self.SpawnSounds)], 85, math.random(85,105))
+	self:EmitSound(self.SpawnStingSounds[math.random(#self.SpawnStingSounds)], 577, math.random(95,105))
 
-	--if IsValid(self) then ParticleEffectAttach("novagas_trail", 4, self, 2) end
-	self:EmitSound("nz_moo/zombies/vox/_quad/spawn/spawn_0"..math.random(3)..".mp3", 511, math.random(95, 105), 1, 2)
+	if dirt then
+		local SpawnMatSound = {
+			[MAT_DIRT] = "nz_moo/zombies/spawn/dirt/pfx_zm_spawn_dirt_0"..math.random(0,1)..".mp3",
+			[MAT_SNOW] = "nz_moo/zombies/spawn/snow/pfx_zm_spawn_snow_0"..math.random(0,1)..".mp3",
+			[MAT_SLOSH] = "nz_moo/zombies/spawn/mud/pfx_zm_spawn_mud_00.mp3",
+			[0] = "nz_moo/zombies/spawn/default/pfx_zm_spawn_default_00.mp3",
+		}
+		SpawnMatSound[MAT_GRASS] = SpawnMatSound[MAT_DIRT]
+		SpawnMatSound[MAT_SAND] = SpawnMatSound[MAT_DIRT]
 
-	if IsValid(spawn) and spawn:GetSpawnType() == 1 then
-		if IsValid(self) then
-			self:EmitSound("nz_moo/effects/teleport_in_00.mp3", 100)
-			if IsValid(self) then ParticleEffect("panzer_spawn_tp", self:GetPos() + Vector(0,0,20), Angle(0,0,0), self) end
-		end
-		self:SolidMaskDuringEvent(MASK_PLAYERSOLID)
-		self:CollideWhenPossible()
-	else
-		self:SolidMaskDuringEvent(MASK_PLAYERSOLID)
-
-		self:SetSpecialAnimation(true)
-		self:SetIsBusy(true)
-		local seq = self:SelectSpawnSequence()
+		local norm = (self:GetPos()):GetNormalized()
+		local tr = util.QuickTrace(self:GetPos(), norm*10, self)
 
 		if tr.Hit then
 			local finalsound = SpawnMatSound[tr.MatType] or SpawnMatSound[0]
 			self:EmitSound(finalsound)
 		end
+
 		ParticleEffect("bo3_zombie_spawn",self:GetPos()+Vector(0,0,1),self:GetAngles(),self)
 		self:EmitSound("nz_moo/zombies/spawn/_generic/dirt/dirt_0"..math.random(0,2)..".mp3",100,math.random(95,105))
+	end
 
-		if seq then
-			self:PlaySequenceAndMove(seq, {gravity = true})
-			self:SetSpecialAnimation(false)
-			self:SetIsBusy(false)
-			self:CollideWhenPossible()
+	if IsValid(self.SpawnIndex) then
+		if stype == 11 or stype == 1 then
+			animation = "idle"
+			if IsValid(self) then
+				self:EmitSound("nz_moo/effects/teleport_in_00.mp3", 100)
+				if IsValid(self) then ParticleEffect("panzer_spawn_tp", self:GetPos() + Vector(0,0,20), Angle(0,0,0), self) end
+			end
+		end
+	end
+
+	if animation then
+		self:SolidMaskDuringEvent(MASK_PLAYERSOLID)
+		self:SetSpecialAnimation(true)
+		self:SetIsBusy(true)
+		
+		self:PlaySequenceAndMove(animation, {gravity = grav})
+
+		self:SetSpecialAnimation(false)
+		self:SetIsBusy(false)
+		self:CollideWhenPossible()
+	end
+end
+
+function ENT:AI()
+
+	-- Moon Teleporting(Makes these fuckers be little shits.)
+	if self.MoonBehaviour and self:TargetInRange(500) and !self.AttackIsBlocked and CurTime() > self.PhaseCooldown then
+		if !self:IsFacingEnt(self:GetTarget()) then return end
+		if self:TargetInRange(70) then return end
+		if IsValid(self:GetTarget()) and self:GetTarget():IsPlayer() then
+			local seq = self.LongPhaseSequences[math.random(#self.LongPhaseSequences)]
+
+			if !self:SequenceHasSpace(seq) then
+				seq = self.ShortPhaseSequences[math.random(#self.ShortPhaseSequences)]
+			end
+						
+			if self:SequenceHasSpace(seq) and self:HasSequence(seq) then
+				self:DoSpecialAnimation(seq, true, true)
+			end
+			self.PhaseCooldown = CurTime() + 3.15
 		end
 	end
 end
@@ -263,6 +523,16 @@ function ENT:PerformDeath(dmginfo)
 	end
 	if damagetype == DMG_REMOVENORAGDOLL then
 		self:Remove(dmginfo)
+	end
+	if IsValid(self.Target) and self.Target.BHBomb and !self.IsMooSpecial then
+		if self.DeathSounds then
+			self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
+		end
+		if self:GetCrawler() then
+			self:DoDeathAnimation(self.CrawlBlackHoleDeathSequences[math.random(#self.CrawlBlackHoleDeathSequences)])
+		else
+			self:DoDeathAnimation(self.BlackHoleDeathSequences[math.random(#self.BlackHoleDeathSequences)])
+		end
 	end
 	if self.DeathRagdollForce == 0 or self:GetSpecialAnimation() then
 		if self.DeathSounds then
@@ -301,123 +571,28 @@ function ENT:PostDeath(dmginfo)
 	end
 end
 
-function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how sad I am that I didn't know about this sooner.
-	if e == "melee" then
-		self:EmitSound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(85, 105), 1, 2)
-		self:DoAttackDamage()
+function ENT:CustomAnimEvent(a,b,c,d,e) 
+	if e == "no_gas" then
+		self.Exploded = true
 	end
-	if e == "death_ragdoll" then
-		self:BecomeRagdoll(DamageInfo())
+	if e == "quad_portal" then
+		if IsValid(self) then
+			local mainroot = self:GetBonePosition(self:LookupBone("j_mainroot"))
+
+			self:EmitSound("nz_moo/effects/teleport_in_00.mp3", 100)
+			if IsValid(self) then ParticleEffect("panzer_spawn_tp", mainroot, Angle(0,0,0), self) end
+		end
 	end
-	if e == "start_traverse" then
-		--print("starttraverse")
-		self.TraversalAnim = true
+	if e == "quad_phase_in" then
+		self:EmitSound("nz_moo/zombies/vox/_quad/_classic/phase_in.mp3", 100)
+		if IsValid(self) then ParticleEffectAttach("zmb_quad_teleport", 3, self, 2) end
+		self:SetMaterial("invisible")
+		--self:SetNoDraw(true)
 	end
-	if e == "finish_traverse" then
-		--print("finishtraverse")
-		self.TraversalAnim = false
-	end
-	if e == "melee_whoosh" then
-		self:EmitSound("nz_moo/zombies/fly/attack/whoosh/zmb_attack_med_0"..math.random(0,2)..".mp3", 75, math.random(95,105))
-	end
-	if e == "quad_crawl" then
-		self:EmitSound("nz_moo/zombies/footsteps/crawl/crawl_0"..math.random(0,3)..".mp3", 65, math.random(95,105))
+	if e == "quad_phase_out" then
+		--self:SetNoDraw(false)
+		self:SetMaterial("")
+		self:EmitSound("nz_moo/zombies/vox/_quad/_classic/phase_out.mp3", 100)
+		if IsValid(self) then ParticleEffectAttach("zmb_quad_teleport", 3, self, 2) end
 	end
 end
-
-if SERVER then
-	function ENT:OnTakeDamage(dmginfo)
-		if (dmginfo:GetDamageType() == DMG_DISSOLVE and dmginfo:GetDamage() >= self:Health() and self:Health() > 0) then
-			self:DissolveEffect()
-		end
-
-		if dmginfo:GetDamage() == 75 and dmginfo:IsDamageType(DMG_MISSILEDEFENSE) and !self:GetSpecialAnimation() then
-			self:SetTarget(nil)
-			--print("Uh oh Luigi, I'm about to commit insurance fraud lol.")
-			self:TempBehaveThread(function(self)
-				self:TimeOut(0)
-				self:SetSpecialAnimation(true)
-
-				self:SolidMaskDuringEvent(MASK_PLAYERSOLID, collision)
-				self:PlaySequenceAndMove("nz_quad_knockdown_faceup")
-				self:PlaySequenceAndMove("nz_quad_getup_faceup")
-				if !self:GetSpecialShouldDie() and IsValid(self) and self:Alive() then
-					self:CollideWhenPossible()
-					self:SetSpecialAnimation(false)
-				end
-			end)
-		end
-
-		self:SetLastHurt(CurTime())
-	end
-
-	function ENT:PerformIdle()
-		if self:GetSpecialAnimation() and !self.IsTornado then return end
-		if (self.BO4IsShocked and self:BO4IsShocked() or self.BO4IsScorped and self:BO4IsScorped() or self.BO4IsSpinning and self:BO4IsSpinning() or self:GetNW2Bool("OnAcid")) and !self:GetCrawler() then
-			self:ResetSequence(self.ElectrocutionSequences)
-		elseif self.BO3IsMystified and self:BO3IsMystified() then
-			self:ResetSequence(self.UnawareAnim)
-		elseif self.BO4IsTornado and self:BO4IsTornado() and self.IsTornado then
-			self:ResetSequence(self.ElectrocutionSequences)
-		else
-			self:ResetSequence(self.IdleSequence)
-		end
-	end
-
-	function ENT:ZombieStatusEffects()
-		if CurTime() > self.LastStatusUpdate then
-			if self.IsTurned or !self:Alive() then return end
-
-			if self:GetSpecialAnimation() and !self.CanCancelSpecial then return end
-			if self.BO3IsSlipping and self:BO3IsSlipping() then
-				--print("Uh oh Luigi, I've been played for a fool lol.")
-				self:TempBehaveThread(function(self)
-					self:TimeOut(0)
-					self:SetSpecialAnimation(true)
-
-					self:SolidMaskDuringEvent(MASK_PLAYERSOLID, collision)
-					self:PlaySequenceAndMove("nz_quad_knockdown_facedown")
-					self:PlaySequenceAndMove("nz_quad_getup_facedown")
-					if !self:GetSpecialShouldDie() and IsValid(self) and self:Alive() then
-						self:CollideWhenPossible()
-						self:SetSpecialAnimation(false)
-					end
-				end)
-			end
-			if self.BO3IsSkullStund and self:BO3IsSkullStund() then
-				--print("Uh oh Mario, I'm ASCENDING lol.")
-				self:DoSpecialAnimation(self.ElectrocutionSequences[math.random(#self.ElectrocutionSequences)])
-			end
-			if self.BO3IsCooking and self:BO3IsCooking() then
-				--print("Uh oh Mario, I'm about to fucking inflate lol.")
-				self:SetSpecialShouldDie(true)
-				self:DoSpecialAnimation(self.ElectrocutionSequences[math.random(#self.ElectrocutionSequences)])
-			end
-			if self.BO4IsFrozen and self:BO4IsFrozen() and !self:GetSpecialAnimation() then
-				--print("Uh oh Mario, I'm frozen lol.")
-				self:SetSpecialShouldDie(true)
-				self:DoSpecialAnimation(self.FreezeSequences[math.random(#self.FreezeSequences)])
-			end
-			if self.BO4IsShrunk and self:BO4IsShrunk() then
-				self:DoSpecialAnimation(self.DeathSequences[math.random(#self.DeathSequences)])
-			end
-			if self.IsATTCryoFreeze and self:IsATTCryoFreeze() then 
-				self:SetSpecialShouldDie(true)
-				self:DoSpecialAnimation(self.FreezeSequences[math.random(#self.FreezeSequences)])
-			end
-			self.LastStatusUpdate = CurTime() + 0.25
-		end
-	end
-end
-
-ENT.ElectrocutionSequences = "nz_quad_stunned_electrobolt"
-
-
-ENT.UnawareSequences = {
-	"nz_quad_idle_v2",
-}
-
-ENT.FreezeSequences = {
-	"nz_quad_death_freeze_v1",
-	"nz_quad_death_freeze_v2",
-}

@@ -21,6 +21,10 @@ function ENT:Initialize()
 			platform = "models/wavy_ports/ugx/ugx_coffin_teddy_platform.mdl"
 			return platform
 		end,
+		["Cold War"] = function() 
+			platform = "models/moo/_codz_ports_props/s4/zm/zod/s4_magic_box_pile/moo_codz_s4_magic_box_pile.mdl"
+			return platform
+		end,
 		["Black Ops 3"] = function() 
 			platform = "models/moo/_codz_ports_props/t7/_der/p7_zm_der_magic_box_fake/moo_codz_p7_der_magic_box_platform.mdl"
 			return platform
@@ -77,7 +81,7 @@ function ENT:Think()
 			local pos = self:GetPos()
 			local ang = self:GetAngles()
 			
-			if (nzMapping.Settings.boxtype == "Original" or nzMapping.Settings.boxtype == "Black Ops 3" or nzMapping.Settings.boxtype == "Black Ops 3(Quiet Cosmos)" or nzMapping.Settings.boxtype == "Leviathan") then
+			if (nzMapping.Settings.boxtype == "Original" or nzMapping.Settings.boxtype == "Black Ops 3" or nzMapping.Settings.boxtype == "Black Ops 3(Quiet Cosmos)" or nzMapping.Settings.boxtype == "Leviathan" or nzMapping.Settings.boxtype == "Cold War") then
 				box:SetPos( pos + ang:Up()*10 + ang:Right()*7 )
 			else
 				box:SetPos( pos + ang:Right()*7 )

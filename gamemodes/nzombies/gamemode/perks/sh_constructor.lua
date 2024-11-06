@@ -114,23 +114,72 @@ nzPerks:AddVultureClass("drop_widows")
 nzPerks:AddVultureClass("drop_tombstone")
 nzPerks:AddVultureClass("wunderfizz_windup")
 
-//vulture mini powerup effects table
-nzPerks.VultureDropsTable = nzPerks.VultureDropsTable or {}
-function nzPerks:AddVultureDropType(id, data)
+//vulture drop data
+nzPerks.VultureData = nzPerks.VultureData or {}
+function nzPerks:AddVultureDrop(id, data)
 	if data then
-		nzPerks.VultureDropsTable[id] = data
+		nzPerks.VultureData[id] = data
 	else
-		nzPerks.VultureDropsTable[id] = nil
+		nzPerks.VultureData[id] = nil
 	end
 end
 
-nzPerks:AddVultureDropType("points", {
-	id = "points",
+function nzPerks:GetVultureDrop(id)
+	return nzPerks.VultureData[id]
+end
+
+function nzPerks:GetVultureList()
+	local tbl = {}
+
+	for k, v in pairs(nzPerks.VultureData) do
+		tbl[k] = (v.name or string.NiceName(k))
+	end
+
+	return tbl
+end
+
+/*nzPerks:AddVultureDrop("unique_id",{
+	name = "Name", //for powerup map settings
+	desc = "short description", //for powerup map settings, not needed
+	model = Model("path/to/model.mdl"),
+	blink = bool, //blink before despawning
+	glow = bool, //do powerup loop effect
+	poof = bool, //do powerup poof effect
+	lamp = bool, //powerup will 'glow' using a projected texture (no limit unlike dlights)
+	nodraw = bool, //disable drawing the model
+	touch = bool, //call effect function on every Touch() rather than only on StartTouch()
+	timer = float, //duration
+	chance = int, //chance, like random box chance
+	dropsound = "path/to/sound.wav", //for overwriting the powerup drop sound, delete if not using
+	natural = true, //automatically enables drop type in the power up map setting menu on initial config creation
+	condition = function(position), //same as powerup condition function, delete if not needed
+		return true
+	end,
+	effect = function(ply)
+		return true //REQUIRED! return bool for if player can interact with drop or not
+	end,
+	draw = function(self) //custom draw function to overwrite
+	end,
+	initialize = function(self) //runs when powerup is created
+	end,
+	think = function(self) //runs every tick
+	end,
+	onremove = function(self) //runs when powerup is removed
+	end,
+})*/
+
+nzPerks:AddVultureDrop("points", {
+	name = "Points",
+	desc = "Gives the player 100 to 200 points (doubled with modifier)",
 	model = Model("models/powerups/w_vulture_points.mdl"),
 	blink = true,
+	glow = true,
 	poof = true,
+	lamp = true,
+	nodraw = false,
 	timer = 30,
 	chance = 3,
+	natural = true,
 	effect = function(ply)
 		ply:EmitSound("nz_moo/powerups/vulture/vulture_pickup.mp3") 
 		ply:EmitSound("nz_moo/powerups/vulture/vulture_money.mp3") 
@@ -138,77 +187,23 @@ nzPerks:AddVultureDropType("points", {
 
 		return true
 	end,
-	draw = function(self)
-		self:DrawModel()
-
-		if !self.loopglow or !IsValid(self.loopglow) then
-			local colorvec1 = nzMapping.Settings.powerupcol["mini"][1]
-			local colorvec2 = nzMapping.Settings.powerupcol["mini"][2]
-			local colorvec3 = nzMapping.Settings.powerupcol["mini"][3]
-
-			if nzMapping.Settings.powerupstyle then
-				local style = nzPowerUps:GetStyle(nzMapping.Settings.powerupstyle)
-				self.loopglow = CreateParticleSystem(self, style.loop, PATTACH_POINT_FOLLOW, 1)
-				self.loopglow:SetControlPoint(2, colorvec1)
-				self.loopglow:SetControlPoint(3, colorvec2)
-				self.loopglow:SetControlPoint(4, colorvec3)
-				self.loopglow:SetControlPoint(1, Vector(0.65,0.65,0.65))
-			else
-				self.loopglow = CreateParticleSystem(self, "nz_powerup_classic_loop", PATTACH_POINT_FOLLOW, 1)
-				self.loopglow:SetControlPoint(2, colorvec1)
-				self.loopglow:SetControlPoint(3, colorvec2)
-				self.loopglow:SetControlPoint(4, colorvec3)
-				self.loopglow:SetControlPoint(1, Vector(0.65,0.65,0.65))
-			end
-		end
-	end,
-	initialize = function(self)
-		if CLIENT then
-			local lamp = ProjectedTexture()
-			self.lamp = lamp
-
-			lamp:SetTexture( "effects/flashlight001" )
-			lamp:SetFarZ(42)
-			lamp:SetFOV(math.random(55,70))
-
-			lamp:SetPos(self:GetPos() + vector_up*24)
-			lamp:SetAngles(Angle(90,0,0))
-
-			local cvec = nzMapping.Settings.powerupcol["mini"][1]
-			lamp:SetColor(Color(math.Round(cvec[1]*255),math.Round(cvec[2]*255),math.Round(cvec[3]*255),255))
-			lamp:Update()
-		end
-		self:EmitSound("nz_moo/powerups/vulture/vulture_drop.mp3") 
-	end,
-	think = function(self)
-		if CLIENT then
-			if ( IsValid( self.lamp ) ) then
-				self.lamp:SetFarZ(math.random(40,44))
-				self.lamp:SetPos( self:GetPos() + vector_up*24 )
-				self.lamp:Update()
-			end
-		end
-	end,
-	onremove = function(self)
-		if IsValid(self.lamp) then
-			self.lamp:Remove()
-		end
-		if self.loopglow and IsValid(self.loopglow) then
-			self.loopglow:StopEmission()
-		end
-	end,
 })
 
-nzPerks:AddVultureDropType("ammo", {
-	id = "ammo",
+nzPerks:AddVultureDrop("ammo", {
+	name = "Ammo",
+	desc = "Refills between 5% and 10% ammo for players held weapon",
 	model = Model("models/powerups/w_vulture_ammo.mdl"),
 	blink = true,
+	glow = true,
 	poof = true,
+	lamp = true,
+	nodraw = false,
 	timer = 30,
 	chance = 2,
+	natural = true,
 	effect = function(ply)
 		local wep = ply:GetActiveWeapon()
-		if IsValid(wep) then
+		if IsValid(wep) and wep.Primary then
 			local max = wep.Primary.MaxAmmo or nzWeps:CalculateMaxAmmo(wep:GetClass(), wep:HasNZModifier("pap"))
 			local give = math.Round(max/math.random(10, 20))
 			local ammo = wep:GetPrimaryAmmoType()
@@ -228,74 +223,21 @@ nzPerks:AddVultureDropType("ammo", {
 			return true
 		end
 	end,
-	draw = function(self)
-		self:DrawModel()
-
-		if !self.loopglow or !IsValid(self.loopglow) then
-			local colorvec1 = nzMapping.Settings.powerupcol["mini"][1]
-			local colorvec2 = nzMapping.Settings.powerupcol["mini"][2]
-			local colorvec3 = nzMapping.Settings.powerupcol["mini"][3]
-
-			if nzMapping.Settings.powerupstyle then
-				local style = nzPowerUps:GetStyle(nzMapping.Settings.powerupstyle)
-				self.loopglow = CreateParticleSystem(self, style.loop, PATTACH_POINT_FOLLOW, 1)
-				self.loopglow:SetControlPoint(2, colorvec1)
-				self.loopglow:SetControlPoint(3, colorvec2)
-				self.loopglow:SetControlPoint(4, colorvec3)
-				self.loopglow:SetControlPoint(1, Vector(0.65,0.65,0.65))
-			else
-				self.loopglow = CreateParticleSystem(self, "nz_powerup_classic_loop", PATTACH_POINT_FOLLOW, 1)
-				self.loopglow:SetControlPoint(2, colorvec1)
-				self.loopglow:SetControlPoint(3, colorvec2)
-				self.loopglow:SetControlPoint(4, colorvec3)
-				self.loopglow:SetControlPoint(1, Vector(0.65,0.65,0.65))
-			end
-		end
-	end,
-	initialize = function(self)
-		if CLIENT then
-			local lamp = ProjectedTexture()
-			self.lamp = lamp
-
-			lamp:SetTexture( "effects/flashlight001" )
-			lamp:SetFarZ(42)
-			lamp:SetFOV(math.random(55,70))
-
-			lamp:SetPos(self:GetPos() + vector_up*24)
-			lamp:SetAngles(Angle(90,0,0))
-			
-			local cvec = nzMapping.Settings.powerupcol["mini"][1]
-			lamp:SetColor(Color(math.Round(cvec[1]*255),math.Round(cvec[2]*255),math.Round(cvec[3]*255),255))
-			lamp:Update()
-		end
-		self:EmitSound("nz_moo/powerups/vulture/vulture_drop.mp3") 
-	end,
-	think = function(self)
-		if CLIENT then
-			if ( IsValid( self.lamp ) ) then
-				self.lamp:SetFarZ(math.random(40,44))
-				self.lamp:SetPos( self:GetPos() + vector_up*24 )
-				self.lamp:Update()
-			end
-		end
-	end,
-	onremove = function(self)
-		if IsValid(self.lamp) then
-			self.lamp:Remove()
-		end
-		if self.loopglow and IsValid(self.loopglow) then
-			self.loopglow:StopEmission()
-		end
-	end,
 })
 
-nzPerks:AddVultureDropType("gas",{
-	id = "gas",
+nzPerks:AddVultureDrop("gas",{
+	name = "Stink",
+	desc = "Players stood in stink are ignored by zombies",
 	model = Model("models/dav0r/hoverball.mdl"),
 	blink = false,
+	glow = false,
 	poof = false,
+	lamp = false,
+	nodraw = true,
+	touch = true,
 	timer = 12,
 	chance = 1,
+	natural = true,
 	effect = function(ply)
 		ply:VulturesStink(0.5)
 
@@ -308,7 +250,6 @@ nzPerks:AddVultureDropType("gas",{
 	end,
 	initialize = function(self)
 		self:DrawShadow(false)
-		self:EmitSound("nz_moo/powerups/vulture/vulture_drop.mp3") 
 
 		local tr = util.TraceLine({
 			start = self:GetPos(),
@@ -354,77 +295,23 @@ nzPerks:AddVultureDropType("gas",{
 	end,
 })
 
-nzPerks:AddVultureDropType("armor",{
-	id = "armor",
+nzPerks:AddVultureDrop("armor",{
+	name = "Armor",
+	desc = "Gives the player 10 to 50 armor (doubled with modifier)",
 	model = Model("models/items/battery.mdl"),
 	blink = true,
+	glow = true,
 	poof = true,
+	lamp = true,
+	nodraw = false,
 	timer = 30,
 	chance = 2,
+	natural = true,
 	effect = function(ply)
 		local plyarm = ply:Armor()
 		ply:EmitSound("nz_moo/powerups/vulture/vulture_pickup.mp3") 
 		ply:SetArmor(math.Clamp(plyarm + (math.random(1, 5) * (ply:HasUpgrade("vulture") and 20 or 10)), 0, 200))
 
 		return true
-	end,
-	draw = function(self)
-		self:DrawModel()
-
-		if !self.loopglow or !IsValid(self.loopglow) then
-			local colorvec1 = nzMapping.Settings.powerupcol["mini"][1]
-			local colorvec2 = nzMapping.Settings.powerupcol["mini"][2]
-			local colorvec3 = nzMapping.Settings.powerupcol["mini"][3]
-
-			if nzMapping.Settings.powerupstyle then
-				local style = nzPowerUps:GetStyle(nzMapping.Settings.powerupstyle)
-				self.loopglow = CreateParticleSystem(self, style.loop, PATTACH_POINT_FOLLOW, 1)
-				self.loopglow:SetControlPoint(2, colorvec1)
-				self.loopglow:SetControlPoint(3, colorvec2)
-				self.loopglow:SetControlPoint(4, colorvec3)
-				self.loopglow:SetControlPoint(1, Vector(0.65,0.65,0.65))
-			else
-				self.loopglow = CreateParticleSystem(self, "nz_powerup_classic_loop", PATTACH_POINT_FOLLOW, 1)
-				self.loopglow:SetControlPoint(2, colorvec1)
-				self.loopglow:SetControlPoint(3, colorvec2)
-				self.loopglow:SetControlPoint(4, colorvec3)
-				self.loopglow:SetControlPoint(1, Vector(0.65,0.65,0.65))
-			end
-		end
-	end,
-	initialize = function(self)
-		if CLIENT then
-			local lamp = ProjectedTexture()
-			self.lamp = lamp
-
-			lamp:SetTexture( "effects/flashlight001" )
-			lamp:SetFarZ(42)
-			lamp:SetFOV(math.random(55,70))
-
-			lamp:SetPos(self:GetPos() + vector_up*24)
-			lamp:SetAngles(Angle(90,0,0))
-
-			local cvec = nzMapping.Settings.powerupcol["mini"][1]
-			lamp:SetColor(Color(math.Round(cvec[1]*255),math.Round(cvec[2]*255),math.Round(cvec[3]*255),255))
-			lamp:Update()
-		end
-		self:EmitSound("nz_moo/powerups/vulture/vulture_drop.mp3") 
-	end,
-	think = function(self)
-		if CLIENT then
-			if ( IsValid( self.lamp ) ) then
-				self.lamp:SetFarZ(math.random(40,44))
-				self.lamp:SetPos( self:GetPos() + vector_up*24 )
-				self.lamp:Update()
-			end
-		end
-	end,
-	onremove = function(self)
-		if IsValid(self.lamp) then
-			self.lamp:Remove()
-		end
-		if self.loopglow and IsValid(self.loopglow) then
-			self.loopglow:StopEmission()
-		end
 	end,
 })

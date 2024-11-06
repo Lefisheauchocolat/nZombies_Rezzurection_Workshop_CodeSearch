@@ -306,7 +306,7 @@ function ENT:TargetIsPlayer(ent)
 end
 
 function ENT:TargetIsZombie(ent)
-	return IsValid(ent) and ent:IsValidZombie() and ent:Health() > 0 and !ent.NZBossType
+	return IsValid(ent) and ent:IsValidZombie() and ent:Health() > 0 and !ent.NZBossType and !ent.IsMooBossZombie and !ent.IsMiniBoss
 end
 
 function ENT:HurtEntsByRadius(radius)

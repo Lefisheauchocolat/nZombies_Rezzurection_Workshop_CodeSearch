@@ -74,8 +74,8 @@ local traceents = {
 	end,
 	["random_box"] = function(ent)
 		if not ent:GetOpen() then
-			local text = nzPowerUps:IsPowerupActive("firesale") and ("Press " .. usekey .. "Open Mystery Box [Cost: 10]") or ("Press " .. usekey .. "Open Mystery Box [Cost: 950]")
-			return text
+			local price = nzPowerUps:IsPowerupActive("firesale") and 10 or nzMapping.Settings.rboxprice or 950
+			return "Press " .. usekey .. "Open Mystery Box [Cost: "..price.."]"
 		end
 	end,
 	["random_box_windup"] = function(ent)
@@ -204,9 +204,7 @@ local traceents = {
 		return text
 	end,
 	["buyable_ending"] = function(ent)
-		local text = ""
-		text = "Press " .. usekey .. "End game [Cost: " .. string.Comma(ent:GetPrice()) .. "]"
-		return text
+		return "Press " .. usekey .. "End game [Cost: " .. string.Comma(ent:GetPrice()) .. "]"
 	end,
 	["player_spawns"] = function() if nzRound:InState( ROUND_CREATE ) then return "Player Spawn" end end,
 	["nz_spawn_zombie_normal"] = function() if nzRound:InState( ROUND_CREATE ) then return "Zombie Spawn" end end,
@@ -274,7 +272,7 @@ local traceents = {
 			end
 		elseif not ent:GetBeingUsed() and ent:IsOn() then
 			if #ply:GetPerks() >= nz_maxperks then
-				text = "You may only carry " .. nz_maxperks.. " perks"
+				text = "You may only carry "..nz_maxperks.." perks"
 			else
 				local b_no_perks = true
 				for k, v in pairs(nzMapping.Settings.wunderfizzperklist) do
@@ -309,7 +307,7 @@ local traceents = {
 		if IsValid(ply:GetObserverTarget()) then ply = ply:GetObserverTarget() end
 
 		if ply:Health() < ply:GetMaxHealth() then
-			return "Press & Hold "..usekey.."Heal"
+			return "Press & Hold "..usekey.."heal"
 		else
 			return ""
 		end
@@ -348,7 +346,11 @@ local zmhud_icon_missing = Material("nz_moo/icons/statmon_warning_scripterrors.p
 local function GetDoorText( ent )
 	local door_data = ent:GetDoorData()
 	local text = ""
-	--print(door_data)
+	--[[if istable(door_data) then
+		PrintTable(door_data)
+	else
+		print("fuck")
+	end]]
 
 	if door_data and tonumber(door_data.price) == 0 and nzRound:InState(ROUND_CREATE) then
 		if tobool(door_data.elec) then

@@ -163,7 +163,7 @@ function ENT:DrawColorCorretion()
 	local tbl = {
 		[ "$pp_colour_addr" ] = self:GetAddRed(),
 		[ "$pp_colour_addg" ] = self:GetAddGreen(),
-		[ "$pp_colour_addb" ] = self:GetAddGreen(),
+		[ "$pp_colour_addb" ] = self:GetAddBlue(),
 		[ "$pp_colour_brightness" ] = self:GetBrightness(),
 		[ "$pp_colour_contrast" ] = self:GetContrast(),
 		[ "$pp_colour_colour" ] = self:GetColour(),

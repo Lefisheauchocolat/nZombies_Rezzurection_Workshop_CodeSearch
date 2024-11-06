@@ -44,6 +44,8 @@ if SERVER then
 				ply:GivePowerUp(id, (PowerupData.duration + nzGum.TemporalGiftTime) * (ply:HasUpgrade("time") and 2 or 1))
 				if not exists then -- If you don't have the powerup
 					PowerupData.func(id, ply, ent)
+				elseif PowerupData.reapply then
+					PowerupData.reapply(id, ply, ent)
 				end
 			end
 		else
@@ -53,6 +55,8 @@ if SERVER then
 				self.ActivePowerUps[id] = (exists or CurTime()) + (PowerupData.duration + nzGum.TemporalGiftTime) * ((IsValid(ply) and ply:HasUpgrade("time")) and 2 or 1)
 				if not exists then
 					PowerupData.func(id, ply, ent)
+				elseif PowerupData.reapply then
+					PowerupData.reapply(id, ply, ent)
 				end
 			else
 				-- Activate Once
@@ -462,6 +466,13 @@ if CLIENT then
 			end
 		end
 	end)
+end
+
+local plyMeta = FindMetaTable("Player")
+
+function plyMeta:AllActivePowerUps()
+	if not nzPowerUps.ActivePlayerPowerUps[self] then nzPowerUps.ActivePlayerPowerUps[self] = {} end
+	return nzPowerUps.ActivePlayerPowerUps[self]
 end
 
 function nzPowerUps:IsPowerupActive(id)
@@ -915,6 +926,16 @@ nzPowerUps:NewPowerUp("carpenter", {
 			pos = ply:GetPos()
 		end
 
+		for _, ply in ipairs(player.GetAll()) do
+			local shield = ply:GetShield()
+			if IsValid(shield) then
+				shield:SetHealth(shield:GetMaxHealth())
+				if IsValid(shield:GetWeapon()) then
+					shield:GetWeapon():SetDamage(0)
+				end
+			end
+		end
+
 		nzSounds:Play("Carpenter")
 		nzPowerUps:Carpenter(false, pos) //(nopoints bool, starting position)
 	end),
@@ -1065,14 +1086,39 @@ nzPowerUps:NewPowerUp("deathmachine", {
 	icon_t8 = Material("nz_moo/icons/bo4/t8_hud_robit_powerup_death_machine.png", "unlitgeneric"),
 	icon_t9 = Material("vgui/cw_death.png", "unlitgeneric"),
 	func = (function(id, ply)
-		if IsValid(ply) then
-			ply:SetUsingSpecialWeapon(true)
-			ply:Give(nzMapping.Settings.deathmachine or "tfa_nz_bo3_minigun")
-			ply:SelectWeapon(nzMapping.Settings.deathmachine or "tfa_nz_bo3_minigun")
-		end
+		local ourfucker = "deathmachine_swapper"..ply:EntIndex()
+		timer.Create(ourfucker, 0, 0, function()
+			if not IsValid(ply) then
+				if timer.Exists(ourfucker) then
+					timer.Remove(ourfucker)
+				end
+				return
+			end
+
+			local wep = ply:GetActiveWeapon()
+			if not IsValid(wep) then return end
+
+			if not wep.IsTFAWeapon or not wep.NZSpecialCategory or wep:Holster() then
+				ply:SetUsingSpecialWeapon(true)
+				ply:Give(nzMapping.Settings.deathmachine or "tfa_nz_bo3_minigun")
+				ply:SelectWeapon(nzMapping.Settings.deathmachine or "tfa_nz_bo3_minigun")
+
+				if timer.Exists(ourfucker) then
+					timer.Remove(ourfucker)
+				end
+				return
+			end
+		end)
 	end),
 	expirefunc = function(id, ply)
-		if IsValid(ply) then
+		if not IsValid(ply) then return end
+
+		local ourfucker = "deathmachine_swapper"..ply:EntIndex()
+		if timer.Exists(ourfucker) then
+			timer.Remove(ourfucker)
+		end
+
+		if ply:HasWeapon(nzMapping.Settings.deathmachine or "tfa_nz_bo3_minigun") then
 			ply:SetUsingSpecialWeapon(false)
 			ply:EquipPreviousWeapon()
 			timer.Simple(0, function()
@@ -1088,14 +1134,39 @@ nzPowerUps:NewPowerUp("deathmachine", {
 		return false
 	end),
 	antifunc = (function(id, ply)
-		if IsValid(ply) then
-			ply:SetUsingSpecialWeapon(true)
-			ply:Give(nzMapping.Settings.startwep.."_display")
-			ply:SelectWeapon(nzMapping.Settings.startwep.."_display")
-		end
+		local ourfucker = "antipistol_swapper"..ply:EntIndex()
+		timer.Create(ourfucker, 0, 0, function()
+			if not IsValid(ply) then
+				if timer.Exists(ourfucker) then
+					timer.Remove(ourfucker)
+				end
+				return
+			end
+
+			local wep = ply:GetActiveWeapon()
+			if not IsValid(wep) then return end
+
+			if not wep.IsTFAWeapon or not wep.NZSpecialCategory or wep:Holster() then
+				ply:SetUsingSpecialWeapon(true)
+				ply:Give(nzMapping.Settings.startwep.."_display")
+				ply:SelectWeapon(nzMapping.Settings.startwep.."_display")
+
+				if timer.Exists(ourfucker) then
+					timer.Remove(ourfucker)
+				end
+				return
+			end
+		end)
 	end),
 	antiexpirefunc = function(id, ply)
-		if IsValid(ply) then
+		if not IsValid(ply) then return end
+
+		local ourfucker = "antipistol_swapper"..ply:EntIndex()
+		if timer.Exists(ourfucker) then
+			timer.Remove(ourfucker)
+		end
+
+		if ply:HasWeapon(nzMapping.Settings.startwep.."_display") then
 			ply:SetUsingSpecialWeapon(false)
 			ply:EquipPreviousWeapon()
 			timer.Simple(0, function()
@@ -1482,14 +1553,39 @@ nzPowerUps:NewPowerUp("berzerk", {
 	icon_t8 = Material("nz_moo/icons/bo4/powerups/bo4_bzk.png", "unlitgeneric"),
 	icon_t9 = Material("vgui/cw_bzk.png", "unlitgeneric"),
 	func = (function(id, ply)
-		if IsValid(ply) then
-			ply:SetUsingSpecialWeapon(true)
-			ply:Give("nz_berzerk_fists")
-			ply:SelectWeapon("nz_berzerk_fists")
-		end
+		local ourfucker = "berzerker_swapper"..ply:EntIndex()
+		timer.Create(ourfucker, 0, 0, function()
+			if not IsValid(ply) then
+				if timer.Exists(ourfucker) then
+					timer.Remove(ourfucker)
+				end
+				return
+			end
+
+			local wep = ply:GetActiveWeapon()
+			if not IsValid(wep) then return end
+
+			if not wep.IsTFAWeapon or not wep.NZSpecialCategory or wep:Holster() then
+				ply:SetUsingSpecialWeapon(true)
+				ply:Give("nz_berzerk_fists")
+				ply:SelectWeapon("nz_berzerk_fists")
+
+				if timer.Exists(ourfucker) then
+					timer.Remove(ourfucker)
+				end
+				return
+			end
+		end)
 	end),
 	expirefunc = function(id, ply)
-		if IsValid(ply) then
+		if not IsValid(ply) then return end
+
+		local ourfucker = "berzerker_swapper"..ply:EntIndex()
+		if timer.Exists(ourfucker) then
+			timer.Remove(ourfucker)
+		end
+
+		if ply:HasWeapon("nz_berzerk_fists") then
 			ply:SetUsingSpecialWeapon(false)
 			ply:EquipPreviousWeapon()
 			timer.Simple(0, function()
@@ -2203,6 +2299,97 @@ nzPowerUps:NewPowerUp("restock", {
 		local ammo2 = wep:GetSecondaryAmmoType()
 		if ammo2 > 0 then
 			ply:SetAmmo(0, ammo2)
+		end
+	end),
+})
+
+nzPowerUps:NewPowerUp("security", {
+	name = "Security",
+	model = "models/moo/_codz_ports_props/s1/zm/pickups_zombies_01_trap/_codz_pickups_zombies_01_trap.mdl",
+	desc = "All Traps on the map become activated, and all barricades gain a hydrogen barrier that kills zombies",
+	global = true,
+	angle = Angle(0,0,0),
+	scale = 1.8,
+	chance = 0,
+	duration = 30,
+	natural = false,
+	icon_t5 = Material("vgui/bo1_mystery.png", "unlitgeneric"),
+	icon_t6 = Material("vgui/bo2_mystery.png", "unlitgeneric"),
+	icon_t7 = Material("vgui/bo3_mystery.png", "unlitgeneric"),
+	icon_t7zod = Material("vgui/bo3_mystery.png", "unlitgeneric"),
+	icon_t8 = Material("vgui/bo4_mystery.png", "unlitgeneric"),
+	icon_t9 = Material("vgui/cw_mystery.png", "unlitgeneric"),
+	condition = function(id, position)
+		return nzElec:IsOn()
+	end,
+	reapply = function(id, ply)
+		local duration = 30
+		if nzPowerUps.ActivePowerUps[id] then
+			duration = math.max(nzPowerUps.ActivePowerUps[id] - CurTime(), duration)
+		end
+
+		for _, ent in pairs(ents.GetAll()) do
+			if ent:IsActivatable() and ent.Trap then
+				ent:Activation(nil, duration, 10)
+			end
+		end
+	end,
+	func = (function(id, ply)
+		if not IsValid(ply) then return end
+
+		nzSounds:PlayFile("nz_moo/powerups/security/zct_turret_alarm.wav")
+
+		local duration = 30
+		if nzPowerUps.ActivePowerUps[id] then
+			duration = math.max(nzPowerUps.ActivePowerUps[id] - CurTime(), duration)
+		end
+
+		local b_hasturrets = false
+		local b_hasbarricades = false
+		for _, ent in pairs(ents.GetAll()) do
+			if ent:IsActivatable() and ent.Trap then
+				if ent:GetClass() == "nz_trap_turret" and !b_hasturrets then
+					b_hasturrets = true
+				end
+				ent:Activation(nil, duration, 10)
+			end
+
+			if ent:GetClass() == "breakable_entry" then
+				local zapr = ents.Create("nz_securitybarrier")
+				zapr:SetPos(ent:GetPos())
+				zapr:SetAngles(ent:GetAngles())
+				zapr:SetParent(ent)
+				zapr:SetOwner(ply)
+				zapr:Spawn()
+
+				if !b_hasbarricades then
+					b_hasbarricades = true
+				end
+			end
+		end
+
+		if b_hasturrets then
+			nzSounds:PlayFile("nz_moo/powerups/security/zct_defence_turrets.wav")
+
+			if b_hasbarricades then
+				timer.Simple(2.1, function()
+					if not nzPowerUps:IsPowerupActive("security") then return end
+					nzSounds:PlayFile("nz_moo/powerups/security/zct_defence_barriers.wav")
+				end)
+			end
+		elseif b_hasbarricades then
+			nzSounds:PlayFile("nz_moo/powerups/security/zct_defence_barriers.wav")
+		end
+	end),
+	expirefunc = (function(id, ply)
+		for _, ent in pairs(ents.GetAll()) do
+			if ent:IsActivatable() and ent.Trap then
+				ent:Deactivation()
+			end
+		end
+
+		for k, v in pairs(ents.FindByClass("nz_securitybarrier")) do
+			v:Remove()
 		end
 	end),
 })

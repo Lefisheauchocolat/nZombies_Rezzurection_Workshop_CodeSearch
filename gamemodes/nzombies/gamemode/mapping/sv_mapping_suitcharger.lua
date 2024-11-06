@@ -8,6 +8,9 @@ function nzMapping:SuitCharger(pos, ang, data, ply)
 		if data.spawnflag and data.spawnflag > 0 then
 			ent:SetKeyValue("spawnflags", tostring(data.spawnflag))
 		end
+		if data.delay and data.delay > 0 then
+			ent:SetKeyValue("dmdelay", tostring(data.delay))
+		end
 	end
 
 	ent:Spawn()

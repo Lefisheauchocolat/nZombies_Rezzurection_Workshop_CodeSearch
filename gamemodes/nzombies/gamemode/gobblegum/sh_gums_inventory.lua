@@ -1,11 +1,4 @@
 if SERVER then
-	if game.SinglePlayer() or (IsValid(Entity(1)) and Entity(1):IsListenServerHost()) then
-		if nzRound and nzRound:InProgress() then
-			nzGum:RebuildRollCounts()
-			print('Rebuilding Gobblegum count as gamemode lua was refreshed!')
-		end
-	end
-
 	function nzGum:RebuildRollCounts()
 		if not nzMapping or not nzMapping.Settings or not nzMapping.Settings.gumlist then return end
 

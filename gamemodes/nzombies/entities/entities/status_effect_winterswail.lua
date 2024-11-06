@@ -13,6 +13,8 @@ if SERVER then
 	entMeta.WintersWailSlow = function(self, duration, ratio)
 		if self.IsAATTurned and self:IsAATTurned() then return end
 		if self.NZBossType then return end
+		if self.IsMooBossZombie then return end
+		if self.IsMiniBoss then return end
 		if string.find(self:GetClass(), "nz_zombie_boss") then return end
 
 		if duration == nil then

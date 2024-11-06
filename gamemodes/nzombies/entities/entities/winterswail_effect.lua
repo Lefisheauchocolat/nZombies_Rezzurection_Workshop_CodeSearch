@@ -49,6 +49,8 @@ function ENT:Initialize()
 		if v:Health() <= 0 then continue end
 		if v:IsATTCryoFreeze() then continue end
 		if v.NZBossType then continue end
+		if v.IsMooBossZombie then continue end
+		if v.IsMiniBoss then continue end
 		if string.find(v:GetClass(), "nz_zombie_boss") then continue end
 		if v.IsAATTurned and v:IsAATTurned() then continue end
 

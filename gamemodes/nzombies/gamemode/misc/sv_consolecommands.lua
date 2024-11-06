@@ -26,9 +26,17 @@ concommand.Add("nz_forceround", function(ply, cmd, args, argStr)
 		end
 
 		if round then
-			nzRound:SetNumber( round - 1 )
-			local specint = GetConVar("nz_round_special_interval"):GetInt() or 6
-			nzRound:SetNextSpecialRound( math.ceil(round/specint)*specint)
+			nzRound:SetNumber(round - 1)
+
+			if nzMapping.Settings.forcefirstspecialround then
+				if round > nzMapping.Settings.firstspecialround then
+					local specialround = math.random(nzMapping.Settings.specialroundmin or 5, nzMapping.Settings.specialroundmax or 7)
+					nzRound:SetNextSpecialRound(nzRound:GetNumber() + specialround)
+				end
+			else
+				local specialround = math.random(nzMapping.Settings.specialroundmin or 5, nzMapping.Settings.specialroundmax or 7)
+				nzRound:SetNextSpecialRound(nzRound:GetNumber() + specialround)
+			end
 		end
 		nzRound:Prepare()
 	end

@@ -15,6 +15,12 @@ TFA.AddSound("NZ.BO3.FutureBox.Close", CHAN_STATIC, 1, SNDLVL_NORM, 100, "nz_moo
 TFA.AddSound("NZ.BO3.FutureBox.Land", CHAN_STATIC, 1, SNDLVL_GUNFIRE, 100, "nz_moo/mysterybox/leviathan/pap_appear_00.mp3",")")
 TFA.AddSound("NZ.BO3.FutureBox.Leave", CHAN_STATIC, 1, SNDLVL_GUNFIRE, 100, "nz_moo/mysterybox/leviathan/leave.mp3",")")
 
+-- Cold War/Vanguard Box
+TFA.AddSound("NZ.BOCW.Box.Open", CHAN_STATIC, 1, SNDLVL_NORM, 100, "nz_moo/mysterybox/coldwar/zmb_magic_box_open.mp3",")")
+TFA.AddSound("NZ.BOCW.Box.Close", CHAN_STATIC, 1, SNDLVL_NORM, 100, "nz_moo/mysterybox/coldwar/zmb_magic_box_close.mp3",")")
+TFA.AddSound("NZ.BOCW.Box.Move", CHAN_STATIC, 1, SNDLVL_GUNFIRE, 100, "nz_moo/mysterybox/coldwar/zmb_magic_box_move.mp3",")")
+TFA.AddSound("NZ.BOCW.Box.Land", CHAN_STATIC, 1, SNDLVL_GUNFIRE, 100, "nz_moo/mysterybox/coldwar/zmb_magic_box_land.mp3",")")
+
 -- Cold War Pap
 TFA.AddSound("NZ.BOCW.Pap.OneShot", CHAN_STATIC, 1, SNDLVL_GUNFIRE, 100, "nz_moo/perkacolas/new_pap/pap_activate_oneshot.mp3",")")
 TFA.AddSound("NZ.BOCW.Pap.RevUp", CHAN_STATIC, 1, SNDLVL_NORM, 100, "nz_moo/perkacolas/new_pap/xsound_6eacde821f661c8.mp3",")")

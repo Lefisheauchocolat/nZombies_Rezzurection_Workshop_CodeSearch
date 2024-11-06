@@ -425,6 +425,9 @@ if CLIENT then
 	CreateClientConVar("nz_key_knife", KEY_V, true, true, "Sets the key that triggers Knife. Uses numbers from gmod's KEY_ enums: http://wiki.garrysmod.com/page/Enums/KEY")
 	CreateClientConVar("nz_key_grenade", KEY_G, true, true, "Sets the key that throws Grenades. Uses numbers from gmod's KEY_ enums: http://wiki.garrysmod.com/page/Enums/KEY")
 	CreateClientConVar("nz_key_specialgrenade", KEY_B, true, true, "Sets the key that throws Special Grenades. Uses numbers from gmod's KEY_ enums: http://wiki.garrysmod.com/page/Enums/KEY")
+	CreateClientConVar("nz_key_shield", KEY_N, true, true, "Sets the key to pull out shield. Uses numbers from gmod's KEY_ enums: http://wiki.garrysmod.com/page/Enums/KEY")
+	CreateClientConVar("nz_key_trap", KEY_T, true, true, "Sets the key to pull out traps / equipment. Uses numbers from gmod's KEY_ enums: http://wiki.garrysmod.com/page/Enums/KEY")
+	CreateClientConVar("nz_key_specialist", KEY_X, true, true, "Sets the key to pull out specialist. Uses numbers from gmod's KEY_ enums: http://wiki.garrysmod.com/page/Enums/KEY")
 
 	local defaultkeys = nzSpecialWeapons.Keys
 
@@ -467,13 +470,54 @@ if CLIENT then
 
 	hook.Add("HUDWeaponPickedUp", "nzSpecialWeaponAddClient", function(wep)
 		local ply = LocalPlayer()
-		local id = IsValid(wep) and wep:IsSpecial() and wep:GetSpecialCategory()
+		local id = IsValid(wep) and wep.NZSpecialCategory
 		if !ply.NZSpecialWeapons then ply.NZSpecialWeapons = {} end
 		if id and !IsValid(ply.NZSpecialWeapons[id]) then
 			if ply:HasUpgrade("mulekick") and !wep.NZNoMaxAmmo and wep.NZSpecialWeaponData and wep.NZSpecialWeaponData.MaxAmmo then
 				wep.NZSpecialWeaponData.MaxAmmo = wep.NZSpecialWeaponData.MaxAmmo + 1
 			end
 			ply.NZSpecialWeapons[id] = wep
+		end
+	end)
+end
+
+if SERVER then
+	hook.Add("EntityRemoved", "nzSpecialWeaponFix", function(wep, fullUpdate)
+		if ( fullUpdate ) then return end
+
+		if not IsValid(wep) or not wep.NZSpecialCategory then return end
+
+		local id = wep.NZSpecialCategory
+		local ply = wep:GetOwner()
+		if not IsValid(ply) or not ply:IsPlayer() then return end
+
+		if !ply.NZSpecialWeapons or !ply.NZSpecialWeapons[id] then return end
+		if ply.NZSpecialWeapons[id] then
+			if id == "specialgrenade" and !wep.IgnoreDroppedAmmoReset then
+				ply:SetAmmo(0, GetNZAmmoID("specialgrenade"))
+			end
+			if id == "grenade" and !wep.IgnoreDroppedAmmoReset then
+				ply:SetAmmo(0, GetNZAmmoID("grenade"))
+			end
+			ply.NZSpecialWeapons[id] = nil
+			nzSpecialWeapons:SendSpecialWeaponRemoved(ply, id)
+		end
+	end)
+
+	hook.Add("PlayerDroppedWeapon", "nzSpecialWeaponFix", function(ply, wep)
+		if not IsValid(wep) or not wep.NZSpecialCategory then return end
+
+		local id = wep.NZSpecialCategory
+		if !ply.NZSpecialWeapons or !ply.NZSpecialWeapons[id] then return end
+		if ply.NZSpecialWeapons[id] then
+			if id == "specialgrenade" and !wep.IgnoreDroppedAmmoReset then
+				ply:SetAmmo(0, GetNZAmmoID("specialgrenade"))
+			end
+			if id == "grenade" and !wep.IgnoreDroppedAmmoReset then
+				ply:SetAmmo(0, GetNZAmmoID("grenade"))
+			end
+			ply.NZSpecialWeapons[id] = nil
+			nzSpecialWeapons:SendSpecialWeaponRemoved(ply, id)
 		end
 	end)
 end

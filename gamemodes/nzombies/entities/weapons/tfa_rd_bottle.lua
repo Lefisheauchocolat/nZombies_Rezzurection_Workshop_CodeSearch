@@ -14,7 +14,7 @@ SWEP.AutoSwitchFrom = false
 SWEP.DrawAmmo = false
 
 --[Model]--
-SWEP.ViewModel = "models/nz/perks/vm_rd_bottle.mdl"
+SWEP.ViewModel = "models/nzr/2024/perks/bo3/rainy_death/vm_rd_bottle.mdl"
 SWEP.ViewModelFOV = 60
 SWEP.WorldModel = "models/nzr/2022/perks/w_perk_bottle.mdl"
 SWEP.HoldType = "slam"
@@ -134,31 +134,36 @@ function SWEP:SetupDataTables(...)
 end
 
 function SWEP:PreDrawViewModel(...)
-	if self:VMIV() and self.GetPerk then
-		self.Skin = tonumber(nzPerks:Get(self:GetPerk()).material)
+	local vm = self.OwnerViewModel
+
+	local perk = self.GetPerk and self:GetPerk() or ""
+	if perk and perk ~= "" then
+		local mattable = nzPerks:GetBottleTextures(self:GetClass())
+		if mattable then
+			for id, mat in pairs(mattable) do
+				vm:SetSubMaterial(id, mat..perk)
+			end
+		end
 	end
 
 	return BaseClass.PreDrawViewModel(self, ...)
 end
 
-function SWEP:Think2(...)
-	if IsFirstTimePredicted() and self.GetPerk and self:GetPerk() ~= "" and self.Skin ~= nzPerks:Get(self:GetPerk()).material then
-		self.Skin = tonumber(nzPerks:Get(self:GetPerk()).material)
-		self:ClearStatCache("Skin")
-
-		if SERVER and IsValid(self:GetOwner()) then
-			local fx = EffectData()
-			fx:SetEntity(self)
-			fx:SetFlags(nzPerks:Get(self:GetPerk()).material)
-
-			local filter = RecipientFilter()
-			filter:AddPVS(self:GetOwner():GetShootPos())
-			if filter:GetCount() > 0 then
-				util.Effect("tfa_perkbottle_3p_fix", fx, true, filter)
+function SWEP:DrawWorldModel(...)
+	local perk = self.GetPerk and self:GetPerk() or ""
+	if perk and perk ~= "" then
+		local mattable = nzPerks:GetBottleTextures(self:GetClass())
+		if mattable then
+			for id, mat in pairs(mattable) do
+				self:SetSubMaterial(id, mat..perk)
 			end
 		end
 	end
 
+	return BaseClass.DrawWorldModel(self, ...)
+end
+
+function SWEP:Think2(...)
 	if SERVER then
 		local stat = self:GetStatus()
 		local statusend = CurTime() >= self:GetStatusEnd()

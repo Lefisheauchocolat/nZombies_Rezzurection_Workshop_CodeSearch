@@ -85,23 +85,34 @@ end
 
 local nz_bo3slide = GetConVar("nz_difficulty_slide_jumping")
 local nz_bo4slide = GetConVar("nz_difficulty_slide_stamina")
-local slidepunch = Angle(-1, 0, -2.5)
+local slidepunch = Angle(-2, 0, -2.5)
 local trace_down = Vector(0, 0, 32)
 local trace_up = Vector(0, 0, 32)
 local trace_tbl = {}
 local next_banana = 0
 
-local function SlideSurfaceSound(ply, pos)
+local function SlideSurfaceSound(ply, pos, filter)
 	trace_tbl.start = pos
 	trace_tbl.endpos = pos - trace_down
 	trace_tbl.filter = ply
 	local tr = util.TraceLine(trace_tbl)
 	local sndtable = slide_sounds[tr.MatType] or slide_sounds[0]
-	ply:EmitSound(sndtable[math.random(#sndtable)], 75, math.random(97,103))
+	local finalsnd = sndtable[math.random(#sndtable)]
+
+	if filter then
+		local receipts = RecipientFilter()
+		receipts:AddPAS(ply:GetPos())
+		receipts:RemovePlayer(ply)
+
+		ply:EmitSound(finalsnd, 75, math.random(97,103), 1, CHAN_STATIC, 0, 0, receipts)
+	else
+		ply:EmitSound(finalsnd, 75, math.random(97,103), 1, CHAN_STATIC)
+	end
 
 	if ply:WaterLevel() > 0 then
 		sndtable = slide_sounds[MAT_SLOSH]
-		ply:EmitSound(sndtable[math.random(#sndtable)])
+		finalsnd = sndtable[math.random(#sndtable)]
+		ply:EmitSound(finalsnd, SNDLVL_IDLE, math.random(97,103), 1, CHAN_STATIC)
 	end
 end
 
@@ -120,14 +131,237 @@ local function PHDExplode(ply, pos)
 	end
 end
 
+if CLIENT then
+	CreateClientConVar("nz_key_slide", KEY_LCONTROL, true, true, "Sets the key for sliding, MUST BE THE SAME AS CROUCH KEY TO WORK. Uses numbers from gmod's KEY_ enums: http://wiki.garrysmod.com/page/Enums/KEY")
+
+	cvars.AddChangeCallback("nz_key_slide", function(name, old, new)
+		if tonumber(new) ~= tonumber(input.GetKeyCode(input.LookupBinding("+duck"))) then
+			local ply = LocalPlayer()
+			if IsValid(ply) then
+				ply:ChatPrint("[NZ] Slide key must be set to the same key as crouching to function!")
+			end
+		end
+	end)
+end
+
+hook.Add("PlayerButtonDown", "nzslide.button", function(ply, but)
+	if but ~= ply:GetInfoNum("nz_key_slide", KEY_LCONTROL) then return end
+
+	local cansliding = nzMapping.Settings.movement
+	if cansliding and (cansliding == 1 or cansliding > 2) then
+		local flopper = ply:HasPerk("phd")
+		local bananad = ply:HasPerk("banana")
+		local blackops3 = nz_bo3slide:GetBool() or nzMapping.Settings.slidejump
+		local blackops4 = nz_bo4slide:GetBool()
+
+		local speed = ply:GetVelocity():Length()
+		local runspeed = ply:GetMaxRunSpeed() or ply:GetRunSpeed()
+		local slidetime = math.max(0.1, nzMapping.Settings.slideduration) * ((bananad and ply:GetNW2Int("nz.BananaCount", 0) > 0) and 1.2 or 1)
+
+		local sliding = ply:GetSliding()
+		local sprinting = ply:KeyDown(IN_SPEED)
+		local onground = ply:OnGround()
+
+		local CT = CurTime()
+
+		if (!ply.SlidingCooldown or ply.SlidingCooldown < CT) and sprinting and onground and not sliding and speed > runspeed * 0.5 then
+			if blackops4 then
+				local mult = math.Remap(math.Clamp(1 - ply:GetSlidingStamina(), 0, 1), 0, 0.5, 0.4, 1)
+				if !ply.nz_lastslide or ply.nz_lastslide + (2.2 * mult) < CurTime() then
+					ply:SetSlidingStamina(1)
+				end
+			end
+
+			if not ply.SlidingDuckSpeed then
+				ply.SlidingDuckSpeed = ply:GetDuckSpeed()
+				ply.SlidingUnDuckSpeed = ply:GetUnDuckSpeed()
+			end
+
+			ply:SetSliding(true)
+			ply:SetSlidingTime(CT + slidetime * ply:GetSlidingStamina())
+			ply:ViewPunch(slidepunch)
+			ply:SetDuckSpeed(0.2)
+			ply:SetUnDuckSpeed(0.3)
+			ply.SlidingAngle = ply:GetVelocity():Angle()
+			ply.SlidingCooldown = CT + nzMapping.Settings.slidecooldown
+
+			if blackops4 then
+				ply.nz_lastslide = CT
+			end
+
+			if bananad and ply:GetNW2Int("nz.BananaCount", 0) > 0 then
+				if SERVER then
+					ply:SetNW2Float("nz.BananaDelay", CT + 10)
+
+					if !game.SinglePlayer() then
+						local filter = RecipientFilter()
+						filter:AddPAS(ply:GetPos())
+						filter:RemovePlayer(ply)
+
+						ply:EmitSound("nz_moo/effects/banana/slide_squish.wav", 75, math.random(97,103), 1, CHAN_STATIC, 0, 0, filter)
+					end
+				end
+				if IsFirstTimePredicted() and (game.SinglePlayer() or CLIENT) then
+					ply:EmitSound("nz_moo/effects/banana/slide_squish.wav", 75, math.random(97,103), 1, CHAN_STATIC)
+				end
+			elseif flopper then
+				if SERVER and !game.SinglePlayer() then
+					local filter = RecipientFilter()
+					filter:AddPAS(ply:GetPos())
+					filter:RemovePlayer(ply)
+
+					ply:EmitSound("nz_moo/effects/ignite_00.wav", 75, math.random(97,103), 1, CHAN_STATIC, 0, 0, filter)
+
+					filter:RemoveAllPlayers()
+					filter:AddPVS(ply:GetPos())
+					filter:RemovePlayer(ply)
+
+					local fx = EffectData()
+					fx:SetEntity(ply)
+					fx:SetScale(slidetime * ply:GetSlidingStamina())
+					util.Effect("nz_phd_slide", fx, filter)
+				end
+				if IsFirstTimePredicted() and (game.SinglePlayer() or CLIENT) then
+					local fx = EffectData()
+					fx:SetEntity(ply)
+					fx:SetScale(slidetime * ply:GetSlidingStamina())
+					util.Effect("nz_phd_slide", fx)
+
+					ply:EmitSound("nz_moo/effects/ignite_00.wav", 75, math.random(97,103), 1, CHAN_STATIC)
+				end
+			end
+
+			if SERVER and !game.SinglePlayer() then
+				local pos = ply:GetPos()
+				SlideSurfaceSound(ply, pos, true)
+			end
+			if IsFirstTimePredicted() and (game.SinglePlayer() or CLIENT) then
+				local pos = ply:GetPos()
+				SlideSurfaceSound(ply, pos)
+			end
+
+			if SERVER then
+				if game.SinglePlayer() then
+					net.Start("nz_sliding_spfix")
+					net.Send(ply)
+				end
+			elseif VManip then
+				VManip:PlayAnim("vault")
+			end
+		end
+	end
+end)
+
+hook.Add("OnPlayerHitGround", "nzslide.bo3", function(ply, inWater, onFloater, speed)
+	local cansliding = nzMapping.Settings.movement
+	if cansliding and (cansliding == 1 or cansliding > 2) and !ply:GetDiving() then
+		local sliding = ply:GetSliding()
+		local crouching = ply:KeyDown(IN_DUCK)
+
+		local flopper = ply:HasPerk("phd")
+		local bananad = ply:HasPerk("banana")
+		local blackops3 = nz_bo3slide:GetBool() or nzMapping.Settings.slidejump
+		local blackops4 = nz_bo4slide:GetBool()
+
+		local CT = CurTime()
+
+		local vel = ply:GetVelocity()
+		vel = Vector(vel[1],vel[2],0):Length()
+		local runspeed = ply:GetMaxRunSpeed() or ply:GetRunSpeed()
+
+		if (!ply.SlidingCooldown or ply.SlidingCooldown < CT) and not sliding and crouching and blackops3 and vel > runspeed*0.75 then
+			local slidetime = math.max(0.1, nzMapping.Settings.slideduration) * ((bananad and ply:GetNW2Int("nz.BananaCount", 0) > 0) and 1.2 or 1)
+
+			if blackops4 then
+				local mult = math.Remap(math.Clamp(1 - ply:GetSlidingStamina(), 0, 1), 0, 0.5, 0.4, 1)
+				if !ply.nz_lastslide or ply.nz_lastslide + (2.2 * mult) < CurTime() then
+					ply:SetSlidingStamina(1)
+				end
+			end
+
+			if not ply.SlidingDuckSpeed then
+				ply.SlidingDuckSpeed = ply:GetDuckSpeed()
+				ply.SlidingUnDuckSpeed = ply:GetUnDuckSpeed()
+			end
+
+			ply:SetSliding(true)
+			ply:SetSlidingTime(CT + slidetime * ply:GetSlidingStamina())
+			ply:ViewPunch(slidepunch)
+			ply:SetDuckSpeed(0.2)
+			ply:SetUnDuckSpeed(0.3)
+			ply.SlidingAngle = ply:GetVelocity():Angle()
+			ply.SlidingCooldown = CT + nzMapping.Settings.slidecooldown
+
+			if blackops4 then
+				ply.nz_lastslide = CT
+			end
+
+			if bananad and ply:GetNW2Int("nz.BananaCount", 0) > 0 then
+				if SERVER then
+					ply:SetNW2Float("nz.BananaDelay", CT + 10)
+
+					if !game.SinglePlayer() then
+						local filter = RecipientFilter()
+						filter:AddPAS(ply:GetPos())
+						filter:RemovePlayer(ply)
+
+						ply:EmitSound("nz_moo/effects/banana/slide_squish.wav", 75, math.random(97,103), 1, CHAN_STATIC, 0, 0, filter)
+					end
+				end
+				if IsFirstTimePredicted() and (game.SinglePlayer() or CLIENT) then
+					ply:EmitSound("nz_moo/effects/banana/slide_squish.wav", 75, math.random(97,103), 1, CHAN_STATIC)
+				end
+			elseif flopper then
+				if SERVER and !game.SinglePlayer() then
+					local filter = RecipientFilter()
+					filter:AddPAS(ply:GetPos())
+					filter:RemovePlayer(ply)
+
+					ply:EmitSound("nz_moo/effects/ignite_00.wav", 75, math.random(97,103), 1, CHAN_STATIC, 0, 0, filter)
+
+					filter:RemoveAllPlayers()
+					filter:AddPVS(ply:GetPos())
+					filter:RemovePlayer(ply)
+
+					local fx = EffectData()
+					fx:SetEntity(ply)
+					fx:SetScale(slidetime * ply:GetSlidingStamina())
+					util.Effect("nz_phd_slide", fx, filter)
+				end
+				if IsFirstTimePredicted() and (game.SinglePlayer() or CLIENT) then
+					local fx = EffectData()
+					fx:SetEntity(ply)
+					fx:SetScale(slidetime * ply:GetSlidingStamina())
+					util.Effect("nz_phd_slide", fx)
+
+					ply:EmitSound("nz_moo/effects/ignite_00.wav", 75, math.random(97,103), 1, CHAN_STATIC)
+				end
+			end
+
+			if SERVER and !game.SinglePlayer() then
+				local pos = ply:GetPos()
+				SlideSurfaceSound(ply, pos, true)
+			end
+			if IsFirstTimePredicted() and (game.SinglePlayer() or CLIENT) then
+				local pos = ply:GetPos()
+				SlideSurfaceSound(ply, pos)
+			end
+
+			if SERVER then
+				if game.SinglePlayer() then
+					net.Start("nz_sliding_spfix")
+					net.Send(ply)
+				end
+			elseif VManip then
+				VManip:PlayAnim("vault")
+			end
+		end
+	end
+end)
+
 hook.Add("SetupMove", "nzslide", function(ply, mv, cmd)
 	local cansliding = nzMapping.Settings.movement
 	if cansliding and (cansliding == 1 or cansliding > 2) then
-		if not ply.OldDuckSpeed then
-			ply.OldDuckSpeed = ply:GetDuckSpeed()
-			ply.OldUnDuckSpeed = ply:GetUnDuckSpeed()
-		end
-
 		local flopper = ply:HasPerk("phd")
 		local bananad = ply:HasPerk("banana")
 		local blackops3 = nz_bo3slide:GetBool() or nzMapping.Settings.slidejump
@@ -143,71 +377,27 @@ hook.Add("SetupMove", "nzslide", function(ply, mv, cmd)
 		local crouching = ply:Crouching()
 		local sprinting = mv:KeyDown(IN_SPEED)
 		local onground = ply:OnGround()
-
 		local CT = CurTime()
 
-		if (!ply.SlidingCooldown or ply.SlidingCooldown < CT) and
-		ducking and sprinting and onground and not sliding and (!blackops3 and not crouching or blackops3) and speed > runspeed * 0.5 then
-			if blackops4 then
-				local mult = math.Remap(math.Clamp(1 - ply:GetSlidingStamina(), 0, 1), 0, 0.5, 0.4, 1)
-				if !ply.nz_lastslide or ply.nz_lastslide + (2.2 * mult) < CurTime() then
-					ply:SetSlidingStamina(1)
-				end
-			end
-
-			ply:SetSliding(true)
-			ply:SetSlidingTime(CT + slidetime * ply:GetSlidingStamina())
-			ply:ViewPunch(slidepunch)
-			ply:SetDuckSpeed(0.2)
-			ply:SetUnDuckSpeed(0.3)
-			ply.SlidingAngle = mv:GetVelocity():Angle()
-			ply.SlidingCooldown = CT + nzMapping.Settings.slidecooldown
-
-			if blackops4 then
-				ply.nz_lastslide = CT
-			end
-
-			if bananad and ply:GetNW2Int("nz.BananaCount", 0) > 0 then
-				if SERVER then
-					ply:SetNW2Float("nz.BananaDelay", CT + 10)
-					ply:EmitSound("nz_moo/effects/banana/slide_squish.wav", 75, math.random(97,103), 1, CHAN_STATIC)
-				end
-			elseif flopper then
-				local fx = EffectData()
-				fx:SetEntity(ply)
-				fx:SetScale(slidetime * ply:GetSlidingStamina())
-				util.Effect("nz_phd_slide", fx)
-
-				if SERVER then
-					ply:EmitSound("nz_moo/effects/ignite_00.wav", 75, math.random(97,103), 1, CHAN_STATIC)
-				end
-			end
-
-			if SERVER then
-				local pos = mv:GetOrigin()
-				SlideSurfaceSound(ply, pos)
-
-				if game.SinglePlayer() then
-					net.Start("nz_sliding_spfix")
-					net.Send(ply)
-				end
-			elseif VManip then
-				VManip:PlayAnim("vault")
-			end
-		elseif (not ducking or not onground) and sliding then
-			if bananad then
+		if IsFirstTimePredicted() and sliding and (not ducking or not onground) then
+			if SERVER and bananad then
 				ply:SetNW2Int("nz.BananaCount", math.max(ply:GetNW2Int("nz.BananaCount", 0) - 1, 0))
 			end
 			if blackops4 then
 				ply:SetSlidingStamina(ply:GetSlidingStamina() - 0.1)
 			end
+
 			ply:SetSliding(false)
 			ply:SetSlidingTime(0)
+
+			if CLIENT and ply.PHDSliderFX and IsValid(ply.PHDSliderFX) then
+				ply.PHDSliderFX.FuckOff = true
+			end
 		end
 
 		sliding = ply:GetSliding()
 
-		if sliding and mv:KeyDown(IN_DUCK) then
+		if sliding and ducking then
 			local slidedelta = (ply:GetSlidingTime() - CT) / slidetime
 			local speed = ((runspeed) * math.min(1, ((ply:GetSlidingTime() - CT + 0.4) / slidetime)) * (1 / engine.TickInterval()) * engine.TickInterval()) * (speedmult * math.Remap(ply:GetSlidingStamina(), 0.5, 1, 0.7, 1))
 			mv:SetVelocity(ply.SlidingAngle:Forward() * speed)
@@ -225,7 +415,13 @@ hook.Add("SetupMove", "nzslide", function(ply, mv, cmd)
 
 			if flopper and ply:GetNW2Float("nz.PHDDelay", 0) < CurTime() then
 				for k, v in pairs(ents.FindInSphere(pos, 32)) do
-					if (v:IsNPC() or v:IsNextBot()) and v:Health() > 0 then
+					local tr = util.TraceLine({
+						start = ply:EyePos(),
+						endpos = v:EyePos(),
+						mask = MASK_SOLID_BRUSHONLY,
+					})
+
+					if (v:IsNPC() or v:IsNextBot()) and v:Health() > 0 and !tr.HitWorld then
 						ply:SetNW2Float("nz.PHDDelay", CurTime() + 7)
 						PHDExplode(ply, pos)
 						break
@@ -243,19 +439,22 @@ hook.Add("SetupMove", "nzslide", function(ply, mv, cmd)
 					slip:Spawn()
 				end
 
-				ParticleEffect("nz_perks_banana_impact", pos + vector_up + (mv:GetVelocity():GetNormalized()*24), vector_up:Angle())
+				if IsFirstTimePredicted() then
+					ParticleEffect("nz_perks_banana_impact", pos + vector_up + (mv:GetVelocity():GetNormalized()*24), vector_up:Angle())
+				end
 				next_banana = CurTime() + 0.075
 			end
 
 			ply.SlidingLastPos = pos
 
 			if CT > ply:GetSlidingTime() then
-				if bananad then
+				if SERVER and bananad then
 					ply:SetNW2Int("nz.BananaCount", math.max(ply:GetNW2Int("nz.BananaCount", 0) - 1, 0))
 				end
 				if blackops4 then
 					ply:SetSlidingStamina(ply:GetSlidingStamina() - 0.1)
 				end
+
 				ply:SetSliding(false)
 				ply:SetSlidingTime(0)
 				ply.SlidingCooldown = CT + nzMapping.Settings.slidecooldown
@@ -264,9 +463,11 @@ hook.Add("SetupMove", "nzslide", function(ply, mv, cmd)
 
 		sliding = ply:GetSliding()
 
-		if not crouching and not sliding then
-			ply:SetDuckSpeed(ply.OldDuckSpeed)
-			ply:SetUnDuckSpeed(ply.OldUnDuckSpeed)
+		if not crouching and not sliding and ply.SlidingDuckSpeed then
+			ply:SetDuckSpeed(ply.SlidingDuckSpeed)
+			ply:SetUnDuckSpeed(ply.SlidingUnDuckSpeed)
+			ply.SlidingDuckSpeed = nil
+			ply.SlidingUnDuckSpeed = nil
 		end
 	end
 end)

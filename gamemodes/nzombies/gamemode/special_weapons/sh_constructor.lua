@@ -7,6 +7,9 @@ nzSpecialWeapons.Keys = nzSpecialWeapons.Keys or {
 	["knife"] = KEY_V,
 	["grenade"] = KEY_G,
 	["specialgrenade"] = KEY_B,
+	["shield"] = KEY_N,
+	["trap"] = KEY_T,
+	["specialist"] = KEY_X,
 }
 
 function nzSpecialWeapons:RegisterSpecialWeaponCategory(id, defaultkey)

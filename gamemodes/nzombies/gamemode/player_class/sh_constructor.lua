@@ -65,19 +65,57 @@ hook.Add("PlayerSpawn", "SetupHands", function(ply)
 end)
 
 hook.Add("OnPlayerHitGround", "nzPlayerHitGround", function(ply, inWater, onFloater, speed)
-	if ply:HasPerk("phd") and speed >= 400 then
-		if IsFirstTimePredicted() then
-			ply:ViewPunch(Angle(10, math.random(-5,5), math.random(-5,5)))
+	if ply:HasPerk("phd") and (speed >= 400 or (ply.DivingGroundZ and ply:GetPos().z <= ply.DivingGroundZ)) then
+		ply.DivingGroundZ = nil
+		/*if speed < 400 and ply:GetDiving() and ply:GetNW2Float("nz.PHDDelay", 0) > CurTime() then
+			return
+		end*/
 
-			ParticleEffect("nz_perks_phd", ply:GetPos() + vector_up*4, angle_zero)
+		local mult = math.Clamp(math.floor(speed/400), 1, 3)
+
+		local maxpunch = 2*mult
+		ply:ViewPunch(Angle(3.5*mult, math.random(-maxpunch,maxpunch), math.random(-maxpunch,maxpunch)))
+
+		//only for our self (clientside in multiplayer)
+		if IsFirstTimePredicted() and (game.SinglePlayer() or CLIENT) then
+			local fx = EffectData()
+			fx:SetOrigin(ply:GetPos() + vector_up*4)
+			fx:SetAngles(angle_zero)
+			util.Effect("nz_phd_flop", fx)
+
 			ply:EmitSound("NZ.PHD.Wubz")
 			ply:EmitSound("NZ.PHD.Impact")
+
+			util.ScreenShake(ply:GetPos(), 10*mult, 5, math.max(1*mult, 1.2), 200*mult)
 		end
 
 		if SERVER then
-			local mult = math.min(math.floor(speed/400), 3)
+			/*if speed < 400 and ply:GetDiving() then
+				ply:SetNW2Float("nz.PHDDelay", CurTime() + 2)
+			end*/
+
+			//network to other clients in multiplayer
+			if !game.SinglePlayer() then
+				local filter = RecipientFilter()
+				filter:AddPAS(ply:GetPos())
+				filter:RemovePlayer(ply)
+
+				ply:EmitSound("NZ.PHD.Wubz", SNDLVL_GUNFIRE, math.random(97,103), 1, CHAN_USER_BASE, 0, 0, filter)
+				ply:EmitSound("NZ.PHD.Impact", SNDLVL_NORM, math.random(97,103), 1, CHAN_VOICE_BASE, 0, 0, filter)
+
+				filter:RemoveAllPlayers()
+				filter:AddPVS(ply:GetPos())
+				filter:RemovePlayer(ply)
+
+				local fx = EffectData()
+				fx:SetOrigin(ply:GetPos() + vector_up*4)
+				fx:SetAngles(angle_zero)
+				util.Effect("nz_phd_flop", fx, filter)
+
+				util.ScreenShake(ply:GetPos(), 10*mult, 5, math.max(1*mult, 1.2), 200*mult, true, filter)
+			end
+
 			util.BlastDamage(ply:GetActiveWeapon(), ply, ply:GetPos(), 150*mult, 4000*mult)
-			util.ScreenShake(ply:GetPos(), 10*mult, 5, 1.5, 200*mult)
 		end
 	end
 end)

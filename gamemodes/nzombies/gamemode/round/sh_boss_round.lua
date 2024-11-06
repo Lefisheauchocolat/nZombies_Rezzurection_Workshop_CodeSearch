@@ -412,12 +412,33 @@ nzRound:AddBossType("Krasny Soldat", "nz_zombie_boss_krasny", {
         end
     end,
 })
-nzRound:AddBossType("Mangler Juggernaut", "nz_zombie_boss_raz_juggernaut", {
+nzRound:AddBossType("Mangler(BO6)", "nz_zombie_boss_raz_t10", {
 	specialspawn = false,
 	health = 3500,
 	scale = 1,
 	dmgmul = 1,
-	amountatonce = 2,
+	amountatonce = 1,
+	initalrnd = 12,
+	intermission = 3,
+	perplayer = 1,
+	maxperrnd = 4,
+	initfunc = function()
+	end,
+	spawnfunc = function(self)
+		BroadcastLua("surface.PlaySound('nz_moo/zombies/vox/_raz/_t9/spawn.mp3')")
+	end,
+	deathfunc = function(self, killer, dmginfo, hitgroup)
+		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+			attacker:GivePoints(150) -- Give killer 500 points if not downed
+		end
+	end,
+})
+nzRound:AddBossType("Mangler(MWZ)", "nz_zombie_boss_raz_jup", {
+	specialspawn = false,
+	health = 3500,
+	scale = 1,
+	dmgmul = 1,
+	amountatonce = 1,
 	initalrnd = 12,
 	intermission = 3,
 	perplayer = 1,
@@ -438,9 +459,9 @@ nzRound:AddBossType("Mangler", "nz_zombie_boss_raz", {
 	health = 3500,
 	scale = 1,
 	dmgmul = 1,
-	amountatonce = 2,
+	amountatonce = 1,
 	initalrnd = 12,
-	intermission = 2,
+	intermission = 3,
 	perplayer = 2,
 	maxperrnd = 6,
 	initfunc = function()

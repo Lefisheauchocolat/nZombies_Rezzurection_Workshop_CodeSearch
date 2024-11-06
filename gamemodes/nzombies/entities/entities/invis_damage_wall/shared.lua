@@ -15,6 +15,7 @@ function ENT:SetupDataTables()
 	self:NetworkVar("Int", 0, "DamageWallType")
 	self:NetworkVar("Int", 1, "Damage")
 	self:NetworkVar("Float", 0, "Delay")
+	self:NetworkVar("Bool", 0, "RespawnZombie")
 end
 
 function ENT:Initialize()
@@ -29,6 +30,7 @@ function ENT:Initialize()
 	
 	if SERVER then
 		self.PlayersInside = {}
+		self.ZombiesInside = {}
 	else
 		self.NextPoisonCloud = 0
 	end
@@ -37,8 +39,11 @@ function ENT:Initialize()
 end
 
 function ENT:StartTouch(ent)
-	if ent:IsPlayer() and ent:GetNotDowned() and !table.HasValue(self.PlayersInside, ent) then
+	if ent:IsPlayer() and !table.HasValue(self.PlayersInside, ent) then
 		table.insert(self.PlayersInside, ent)
+	end
+	if ent:IsValidZombie() and ent:Alive() and !table.HasValue(self.ZombiesInside, ent) then
+		table.insert(self.ZombiesInside, ent)
 	end
 end
 
@@ -49,6 +54,9 @@ end
 function ENT:EndTouch(ent)
 	if table.HasValue(self.PlayersInside, ent) then
 		table.RemoveByValue(self.PlayersInside, ent)
+	end
+	if table.HasValue(self.ZombiesInside, ent) then
+		table.RemoveByValue(self.ZombiesInside, ent)
 	end
 end
 
@@ -82,39 +90,43 @@ function ENT:Think()
 		local dmg = DamageInfo()
 		dmg:SetDamage(self:GetDamage())
 		dmg:SetAttacker(self)
-		dmg:SetDamageType(self.DamageWallEnums[self:GetDamageWallType()]) -- DMG_RADIATION was causing damage walls to no longer hurt players... Moo did some funnies and broke it?
+		dmg:SetDamageType(self.DamageWallEnums[self:GetDamageWallType()])
 
 		for k, v in ipairs(self.PlayersInside) do
-			if !IsValid(v) or !v:GetNotDowned() then
+			if !IsValid(v) then self.PlayersInside[k] = nil continue end
+
+			if self:GetWarp() then
+				self:WarpPlayer(v)
+			elseif self:GetTesla() and v:GetNotDowned() then
+				v:EmitSound("weapons/physcannon/superphys_small_zap" .. math.random(1,4) .. ".wav", SNDLVL_NORM, math.random(97,103), 1, CHAN_STATIC)
+			elseif self:GetRadiation() and v:GetNotDowned() then
+				v:EmitSound("player/geiger"..math.random(1,3)..".wav", SNDLVL_NORM, math.random(97,103), 1, CHAN_STATIC)
+			end
+
+			if !v:GetNotDowned() then continue end
+
+			local data = self:GetTouchTrace()
+			local tr = util.TraceLine({
+				start = data.HitPos,
+				endpos = v:EyePos(),
+				mask = MASK_SHOT_HULL,
+				filter = {self},
+			})
+
+			dmg:SetDamagePosition(tr.Entity == v and tr.HitPos or v:WorldSpaceCenter())
+			dmg:SetReportedPosition(data.HitPos)
+
+			v:TakeDamageInfo(dmg)
+		end
+
+		for k, v in ipairs(self.ZombiesInside) do
+			if !IsValid(v) then self.ZombiesInside[k] = nil continue end
+
+			if !v:Alive() then
 				self:EndTouch(v)
 			else
-				local data = self:GetTouchTrace()
-				local tr = util.TraceLine({
-					start = data.HitPos,
-					endpos = v:EyePos(),
-					mask = MASK_SHOT_HULL,
-					filter = {self},
-				})
-
-				dmg:SetDamagePosition(tr.HitPos)
-				dmg:SetReportedPosition(data.HitPos)
-				v:TakeDamageInfo(dmg)
-
-				if self:GetWarp() then
-					self:WarpPlayer(v)
-				elseif self:GetTesla() then
-					if !v.LightningAura or v.LightningAura < ct then
-						local e = EffectData()
-						e:SetMagnitude(1.1)
-						e:SetScale(1.5)
-						e:SetEntity(v)
-						util.Effect("lightning_aura", e, false, true)
-					end
-					v.LightningAura = ct + 1
-
-					v:EmitSound("weapons/physcannon/superphys_small_zap" .. math.random(1,4) .. ".wav", SNDLVL_NORM, math.random(97,103), 1, CHAN_STATIC)
-				elseif self:GetRadiation() then
-					v:EmitSound("player/geiger"..math.random(1,3)..".wav", SNDLVL_NORM, math.random(97,103), 1, CHAN_STATIC)
+				if self:GetRespawnZombie() then
+					v:RespawnZombie(false)
 				end
 			end
 		end

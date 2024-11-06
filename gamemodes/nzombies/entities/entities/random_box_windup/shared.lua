@@ -41,6 +41,47 @@ function ENT:Initialize()
 	
 	self.WindingTime = CurTime() + self.WindupTime
 	
+	self.TeddyModels = {
+		["Original"] = {
+			MDL = {"models/moo/_codz_ports_props/t6/global/zombie_teddybear/moo_codz_p6_teddybear.mdl"},
+			ANGLE = Angle(-90,90,0)
+		},
+		["Nacht Der Untoten"] = {
+			MDL = {"models/moo/_codz_ports_props/t6/global/zombie_teddybear/moo_codz_p6_teddybear.mdl"},
+			ANGLE = Angle(-90,90,0)
+		},
+		["Verruckt"] = {
+			MDL = {"models/moo/_codz_ports_props/t6/global/zombie_teddybear/moo_codz_p6_teddybear.mdl"},
+			ANGLE = Angle(-90,90,0)
+		},
+		["UGX Coffin"] = {
+			MDL = {"models/moo/_codz_ports_props/t6/global/zombie_teddybear/moo_codz_p6_teddybear.mdl"},
+			ANGLE = Angle(-90,90,0)
+		},
+		["Mob of the Dead"] = {
+			MDL = {"models/moo/_codz_ports_props/t6/global/zombie_teddybear/moo_codz_p6_teddybear.mdl"},
+			ANGLE = Angle(-90,90,0)
+		},
+		["Leviathan"] = {
+			MDL = {"models/moo/_codz_ports_props/t7/_der/p7_zm_teddybear/moo_codz_p7_teddybear.mdl"},
+			ANGLE = Angle(-90,90,0)
+		},
+		["Black Ops 3"] = {
+			MDL = {"models/moo/_codz_ports_props/t7/_der/p7_zm_teddybear/moo_codz_p7_teddybear.mdl"},
+			ANGLE = Angle(-90,0,0)
+		},
+		["Black Ops 3(Quiet Cosmos)"] = {
+			MDL = {"models/moo/_codz_ports_props/t7/_der/p7_zm_teddybear/moo_codz_p7_teddybear.mdl"},
+			ANGLE = Angle(-90,0,0)
+		},
+		["Cold War"] = {
+			MDL = {"models/moo/_codz_ports_props/s4/zm/zod/s4_zm_magic_box_bunny/moo_codz_s4_zm_magic_box_bunny.mdl"},
+			ANGLE = Angle(0,180,0)
+		},
+	}
+
+	--print(self.TeddyModels[nzMapping.Settings.boxtype].ANGLE)
+
 	if !(nzMapping.Settings.boxtype == "UGX Coffin") then
 		self:SetLocalVelocity(self.WindupMovement/self.WindupTime)
 	end
@@ -180,17 +221,11 @@ function ENT:Think()
 			self:SetLocalVelocity(Vector(0,0,0)) -- Stop
 
 			if self:GetWepClass() == "nz_box_teddy" then
-				local angle = self.Box:GetAngles() + Angle(-90,90,0)
-				if (nzMapping.Settings.boxtype == "Black Ops 3") or (nzMapping.Settings.boxtype) == "Black Ops 3(Quiet Cosmos)" then
-					self:SetModel("models/moo/_codz_ports_props/t7/_der/p7_zm_teddybear/moo_codz_p7_teddybear.mdl")
-					angle = self.Box:GetAngles() + Angle(-90,0,0)
-				elseif (nzMapping.Settings.boxtype == "Leviathan") then
-					self:SetModel("models/moo/_codz_ports_props/t7/_der/p7_zm_teddybear/moo_codz_p7_teddybear.mdl")
-				else
-					self:SetModel("models/moo/_codz_ports_props/t6/global/zombie_teddybear/moo_codz_p6_teddybear.mdl")
-				end
 
-				self:SetAngles( angle )
+				local angle = self.Box:GetAngles() + self.TeddyModels[nzMapping.Settings.boxtype].ANGLE
+
+				self:SetModel(self.TeddyModels[nzMapping.Settings.boxtype].MDL[1])
+				self:SetAngles(angle)
 
 				self.TeddyFlyTime = CurTime() + 2
 				self.RemoveTime = CurTime() + 5

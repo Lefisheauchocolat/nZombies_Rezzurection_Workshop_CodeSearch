@@ -18,7 +18,43 @@ function ENT:SetupDataTables()
 end
 
 function ENT:Draw()
-	nzPerks.VultureDropsTable[self:GetDropType()].draw(self)
+	if not self.GetDropType or self:GetDropType() == "" then
+		return
+	end
+
+	local vulturedata = nzPerks:GetVultureDrop(self:GetDropType())
+	if not vulturedata then
+		return
+	end
+
+	if !vulturedata.nodraw then
+		self:DrawModel()
+	end
+
+	if vulturedata.draw then
+		vulturedata.draw(self)
+	end
+
+	if vulturedata.glow and (!self.loopglow or !IsValid(self.loopglow)) then
+		local colorvec1 = nzMapping.Settings.powerupcol["mini"][1]
+		local colorvec2 = nzMapping.Settings.powerupcol["mini"][2]
+		local colorvec3 = nzMapping.Settings.powerupcol["mini"][3]
+
+		if nzMapping.Settings.powerupstyle then
+			local style = nzPowerUps:GetStyle(nzMapping.Settings.powerupstyle)
+			self.loopglow = CreateParticleSystem(self, style.loop, PATTACH_POINT_FOLLOW, 1)
+			self.loopglow:SetControlPoint(2, colorvec1)
+			self.loopglow:SetControlPoint(3, colorvec2)
+			self.loopglow:SetControlPoint(4, colorvec3)
+			self.loopglow:SetControlPoint(1, Vector(0.65,0.65,0.65))
+		else
+			self.loopglow = CreateParticleSystem(self, "nz_powerup_classic_loop", PATTACH_POINT_FOLLOW, 1)
+			self.loopglow:SetControlPoint(2, colorvec1)
+			self.loopglow:SetControlPoint(3, colorvec2)
+			self.loopglow:SetControlPoint(4, colorvec3)
+			self.loopglow:SetControlPoint(1, Vector(0.65,0.65,0.65))
+		end
+	end
 end
 
 function ENT:Initialize()
@@ -26,17 +62,37 @@ function ENT:Initialize()
 		SafeRemoveEntityDelayed(self, 60)
 		if self:GetDropType() == "" then
 			local chances = {}
-			for id, data in pairs(nzPerks.VultureDropsTable) do
+			local vulturelist = nzMapping.Settings.vulturelist
+			for id, data in pairs(nzPerks.VultureData) do
+				if data.condition and !data.condition(self:GetPos()) then
+					continue
+				end
+				if vulturelist and !vulturelist[id][1] then
+					continue
+				end
 				chances[id] = data.chance
 			end
-			self:SetDropType(nzMisc.WeightedRandom(chances))
+
+			if table.IsEmpty(chances) then
+				self:SetNoDraw(true)
+				SafeRemoveEntityDelayed(self, 0)
+				return
+			else
+				self:SetDropType(nzMisc.WeightedRandom(chances))
+			end
 		end
 	end
 
-	local vulturedata = nzPerks.VultureDropsTable[self:GetDropType()]
+	local vulturedata = nzPerks:GetVultureDrop(self:GetDropType())
+	if not vulturedata then
+		self:SetNoDraw(true)
+		SafeRemoveEntityDelayed(self, 0)
+		return
+	end
 
 	self:SetModel(vulturedata.model)
 	self:SetMaterial("models/weapons/powerups/mtl_x2icon_gold")
+	self:EmitSound(vulturedata.dropsound or "nz_moo/powerups/vulture/vulture_drop.mp3", SNDLVL_NORM, math.random(97,103), 1, CHAN_WEAPON)
 
 	self:PhysicsInit(SOLID_NONE)
 	self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
@@ -49,7 +105,25 @@ function ENT:Initialize()
 	self:SetBlinking(false)
 	self.NextDraw = CurTime()
 
-	vulturedata.initialize(self)
+	if CLIENT and vulturedata.lamp then
+		local lamp = ProjectedTexture()
+		self.lamp = lamp
+
+		lamp:SetTexture( "effects/flashlight001" )
+		lamp:SetFarZ(42)
+		lamp:SetFOV(math.random(55,70))
+
+		lamp:SetPos(self:GetPos() + vector_up*24)
+		lamp:SetAngles(Angle(90,0,0))
+
+		local cvec = nzMapping.Settings.powerupcol["mini"][1]
+		lamp:SetColor(Color(math.Round(cvec[1]*255),math.Round(cvec[2]*255),math.Round(cvec[3]*255),255))
+		lamp:Update()
+	end
+
+	if vulturedata.initialize then
+		vulturedata.initialize(self)
+	end
 
 	if CLIENT then return end
 	nzPowerUps:PowerupHudSync(self)
@@ -174,6 +248,9 @@ function ENT:FindNearestBarricade(pos)
 end
 
 function ENT:StartTouch(ent)
+	local vulturedata = nzPerks:GetVultureDrop(self:GetDropType())
+	if not vulturedata or not vulturedata.effect then return end
+
 	local fuck = false
 	for _, ply in pairs(player.GetAll()) do
 		if ply:HasUpgrade("vulture") then
@@ -182,14 +259,15 @@ function ENT:StartTouch(ent)
 		end
 	end
 
-	if IsValid(ent) and ent:IsPlayer() and (ent:HasPerk("vulture") or fuck) then
-		if nzPerks.VultureDropsTable[self:GetDropType()].effect(ent) then
-			self:Remove()
-		end
+	if IsValid(ent) and ent:IsPlayer() and (ent:HasPerk("vulture") or fuck) and vulturedata.effect(ent) then
+		self:Remove()
 	end
 end
 
 function ENT:Touch(ent)
+	local vulturedata = nzPerks:GetVultureDrop(self:GetDropType())
+	if not vulturedata or not vulturedata.effect then return end
+
 	local fuck = false
 	for _, ply in pairs(player.GetAll()) do
 		if ply:HasUpgrade("vulture") then
@@ -198,15 +276,14 @@ function ENT:Touch(ent)
 		end
 	end
 
-	if IsValid(ent) and ent:IsPlayer() then
-		if self:GetDropType() == "gas" and (ent:HasPerk("vulture") or fuck) then
-			nzPerks.VultureDropsTable[self:GetDropType()].effect(ent)
-		end
+	if IsValid(ent) and ent:IsPlayer() and vulturedata.touch and (ent:HasPerk("vulture") or fuck) then
+		vulturedata.effect(ent)
 	end
 end
 
 function ENT:Think()
-	if not self:GetBlinking() and self:GetBlinkTime() < CurTime() and nzPerks.VultureDropsTable[self:GetDropType()].blink then
+	local vulturedata = nzPerks:GetVultureDrop(self:GetDropType())
+	if vulturedata.blink and !self:GetBlinking() and self:GetBlinkTime() < CurTime() then
 		self:SetBlinking(true)
 	end
 
@@ -219,8 +296,8 @@ function ENT:Think()
 		self.NextDraw = CurTime() + math.Clamp(1 * final, 0.1, 1)
 	end
 
-	if nzPerks.VultureDropsTable[self:GetDropType()].think then
-		nzPerks.VultureDropsTable[self:GetDropType()].think(self)
+	if vulturedata and vulturedata.think then
+		vulturedata.think(self)
 	end
 
 	if SERVER then
@@ -239,14 +316,27 @@ function ENT:OnRemove()
 	if IsValid(self) then
 		self:StopParticles()
 
-		if nzPerks.VultureDropsTable[self:GetDropType()].onremove then
-			nzPerks.VultureDropsTable[self:GetDropType()].onremove(self)
+		local vulturedata = nzPerks:GetVultureDrop(self:GetDropType())
+		if vulturedata then
+			if vulturedata.onremove then
+				vulturedata.onremove(self)
+			end
+
+			if CLIENT then
+				if vulturedata.glow and (self.loopglow and IsValid(self.loopglow)) then
+					self.loopglow:StopEmission()
+				end
+				if vulturedata.lamp and IsValid(self.lamp) then
+					self.lamp:Remove()
+				end
+			end
 		end
 
 		if SERVER then
 			nzPowerUps:PowerupHudRemove(self)
 
-			if nzPerks.VultureDropsTable[self:GetDropType()].poof then
+			local vulturedata = nzPerks:GetVultureDrop(self:GetDropType())
+			if vulturedata and vulturedata.poof then
 				local fx = EffectData()
 				fx:SetOrigin(self:WorldSpaceCenter()) //position
 				fx:SetAngles(angle_zero) //angle

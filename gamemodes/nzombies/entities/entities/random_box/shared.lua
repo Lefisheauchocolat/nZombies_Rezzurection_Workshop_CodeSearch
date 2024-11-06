@@ -17,7 +17,6 @@ function ENT:SetupDataTables()
 
 	self:NetworkVar("Float", 0, "ActivateTime")
 
-
 	self:NetworkVarNotify("Open", self.OnOpenChanged)
 end
 
@@ -38,7 +37,7 @@ function ENT:Initialize()
 	self:SetActivated(false)
 	self:SetActivateTime(CurTime() + 6)
 	self.Moving = false
-	self.Price = 950
+	self.Price = nzMapping.Settings.rboxprice or 950
 
 	self.ShouldRemoveSelf = false
 
@@ -86,6 +85,10 @@ function ENT:Initialize()
 		end,
 		["Nacht Der Untoten"] = function() 
 			box = "models/nzr/2022/magicbox/bo2/magic_box.mdl"
+			return box
+		end,
+		["Cold War"] = function() 
+			box = "models/moo/_codz_ports_props/s4/zm/zod/s4_zm_magic_box/moo_codz_s4_zm_magic_box.mdl"
 			return box
 		end,
 		["Original"] = function() 
@@ -349,7 +352,7 @@ else
 	function ENT:Draw()
 		self:DrawModel()
 
-		if self:GetOpen() and ((nzMapping.Settings.boxtype == "Black Ops 3") or (nzMapping.Settings.boxtype == "Mob of the Dead") or (nzMapping.Settings.boxtype == "Leviathan") or (nzMapping.Settings.boxtype == "Black Ops 3(Quiet Cosmos)")) then
+		if self:GetOpen() and ((nzMapping.Settings.boxtype == "Black Ops 3") or (nzMapping.Settings.boxtype == "Mob of the Dead") or (nzMapping.Settings.boxtype == "Leviathan") or (nzMapping.Settings.boxtype == "Black Ops 3(Quiet Cosmos)") or (nzMapping.Settings.boxtype == "Cold War")) then
 			self:DrawBoxOpenFill() -- You can override the effect here
 		end
 	end
@@ -369,7 +372,7 @@ else
 		if (nzMapping.Settings.boxtype == "Mob of the Dead") then
 			boxmod = 20
 			angles = self:GetAngles() + Angle(0,90,0)
-		elseif (nzMapping.Settings.boxtype == "Leviathan") then
+		elseif (nzMapping.Settings.boxtype == "Leviathan" or nzMapping.Settings.boxtype == "Cold War") then
 			angles = self:GetAngles() + Angle(0,90,0)
 		end
 
@@ -416,10 +419,14 @@ function ENT:RemoveBeam()
 end
 
 function ENT:CreateOpenEffect()
-	if (nzMapping.Settings.boxtype == "Black Ops 3") or (nzMapping.Settings.boxtype == "Black Ops 3(Quiet Cosmos)") then
+	if (nzMapping.Settings.boxtype == "Black Ops 3") or (nzMapping.Settings.boxtype == "Black Ops 3(Quiet Cosmos)") or (nzMapping.Settings.boxtype == "Cold War") then
 		if CLIENT then
 			local color = nzMapping.Settings.boxlightcolor
-			local p = CreateParticleSystem(self, "mysterybox_roll", PATTACH_ABSORIGIN_FOLLOW)
+			if nzMapping.Settings.boxtype == "Cold War" then
+				p = CreateParticleSystem(self, "mysterybox_roll", PATTACH_POINT_FOLLOW, 1)
+			else
+				p = CreateParticleSystem(self, "mysterybox_roll", PATTACH_ABSORIGIN_FOLLOW)
+			end
 			p:SetControlPoint(2, Vector(color.r/255, color.g/255, color.b/255)) -- Color
 			self.OpenEffect = p
 		end
@@ -427,7 +434,7 @@ function ENT:CreateOpenEffect()
 end
 
 function ENT:RemoveOpenEffect()
-	if (nzMapping.Settings.boxtype == "Black Ops 3") or (nzMapping.Settings.boxtype == "Black Ops 3(Quiet Cosmos)") then
+	if (nzMapping.Settings.boxtype == "Black Ops 3") or (nzMapping.Settings.boxtype == "Black Ops 3(Quiet Cosmos)") or (nzMapping.Settings.boxtype == "Cold War") then
 		if CLIENT then
 			if IsValid(self.OpenEffect) then
 				self.OpenEffect:StopEmission(false, true)

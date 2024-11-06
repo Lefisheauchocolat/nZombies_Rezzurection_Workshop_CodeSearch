@@ -215,11 +215,12 @@ if SERVER then
 		-- Add a special check for FAS weps
 		local price = price or self:GetPrice()
 		local wep = weapons.Get(weapon)
-		self.wop = wep
+
 		local model
 		if !wep then
 			model = "models/weapons/w_crowbar.mdl"
 		else
+			self.wop = wep
 			model = wep.WM or wep.WorldModel
 		end
 
@@ -230,20 +231,22 @@ if SERVER then
 		else
 			self:SetModelScale( 1.5, 0)
 		end
-		
+
 		self.WeaponGive = weapon
 		self.Price = price
 		self:SetWepClass(weapon)
 		self:SetPrice(price)
 		self.upgrade = ""
 		self.upgrade2 = ""
-		if wep.NZPaPReplacement then
+
+		if wep and wep.NZPaPReplacement then
 			self.upgrade = wep.NZPaPReplacement
 			local wep2 = weapons.Get(wep.NZPaPReplacement)
 			if wep2.NZPaPReplacement then
 				self.upgrade2 = wep2.NZPaPReplacement
 			end
 		end
+
 		self.savegun = 0
 	end
 

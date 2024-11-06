@@ -29,6 +29,14 @@ function GetPriorityWeaponSlot(ply)
 	end
 	-- If we didn't return before (all slots taken), check the activeweapon
 	local activewep = ply:GetActiveWeapon()
+	if !IsValid(activewep) then
+		if IsValid(first) and first:GetNWInt("SwitchSlot") > 0 then
+			return first:GetNWInt("SwitchSlot"), first
+		else
+			return 1, first
+		end
+	end
+
 	local id = activewep:GetNWInt("SwitchSlot")
 	-- Only replace it if it has an ID (default is 0)
 	if id > 0 then

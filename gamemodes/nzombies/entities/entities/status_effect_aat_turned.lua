@@ -207,7 +207,7 @@ ENT.Think = function(self)
 
 		if self:GetDance() then
 			if (v:IsNPC() or v:IsNextBot()) and v:Health() > 0 and v ~= p then
-				if nzombies and (v.NZBossType or string.find(v:GetClass(), "zombie_boss")) then continue end
+				if nzombies and (v.NZBossType or v.IsMooBossZombie or v.IsMiniBoss or string.find(v:GetClass(), "zombie_boss")) then continue end
 				if v:IsAATTurned() then continue end
 
 				v:BO3Mystify(0.35)

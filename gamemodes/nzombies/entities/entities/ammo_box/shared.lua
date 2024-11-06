@@ -18,9 +18,10 @@ AddCSLuaFile()
 function ENT:Initialize()
 
 	self:SetModel(  "models/codww2/other/zombielootcrate.mdl" )
-	self:SetMoveType( MOVETYPE_NONE )
+	self:PhysicsInit(SOLID_VPHYSICS)
+	self:SetMoveType( MOVETYPE_VPHYSICS )
 	self:SetSolid( SOLID_VPHYSICS )
-	self:SetCollisionGroup( COLLISION_GROUP_WEAPON )
+	self:SetCollisionGroup( COLLISION_GROUP_WORLD )
 	self.Used = false
 	self:SetSkin(4)
 	self:SetBodygroup(2,1)

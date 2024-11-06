@@ -59,59 +59,75 @@ end
 local cvar_bleedout = GetConVar("nz_downtime")
 local cvar_revive = GetConVar("nz_revivetime")
 local cvar_perkmax = GetConVar("nz_difficulty_perks_max")
+local cvar_respawnonplayers = GetConVar("nz_difficulty_respawn_on_players")
 
 function PLAYER:Spawn()
-    local starting = nzMapping.Settings.startpoints or 500
-    local round = nzRound:GetNumber() > 0 and nzRound:GetNumber() or 1
-    local points = round * starting
+	local starting = nzMapping.Settings.startpoints or 500
+	local round = nzRound:GetNumber() > 0 and nzRound:GetNumber() or 1
+	local points = round * starting
 
-    if not self.Player:CanAfford(starting) then
-        self.Player:SetPoints(points)
-    end
+	if not self.Player:CanAfford(starting) then
+		self.Player:SetPoints(points)
+	end
 
-    local health = nzMapping.Settings.hp
-    self.Player:SetHealth(health or 100)
-    self.Player:SetMaxHealth(health or 100)
+	local health = nzMapping.Settings.hp
+	self.Player:SetHealth(health or 100)
+	self.Player:SetMaxHealth(health or 100)
 
-    self.Player:RemovePerks()
-    self.Player:RemoveUpgrades()
+	self.Player:RemovePerks()
+	self.Player:RemoveUpgrades()
 
-    self.Player:SetTargetPriority(TARGET_PRIORITY_PLAYER)
+	self.Player:SetTargetPriority(TARGET_PRIORITY_PLAYER)
 
 	--Charlotte here, this took 2 fucking hours. I've never been so happy to have something done >:3
-    local spawns = ents.FindByClass("player_spawns")
-    local availableSpawns = {}
+	local spawns = ents.FindByClass("player_spawns")
+	local availableSpawns = {}
+	local finalpos = spawns[math.random(#spawns)]:GetPos()
 
-    -- Find all available spawn points
-    for _, spawn in ipairs(spawns) do
-        local isSpawnOccupied = false
-        for _, ply in ipairs(player.GetAll()) do
-            if ply:GetPos() == spawn:GetPos() then
-                isSpawnOccupied = true -- i dont think this actually does what i was trying to get it to do, but it WILL prevent people from spawning on top of people!
-                break
-            end
-        end
-        if not isSpawnOccupied then
-            table.insert(availableSpawns, spawn)
-        end
-    end
+	-- Find all available spawn points
+	for _, spawn in ipairs(spawns) do
+		local isSpawnOccupied = false
 
-    -- Randomly select a spawn point
-    local selectedSpawn = table.Random(availableSpawns)
-    if IsValid(selectedSpawn) then
-        self.Player:SetPos(selectedSpawn:GetPos())
-    else
-		print("No spawn set for player: " .. v:Nick())
-    end
+		local mins, maxs = spawn:GetCollisionBounds()
+		for _, ply in pairs(ents.FindInBox(spawn:LocalToWorld(mins), spawn:LocalToWorld(maxs))) do
+			if IsValid(ply) and ply:IsPlayer() and ply:Alive() and ply:IsPlaying() then
+				isSpawnOccupied = true
+			end
+		end
 
-    self.Player:SetUsingSpecialWeapon(false)
-    self.Player:SetBleedoutTime(cvar_bleedout:GetFloat())
+		if not isSpawnOccupied then
+			availableSpawns[#availableSpawns + 1] = spawn
+		end
+	end
+
+	-- Randomly select a spawn point
+	local selectedSpawn = table.Random(availableSpawns)
+	if IsValid(selectedSpawn) then
+		finalpos = selectedSpawn:GetPos()
+	end
+
+	if cvar_respawnonplayers:GetBool() and nzRound:GetNumber() > 1 then
+		local spawns = nzRound:InState(ROUND_CREATE) and player.GetAll() or player.GetAllPlayingAndAlive()
+
+		local spectator = self.Player:GetObserverTarget()
+		if IsValid(spectator) and spectator:Alive() and spectator:IsPlaying() then
+			finalpos = spectator:GetPos()
+		elseif not table.IsEmpty(spawns) then
+			finalpos = spawns[math.random(#spawns)]:GetPos()
+		end
+	end
+
+	self.Player:SetPos(finalpos)
+
+	self.Player:SetUsingSpecialWeapon(false)
+	self.Player:SetBleedoutTime(cvar_bleedout:GetFloat())
 	self.Player:SetReviveTime(cvar_revive:GetFloat())
 	self.Player:SetMaxPerks(cvar_perkmax:GetInt())
 	self.Player:AllowFlashlight(tobool(nzMapping.Settings.flashlight))
 
-    -- Resend the map data to any player that spawns/respawns(They might've joined late and haven't recived the mapsettings.)
-    nzMapping:SendMapData(self.Player)
+	/*-- Resend the map data to any player that spawns/respawns(They might've joined late and haven't recived the mapsettings.)
+	nzMapping:SendMapData(self.Player)*/
+	//see line #38 in sv_players.lua
 end
 
 

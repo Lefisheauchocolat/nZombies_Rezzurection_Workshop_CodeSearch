@@ -171,7 +171,7 @@ function nzEnemies:OnEnemyKilled(enemy, attacker, dmginfo, hitgroup)
 			else
 				attacker:GivePoints(130)
 			end
-		elseif ((enemy:GetDecapitated() and !enemy.IsMooSpecial) or (hitgroup == HITGROUP_HEAD)) and not dmginfo:IsDamageType(DMG_MISSILEDEFENSE) then
+		elseif (enemy:GetDecapitated() or hitgroup == HITGROUP_HEAD) and not dmginfo:IsDamageType(DMG_MISSILEDEFENSE) then
 			attacker:EmitSound("nz_moo/effects/headshot_notif_2k24/ui_zmb_headshot_fatal_0"..math.random(4)..".mp3", 65)
 			if nzMapping.Settings.cwpointssystem == 1 then
 				attacker:GivePoints(115)
@@ -348,7 +348,7 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 			return true
 		end
 
-		if (zombie.NZBossType or zombie.IsMooBossZombie) then
+		if (zombie.NZBossType or zombie.IsMooBossZombie or zombie.IsMiniBoss) then
 			if zombie.BossMeleeOnly and isplayer and not meleetypes[dmgtype] then return true end
 			if zombie.IsInvulnerable and zombie:IsInvulnerable() then return true end
 
@@ -369,6 +369,13 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 			if isplayer and attacker:HasPerk("sake") and meleetypes[dmgtype] then
 				dmginfo:SetDamageType(DMG_SHOCK)
 				dmginfo:ScaleDamage(4)
+			end
+
+			-- Mini Bosses will grant points.
+			if zombie.IsMiniBoss then
+				if nzMapping.Settings.cwpointssystem ~= 1 then
+					attacker:GivePoints(10)
+				end
 			end
 
 			if zombie.NZBossType then

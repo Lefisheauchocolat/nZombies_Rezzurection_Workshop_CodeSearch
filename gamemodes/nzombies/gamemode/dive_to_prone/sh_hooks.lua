@@ -51,88 +51,137 @@ local up = Vector(0, 0, 150)
 local down = Vector(0, 0, 32)
 local trace = {}
 
-local function LandingSurfaceSound(ply, pos)
+local function LandingSurfaceSound(ply, pos, filter)
 	trace.start = pos
 	trace.endpos = pos - down
 	trace.filter = ply
 	local tr = util.TraceLine(trace)
 	local sndtable = landing_sound[tr.MatType] or landing_sound[0]
+	local finalsnd = sndtable[math.random(#sndtable)]
 
-	ply:EmitSound(sndtable[math.random(#sndtable)], SNDLVL_NORM, 100 + math.random(-4, 4))
-	ply:EmitSound("NZ.D2P.Collide")
-	ply:EmitSound("NZ.D2P.Slide")
+	if filter then
+		local receipts = RecipientFilter()
+		receipts:AddPAS(ply:GetPos())
+		receipts:RemovePlayer(ply)
+
+		ply:EmitSound(finalsnd, SNDLVL_NORM, math.random(97,103), 1, CHAN_STATIC, 0, 0, receipts)
+
+		ply:EmitSound("player/dive_to_prone/collide/collide_00.wav", SNDLVL_NORM, math.random(97,103), 1, CHAN_STATIC, 0, 0, receipts)
+		ply:EmitSound("player/dive_to_prone/slide/concrete/concrete_slide_stop.wav", SNDLVL_NORM, math.random(97,103), 1, CHAN_STATIC, 0, 0, receipts)
+	else
+		ply:EmitSound(finalsnd, SNDLVL_NORM, math.random(97,103), 1, CHAN_STATIC)
+
+		ply:EmitSound("NZ.D2P.Collide")
+		ply:EmitSound("NZ.D2P.Slide")
+	end
 end
 
-if SERVER then
-	net.Receive("nzDiveAttempt", function(len, ply)
-		if ply:GetSprinting() then
-			ply.DiveAttempting = true
-		end
-	end)
-	util.AddNetworkString("nzDiveAttempt")
-else
+if CLIENT then
 	CreateClientConVar("nz_key_dtp", KEY_LALT, true, true, "Sets the key for dolphin diving. Uses numbers from gmod's KEY_ enums: http://wiki.garrysmod.com/page/Enums/KEY")
-
-	local is_z_pressed = false
-	hook.Add("Think", "nzDiveAttempt", function()
-		local ply = LocalPlayer()
-
-		if input.IsKeyDown(ply:GetInfoNum("nz_key_dtp", KEY_LALT)) then
-			local candiving = nzMapping.Settings.movement
-			if candiving == nil or (candiving ~= 2 and candiving <3) then return end
-
-			if !is_z_pressed and ply:GetSprinting() then
-				ply.DiveAttempting = true
-				net.Start("nzDiveAttempt")
-				net.SendToServer()
-			end
-			is_z_pressed = true
-		else
-			is_z_pressed = false
-		end
-	end)
 end
 
-hook.Add("InitPostEntity", "dive_to_prone.display", function()
-	nzSpecialWeapons:AddDisplay("tfa_dive_to_prone", false, function(wep)
-		local ply = wep:GetOwner()
-		return SERVER and (not ply:GetDiving() and ply:OnGround() and ply:GetLandingTime() < CurTime())
-	end)
+hook.Add("PlayerButtonDown", "dive_to_prone.button", function(ply, but)
+	local candiving = nzMapping.Settings.movement
+	if candiving == nil or (candiving ~= 2 and candiving < 3) then return end
+	if but ~= ply:GetInfoNum("nz_key_dtp", KEY_LALT) then return end
+
+	local cosmo = ply:HasPerk('cosmo')
+	local issprinting = ply:GetSprinting()
+	local ang = ply:GetAngles()
+	local view_fwd = Angle(0, ang.yaw, ang.roll):Forward()
+	local vel_fwd = ply:GetVelocity():GetNormalized()
+	local dot = view_fwd:Dot(vel_fwd)
+
+	if issprinting and ply:GetLandingTime() < CurTime() and !ply.DiveAttempting and (dot > 0.6 or cosmo or nzMapping.Settings.divingomnidirection) then
+		if ply.GetUsingSpecialWeapon and ply:GetUsingSpecialWeapon() and !cosmo then return end
+
+		ply.DiveAttempting = true
+
+		local diving = ply:GetDiving()
+		local speed = ply:GetVelocity():Length()
+		local runspeed = ply:GetMaxRunSpeed() or ply:GetRunSpeed()
+		local crouching = ply:Crouching()
+		local onground = ply:OnGround()
+		local landingtime = ply:GetLandingTime()
+		local CT = CurTime()
+
+		if onground and not diving and not crouching and speed >= (runspeed * 0.85) then
+			if SERVER and !game.SinglePlayer() then
+				local filter = RecipientFilter()
+				filter:AddPAS(ply:GetPos())
+				filter:RemovePlayer(ply)
+
+				ply:EmitSound("player/dive_to_prone/foley/fly_launch_00.wav", SNDLVL_NORM, math.random(97,103), 1, CHAN_STATIC, 0, 0, filter)
+			end
+			if IsFirstTimePredicted() and (game.SinglePlayer() or CLIENT) then
+				ply:EmitSound("NZ.D2P.Launch")
+			end
+
+			local fwd = ply:KeyDown(IN_FORWARD) and runspeed or ply:KeyDown(IN_BACK) and -runspeed or 0
+			local side = ply:KeyDown(IN_MOVELEFT) and runspeed or ply:KeyDown(IN_MOVERIGHT) and -runspeed or 0
+			local sidesway = side / runspeed
+			local fwdsway = fwd / runspeed
+
+			ply:ViewPunch(Angle(-math.abs(fwdsway*2), 0, side == 0 and 1 or -sidesway*4))
+
+			if SERVER and ply.TFAVOX_Sounds then
+				local sndtbl = ply.TFAVOX_Sounds['main']
+				if sndtbl then
+					TFAVOX_PlayVoicePriority(ply, sndtbl['jump'], 99, true)
+				end
+			end
+		end
+	end
+end)
+
+hook.Add("OnPlayerHitGround", "dive_to_prone.land", function(ply, inWater, onFloater, speed)
+	local candiving = nzMapping.Settings.movement
+	if candiving == nil or (candiving ~= 2 and candiving < 3) then return end
+
+	local diving = ply:GetDiving()
+	local onground = ply:OnGround()
+	local landingtime = ply:GetLandingTime()
+	local CT = CurTime()
+
+	if IsFirstTimePredicted() and (game.SinglePlayer() or CLIENT) and diving and onground and landingtime < CT then
+		local direction = math.random(2) == 1 and -1 or 1
+		local mult = math.Clamp(math.floor(speed/400), 1, 3)
+		if ply:HasPerk('cosmo') then
+			ply:ViewPunch(Angle(3*mult,math.Rand(-0.5,0.5),math.Rand(1,2)*direction))
+		else
+			ply:ViewPunch(Angle(5*mult,math.Rand(-1,1),math.Rand(1,2)*2*direction))
+		end
+	end
 end)
 
 hook.Add("SetupMove", "dive_to_prone", function(ply, mv, cmd)
 	local candiving = nzMapping.Settings.movement
-	if candiving == nil or (candiving ~= 2 and candiving <3) then return end
+	if candiving == nil or (candiving ~= 2 and candiving < 3) then return end
 
-	if not ply.OldUnDuckSpeed then
-		ply.OldUnDuckSpeed = ply:GetUnDuckSpeed()
-	end
-
+	local cosmo = ply:HasPerk("cosmo")
 	local diving = ply:GetDiving()
 	local speed = mv:GetVelocity():Length()
-	local runspeed = ply:GetRunSpeed()
-	//local jumping = mv:KeyDown(IN_JUMP)
-	//local ducking = mv:KeyDown(IN_DUCK)
+	local runspeed = ply:GetMaxRunSpeed() or ply:GetRunSpeed()
 	local issprinting = ply:GetSprinting()
 	local crouching = ply:Crouching()
 	local onground = ply:OnGround()
 	local landingtime = ply:GetLandingTime()
 	local CT = CurTime()
 
-	if (ply.GetUsingSpecialWeapon and not ply:GetUsingSpecialWeapon()) and issprinting and ply.DiveAttempting and onground and not diving and not crouching and speed >= (runspeed * 0.85) then
+	if ply.DiveAttempting and (ply.GetUsingSpecialWeapon and (!ply:GetUsingSpecialWeapon() or cosmo)) and issprinting and onground and not diving and not crouching and speed >= (runspeed * 0.85) then
 		local ang = mv:GetAngles()
 		local view_fwd = Angle(0, ang.yaw, ang.roll):Forward()
 		local vel_fwd = mv:GetVelocity():GetNormalized()
 		local dot = view_fwd:Dot(vel_fwd)
 
-		if dot > 0.6 or ply:HasPerk("cosmo") then
+		if dot > 0.6 or cosmo or nzMapping.Settings.divingomnidirection then
 			if SERVER then
-				if !ply:HasPerk("cosmo") then
+				if !cosmo and !nzMapping.Settings.divingallowweapon then
 					ply:Give('tfa_dive_to_prone')
 					ply:SelectWeapon('tfa_dive_to_prone')
 				end
 
-				if ply:HasUpgrade("cosmo") then
+				if ply:HasUpgrade('cosmo') then
 					local round = nzRound:GetNumber() > 0 and nzRound:GetNumber() or 1
 					local health = tonumber(nzCurves.GenerateHealthCurve(round))
 
@@ -173,19 +222,38 @@ hook.Add("SetupMove", "dive_to_prone", function(ply, mv, cmd)
 					end
 
 					ParticleEffect("bo3_astronaut_pulse", ply:LocalToWorld(vector_up*48), angle_zero)
-					ply:EmitSound("nz_moo/zombies/vox/_astro/death/astro_pop.mp3", SNDLVL_GUNFIRE, math.random(95, 105), 1, CHAN_STATIC)
-					ply:EmitSound("nz_moo/zombies/vox/_astro/death/astro_flux.mp3", SNDLVL_GUNFIRE, math.random(95, 105), 1, CHAN_STATIC)
-				end
 
-				ply:EmitSound("NZ.D2P.Launch")
+					if !game.SinglePlayer() then
+						local filter = RecipientFilter()
+						filter:AddPAS(ply:GetPos())
+						filter:RemovePlayer(ply)
+
+						ply:EmitSound("nz_moo/zombies/vox/_astro/death/astro_pop.mp3", SNDLVL_GUNFIRE, math.random(95, 105), 1, CHAN_STATIC, 0, 0, filter)
+						ply:EmitSound("nz_moo/zombies/vox/_astro/death/astro_flux.mp3", SNDLVL_GUNFIRE, math.random(95, 105), 1, CHAN_STATIC, 0, 0, filter)
+					end
+				end
+			end
+
+			if ply:HasUpgrade("cosmo") and IsFirstTimePredicted() and (game.SinglePlayer() or CLIENT) then
+				ParticleEffect("bo3_astronaut_pulse", ply:LocalToWorld(vector_up*48), angle_zero)
+				ply:EmitSound("nz_moo/zombies/vox/_astro/death/astro_pop.mp3", SNDLVL_GUNFIRE, math.random(95, 105), 1, CHAN_STATIC)
+				ply:EmitSound("nz_moo/zombies/vox/_astro/death/astro_flux.mp3", SNDLVL_GUNFIRE, math.random(95, 105), 1, CHAN_STATIC)
+			end
+
+			if !ply.DivingUnDuckSpeed then
+				ply.DivingUnDuckSpeed = ply:GetUnDuckSpeed()
+			end
+
+			if !ply.DivingGroundZ then
+				ply.DivingGroundZ = mv:GetOrigin().z + 8
 			end
 
 			ply:SetDiving(true)
-			ply:SetUnDuckSpeed(0.5)
+			ply:SetUnDuckSpeed(0.4)
 			ply:SetGroundEntity(nil)
 			mv:SetVelocity((vel_fwd * runspeed + up) * diving_launchmult:GetInt())
 
-			if ply:HasPerk("cosmo") then
+			if cosmo then
 				ply:SetGravity(0.37)
 			end
 		end
@@ -200,11 +268,17 @@ hook.Add("SetupMove", "dive_to_prone", function(ply, mv, cmd)
 		ply:SetLandingTime(CT + 0.2)
 		ply:SetDiving(false)
 
-		if SERVER then
-			local pos = mv:GetOrigin()
+		if IsFirstTimePredicted() and (game.SinglePlayer() or CLIENT) then
+			local pos = ply:GetPos()
 			LandingSurfaceSound(ply, pos)
+		end
 
-			if ply:HasPerk("cosmo") then
+		if SERVER then
+			if !game.SinglePlayer() then
+				local pos = ply:GetPos()
+				LandingSurfaceSound(ply, pos, true)
+			end
+			if cosmo then
 				ply:SetGravity(1)
 
 				if ply:HasUpgrade("everclear") then
@@ -216,7 +290,7 @@ hook.Add("SetupMove", "dive_to_prone", function(ply, mv, cmd)
 					fire:SetInflictor(ply)
 					fire:SetAngles(angle_zero)
 
-					fire.Delay = 2
+					fire.Delay = 1
 					fire.Range = 300
 					fire:Spawn()
 				end
@@ -225,25 +299,29 @@ hook.Add("SetupMove", "dive_to_prone", function(ply, mv, cmd)
 			if ply.TFAVOX_Sounds then
 				local sndtbl = ply.TFAVOX_Sounds['damage']
 				if sndtbl then
-					TFAVOX_PlayVoicePriority(ply, sndtbl[HITGROUP_GENERIC], 99)
+					TFAVOX_PlayVoicePriority(ply, sndtbl[HITGROUP_GENERIC], 99, true)
 				end
 			end
 		end
 	end
 
 	diving = ply:GetDiving()
+	onground = ply:OnGround()
 	landingtime = ply:GetLandingTime()
 
 	if not diving and not onground and landingtime > CT and not ply:GetDivingReset() then
+		ply.DivingGroundZ = mv:GetOrigin().z + 8
 		ply:SetDiving(true)
 		ply:SetDivingReset(true)
 	end
 
 	diving = ply:GetDiving()
 
-	if not crouching and not diving and CT > landingtime then
+	if not crouching and not diving and CT > landingtime and ply.DivingUnDuckSpeed then
+		ply.DivingGroundZ = nil
 		ply:SetDivingReset(false)
-		ply:SetUnDuckSpeed(ply.OldUnDuckSpeed)
+		ply:SetUnDuckSpeed(ply.DivingUnDuckSpeed)
+		ply.DivingUnDuckSpeed = nil
 	end
 end)
 
@@ -289,11 +367,11 @@ if CLIENT then
 			if ply:HasPerk("cosmo") then
 				return 0.5
 			else
-				return 0.05
+				return nzMapping.Settings.divingallowweapon and 0.2 or 0.05
 			end
 		elseif onground and landingtime > CT then
-			ply:SetGravity(1)
-			return (1 - math.Clamp((ply:GetLandingTime() - CT) / 0.5, 0, 0.9)) * 0.85
+			local ratio = (1 - math.Remap(math.Clamp((landingtime - CT) / 0.2, 0, 1), 0, 1, 0, (ply:HasPerk("cosmo") and 0.5 or 0.8)))
+			return ratio
 		else
 			return nil
 		end

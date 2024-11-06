@@ -19,8 +19,8 @@ ENT.RedEyes = false
 
 ENT.AttackRange 			= 95
 ENT.DamageRange 			= 95
-ENT.AttackDamage 			= 60
-ENT.HeavyAttackDamage 		= 75
+ENT.AttackDamage 			= 75
+ENT.HeavyAttackDamage 		= 100
 
 ENT.SoundDelayMin = 1.5
 ENT.SoundDelayMax = 2.5
@@ -29,6 +29,12 @@ ENT.MaxSoundPitch = 102 				-- Limits the maximum pitch for passive sounds the z
 
 ENT.Models = {
 	{Model = "models/wavy_ports/wavy_enemies/l4d/charger.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/wavy_ports/wavy_enemies/l4d/concept_charger.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/wavy_ports/wavy_enemies/l4d/l4d1_charger.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/wavy_ports/wavy_enemies/l4d/swampfolk_charger.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/wavy_ports/wavy_enemies/l4d/urban_charger.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/wavy_ports/wavy_enemies/l4d/football_charger.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/wavy_ports/wavy_enemies/l4d/bulldozer_charger.mdl", Skin = 0, Bodygroups = {0,0}},
 }
 
 local spawn = {"nz_charger_land"}
@@ -51,7 +57,7 @@ local SprintAttackSequences = {
 }
 
 local JumpSequences = {
-	{seq = ACT_JUMP, speed = 100},
+	{seq = "nz_charger_barricade_mantle"},
 }
 
 local walksounds = {
@@ -119,6 +125,10 @@ ENT.SequenceTables = {
 			SpawnSequence = {spawn},
 			MovementSequence = {
 				"nz_charger_charge",
+				"nz_charger_charge",
+				"nz_charger_charge",
+				"nz_charger_charge",
+				"nz_charger_charge_beta", -- 20% chance to play beta charge animation
 			},
 			AttackSequences = {SprintAttackSequences},
 			StandAttackSequences = {SprintAttackSequences},
@@ -201,6 +211,11 @@ ENT.CustomRunFootstepsSounds = {
 	Sound("wavy_zombie/charger/foot/charger/run/charger_run_right_04.wav"),
 }
 
+ENT.SpawnStingSounds = {
+	Sound("nz_moo/zombies/vox/_charger/music/chargerbacteria.wav"),
+	Sound("nz_moo/zombies/vox/_charger/music/chargerbacterias.wav"),
+}
+
 ENT.BehindSoundDistance = 0 -- When the zombie is within 200 units of a player, play these sounds instead
 
 function ENT:StatsInitialize()
@@ -218,6 +233,9 @@ function ENT:StatsInitialize()
 		self.ManIsMadTime = CurTime() + 6
 		self.ManIsMadCooldown = CurTime() + 6
 		self.PainSoundCooldown = CurTime() + 1
+		
+		self.NextSting = CurTime() + math.Rand(25.7, 60.3)
+		
 	end
 end
 
@@ -232,7 +250,7 @@ function ENT:OnSpawn()
 	util.Effect("panzer_spawn_tp", effectData)
 
 	self:SetCollisionBounds(Vector(-16,-16, 0), Vector(16, 16, 72))
-	self:SetSurroundingBounds(Vector(-28, -28, 0), Vector(28, 28, 80))
+	self:SetSurroundingBounds(Vector(-28, -28, 0), Vector(28, 28, 90))
 		
 	self:SolidMaskDuringEvent(MASK_SOLID_BRUSHONLY)
 	self:SetInvulnerable(true)
@@ -255,35 +273,6 @@ function ENT:PerformDeath(dmginfo)
 	self:BecomeRagdoll(dmginfo)
 end
 
---[[nction ENT:PostTookDamage(dmginfo) 
-	local attacker = dmginfo:GetAttacker()
-	local inflictor = dmginfo:GetInflictor()
-
-	local dmgtype = dmginfo:GetDamageType()
-
-	local hitpos = dmginfo:GetDamagePosition()
-
-	local weakspot = self:GetAttachment(self:LookupAttachment("tag_back_weakspot")).Pos
-
-	if (hitpos:DistToSqr(weakspot) < 10^2) then
-		self:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], 95, math.random(95,105))
-		attacker:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], SNDLVL_GUNFIRE, math.random(95,105))
-		dmginfo:ScaleDamage(3)
-	else
-		dmginfo:ScaleDamage(0.25)
-	end
-
-	if CurTime() > self.ManIsMadCooldown and !self.ManIsMad and !self.IsTurned and math.random(100) <= 50 then
-		self.ManIsMad = true
-		self.ManIsMadTime = CurTime() + math.Rand(4.25, 4.95)
-
-		self:SetRunSpeed(155)
-		self:SpeedChanged()
-
-		self:DoSpecialAnimation("nz_base_follower_charge_react")
-	end
-end]]
-
 function ENT:OnAttack()
 
 	local target = self:GetTarget()
@@ -296,13 +285,16 @@ function ENT:OnAttack()
 		if IsValid(target) and target:IsPlayer() and !self:IsAttackBlocked() then
 			local dmgInfo = DamageInfo()
 			dmgInfo:SetAttacker( self )
-			dmgInfo:SetDamage( 75 )
+			dmgInfo:SetDamage( 100 )
 			dmgInfo:SetDamageType( DMG_SLASH )
 
 			if self:TargetInRange(self.DamageRange) then
 				target:TakeDamageInfo(dmgInfo)
 				
 				target:EmitSound("wavy_zombie/charger/hit/charger_smash_0"..math.random(1,3)..".wav", SNDLVL_GUNFIRE, math.random(95,105))
+				
+				self:EmitSound("nz_moo/zombies/vox/_charger/music/contusionhit.wav", 577)
+				target:EmitSound("nz_moo/zombies/vox/_charger/music/contusionhit.wav", SNDLVL_GUNFIRE)
 
 				target:ViewPunch( VectorRand():Angle() * 0.05 )
 				if target:IsOnGround() then
@@ -336,6 +328,12 @@ end
 function ENT:AI()
 
 	local target = self:GetTarget()
+	
+	-- Spooky Music
+	if CurTime() > self.NextSting then
+		self.NextSting = CurTime() + math.Rand(25.7, 60.3)
+		self:EmitSound(self.SpawnStingSounds[math.random(#self.SpawnStingSounds)], 577)
+	end
 	
 	if IsValid(target) and target:IsPlayer() and self:TargetInRange(1000) and !self:TargetInRange(250) and !self:IsAttackBlocked() then
 

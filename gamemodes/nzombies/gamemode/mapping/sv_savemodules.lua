@@ -223,13 +223,20 @@ nzMapping:AddSaveModule("PlayerSpawns", {
 			table.insert(player_spawns, {
 				pos = v:GetPos(),
 				angle = v:GetAngles(),
+				tab = {
+					dooractivate = v:GetDoorActivated(),
+					activatetype = v:GetDoorActivateType(),
+					doorflag = v:GetDoorFlag(),
+					doorflag2 = v:GetDoorFlag2(),
+					doorflag3 = v:GetDoorFlag3(),
+				},
 			})
 		end
 		return player_spawns
 	end,
 	loadfunc = function(data)
 		for k,v in pairs(data) do
-			nzMapping:PlayerSpawn(v.pos,v.angle)
+			nzMapping:PlayerSpawn(v.pos,v.angle,v.tab)
 		end
 	end,
 	cleanents = {"player_spawns"},
@@ -425,11 +432,27 @@ nzMapping:AddSaveModule("BuyablePropSpawns", {
 		return buyableprop_spawns
 	end,
 	loadfunc = function(data)
-		for k,v in pairs(data) do
-			local prop = nzMapping:PropBuy(v.pos, v.angle, v.model, v.flags)
-			prop:SetCollisionGroup(v.collision or COLLISION_GROUP_NONE)
-			prop:SetSkin(v.skingroup or 0)
-		end
+
+		local count = #data
+		PrintMessage( HUD_PRINTTALK, "[nZ] Loading..." )
+
+		-- This is the most sinful thing I have ever done. But it is a required evil for doors to work correctly on large maps.
+		timer.Simple(1, function()
+			PrintMessage( HUD_PRINTTALK, "[nZ] Loaded!" )
+			for i = 1, count do
+				timer.Simple(i * 0.0001, function()
+					for k,v in pairs(data) do
+						if k ~= i then continue end
+						local prop = nzMapping:PropBuy(v.pos, v.angle, v.model, v.flags)
+						prop:SetCollisionGroup(v.collision or COLLISION_GROUP_NONE)
+						prop:SetSkin(v.skingroup or 0)
+
+						--PrintMessage( HUD_PRINTTALK, "[nZ] Loading Doors... "..i.." out of "..count.."." )
+					end
+				end)
+			end
+		end)
+		
 	end,
 	cleanents = {"prop_buys"},
 })
@@ -479,17 +502,29 @@ nzMapping:AddSaveModule("ElecSpawns", {
 		local elec_spawn = {}
 		for _, v in pairs(ents.FindByClass("power_box")) do
 			table.insert(elec_spawn, {
-			pos = v:GetPos(),
-			angle = v:GetAngles( ),
-			limited = v:GetLimited(),
-			aoe = v:GetAOE(),
+				pos = v:GetPos(),
+				angle = v:GetAngles(),
+				tab = {
+					limited = v:GetLimited(),
+					aoe = v:GetAOE(),
+					requireall = v:GetRequireAll(),
+					reset = v:GetDoReset(),
+					resettime = v:GetResetTime(),
+				},
 			})
 		end
 		return elec_spawn
 	end,
 	loadfunc = function(data)
-		for k,v in pairs(data) do
-			nzMapping:Electric(v.pos, v.angle, v.limited, v.aoe)
+		for k, v in pairs(data) do
+			local vdata = v.tab or {}
+			if v.limited ~= nil then
+				table.insert(vdata, v.limited)
+			end
+			if v.aoe ~= nil then
+				table.insert(vdata, v.aoe)
+			end
+			nzMapping:Electric(v.pos, v.angle, vdata)
 		end
 	end,
 	cleanents = {"power_box", "button_elec"}, -- Cleans two entity types
@@ -807,6 +842,7 @@ nzMapping:AddSaveModule("DamageWalls", {
 				damage = v:GetDamage(),
 				delay = v:GetDelay(),
 				dmgtype = v:GetDamageWallType(),
+				respawnz = v:GetRespawnZombie(),
 				//radiation = v:GetRadiation(),
 				//poison = v:GetPoison(),
 				//tesla = v:GetTesla(),
@@ -826,7 +862,7 @@ nzMapping:AddSaveModule("DamageWalls", {
 				fuckoffdie = 3
 			end
 
-			nzMapping:CreateInvisibleDamageWall(v.pos, v.maxbound, nil, v.damage, v.delay, v.dmgtype or fuckoffdie)
+			nzMapping:CreateInvisibleDamageWall(v.pos, v.maxbound, nil, v.damage, v.delay, v.dmgtype or fuckoffdie, v.respawnz)
 		end
 	end,
 	cleanents = {"invis_damage_wall"},

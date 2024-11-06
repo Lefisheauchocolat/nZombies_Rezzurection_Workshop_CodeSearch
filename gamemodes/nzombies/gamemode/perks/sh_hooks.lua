@@ -1,5 +1,6 @@
 if SERVER then
 	//randomized perk machines
+
 	hook.Add("OnGameBegin", "nz.PerkMachineRolling", function()
 		timer.Simple(0, function()
 			local machines = ents.FindByClass("perk_machine")
@@ -154,8 +155,13 @@ if SERVER then
 	end)
 
 	//nuked perk machines
+
+	local b_whatamidoingpleasehelp = false
 	hook.Add("OnRoundInit", "nz.NukedPerks", function()
 		if !nzMapping.Settings.nukedperks then return end
+
+		if b_whatamidoingpleasehelp then return end
+		b_whatamidoingpleasehelp = true
 
 		local singleplayer = game.SinglePlayer() or #player.GetAll() <= 1
 		if !singleplayer then
@@ -163,29 +169,43 @@ if SERVER then
 		end
 
 		local spawns = ents.FindByClass("player_spawns")
-		local center_of_spawn = Vector(math.random(-10,10),math.random(-10,10),math.random(-10,10))
-		local sorted_machines = {}
-		local map_perks = {}
-		local total_machines = {}
+		local map_perks = {} //table of perk id's on the map
+		local total_machines = {} //table of perk entities on the map
 
-		for _, spawn in pairs(spawns) do
-			center_of_spawn = center_of_spawn + spawn:GetPos()
-		end
-
-		center_of_spawn = (center_of_spawn / #spawns)
-
-		local machines = ents.FindByClass("perk_machine")
-		for _, ent in pairs(machines) do
-			if ent:GetPerkID() == "revive" then continue end
-			map_perks[#map_perks + 1] = ent:GetPerkID()
+		local machines = table.Copy(ents.FindByClass("perk_machine"))
+		for k, ent in pairs(machines) do
+			local perk = ent:GetPerkID()
+			if perk == "pap" and !nzMapping.Settings.nukedpap then
+				table.RemoveByValue(machines, ent)
+				continue
+			end
+			map_perks[#map_perks + 1] = perk
 		end
 		table.Add(total_machines, machines)
 
-		local fizzies = ents.FindByClass("wunderfizz_machine")
-		for _, ent in pairs(fizzies) do
-			map_perks[#map_perks + 1] = "wunderfizz"
+		if nzMapping.Settings.nukedfizz then
+			local fizzies = ents.FindByClass("wunderfizz_machine")
+			for k, ent in pairs(fizzies) do
+				map_perks[#map_perks + 1] = "wunderfizz"
+			end
+			table.Add(total_machines, fizzies)
 		end
-		table.Add(total_machines, fizzies)
+
+		print('////////////////// Total Perks to Roll')
+		PrintTable(map_perks)
+
+		nzPerks.NukedPerks = map_perks
+
+		if singleplayer then
+			for index, perk in pairs(map_perks) do
+				if perk == "revive" then
+					map_perks[index] = nil
+					break
+				end
+			end
+
+			print('////////////////// Singleplayer Detected')
+		end
 
 		if nzMapping.Settings.nukedrandom then
 			for _, ent in RandomPairs(total_machines) do
@@ -199,19 +219,28 @@ if SERVER then
 						break
 					end
 
-					//print('////////////////// Original Perk wunderfizz')
-					//print('////////////////// Rolled Perk '..ourperk)
+					print('////////////////// Original Perk wunderfizz')
+					print('////////////////// Rolled Perk '..ourperk)
 
 					nzMapping:PerkCratePile(ent:GetPos(), ent:GetAngles(), {id = ourperk}, "wunderfizz")
-					SafeRemoveEntityDelayed(ent, 0)
+					SafeRemoveEntity(ent)
+
+					/*print('////////////////// Map Perks left')
+					PrintTable(map_perks)*/
 				else
 					local ourperk = ent:GetPerkID()
 					local storedperk = ourperk
 
-					if (!singleplayer or ourperk ~= "revive") then
-						for i, perk in RandomPairs(map_perks) do
+					if singleplayer and ourperk ~= "revive" then
+						for index, perk in RandomPairs(map_perks) do
 							ourperk = perk
-							map_perks[i] = nil
+							map_perks[index] = nil
+							break
+						end
+					elseif !singleplayer then
+						for index, perk in RandomPairs(map_perks) do
+							ourperk = perk
+							map_perks[index] = nil
 							break
 						end
 					end
@@ -228,22 +257,25 @@ if SERVER then
 						doorflag3 = ent.DoorFlag3,
 					}
 
-					//print('////////////////// Original Perk '..ent:GetPerkID())
-					//print('////////////////// Rolled Perk '..ourperk)
+					print('////////////////// Original Perk '..storedperk)
+					print('////////////////// Rolled Perk '..ourperk)
 
 					local cratepile = nzMapping:PerkCratePile(ent:GetPos(), ent:GetAngles(), data, ent:GetPerkID())
 					if storedperk == "revive" and !nzPerks.StartingNukedPerk then
 						nzPerks.StartingNukedPerk = cratepile
 					end
 
-					SafeRemoveEntityDelayed(ent, 0)
+					SafeRemoveEntity(ent)
+
+					/*print('////////////////// Map Perks left')
+					PrintTable(map_perks)*/
 				end
 			end
 		else
 			for _, ent in pairs(total_machines) do
 				if ent:GetClass() == "wunderfizz_machine" then
 					nzMapping:PerkCratePile(ent:GetPos(), ent:GetAngles(), {id = "wunderfizz"})
-					SafeRemoveEntityDelayed(ent, 0)
+					SafeRemoveEntity(ent)
 				else
 					local data = {
 						id = ent:GetPerkID(),
@@ -258,7 +290,7 @@ if SERVER then
 					}
 
 					nzMapping:PerkCratePile(ent:GetPos(), ent:GetAngles(), data)
-					SafeRemoveEntityDelayed(ent, 0)
+					SafeRemoveEntity(ent)
 				end
 			end
 		end
@@ -268,10 +300,16 @@ if SERVER then
 		if !nzMapping.Settings.nukedperks then return end
 		if round < 1 then return end
 
+		local singleplayer = game.SinglePlayer() or #player.GetAll() <= 1
 		if nzPerks.NextNukedRound <= round then
-			if round == 1 then
+			if round == 1 and singleplayer then
 				nzSounds:PlayFile("nz_moo/perkacola/perk_siren.wav")
 			else
+				timer.Simple(4.5, function()
+					if nzMapping.Settings.nukedspawn then
+						sound.Play("nz_moo/perkacola/clock_hand.wav", nzMapping.Settings.nukedspawn, 511, 100, 1)
+					end
+				end)
 				timer.Simple(5, function()
 					nzSounds:PlayFile("nz_moo/perkacola/perk_siren.wav")
 				end)
@@ -286,7 +324,7 @@ if SERVER then
 			local nukedspawns = ents.FindByClass("perk_cratepile")
 
 			if nzPerks.StartingNukedPerk and IsValid(nzPerks.StartingNukedPerk) then
-				//print('////////////////// Launching revive Machine')
+				print('////////////////// Launching Starting Perk to revive')
 				local fucker = nzPerks.StartingNukedPerk
 				if round == 1 then
 					timer.Simple(4, function()
@@ -309,7 +347,7 @@ if SERVER then
 					else
 						v:Launch()
 					end
-					//print('////////////////// Launching '..v.PerkData["id"]..' Machine')
+					print('////////////////// Launching '..v.PerkData["id"]..' Machine')
 					break
 				end
 			end
@@ -326,17 +364,23 @@ if SERVER then
 
 			if b_alldone then
 				nzPerks.NextNukedRound = math.huge
+				print('////////////////// Nuked Perks Completed')
 			else
 				nzPerks.NextNukedRound = round + math.random(nzMapping.Settings.nukedroundmin, nzMapping.Settings.nukedroundmax)
 			end
 
-			//print('////////////////// Next Nuked Perk Round '..nzPerks.NextNukedRound)
+			print('////////////////// Next Nuked Perk Round '..nzPerks.NextNukedRound)
 		end
 	end)
 
 	hook.Add("OnRoundEnd", "nz.NukedPerks", function()
+		if b_whatamidoingpleasehelp then
+			b_whatamidoingpleasehelp = false
+		end
+
 		nzPerks.NextNukedRound = 0
 		nzPerks.StartingNukedPerk = nil
+		nzPerks.NukedPerks = nil
 		for _, v in pairs(ents.FindByClass("perk_cratepile")) do
 			if v.PerkMachine and IsValid(v.PerkMachine) then
 				SafeRemoveEntityDelayed(v.PerkMachine, 0)
@@ -664,7 +708,7 @@ hook.Add("SetupMove", "nzPHDEffects", function(ply, mv, cmd)
 			end
 		end
 
-		if not onground and ply:GetPHDJumped() and mv:KeyReleased(IN_DUCK) and ply:GetPHDDelay() < CurTime() then
+		if not onground and ply:GetPHDJumped() and mv:KeyReleased(IN_DUCK) and ply:GetPHDDelay() < CurTime() and !ply:GetDiving() then
 			ply:SetPHDDelay(CurTime() + 7)
 			mv:SetVelocity(mv:GetVelocity() - (vector_up*1000))
 		end
@@ -894,29 +938,42 @@ if CLIENT then
 		["$pp_colour_mulb"] = 0,
 	}
 
+	local nz_preview = GetConVar("nz_creative_preview")
 	local stinkfade = 0
 	local AGH_MY_EYES = false
 	local THX_SOUND_FX = 0
+	local b_nochrome = false
+
 	local function ScreenEffects()
 		local ply = LocalPlayer()
 		if not IsValid(ply) then return end
 
-		if nzMapping.Settings.monochrome and not nzElec:IsOn() and !nzRound:InState(ROUND_CREATE) then
-			if !AGH_MY_EYES then
+		local b_nopower = !nzElec:IsOn() and !nzRound:InState(ROUND_CREATE)
+
+		if nzMapping.Settings.monochrome and b_nopower then
+			if nzMapping.Settings.blurpoweron and !AGH_MY_EYES then
 				AGH_MY_EYES = true
 				THX_SOUND_FX = 1
 			end
+
 			DrawColorModify(easy_tab)
+		elseif nzMapping.Settings.blurpoweron and b_nopower then
+			if !AGH_MY_EYES then
+				AGH_MY_EYES = true
+				THX_SOUND_FX = 1
+				b_nochrome = true
+			end
 		elseif AGH_MY_EYES then
 			if THX_SOUND_FX > 0 then
-				THX_SOUND_FX = math.max(THX_SOUND_FX - FrameTime()*0.5, 0)
+				THX_SOUND_FX = math.max(THX_SOUND_FX - FrameTime()*0.65, 0)
 			end
 
 			easy_tab["$pp_colour_contrast"] = math.Remap(THX_SOUND_FX, 0, 1, 1, 1.5)
-			easy_tab["$pp_colour_colour"] = math.min(1, math.Remap(1 - (1*THX_SOUND_FX), 0, 1, 0, 1.5))
+			easy_tab["$pp_colour_colour"] = b_nochrome and 1 or math.min(1, math.Remap(1 - (1*THX_SOUND_FX), 0, 1, 0, 1.5))
 
 			if THX_SOUND_FX <= 0 then
 				AGH_MY_EYES = false
+				b_nochrome = false
 			end
 
 			DrawColorModify(easy_tab)
@@ -925,18 +982,20 @@ if CLIENT then
 				easy_tab["$pp_colour_contrast"] = 1
 				easy_tab["$pp_colour_colour"] = 0
 			end
-			MyDrawBokehDOF(math.Remap(THX_SOUND_FX, 0, 1, 0, 2))
+			MyDrawBokehDOF(math.Remap(THX_SOUND_FX, 0, 1, 0, 1.5))
 		end
 
 		if ply:HasVultureStink() then
-			stinkfade = math.Approach(stinkfade, 1, 0.125)
+			stinkfade = math.Approach(stinkfade, 1, FrameTime()*6)
 		end
 
 		if stinkfade > 0 then
 			vulture_tab["$pp_colour_addr"] = 0.05*stinkfade
 			vulture_tab["$pp_colour_addg"] = 0.2*stinkfade
 			vulture_tab["$pp_colour_colour"] = 1 + (0.1*stinkfade)
+
 			DrawColorModify(vulture_tab)
+
 			stinkfade = math.max(stinkfade - math.min(FrameTime()*4, engine.TickInterval()*5), 0)
 		end
 

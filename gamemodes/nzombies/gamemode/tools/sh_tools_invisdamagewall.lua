@@ -75,12 +75,14 @@ nzTools:CreateTool("damagewall", {
 			valz["Dmg"] = data.dmg or 10
 			valz["Delay"] = data.delay or 0.5
 			valz["DmgType"] = data.dmgtype or 1
+			valz["RespawnZ"] = data.respawnz or false
 		end
 
 		function pnl.CompileData()
 			data.dmg = valz["Dmg"]
 			data.delay = valz["Delay"]
 			data.dmgtype = valz["DmgType"]
+			data.respawnz = valz["RespawnZ"]
 			
 			return data
 		end
@@ -119,6 +121,11 @@ nzTools:CreateTool("damagewall", {
 		dmgtype:AddChoice("Warp", 4)
 		dmgtype.DataChanged = function( _, val ) valz["DmgType"] = val pnl.UpdateData(pnl.CompileData()) end
 
+		local respawnz = properties:CreateRow( "Damage Properties", "Respawn Zombies on Contact?" )
+		respawnz:Setup( "Boolean" )
+		respawnz:SetValue( valz["RespawnZ"] )
+		respawnz.DataChanged = function( _, val ) valz["RespawnZ"] = val pnl.UpdateData(pnl.CompileData()) end
+
 		return pnl
 	end,
 	drawhud = function()
@@ -146,5 +153,6 @@ nzTools:CreateTool("damagewall", {
 		dmg = 10,
 		delay = 0.5,
 		dmgtype = 1,
+		respawnz = 0,
 	}
 })

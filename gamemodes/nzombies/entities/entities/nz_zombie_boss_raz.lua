@@ -2,7 +2,7 @@ AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
 --ENT.PrintName = "The Mangle... er"
-ENT.PrintName = "Mangler"
+ENT.PrintName = "Mangler HVT"
 ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 
@@ -87,11 +87,11 @@ ENT.IsMooSpecial = true
 ENT.IsMooBossZombie = true
 ENT.IsMiniBoss = true
 
-ENT.AttackRange = 95
-ENT.DamageRange = 95
+ENT.AttackRange = 100
+ENT.DamageRange = 110
 
-ENT.AttackDamage = 75
-ENT.HeavyAttackDamage = 115
+ENT.AttackDamage = 95
+ENT.HeavyAttackDamage = 125
 
 ENT.MinSoundPitch = 95
 ENT.MaxSoundPitch = 105
@@ -100,7 +100,7 @@ ENT.SoundDelayMin = 7
 ENT.SoundDelayMax = 12
 
 ENT.Models = {
-	{Model = "models/moo/_codz_ports/t9/gold/moo_codz_t9_zmb_raz_mangler.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t9/gold/moo_codz_t9_zmb_raz_mangler.mdl", Skin = 1, Bodygroups = {0,0}},
 }
 
 local spawn = {"nz_base_zmb_raz_portal_spawn"}
@@ -496,28 +496,28 @@ function ENT:StatsInitialize()
 		local count = #player.GetAllPlaying()
 
 		if nzRound:InState( ROUND_CREATE ) then
-			self:SetHealth(2500)
-			self:SetMaxHealth(2500)
+			self:SetHealth(7500)
+			self:SetMaxHealth(7500)
 		else
 			if nzRound:InState( ROUND_PROG ) then
-				self:SetHealth(math.Clamp(nzRound:GetNumber() * 950 + (500 * count), 1000, 55000 * count))
-				self:SetMaxHealth(math.Clamp(nzRound:GetNumber() * 950 + (500 * count), 1000, 55000 * count))
+				self:SetHealth(math.Clamp(nzRound:GetNumber() * 5000 + (500 * count), 1000, 150000 * count))
+				self:SetMaxHealth(math.Clamp(nzRound:GetNumber() * 5000 + (500 * count), 1000, 150000 * count))
 			else
-				self:SetHealth(5000)
-				self:SetMaxHealth(5000)	
+				self:SetHealth(7500)
+				self:SetMaxHealth(7500)	
 			end
 		end
 
 		self.NextShoot = CurTime() + 3
 		self.ArmCannon = true
 		self.UsingArmCannon = false
-		self.ArmCannonHP = self:GetMaxHealth() * 0.01
+		self.ArmCannonHP = self:GetMaxHealth() * 0.015
 
 		self.Helmet = true
-		self.HelmetHP = self:GetMaxHealth() * 0.25
+		self.HelmetHP = self:GetMaxHealth() * 0.5
 
 		self.Chest = true
-		self.ChestHP = self:GetMaxHealth() * 0.25
+		self.ChestHP = self:GetMaxHealth() * 0.5
 
 		self.ShouldEnrage = false
 		self.Enraged = false
@@ -769,6 +769,8 @@ function ENT:PostTookDamage(dmginfo)
 				self:EmitSound(self.ArmorBreakSounds[math.random(#self.ArmorBreakSounds)], 95)	
 				attacker:EmitSound(self.ArmorBreakSounds[math.random(#self.ArmorBreakSounds)], SNDLVL_GUNFIRE)
 
+				attacker:GivePoints(90)
+
 				self:ManipulateBoneScale(self:LookupBone("j_head_attach"), Vector(0.00001,0.00001,0.00001))
 				ParticleEffectAttach("npcarmor_break", PATTACH_POINT_FOLLOW, self, 10)
 				if !self:GetSpecialAnimation() then
@@ -791,6 +793,8 @@ function ENT:PostTookDamage(dmginfo)
 				self:PlaySound(self.PainSounds[math.random(#self.PainSounds)], 90, math.random(85, 105), 1, 2)
 				self:EmitSound(self.ArmorBreakSounds[math.random(#self.ArmorBreakSounds)], 95)	
 				attacker:EmitSound(self.ArmorBreakSounds[math.random(#self.ArmorBreakSounds)], SNDLVL_GUNFIRE)
+
+				attacker:GivePoints(90)
 
 				self:ManipulateBoneScale(self:LookupBone("j_spine4_attach"), Vector(0.00001,0.00001,0.00001))
 				ParticleEffectAttach("npcarmor_break", PATTACH_POINT_FOLLOW, self, 9)

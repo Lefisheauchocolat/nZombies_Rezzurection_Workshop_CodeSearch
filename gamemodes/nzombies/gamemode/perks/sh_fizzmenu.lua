@@ -272,7 +272,7 @@ if CLIENT then
 			end
 		end
 
-		if nzMapping.Settings.cwfizzperkslot and (nzRound:GetNumber() >= (nzMapping.Settings.cwfizzslotround or 20) or ply:IsInCreative()) then
+		if nzMapping.Settings.cwfizzperkslot and (ply:GetMaxPerks() < (nzMapping.Settings.maxperkslots or 8)) and (nzRound:GetNumber() >= (nzMapping.Settings.cwfizzslotround or 20) or ply:IsInCreative()) then
 			local perkslot_price = (nzMapping.Settings.cwfizzslotprice or 10000)
 
 			local perkback = vgui.Create("DImage", panel)

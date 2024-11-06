@@ -74,6 +74,7 @@ end
 function ENT:CreateRocketTrail()
 	if SERVER then
 		util.SpriteTrail(self, 0, Color(255, 25, 0, 255), false, 35, 25, 0.15, 1 / 40 * 0.3, "trails/electric")
+		ParticleEffectAttach("zmb_mutated_plasma_aura", 1, self, 0)
 	end
 end
 

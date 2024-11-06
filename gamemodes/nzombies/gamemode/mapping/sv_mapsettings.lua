@@ -148,6 +148,33 @@ function nzMapping:LoadMapSettings(data)
 		nzMapping.Settings.poweruplist = poweruplist
 	end
 
+	-- Vulture drops --
+	if data.vulturelist then
+		for k, v in pairs(data.vulturelist) do
+			if (!nzPerks.VultureData[k]) then
+				data.vulturelist[k] = nil
+				print("[nZ PowerUps] Removed invalid vulture drop: " .. k)
+			end
+		end
+
+		for k, v in pairs(nzPerks.VultureData) do
+			if !data.vulturelist[k] then
+				data.vulturelist[k] = {false, v.name or string.NiceName(k)}
+			end
+		end
+
+		nzMapping.Settings.vulturelist = data.vulturelist
+	else
+		local vulturelist = {}
+		for k, v in pairs(nzPerks.VultureData) do
+			if v.natural then
+				vulturelist[k] = {true, v.name or string.NiceName(k)}
+			end
+		end
+
+		nzMapping.Settings.vulturelist = vulturelist
+	end
+
 	-- Gums --
 	if data.gumlist then
 		for k, v in pairs(data.gumlist) do
@@ -272,6 +299,7 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.dontkeepperks = tobool(data.dontkeepperks)
 	nzMapping.Settings.tacticalupgrades = tobool(data.tacticalupgrades)
 	nzMapping.Settings.tacticalkillcount = data.tacticalkillcount or 40
+	nzMapping.Settings.maponlyrandomperks = tobool(data.maponlyrandomperks)
 	nzMapping.Settings.gravity = data.gravity or 600
 	nzMapping.Settings.papbeam = tobool(data.papbeam)
 	nzMapping.Settings.randompap = tobool(data.randompap)
@@ -280,12 +308,25 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.minboxhit = data.minboxhit or 3
 	nzMapping.Settings.maxboxhit = data.maxboxhit or 13
 	nzMapping.Settings.boxstartuses = data.boxstartuses or 8
+	nzMapping.Settings.rboxprice = data.rboxprice or 950
 	nzMapping.Settings.maxteddypercent = data.maxteddypercent or 50
 	nzMapping.Settings.minfizzuses = data.minfizzuses or 3
 	nzMapping.Settings.maxfizzuses = data.maxfizzuses or 6
 
+	nzMapping.Settings.roundwaittime = data.roundwaittime or 15
+	nzMapping.Settings.specialroundwaittime = data.specialroundwaittime or 15
+	nzMapping.Settings.specialroundmin = data.specialroundmin or 5
+	nzMapping.Settings.specialroundmax = data.specialroundmax or 7
+	nzMapping.Settings.forcefirstspecialround = tobool(data.forcefirstspecialround)
+	nzMapping.Settings.firstspecialround = data.firstspecialround or 5
+	nzMapping.Settings.slotrewardround = data.slotrewardround or 15
+	nzMapping.Settings.slotrewardinterval = data.slotrewardinterval or 10
+	nzMapping.Settings.slotrewardcount = data.slotrewardcount or 2
+
 	nzMapping.Settings.nukedperks = tobool(data.nukedperks)
-	nzMapping.Settings.nukedrandom = data.nukedrandom == nil and true or data.nukedrandom
+	nzMapping.Settings.nukedrandom = data.nukedrandom == nil and true or tobool(data.nukedrandom)
+	nzMapping.Settings.nukedfizz = data.nukedfizz == nil and true or tobool(data.nukedfizz)
+	nzMapping.Settings.nukedpap = data.nukedpap == nil and true or tobool(data.nukedpap)
 	nzMapping.Settings.nukedroundmin = data.nukedroundmin or 3
 	nzMapping.Settings.nukedroundmax = data.nukedroundmax or 5
 
@@ -299,6 +340,9 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.staminaregenamount = data.staminaregenamount and tonumber(data.staminaregenamount) or 4.5
 	nzMapping.Settings.staminaregendelay = data.staminaregendelay and tonumber(data.staminaregendelay) or 0.5
 
+	nzMapping.Settings.divingallowweapon = tobool(data.divingallowweapon)
+	nzMapping.Settings.divingomnidirection = tobool(data.divingomnidirection)
+
 	nzMapping.Settings.slidejump = tobool(data.slidejump)
 	nzMapping.Settings.slidecooldown = data.slidecooldown or 0.4
 	nzMapping.Settings.slideduration = data.slideduration or 0.6
@@ -310,6 +354,14 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.flashlight = data.flashlight == nil and true or data.flashlight
 
 	-- Map Visual --
+	nzMapping.Settings.typewriterintro = tobool(data.typewriterintro)
+	nzMapping.Settings.typewritertext = data.typewritertext or "Berlin, Germany;Wittenau Sanatorium;September, 1945"
+	nzMapping.Settings.typewriterdelay = data.typewriterdelay or 0.125
+	nzMapping.Settings.typewriterlinedelay = data.typewriterlinedelay or 1.5
+	nzMapping.Settings.typewriteroffset = data.typewriteroffset or 420
+
+	nzMapping.Settings.gamebegintext = data.gamebegintext or "Round"
+	nzMapping.Settings.blurpoweron = tobool(data.blurpoweron)
 	nzMapping.Settings.monochrome = tobool(data.monochrome)
 	nzMapping.Settings.powerupoutline = data.powerupoutline or 0
 	nzMapping.Settings.powerupstyle = data.powerupstyle or "style_classic"
@@ -378,6 +430,7 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.timedgame = data.timedgame or nil
 	nzMapping.Settings.timedgametime = data.timedgametime == nil and 120 or data.timedgametime
 	nzMapping.Settings.timedgamemaxtime = data.timedgamemaxtime == nil and 600 or data.timedgamemaxtime
+	nzMapping.Settings.timedgameroundwaittime = data.timedgameroundwaittime or 0.5
 	nzMapping.Settings.cwpointssystem = data.cwpointssystem or nil
 
 	-- Zombie General --
@@ -399,11 +452,13 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.sidestepping = data.sidestepping or false
 	nzMapping.Settings.badattacks = data.badattacks or false
 	nzMapping.Settings.dmgincrease = data.dmgincrease or false
-	nzMapping.Settings.stumble = data.stumble or false
+	nzMapping.Settings.stumbling = data.stumbling == nil and true or data.stumbling
+
 	NZZombiesMaxAllowed = nzMapping.Settings.startingspawns
 
 	-- Map Color Options --
 	nzMapping.Settings.zombieeyecolor = data.zombieeyecolor == nil and Color(0, 255, 255, 255) or Color(data.zombieeyecolor.r, data.zombieeyecolor.g, data.zombieeyecolor.b)
+	nzMapping.Settings.zombieeyecolor2 = data.zombieeyecolor2 == nil and Color(255, 0, 0, 255) or Color(data.zombieeyecolor2.r, data.zombieeyecolor2.g, data.zombieeyecolor2.b)
 	nzMapping.Settings.boxlightcolor = data.boxlightcolor == nil and Color(0, 150,200,255) or Color(data.boxlightcolor.r, data.boxlightcolor.g, data.boxlightcolor.b) 
 	nzMapping.Settings.textcolor = data.textcolor == nil and Color(0, 255, 255, 255) or Color(data.textcolor.r, data.textcolor.g, data.textcolor.b) 
 	nzMapping.Settings.paplightcolor = data.paplightcolor == nil and Color(156, 81, 182, 255) or Color(data.paplightcolor.r, data.paplightcolor.g, data.paplightcolor.b)
@@ -440,6 +495,9 @@ function nzMapping:LoadMapSettings(data)
 		["sizew"] = 128,
 		["sizeh"] = 42,
 	}
+	nzMapping.Settings.zombieeyechange = tobool(data.zombieeyechange)
+	nzMapping.Settings.zombieeyeround = data.zombieeyeround or 25
+	nzMapping.Settings.zombieeyetime = data.zombieeyetime or 30
 
 	-- Data Structs --
 	for k,v in pairs(nzSounds.struct) do

@@ -883,6 +883,8 @@ function ENT:PostTookDamage(dmginfo)
 			attacker:EmitSound(self.ArmorBreakSounds[math.random(#self.ArmorBreakSounds)], SNDLVL_GUNFIRE)
 			ParticleEffectAttach("npcarmor_break", PATTACH_POINT_FOLLOW, self, 10)
 
+			attacker:GivePoints(90)
+
 			if !self.IsBeingStunned then
 				self.IsBeingStunned = true
 				self:DoSpecialAnimation("nz_soldat_pain_faceplate", true, true)
@@ -909,6 +911,8 @@ function ENT:PostTookDamage(dmginfo)
 			self:EmitSound(self.ArmorBreakSounds[math.random(#self.ArmorBreakSounds)], 95)
 			attacker:EmitSound(self.ArmorBreakSounds[math.random(#self.ArmorBreakSounds)], SNDLVL_GUNFIRE)
 			ParticleEffectAttach("npcarmor_break", PATTACH_POINT_FOLLOW, self, 17)
+
+			attacker:GivePoints(90)
 
 			if !self.IsBeingStunned then
 				self.IsBeingStunned = true

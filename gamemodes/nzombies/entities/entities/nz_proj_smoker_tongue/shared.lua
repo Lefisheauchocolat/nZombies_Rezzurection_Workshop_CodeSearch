@@ -17,7 +17,7 @@ end
 
 function ENT:Initialize()
 	if SERVER then
-		self:SetModel("models/nz_zombie/panzer_claw.mdl") -- Change later
+        self:SetModel("models/dav0r/hoverball.mdl")
 		self:PhysicsInit(SOLID_OBB)
 		self:SetSolid(SOLID_NONE)
 		self:SetTrigger(true)
@@ -39,12 +39,12 @@ function ENT:Initialize()
 end
 
 function ENT:Launch(dir)
-	self:SetLocalVelocity(dir * 1000)
+	self:SetLocalVelocity(dir * 3000)
 	self:SetAngles((dir*-1):Angle())
 	self:SetSequence(self:LookupSequence("anim_close"))
 	
-	self.AutoReturnTime = CurTime() + 1.45
-	self.AutoBreak = CurTime() + 3
+	self.AutoReturnTime = CurTime() + 0.75
+	self.AutoBreak = CurTime() + 2
 
 	self:EmitSound("nz_moo/zombies/vox/_smoker/tongue_fly_loop.wav", 65)
 end
@@ -112,7 +112,10 @@ end
 function ENT:Release()
 	if IsValid(self.GrabbedPlayer) then
 		local smoker = self:GetSmoker()
-		smoker:FinishGrab()
+
+		if IsValid(smoker) then
+			smoker:FinishGrab()
+		end
 		hook.Remove("SetupMove", "SmokerGrab"..self:EntIndex())
 		
 		if SERVER then
@@ -257,7 +260,9 @@ end
 function ENT:OnRemove()
 	if SERVER then
 		local smoker = self:GetSmoker()
-		smoker:FinishGrab()
+		if IsValid(smoker) then
+			smoker:FinishGrab()
+		end
 		self:StopSound("nz_moo/zombies/vox/_smoker/tongue_fly_loop.wav")
 	end
 	self:Release()

@@ -14,6 +14,9 @@ PrecacheParticleSystem("zmb_mutated_water_step")
 PrecacheParticleSystem("zmb_mutated_plasma_aura")
 PrecacheParticleSystem("zmb_mutated_plasma_step")
 
+PrecacheParticleSystem("zmb_toxicpuddle")
+PrecacheParticleSystem("zmb_toxicpuddle_small")
+
 PrecacheParticleSystem("zmb_firepit")
 PrecacheParticleSystem("zmb_dog_spawn_fireball")
 
@@ -26,6 +29,10 @@ PrecacheParticleSystem("zmb_disciple_aura")
 PrecacheParticleSystem("zmb_disciple_blast")
 PrecacheParticleSystem("zmb_disciple_hand_blast")
 PrecacheParticleSystem("zmb_disciple_lifedrain")
+
+PrecacheParticleSystem("zmb_quad_teleport")
+PrecacheParticleSystem("zmb_gas_trail")
+PrecacheParticleSystem("zmb_gas_explo")
 
 PrecacheParticleSystem("zmb_trickster_aura")
 PrecacheParticleSystem("zmb_trickster_portal")
@@ -52,6 +59,7 @@ PrecacheParticleSystem("tomb_pap_eye_red")
 PrecacheParticleSystem("tomb_pap_roller_red")
 PrecacheParticleSystem("tomb_pap_roller_lens_flare_red")
 
+PrecacheParticleSystem("mob_box_aura")
 PrecacheParticleSystem("tomb_box_aura")
 
 

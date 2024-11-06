@@ -10,7 +10,7 @@ local entMeta = FindMetaTable("Entity")
 if SERVER then
 	entMeta.ZombSlow = function(self, duration, ratio)
 		if self.IsAATTurned and self:IsAATTurned() then return end
-		if self.NZBossType or self.IsMooBossZombie then return end
+		if self.NZBossType or self.IsMooBossZombie or self.IsMiniBoss then return end
 
 		if duration == nil then
 			duration = 0

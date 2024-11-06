@@ -114,7 +114,6 @@ if CLIENT then
 end
 
 local eyetrails 	= GetConVar("nz_zombie_eye_trails")
-local allowstumble  = GetConVar("nz_difficulty_zombie_stumble"):GetInt() --shummer
 local comedyday 	= os.date("%d-%m") == "01-04"
 local miricalday 	= os.date("%d-%m") == "25-12"
 
@@ -745,7 +744,11 @@ function ENT:Sound()
 	elseif self.ElecSounds and (self.BO4IsShocked and self:BO4IsShocked() or self.BO4IsScorped and self:BO4IsScorped() or self.BO4IsSpinning and self:BO4IsSpinning() or self.BeingDissolved) then
 		self:PlaySound(self.ElecSounds[math.random(#self.ElecSounds)],vol, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 	elseif IsValid(self.Target) and self.Target.MonkeyBomb and self.MonkeySounds and !self.IsMooSpecial then
-		self:PlaySound(self.MonkeySounds[math.random(#self.MonkeySounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
+		if self.CustomMonkeySounds then
+			self:PlaySound(self.CustomMonkeySounds[math.random(#self.CustomMonkeySounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
+		else
+			self:PlaySound(self.MonkeySounds[math.random(#self.MonkeySounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
+		end
 	elseif self:GetCrawler() and self.CrawlerSounds then
 		self:PlaySound(self.CrawlerSounds[math.random(#self.CrawlerSounds)],vol, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 	elseif (self:BomberBuff() or self.IsTurned ) and self.GasVox and !self.IsMooSpecial then
@@ -772,12 +775,18 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 		else
 			self:EmitSound(self.NormalWalkFootstepsSounds[math.random(#self.NormalWalkFootstepsSounds)], 65)
 		end
+		if self:ZombieWaterLevel() > 0 then
+			self:EmitSound(self.WaterFootstepsSounds[math.random(#self.WaterFootstepsSounds)], 70)
+		end
 	end
 	if e == "step_right_small" and !self.OverrideRsmall then
 		if self.CustomWalkFootstepsSounds then
 			self:EmitSound(self.CustomWalkFootstepsSounds[math.random(#self.CustomWalkFootstepsSounds)], 65)
 		else
 			self:EmitSound(self.NormalWalkFootstepsSounds[math.random(#self.NormalWalkFootstepsSounds)], 65)
+		end
+		if self:ZombieWaterLevel() > 0 then
+			self:EmitSound(self.WaterFootstepsSounds[math.random(#self.WaterFootstepsSounds)], 70)
 		end
 	end
 	if e == "step_left_large" and !self.OverrideLLarge then
@@ -786,6 +795,9 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 		else
 			self:EmitSound(self.NormalRunFootstepsSounds[math.random(#self.NormalRunFootstepsSounds)], 65)
 		end
+		if self:ZombieWaterLevel() > 0 then
+			self:EmitSound(self.WaterFootstepsSounds[math.random(#self.WaterFootstepsSounds)], 70)
+		end
 	end
 	if e == "step_right_large" and !self.OverrideRLarge then
 		if self.CustomRunFootstepsSounds then
@@ -793,12 +805,18 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 		else
 			self:EmitSound(self.NormalRunFootstepsSounds[math.random(#self.NormalRunFootstepsSounds)], 65)
 		end
+		if self:ZombieWaterLevel() > 0 then
+			self:EmitSound(self.WaterFootstepsSounds[math.random(#self.WaterFootstepsSounds)], 70)
+		end
 	end
-	if e == "crawl_hand" and !self.OverrideLsmall then
+	if e == "crawl_hand" then
 		if self.CustomCrawlImpactSounds then
 			self:EmitSound(self.CustomCrawlImpactSounds[math.random(#self.CustomCrawlImpactSounds)], 70)
 		else
 			self:EmitSound(self.CrawlImpactSounds[math.random(#self.CrawlImpactSounds)], 70)
+		end
+		if self:ZombieWaterLevel() > 0 then
+			self:EmitSound(self.WaterFootstepsSounds[math.random(#self.WaterFootstepsSounds)], 70)
 		end
 	end
 	if e == "melee_whoosh" then
@@ -810,10 +828,10 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 	end
 	if (e == "melee" or e == "melee_heavy") and !self.OverrideAttack then
 		if self:BomberBuff() and self.GasAttack then
-			self:EmitSound(self.GasAttack[math.random(#self.GasAttack)], 100, math.random(95, 105), 1, 2)
+			self:PlaySound(self.GasAttack[math.random(#self.GasAttack)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 		else
 			if self.AttackSounds then
-				self:EmitSound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(85, 105), 1, 2)
+				self:PlaySound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 			end
 		end
 		if e == "melee_heavy" then
@@ -915,25 +933,25 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 
 	if e == "generic_taunt" then
 		if self.TauntSounds then
-			self:EmitSound(self.TauntSounds[math.random(#self.TauntSounds)], 100, math.random(85, 105), 1, 2)
+			self:PlaySound(self.TauntSounds[math.random(#self.TauntSounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 			self.NextSound = CurTime() + self.SoundDelayMax
 		end
 	end
 	if e == "special_taunt" then
 		if self.CustomSpecialTauntSounds then
-			self:EmitSound(self.CustomSpecialTauntSounds[math.random(#self.CustomSpecialTauntSounds)], 100, math.random(85, 105), 1, 2)
+			self:PlaySound(self.CustomSpecialTauntSounds[math.random(#self.CustomSpecialTauntSounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 			self.NextSound = CurTime() + self.SoundDelayMax
 		else
-			self:EmitSound("nz_moo/zombies/vox/_classic/taunt/spec_taunt.mp3", 100, math.random(85, 105), 1, 2)
+			self:PlaySound("nz_moo/zombies/vox/_classic/taunt/spec_taunt.mp3", 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 			self.NextSound = CurTime() + self.SoundDelayMax
 		end
 	end
 	if e == "anim_taunt_v1" then
 		if self.CustomTauntAnimV1Sounds then
-			self:EmitSound(self.CustomTauntAnimV1Sounds[math.random(#self.CustomTauntAnimV1Sounds)], 100, math.random(85, 105), 1, 2)
+			self:PlaySound(self.CustomTauntAnimV1Sounds[math.random(#self.CustomTauntAnimV1Sounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 			self.NextSound = CurTime() + self.SoundDelayMax
 		else
-			self:EmitSound(self.TauntAnimV1Sounds[math.random(#self.TauntAnimV1Sounds)], 100, math.random(85, 105), 1, 2)
+			self:PlaySound(self.TauntAnimV1Sounds[math.random(#self.TauntAnimV1Sounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 			self.NextSound = CurTime() + self.SoundDelayMax
 		end
 	end
@@ -942,70 +960,70 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 			self:EmitSound(self.CustomTauntAnimV2Sounds[math.random(#self.CustomTauntAnimV2Sounds)], 100, math.random(85, 105), 1, 2)
 			self.NextSound = CurTime() + self.SoundDelayMax
 		else
-			self:EmitSound(self.TauntAnimV2Sounds[math.random(#self.TauntAnimV2Sounds)], 100, math.random(85, 105), 1, 2)
+			self:PlaySound(self.TauntAnimV2Sounds[math.random(#self.TauntAnimV2Sounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 			self.NextSound = CurTime() + self.SoundDelayMax
 		end
 	end
 	if e == "anim_taunt_v3" then
 		if self.CustomTauntAnimV3Sounds then
-			self:EmitSound(self.CustomTauntAnimV3Sounds[math.random(#self.CustomTauntAnimV3Sounds)], 100, math.random(85, 105), 1, 2)
+			self:PlaySound(self.CustomTauntAnimV3Sounds[math.random(#self.CustomTauntAnimV3Sounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 			self.NextSound = CurTime() + self.SoundDelayMax
 		else
-			self:EmitSound(self.TauntAnimV3Sounds[math.random(#self.TauntAnimV3Sounds)], 100, math.random(85, 105), 1, 2)
+			self:PlaySound(self.TauntAnimV3Sounds[math.random(#self.TauntAnimV3Sounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 			self.NextSound = CurTime() + self.SoundDelayMax
 		end
 	end
 	if e == "anim_taunt_v4" then
 		if self.CustomTauntAnimV4Sounds then
-			self:EmitSound(self.CustomTauntAnimV4Sounds[math.random(#self.CustomTauntAnimV4Sounds)], 100, math.random(85, 105), 1, 2)
+			self:PlaySound(self.CustomTauntAnimV4Sounds[math.random(#self.CustomTauntAnimV4Sounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 			self.NextSound = CurTime() + self.SoundDelayMax
 		else
-			self:EmitSound(self.TauntAnimV4Sounds[math.random(#self.TauntAnimV4Sounds)], 100, math.random(85, 105), 1, 2)
+			self:PlaySound(self.TauntAnimV4Sounds[math.random(#self.TauntAnimV4Sounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 			self.NextSound = CurTime() + self.SoundDelayMax
 		end
 	end
 	if e == "anim_taunt_v5" then
 		if self.CustomTauntAnimV5Sounds then
-			self:EmitSound(self.CustomTauntAnimV5Sounds[math.random(#self.CustomTauntAnimV5Sounds)], 100, math.random(85, 105), 1, 2)
+			self:PlaySound(self.CustomTauntAnimV5Sounds[math.random(#self.CustomTauntAnimV5Sounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 			self.NextSound = CurTime() + self.SoundDelayMax
 		else
-			self:EmitSound(self.TauntAnimV5Sounds[math.random(#self.TauntAnimV5Sounds)], 100, math.random(85, 105), 1, 2)
+			self:PlaySound(self.TauntAnimV5Sounds[math.random(#self.TauntAnimV5Sounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 			self.NextSound = CurTime() + self.SoundDelayMax
 		end
 	end
 	if e == "anim_taunt_v6" then
 		if self.CustomTauntAnimV6Sounds then
-			self:EmitSound(self.CustomTauntAnimV6Sounds[math.random(#self.CustomTauntAnimV6Sounds)], 100, math.random(85, 105), 1, 2)
+			self:PlaySound(self.CustomTauntAnimV6Sounds[math.random(#self.CustomTauntAnimV6Sounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 			self.NextSound = CurTime() + self.SoundDelayMax
 		else
-			self:EmitSound(self.TauntAnimV6Sounds[math.random(#self.TauntAnimV6Sounds)], 100, math.random(85, 105), 1, 2)
+			self:PlaySound(self.TauntAnimV6Sounds[math.random(#self.TauntAnimV6Sounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 			self.NextSound = CurTime() + self.SoundDelayMax
 		end
 	end
 	if e == "anim_taunt_v7" then
 		if self.CustomTauntAnimV7Sounds then
-			self:EmitSound(self.CustomTauntAnimV7Sounds[math.random(#self.CustomTauntAnimV7Sounds)], 100, math.random(85, 105), 1, 2)
+			self:PlaySound(self.CustomTauntAnimV7Sounds[math.random(#self.CustomTauntAnimV7Sounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 			self.NextSound = CurTime() + self.SoundDelayMax
 		else
-			self:EmitSound(self.TauntAnimV7Sounds[math.random(#self.TauntAnimV7Sounds)], 100, math.random(85, 105), 1, 2)
+			self:PlaySound(self.TauntAnimV7Sounds[math.random(#self.TauntAnimV7Sounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 			self.NextSound = CurTime() + self.SoundDelayMax
 		end
 	end
 	if e == "anim_taunt_v8" then
 		if self.CustomTauntAnimV8Sounds then
-			self:EmitSound(self.CustomTauntAnimV8Sounds[math.random(#self.CustomTauntAnimV8Sounds)], 100, math.random(85, 105), 1, 2)
+			self:PlaySound(self.CustomTauntAnimV8Sounds[math.random(#self.CustomTauntAnimV8Sounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 			self.NextSound = CurTime() + self.SoundDelayMax
 		else
-			self:EmitSound(self.TauntAnimV8Sounds[math.random(#self.TauntAnimV8Sounds)], 100, math.random(85, 105), 1, 2)
+			self:PlaySound(self.TauntAnimV8Sounds[math.random(#self.TauntAnimV8Sounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 			self.NextSound = CurTime() + self.SoundDelayMax
 		end
 	end
 	if e == "anim_taunt_v9" then
 		if self.CustomTauntAnimV9Sounds then
-			self:EmitSound(self.CustomTauntAnimV9Sounds[math.random(#self.CustomTauntAnimV9Sounds)], 100, math.random(85, 105), 1, 2)
+			self:PlaySound(self.CustomTauntAnimV9Sounds[math.random(#self.CustomTauntAnimV9Sounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 			self.NextSound = CurTime() + self.SoundDelayMax
 		else
-			self:EmitSound(self.TauntAnimV9Sounds[math.random(#self.TauntAnimV9Sounds)], 100, math.random(85, 105), 1, 2)
+			self:PlaySound(self.TauntAnimV9Sounds[math.random(#self.TauntAnimV9Sounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 			self.NextSound = CurTime() + self.SoundDelayMax
 		end
 	end
@@ -1157,7 +1175,7 @@ if SERVER then
 
 			if self.IsTurned or !self:Alive() then return end
 
-			if !self.ShouldCrawl and !self.Big_Jump_area_start and (self.LlegOff or self.RlegOff) then -- Moved the crawler creation calls here because the zombie missing any of their legs should count.
+			if !self.IsMooSpecial and !self.ShouldCrawl and !self.Big_Jump_area_start and (self.LlegOff or self.RlegOff) then -- Moved the crawler creation calls here because the zombie missing any of their legs should count.
 				self.ShouldCrawl = true
 				self:CreateCrawler()
 			end
@@ -1253,7 +1271,7 @@ if SERVER then
 		
 		self:PostAdditionalZombieStuff()
 
-		if self:GetSpecialAnimation() or self.IsMooSpecial and !self.MooSpecialZombie or self.IsTurned then return end
+		if self:GetSpecialAnimation() or self.IsMooSpecial or self.IsTurned then return end
 		if self:Alive() and self:Health() <= 0 then return end
 		if self.BO4IsToxic and self:BO4IsToxic() then
 			self:SetRunSpeed(1)
@@ -1899,7 +1917,7 @@ if SERVER then
 			end
 			
 
-			if lowhealthpercent <= 10 and !self:GetDecapitated() then
+			if lowhealthpercent <= 50 and !self:GetDecapitated() then
 				if (hitpos:DistToSqr(headpos) < 15^2) then -- Only do the check if the lowhealthpercent check goes through.
 					self:GibHead()
 				end
@@ -2174,9 +2192,11 @@ if SERVER then
 	end
 
 	function ENT:IsAttackEntBlocked(ent) -- 4/24/23: Same as above but allows use of an inserted Entity rather than the bot's current target.
-		if IsValid(ent) and ent:IsPlayer() then
+		if IsValid(ent) then
+			local pos = self:EyePos()
+
 			local tr = util_traceline({
-				start = self:EyePos(),
+				start = pos,
 				endpos = ent:EyePos(),
 				filter = self,
 				mask = MASK_PLAYERSOLID,
@@ -2189,6 +2209,30 @@ if SERVER then
 			local ent = tr.Entity
 
 			if IsValid(ent) and ent:IsPlayer() then return false end
+
+			return tr.Hit
+		end
+	end
+
+	function ENT:IsEntBlocked(startpos, endpos) -- 10/20/24: This one allows the bot to test two entities to check if they can see each other.
+		if isvector(startpos) and isvector(endpos) then
+
+			local tr = util_traceline({
+				start = startpos,
+				endpos = endpos,
+				filter = self,
+				mask = MASK_PLAYERSOLID,
+				collisiongroup = COLLISION_GROUP_WORLD, -- This is what allows zombies to ignore each other.
+				ignoreworld = false
+			})
+
+			local ent = tr.Entity
+
+			debugoverlay.Line(startpos, endpos, 3, Color( 255, 0, 255 ), false)
+
+			--if IsValid(ent) and ent:IsPlayer() then return false end
+
+			print("fuck")
 
 			return tr.Hit
 		end
@@ -2407,7 +2451,7 @@ if SERVER then
 
 					if planktopull.Enhanced then speed = 0.75 else speed = 1.1 end
 
-					if self.AttackSounds then self:PlaySound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(85, 105), 1, 2) end
+					if self.AttackSounds then self:PlaySound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2) end
 					
 					-- Check if the enemy in question even has the selected animation. If not, use an attack/barricade attack animation.
 					if self:LookupSequence(result) > 0 and (self.IsMooSpecial and self.MooSpecialZombie or !self.IsMooSpecial) then
@@ -2665,6 +2709,7 @@ function ENT:OnLandOnGround(ent)
 end
 
 function ENT:OnLeaveGround(ent)
+	print("fuck")
 	self:SetJumping(true)
 	self:OnLeaveGroundCustom(ent)
 end
@@ -2814,6 +2859,9 @@ if SERVER then
 				local lleg = self:LookupBone("j_ball_le")
 				local rleg = self:LookupBone("j_ball_ri")
 
+				if !lleg then return end
+				if !rleg then return end
+
 				local llegpos = self:GetBonePosition(lleg)
 				local rlegpos = self:GetBonePosition(rleg)
 
@@ -2863,7 +2911,7 @@ if SERVER then
 
 				-- 11/1/23: Have to double check the CurTime() > self.LastStun in order to stop the Zombie from being able to stumble two times in a row.
 				if !self.IsBeingStunned and !self:GetSpecialAnimation() then
-					if allowstumble == 1 and nzMapping.Settings.stumble == 1 then --Owlie Stumble Edit
+					if nzMapping.Settings.stumbling == true then
 						if hitgroup == HITGROUP_HEAD and self:RagdollForceTest(hitforce) and CurTime() > self.LastStun then
 							if self.PainSounds and !self:GetDecapitated() then
 								self:EmitSound(self.PainSounds[math.random(#self.PainSounds)], 100, math.random(85, 105), 1, 2)
@@ -3107,7 +3155,7 @@ if SERVER then
 		local head = self:LookupBone("ValveBiped.Bip01_Head1")
 		if !head then head = self:LookupBone("j_head") end
 
-		if head then
+		if head and !self.IsMooSpecial then
 			self:DeflateBones({
 				"j_head",
 				"j_helmet",
@@ -3143,6 +3191,15 @@ if SERVER then
 				"j_brow_a07_ri",
 				"j_cheek_a05_le",
 				"j_cheek_a05_ri",
+				"ValveBiped.Exp_Jaw",
+				"ValveBiped.Exp_LipsLower",
+				"ValveBiped.Exp_Nose",
+				"ValveBiped.Exp_Eyebrows",
+				"ValveBiped.Exp_LipsRCorner",
+				"ValveBiped.Exp_Eyelids_Upper",
+				"ValveBiped.Exp_Eyelids_Lower",
+				"ValveBiped.Exp_EyebrowsCorner",
+				"ValveBiped.Exp_LipsUpper",
 			})
 
 			if self.CanBleed then
@@ -3178,7 +3235,7 @@ if SERVER then
 				self:SetShouldCount(false) -- Bosses never count towards the round when they're alive, so why should they when they are killed.
 			end
 
-			if !self.IsMooSpecial and self.CanGib then
+			if self.CanGib then
 				if dmginfo:IsDamageType(DMG_SHOCK) and math.random(100) > 50 then //Random head-pop
 					self:GibHead()
 					self:EmitSound("TFA_BO3_WAFFE.Pop")
@@ -3208,12 +3265,12 @@ if SERVER then
 				end
 			end
 
+			self:SetAlive(false)
+		
 			if self:GetShouldCount() then
 				nzEnemies:OnEnemyKilled(self, dmginfo:GetAttacker(), dmginfo, 0)
 			end
 
-			self:SetAlive(false)
-		
 			if self:GetShouldCount() then
 				hook.Call("OnZombieKilled", GAMEMODE, self, dmginfo)
 			end
@@ -3265,7 +3322,7 @@ if SERVER then
 
 		if damagetype == DMG_MISSILEDEFENSE or damagetype == DMG_ENERGYBEAM then
 			if self.LaunchSounds then
-				self:PlaySound(self.LaunchSounds[math.random(#self.LaunchSounds)], 90, math.random(85, 105), 1, 2)
+				self:PlaySound(self.LaunchSounds[math.random(#self.LaunchSounds)], 90, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 				self.Launched = true
 			end
 			self:BecomeRagdoll(dmginfo) -- Only Thundergun and Wavegun Ragdolls constantly.
@@ -3275,7 +3332,7 @@ if SERVER then
 		end
 		if IsValid(self.Target) and self.Target.BHBomb and !self.IsMooSpecial then
 			if self.DeathSounds then
-				self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
+				self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 			end
 			if self:GetCrawler() then
 				self:DoDeathAnimation(self.CrawlBlackHoleDeathSequences[math.random(#self.CrawlBlackHoleDeathSequences)])
@@ -3285,58 +3342,58 @@ if SERVER then
 		end
 		if self.DeathRagdollForce == 0 or self:GetSpecialAnimation() or !self.DeathSequences then
 			if self.DeathSounds and !self.Launched then
-				self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
+				self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 			end
 			self:BecomeRagdoll(dmginfo)
 		else
 			if self:GetCrawler() then
 				if self:RagdollForceTest(dmginfo:GetDamageForce()) then
 					if self.DeathSounds then
-						self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
+						self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 					end
 					self:BecomeRagdoll(dmginfo)
 				elseif damagetype == DMG_SHOCK or damagetype == DMG_DISSOLVE then
 					if self.ElecSounds then	
-						self:PlaySound(self.ElecSounds[math.random(#self.ElecSounds)], 90, math.random(85, 105), 1, 2)
+						self:PlaySound(self.ElecSounds[math.random(#self.ElecSounds)], 90, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 					end
 					self:DoDeathAnimation(self.CrawlTeslaDeathSequences[math.random(#self.CrawlTeslaDeathSequences)])
 				else
 					if self.DeathSounds then
-						self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
+						self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 					end
 					self:DoDeathAnimation(self.CrawlDeathSequences[math.random(#self.CrawlDeathSequences)])
 				end
 			else
 				if self:RagdollForceTest(dmginfo:GetDamageForce()) and !dmginfo:IsExplosionDamage() then
 					if self.DeathSounds and !self.Launched then
-						self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
+						self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 					end
 					self:DoDeathAnimation(self.HeavyDeathSequences[math.random(#self.HeavyDeathSequences)])
 				elseif self:RagdollForceTest(dmginfo:GetDamageForce()) and dmginfo:IsExplosionDamage() then
 					if self.DeathSounds then
-						self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
+						self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 					end
 					self:DoDeathAnimation(self.BlastDeathSequences[math.random(#self.BlastDeathSequences)])
 				elseif damagetype == DMG_SHOCK or damagetype == DMG_DISSOLVE then
 					if self.ElecSounds then
-						self:PlaySound(self.ElecSounds[math.random(#self.ElecSounds)], 90, math.random(85, 105), 1, 2)
+						self:PlaySound(self.ElecSounds[math.random(#self.ElecSounds)], 90, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 					end
 					self:DoDeathAnimation(self.ElectrocutionSequences[math.random(#self.ElectrocutionSequences)])
 				elseif self:IsOnFire() then
 					if self.FireDeathSounds then
-						self:PlaySound(self.FireDeathSounds[math.random(#self.FireDeathSounds)], 90, math.random(75, 95), 1, 2)
+						self:PlaySound(self.FireDeathSounds[math.random(#self.FireDeathSounds)], 90, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 					elseif self.ElecSounds then
-						self:PlaySound(self.ElecSounds[math.random(#self.ElecSounds)], 90, math.random(75, 95), 1, 2)
+						self:PlaySound(self.ElecSounds[math.random(#self.ElecSounds)], 90, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 					end
 					self:DoDeathAnimation(self.FireStaffDeathSequences[math.random(#self.FireStaffDeathSequences)])
 				elseif damagetype == DMG_SLASH then
 					if self.DeathSounds then
-						self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
+						self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 					end
 					self:DoDeathAnimation(self.MeleeDeathSequences[math.random(#self.MeleeDeathSequences)])
 				else
 					if self.DeathSounds and !self.Launched then
-						self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
+						self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 					end
 					self:DoDeathAnimation(self.DeathSequences[math.random(#self.DeathSequences)])
 				end
@@ -3546,6 +3603,12 @@ function ENT:DoAttackDamage() -- Moo Mark 4/14/23: Made the part that does damag
 
 	local target = self:GetTarget()
 
+	-- Don't do damage to the target if they're timing out, that ain't fair.
+	if IsValid(target) and target:IsPlayer() and target:IsTimingOut() then 
+		self:Retarget()
+		return 
+	end
+
 	local damage = self.AttackDamage
 	local dmgrange = self.DamageRange
 	local range = self.AttackRange
@@ -3586,6 +3649,7 @@ function ENT:DoAttackDamage() -- Moo Mark 4/14/23: Made the part that does damag
 
 		self:SetLastAttack(CurTime() + 0.05)
 		if IsValid(target) and target:Health() and target:Health() > 0 then -- Doesn't matter if its a player... If the zombie is targetting it, they probably wanna attack it.
+			
 			if self:TargetInRange( range ) then
 				local dmgInfo = DamageInfo()
 				dmgInfo:SetAttacker( self )
@@ -3792,7 +3856,7 @@ if SERVER then
 				return "timeout"
 			end
 
-			if (!self:GetAttacking() and !self:GetSpecialAnimation() and self:IsOnGround()) or (!self:IsOnGround() and self:GetJumping()) then
+			if (!self:GetAttacking() and !self:GetSpecialAnimation() and self:IsOnGround() and !self:GetJumping()) or (!self:IsOnGround() and self:GetJumping()) then
 				self:ResetMovementSequence() -- This is the main point that starts the movement anim. Moo Mark
 			end
 			
@@ -4393,7 +4457,7 @@ if SERVER then
     	if suicide and self:Alive() then self:TakeDamage(self:Health() + 666, self, self) end
 	end
 
-	function ENT:RespawnZombie()
+	function ENT:RespawnZombie(playanim)
 		if self.IsTurned then return end -- Don't respawn them if they're Turned
 		if nzRound:InProgress() then -- Only do this if theres a round in progress.
 			if self.NZBossType or self.IsMooBossZombie then
@@ -4419,7 +4483,7 @@ if SERVER then
 				end
 			else
 				local seq = self.ZombieDespawnSequences[math.random(#self.ZombieDespawnSequences)]
-				if self:HasSequence(seq) then
+				if self:HasSequence(seq) and playanim then
 					self:DoDeathAnimation(seq, true, true)
 				else
 					self:Remove()
@@ -5031,6 +5095,7 @@ if SERVER then
 		end
 	end
 
+	-- Now contains the modified path generator so this functions navigating sucks ass.
 	function ENT:MoveToPos( pos, options )
 
 		local options = options or {}
@@ -5038,7 +5103,51 @@ if SERVER then
 		local path = Path( "Follow" )
 		path:SetMinLookAheadDistance( options.lookahead or 300 )
 		path:SetGoalTolerance( options.tolerance or 20 )
-		path:Compute( self, pos )
+		path:Compute( self, pos, function( area, fromArea, ladder, elevator, length )
+			if ( !IsValid( fromArea ) ) then
+				// first area in path, no cost
+				return 0
+			else
+				if ( !self.loco:IsAreaTraversable( area ) ) then
+					// our locomotor says we can't move here
+					return -1
+				end
+				// compute distance traveled along path so far
+				local dist = 0
+
+				--[[
+				if ( IsValid( ladder ) ) then
+					dist = ladder:GetLength()
+				elseif ( length > 0 ) then
+					// optimization to avoid recomputing length
+					dist = length
+				else
+					dist = (area:GetCenter() - fromArea:GetCenter()):GetLength()
+				end]]
+
+				local cost = dist + fromArea:GetCostSoFar()
+
+				// check height change
+				local deltaZ = fromArea:ComputeAdjacentConnectionHeightChange( area )
+				if deltaZ >= self.loco:GetStepHeight() then
+					if deltaZ >= self.loco:GetMaxJumpHeight() then
+					
+						if !fromArea:HasAttributes(NAV_MESH_JUMP) then
+							return -1
+						end
+					
+					end
+
+					// jumping is slower than flat ground
+					local jumpPenalty = 5
+					cost = cost + jumpPenalty * 0
+				elseif deltaZ < -self.loco:GetDeathDropHeight() then
+					// too far to drop
+					return -1
+				end
+				return cost
+			end
+		end )
 
 		if ( !path:IsValid() ) then return "failed" end
 
@@ -5066,7 +5175,56 @@ if SERVER then
 
 			-- If they set repath then rebuild the path every x seconds
 			if ( options.repath ) then
-				if ( path:GetAge() > options.repath ) then path:Compute( self, pos ) end
+
+				self:CheckForBigJump()
+
+				if ( path:GetAge() > options.repath ) then 	
+					path:Compute( self, pos, function( area, fromArea, ladder, elevator, length )
+						if ( !IsValid( fromArea ) ) then
+							// first area in path, no cost
+							return 0
+						else
+							if ( !self.loco:IsAreaTraversable( area ) ) then
+								// our locomotor says we can't move here
+								return -1
+							end
+							// compute distance traveled along path so far
+							local dist = 0
+
+							--[[
+							if ( IsValid( ladder ) ) then
+								dist = ladder:GetLength()
+							elseif ( length > 0 ) then
+								// optimization to avoid recomputing length
+								dist = length
+							else
+								dist = (area:GetCenter() - fromArea:GetCenter()):GetLength()
+							end]]
+
+							local cost = dist + fromArea:GetCostSoFar()
+
+							// check height change
+							local deltaZ = fromArea:ComputeAdjacentConnectionHeightChange( area )
+							if deltaZ >= self.loco:GetStepHeight() then
+								if deltaZ >= self.loco:GetMaxJumpHeight() then
+								
+									if !fromArea:HasAttributes(NAV_MESH_JUMP) then
+										return -1
+									end
+								
+								end
+
+								// jumping is slower than flat ground
+								local jumpPenalty = 5
+								cost = cost + jumpPenalty * 0
+							elseif deltaZ < -self.loco:GetDeathDropHeight() then
+								// too far to drop
+								return -1
+							end
+							return cost
+						end
+					end )
+				end
 			end
 
 			coroutine.yield()
@@ -6137,6 +6295,13 @@ ENT.CrawlImpactSounds = {
 	Sound("nz_moo/zombies/footsteps/crawl/crawl_01.mp3"),
 	Sound("nz_moo/zombies/footsteps/crawl/crawl_02.mp3"),
 	Sound("nz_moo/zombies/footsteps/crawl/crawl_03.mp3"),
+}
+
+ENT.WaterFootstepsSounds = {
+	Sound("player/footsteps/slosh1.wav"),
+	Sound("player/footsteps/slosh2.wav"),
+	Sound("player/footsteps/slosh3.wav"),
+	Sound("player/footsteps/slosh4.wav"),
 }
 
 ENT.NormalWalkFootstepsSounds = {

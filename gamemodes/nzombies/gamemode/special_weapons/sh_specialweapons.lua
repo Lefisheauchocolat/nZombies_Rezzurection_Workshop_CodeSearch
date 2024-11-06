@@ -159,6 +159,11 @@ local function RegisterDefaultSpecialWeps()
 		return SERVER and IsValid(wep:GetOwner()) and wep:GetOwner():GetNotDowned()
 	end)
 
+	nzSpecialWeapons:AddDisplay("tfa_dive_to_prone", false, function(wep)
+		local ply = wep:GetOwner()
+		return SERVER and (not ply:GetDiving() and ply:OnGround() and ply:GetLandingTime() < CurTime())
+	end)
+
 	nzSpecialWeapons:AddDisplay( "tfa_nz_gum", false, function(wep)
 		return SERVER and CurTime() > wep.nzDeployTime + 3
 	end)

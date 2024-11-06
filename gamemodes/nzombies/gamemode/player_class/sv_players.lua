@@ -35,8 +35,17 @@ end)
 
 hook.Add("SetupMove", "nzPlayerInitialSpawn", function( ply, _, cmd )
 	if load_queue[ply] and not cmd:IsForced() then
-		load_queue[ply] = nil
-		nzPlayers:FullSync(ply)
+		if isnumber(load_queue[ply]) and load_queue[ply] < CurTime() then //first send mapdata, then sync modules
+			//print(CurTime())
+			print('Sent module sync to '..ply:Nick())
+			load_queue[ply] = nil
+			nzPlayers:FullSync(ply)
+		elseif not isnumber(load_queue[ply]) then
+			//print(CurTime())
+			print('Sent map data to '..ply:Nick())
+			nzMapping:SendMapData(ply)
+			load_queue[ply] = CurTime() + (ply:Ping()*0.01) + engine.TickInterval()
+		end
 	end
 end)
 
@@ -72,13 +81,16 @@ hook.Add("PlayerShouldTakeDamage", "nzPlayerIgnoreDamage", function(ply, ent)
 			end
 		end
 
-		local fx = EffectData()
-		fx:SetOrigin(ply:GetPos())
-		fx:SetEntity(ply)
-		util.Effect("nz_spidernade_explosion", fx)
+		timer.Simple(0, function()
+			if not IsValid(ply) then return end //fuck yuo :)
+			local fx = EffectData()
+			fx:SetOrigin(ply:GetPos())
+			fx:SetEntity(ply)
+			util.Effect("nz_spidernade_explosion", fx)
 
-		local nade = GetNZAmmoID("grenade")
-		ply:SetAmmo(ply:GetAmmoCount(nade) - 1, nade)
+			local nade = GetNZAmmoID("grenade")
+			ply:SetAmmo(ply:GetAmmoCount(nade) - 1, nade)
+		end)
 
 		return false
 	end
@@ -110,6 +122,12 @@ hook.Add("EntityTakeDamage", "nzPlayerTakeDamage", function(ply, dmginfo)
 		end
 	end
 
+	if ply.DamageBarrierTypes and bit.band(dmginfo:GetDamageType(), ply.DamageBarrierTypes) ~= 0 then
+		dmginfo:SetDamage(0)
+		dmginfo:ScaleDamage(0)
+		return false
+	end
+
 	local gum = nzGum:GetActiveGum(ply)
 
 	if (gum and gum == "blood_debt") and ply:GetPoints() > 0 then
@@ -122,7 +140,7 @@ hook.Add("EntityTakeDamage", "nzPlayerTakeDamage", function(ply, dmginfo)
 		if nzPowerUps:IsPlayerAntiPowerupActive(ply, "berzerk") then
 			ply:ViewPunch(VectorRand():Angle() * 0.05)
 			if ply:IsOnGround() then
-				ply:SetVelocity((ply:GetPos() - ent:GetPos()) * 18 + Vector(0, 0, 12))
+				ply:SetVelocity((ply:GetPos() - ent:GetPos()) * 20 + Vector(0, 0, 12))
 			end
 		end
 
@@ -259,7 +277,7 @@ hook.Add("PostEntityTakeDamage", "nzPostPlayerTakeDamage", function(ply, dmginfo
 
 				fire:Spawn()
 
-				local time = (ply:HasUpgrade("fire") and 10 or 20) * math.max(ply:GetNW2Int("nz.BurnCount", 1), 1)
+				local time = (ply:HasUpgrade("fire") and 15 or 30) * math.max(ply:GetNW2Int("nz.BurnCount", 1), 1)
 				ply:SetNW2Float("nz.BurnDelay", CurTime() + time)
 				ply:SetNW2Int("nz.BurnCount", math.min(ply:GetNW2Int("nz.BurnCount", 0) + 1), 10)
 			end
@@ -293,6 +311,11 @@ hook.Add("PlayerSpawn", "nzPlayerSpawnVars", function(ply, trans)
 end)
 
 hook.Add("PlayerDowned", "nzPlayerDown", function(ply)
+	for key, upgrade in pairs(ply.OldUpgrades) do
+		if tostring(upgrade) == "danger" then
+			nzPowerUps:Nuke(ply:GetPos(), true, false, true)
+		end
+	end
 	for key, perk in pairs(ply.OldPerks) do
 		if tostring(perk) == "tortoise" then
 			local pos = ply:GetPos()

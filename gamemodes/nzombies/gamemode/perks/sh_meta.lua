@@ -165,34 +165,73 @@ if SERVER then
 	end
 
 	function playerMeta:GiveRandomPerk(maponly)
+		local mapperks = {}
 		local available = {}
 		local fizzlist = nzMapping.Settings.wunderfizzperklist
+		local machines = ents.FindByClass("perk_machine")
 		local blockedperks = {
 			["wunderfizz"] = true,
 			["pap"] = true,
 			["gum"] = true,
 		}
 
-		local machines = ents.FindByClass("perk_machine")
-		for perk, _ in pairs(nzPerks:GetList()) do
-			if blockedperks[perk] then continue end
-			if fizzlist and fizzlist[perk] and not fizzlist[perk][1] then continue end
-			if self:HasPerk(perk) then continue end
+		if nzPerks.NukedPerks then
+			for _, perk in pairs(nzPerks.NukedPerks) do
+				mapperks[perk] = true
+			end
+		else
+			for _, ent in pairs(machines) do
+				mapperks[ent:GetPerkID()] = true
+			end
+		end
 
-			if maponly then
-				for _, ent in pairs(machines) do
-					if ent:GetPerkID() == perk then
+		if nzMapping.Settings.maponlyrandomperks then
+			for perk, _ in pairs(mapperks) do
+				if blockedperks[perk] then continue end
+				if self:HasPerk(perk) then continue end
+
+				table.insert(available, perk)
+			end
+		else
+			for perk, _ in pairs(nzPerks:GetList()) do
+				if blockedperks[perk] then continue end
+				if fizzlist and fizzlist[perk] and not fizzlist[perk][1] then continue end
+				if self:HasPerk(perk) then continue end
+
+				if maponly then
+					if mapperks[perk] then
 						table.insert(available, perk)
 					end
-				end
-			else
-				table.insert(available, perk)
-			end	
+				else
+					table.insert(available, perk)
+				end	
+			end
 		end
 
 		if table.IsEmpty(available) then nzSounds:PlayEnt("Laugh", self) end
 
-		self:GivePerk(available[math.random(#available)])
+		local perk = available[math.random(#available)]
+		self:GivePerk(perk)
+		return perk
+	end
+
+	function playerMeta:GiveAllPerks()
+		local c = 0
+		for _, data in pairs(nzPerks.Data) do
+			if !data.specialmachine then
+				c = c + 1
+			end
+		end
+
+		local b_isfull = false
+		for i=1, c do
+			timer.Simple((i-1)*0.25, function()
+				if b_isfull then return end
+				if !self:GiveRandomPerk() then
+					b_isfull = true
+				end
+			end)
+		end
 	end
 
 	function playerMeta:SetPreventPerkLoss(bool)
@@ -201,11 +240,7 @@ if SERVER then
 
 	function playerMeta:GivePermaPerks()
 		self:SetPreventPerkLoss(true)
-		for k,v in pairs(nzPerks:GetList()) do
-			if !nzPerks:Get(k).specialmachine then
-				self:GivePerk(k)
-			end
-		end
+		self:GiveAllPerks()
 	end
 
 	//ignoreplayer can either be a single player or table of players

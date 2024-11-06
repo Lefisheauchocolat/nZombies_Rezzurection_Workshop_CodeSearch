@@ -88,29 +88,26 @@ function meta:CalculateMaxAmmo(papoverwrite)
 end
 
 function meta:GiveMaxAmmo(papoverwrite)
-
 	if self.NZMaxAmmo then self:NZMaxAmmo(papoverwrite) return end
 
-	local ply = self.Owner
+	local ply = self:GetOwner()
 	if !IsValid(ply) then return end
 	
+	local category = self.NZSpecialCategory
+
 	local ammo_type = self:GetPrimaryAmmoType() or self.Primary.Ammo
-	   local max_ammo = 0
-    if self:GetClass() == "nz_grenade" then
-        max_ammo = 4
-        ammo_type = "nz_grenade"
-    else
-        max_ammo = self:CalculateMaxAmmo(papoverwrite)
-    end
+	local max_ammo = self:CalculateMaxAmmo(papoverwrite)
 
 	local curr_ammo = ply:GetAmmoCount( ammo_type )
 	local give_ammo = max_ammo - curr_ammo
 
 	-- Just for display, since we're setting their ammo anyway
-	ply:GiveAmmo(give_ammo, ammo_type)
-	ply:SetAmmo(max_ammo, ammo_type)
-	
-	if self:IsSpecial() then -- Give Max Ammo for special weapons when first getting them.
+	if !category or category == "display" then
+		ply:GiveAmmo(give_ammo, ammo_type)
+		ply:SetAmmo(max_ammo, ammo_type)
+	end
+
+	if category then -- Give Max Ammo for special weapons when first getting them.
 		local wepdata = self.NZSpecialWeaponData
 		if !wepdata then return end
 

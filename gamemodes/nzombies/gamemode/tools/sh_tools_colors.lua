@@ -26,10 +26,10 @@ nzTools:CreateTool("colorsettings", {
 	interface = function(frame, tooldata)
 		local data = table.Copy(nzMapping.Settings)
 		local valz = {}
-		valz["Row17"] = data.zombieeyecolor == nil and Color(0, 255, 255, 255) or data.zombieeyecolor
-		valz["Row20"] = data.boxlightcolor == nil and Color(0, 150, 200, 255) or data.boxlightcolor
-		valz["Row39"] = data.textcolor == nil and Color(255, 255, 255, 255) or data.textcolor
-		valz["Row69"] = data.paplightcolor == nil and Color(156, 81, 182, 255) or data.paplightcolor
+		valz["Row1"] = data.zombieeyecolor == nil and Color(0, 255, 255, 255) or data.zombieeyecolor
+		valz["Row2"] = data.boxlightcolor == nil and Color(0, 150, 200, 255) or data.boxlightcolor
+		valz["Row3"] = data.textcolor == nil and Color(255, 255, 255, 255) or data.textcolor
+		valz["Row4"] = data.paplightcolor == nil and Color(156, 81, 182, 255) or data.paplightcolor
 		valz["PowerupColors"] = data.powerupcol or {
 			["global"] = {
 				[1] = Vector(0.196,1,0),
@@ -70,23 +70,31 @@ nzTools:CreateTool("colorsettings", {
 			[5] = Vector(0.235,0.078,0.705),
 		}
 		valz["WallbuyColors"] = data.wallbuydata or {
-			["glow"] = (nzMapping.Settings.boxlightcolor or valz["Row20"] or Color(0,150,200,255)),
+			["glow"] = (nzMapping.Settings.boxlightcolor or valz["Row2"] or Color(0,150,200,255)),
 			["chalk"] = Color(255,255,255,255),
 			["alpha"] = 30,
 			["material"] = "sprites/wallbuy_light.vmt",
 			["sizew"] = 128,
 			["sizeh"] = 42,
 		}
+		valz["Row5"] = data.zombieeyecolor2 == nil and Color(255, 0, 0, 255) or data.zombieeyecolor2
+		valz["Row6"] = data.zombieeyechange or false
+		valz["Row7"] = data.zombieeyeround or 25
+		valz["Row8"] = data.zombieeyetime or 30
 
 		local sheet = vgui.Create( "DPropertySheet", frame )
 		sheet:SetSize( 495, 430 )
 		sheet:SetPos( 5, 5 )
 
 		local function UpdateData() -- Will remain a local function here. There is no need for the context menu to intercept
-			if !istable(valz["Row17"]) then data.zombieeyecolor = Color(0, 255, 255, 255) else data.zombieeyecolor = valz["Row17"] end
-			if !istable(valz["Row20"]) then data.boxlightcolor = Color(0, 150,200,255) else data.boxlightcolor = valz["Row20"] end
-			if !istable(valz["Row39"]) then data.textcolor = Color(0, 255, 255, 255) else data.textcolor = valz["Row39"] end
-			if !istable(valz["Row69"]) then data.paplightcolor = Color(156, 81, 182, 255) else data.paplightcolor = valz["Row69"] end
+			if !istable(valz["Row1"]) then data.zombieeyecolor = Color(0, 255, 255, 255) else data.zombieeyecolor = valz["Row1"] end
+			if !istable(valz["Row2"]) then data.boxlightcolor = Color(0, 150,200,255) else data.boxlightcolor = valz["Row2"] end
+			if !istable(valz["Row3"]) then data.textcolor = Color(0, 255, 255, 255) else data.textcolor = valz["Row3"] end
+			if !istable(valz["Row4"]) then data.paplightcolor = Color(156, 81, 182, 255) else data.paplightcolor = valz["Row4"] end
+			if !istable(valz["Row5"]) then data.zombieeyecolor2 = Color(255, 0, 0, 255) else data.zombieeyecolor2 = valz["Row5"] end
+			if valz["Row6"] == nil then data.zombieeyechange = false else data.zombieeyechange = tobool(valz["Row6"]) end
+			if valz["Row7"] == nil then data.zombieeyeround = 25 else data.zombieeyeround = tonumber(valz["Row7"]) end
+			if valz["Row8"] == nil then data.zombieeyetime = 30 else data.zombieeyetime = tonumber(valz["Row8"]) end
 			if !valz["PowerupColors"] then
 				data.powerupcol = {
 					["global"] = {
@@ -136,7 +144,7 @@ nzTools:CreateTool("colorsettings", {
 			end
 			if !valz["WallbuyColors"] then
 				data.wallbuydata = {
-					["glow"] = (nzMapping.Settings.boxlightcolor or valz["Row20"] or Color(0,150,200,255)),
+					["glow"] = (nzMapping.Settings.boxlightcolor or valz["Row2"] or Color(0,150,200,255)),
 					["chalk"] = Color(255,255,255,255),
 					["alpha"] = 30,
 					["material"] = "sprites/wallbuy_light.vmt",
@@ -168,17 +176,46 @@ nzTools:CreateTool("colorsettings", {
 			local eyePanel = vgui.Create("DPanel", sheet)
 			sheet:AddSheet("Eye Color", eyePanel, "icon16/palette.png", false, false, "Set the eye glow color the zombies have.")
 			eyePanel:DockPadding(5, 5, 5, 5)
+
 			local colorChoose = vgui.Create("DColorMixer", eyePanel)
-			colorChoose:SetColor(valz["Row17"])
+			colorChoose:SetColor(valz["Row1"])
 			colorChoose:SetPalette(false)
 			colorChoose:SetAlphaBar(false)
 			colorChoose:Dock(TOP)
-			colorChoose:SetSize(150, 220)
-			
+			colorChoose:SetSize(150, 120)
+
+			local colorChoose2 = vgui.Create("DColorMixer", eyePanel)
+			colorChoose2:SetColor(valz["Row5"])
+			colorChoose2:SetPalette(false)
+			colorChoose2:SetAlphaBar(false)
+			colorChoose2:SetPos(5, 155)
+			colorChoose2:SetSize(470, 120)
+
+			local uhhproperties = vgui.Create( "DProperties", eyePanel )
+			uhhproperties:SetSize(455, 120)
+			uhhproperties:SetPos(0, 285)
+
+			local uhhsetting1 = uhhproperties:CreateRow("Options", "Change eye color mid game" )
+			uhhsetting1:Setup("Boolean")
+			uhhsetting1:SetValue(valz["Row6"])
+			uhhsetting1.DataChanged = function( _, val ) valz["Row6"] = tobool(val) end
+			uhhsetting1:SetTooltip("Nuketown?")
+
+			local uhhsetting2 = uhhproperties:CreateRow("Options", "Round to change eye color" )
+			uhhsetting2:Setup("Generic")
+			uhhsetting2:SetValue(valz["Row7"])
+			uhhsetting2.DataChanged = function( _, val ) valz["Row7"] = math.Round(tonumber(val)) end
+			uhhsetting2:SetTooltip("What round eye color should change.")
+
+			local uhhsetting3 = uhhproperties:CreateRow("Options", "Delay after round start")
+			uhhsetting3:Setup("Generic")
+			uhhsetting3:SetValue(valz["Row8"])
+			uhhsetting3.DataChanged = function( _, val ) valz["Row8"] = tonumber(val) end
+			uhhsetting3:SetTooltip("How many seconds after round start to change eye color.")
+
 			local presets = vgui.Create("DComboBox", eyePanel)
-			presets:SetSize(335, 20)
-			presets:SetPos(5, 225)
-			presets:Dock(BOTTOM)
+			presets:SetSize(455, 20)
+			presets:SetPos(5, 130)
 			presets:AddChoice("Richtofen")
 			presets:AddChoice("Samantha")
 			presets:AddChoice("Avogadro")
@@ -187,7 +224,7 @@ nzTools:CreateTool("colorsettings", {
 			presets:AddChoice("Ghostlymoo")
 			presets:AddChoice("Meme Demon")
 			presets:AddChoice("Rainbow Bot")
-			presets:AddChoice("FlamingFox")
+			presets:AddChoice("Deep Orange")
 			presets:AddChoice("Afton")
 			presets:AddChoice("Loonicity")
 			presets.OnSelect = function(self, index, value)
@@ -205,8 +242,8 @@ nzTools:CreateTool("colorsettings", {
 					colorChoose:SetColor(Color(241, 224, 75))
 				elseif (value == "Rainbow Bot") then
 					colorChoose:SetColor(Color(241, 75, 238))	
-				elseif (value == "FlamingFox") then
-					colorChoose:SetColor(Color(255, 102, 0))	
+				elseif (value == "Deep Orange") then
+					colorChoose:SetColor(Color(255, 102, 0))
 				elseif (value == "Afton") then
 					colorChoose:SetColor(Color(182, 231, 35))	
 				elseif (value == "Loonicity") then
@@ -219,7 +256,11 @@ nzTools:CreateTool("colorsettings", {
 			end
 
 			colorChoose.ValueChanged = function(col)
-				valz["Row17"] = colorChoose:GetColor()
+				valz["Row1"] = colorChoose:GetColor()
+			end
+
+			colorChoose2.ValueChanged = function(col)
+				valz["Row5"] = colorChoose2:GetColor()
 			end
 		end
 		
@@ -228,7 +269,7 @@ nzTools:CreateTool("colorsettings", {
 			sheet:AddSheet("Box Color", boxlightPanel, "icon16/palette.png", false, false, "Set the color of the Mystery Box light.")
 			boxlightPanel:DockPadding(5, 5, 5, 5)
 			local colorChoose2 = vgui.Create("DColorMixer", boxlightPanel)
-			colorChoose2:SetColor(valz["Row20"])
+			colorChoose2:SetColor(valz["Row2"])
 			colorChoose2:SetPalette(false)
 			colorChoose2:SetAlphaBar(false)
 			colorChoose2:Dock(TOP)
@@ -245,8 +286,8 @@ nzTools:CreateTool("colorsettings", {
 			presets:AddChoice("UGX 1.1")
 			presets:AddChoice("Infinite Warfare")
 			presets:AddChoice("WW2")
+			presets:AddChoice("Pink")
 			presets:AddChoice("No Light")
-			presets:AddChoice("Pink")	
 			presets.OnSelect = function(self, index, value)
 				if (value == "Default") then
 					colorChoose2:SetColor(Color(150,200,255))
@@ -264,17 +305,17 @@ nzTools:CreateTool("colorsettings", {
 					colorChoose2:SetColor(Color(59, 0, 0))	
 				elseif (value == "Mob of the Dead") then
 					colorChoose2:SetColor(Color(204, 102, 0))	
-				elseif (value == "No Light") then
-					colorChoose2:SetColor(Color(0, 0, 0))	
 				elseif (value == "Pink") then
-					colorChoose2:SetColor(Color(246, 0, 255))	
+                    colorChoose2:SetColor(Color(246, 0, 255))    
+                elseif (value == "No Light") then
+					colorChoose2:SetColor(Color(0, 0, 0))	
 				end
 
 				colorChoose2:ValueChanged(nil)
 			end
 
 			colorChoose2.ValueChanged = function(col)
-				valz["Row20"] = colorChoose2:GetColor()
+				valz["Row2"] = colorChoose2:GetColor()
 			end
 		end
 
@@ -284,7 +325,7 @@ nzTools:CreateTool("colorsettings", {
 			paplightPanel:DockPadding(5, 5, 5, 5)
 
 			local colorChooses = vgui.Create("DColorMixer", paplightPanel)
-			colorChooses:SetColor(valz["Row69"])
+			colorChooses:SetColor(valz["Row4"])
 			colorChooses:SetPalette(false)
 			colorChooses:SetAlphaBar(false)
 			colorChooses:Dock(TOP)
@@ -306,7 +347,7 @@ nzTools:CreateTool("colorsettings", {
 			end
 
 			colorChooses.ValueChanged = function(col)
-				valz["Row69"] = colorChooses:GetColor()
+				valz["Row4"] = colorChooses:GetColor()
 			end
 		end
 		
@@ -315,7 +356,7 @@ nzTools:CreateTool("colorsettings", {
 			sheet:AddSheet("Font Color", fontPanel, "icon16/palette.png", false, false, "Set the color of the various fonts.")
 			fontPanel:DockPadding(5, 5, 5, 5)
 			local fontColorChoice = vgui.Create("DColorMixer", fontPanel)
-			fontColorChoice:SetColor(valz["Row39"])
+			fontColorChoice:SetColor(valz["Row3"])
 			fontColorChoice:SetPalette(false)
 			fontColorChoice:SetAlphaBar(false)
 			fontColorChoice:Dock(TOP)
@@ -334,7 +375,7 @@ nzTools:CreateTool("colorsettings", {
 			end
 
 			fontColorChoice.ValueChanged = function(col)
-				valz["Row39"] = fontColorChoice:GetColor()
+				valz["Row3"] = fontColorChoice:GetColor()
 			end
 		end
 
@@ -1124,3 +1165,28 @@ nzTools:CreateTool("colorsettings", {
 	end,
 	-- defaultdata = {}
 })
+
+if SERVER then
+	hook.Add("OnRoundStart", "nz.RichtofenEyes", function(round)
+		if !nzMapping.Settings.zombieeyechange then return end
+
+		if round >= nzMapping.Settings.zombieeyeround and !nzRound.StoredEyeColor then
+			nzRound.StoredEyeColor = nzMapping.Settings.zombieeyecolor
+			timer.Simple(nzMapping.Settings.zombieeyetime, function()
+				nzMapping.Settings.zombieeyecolor = nzMapping.Settings.zombieeyecolor2
+				nzMapping:SendMapDataSingle("zombieeyecolor", nzMapping.Settings.zombieeyecolor2)
+			end)
+		end
+	end)
+
+	hook.Add("OnRoundEnd", "nz.RichtofenEyes", function()
+		local ourcolor = nzRound.StoredEyeColor
+		nzRound.StoredEyeColor = nil
+		timer.Simple(10 - engine.TickInterval(), function()
+			if ourcolor and nzMapping.Settings.zombieeyecolor ~= ourcolor then
+				nzMapping.Settings.zombieeyecolor = ourcolor
+				nzMapping:SendMapDataSingle("zombieeyecolor", ourcolor)
+			end
+		end)
+	end)
+end

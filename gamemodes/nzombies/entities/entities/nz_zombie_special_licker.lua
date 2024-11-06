@@ -31,7 +31,6 @@ local JumpSequences = {
 	{seq = ACT_JUMP, speed = 100},
 }
 
-
 ENT.BarricadeTearSequences = {
 	--Leave this empty if you don't intend on having a special enemy use tear anims.
 }
@@ -89,6 +88,25 @@ ENT.AppearSounds = {
 	"enemies/specials/licker/spawn6.ogg",
 }
 
+ENT.ExplodeSounds = {
+	Sound("nz_moo/zombies/vox/_mimic/explode/explode_00.mp3"),
+	Sound("nz_moo/zombies/vox/_mimic/explode/explode_01.mp3"),
+	Sound("nz_moo/zombies/vox/_mimic/explode/explode_02.mp3"),
+}
+
+ENT.ExplodeSWTSounds = {
+	Sound("nz_moo/zombies/vox/_margwa/head_explo/margwa_head_explo_0.mp3"),
+	Sound("nz_moo/zombies/vox/_margwa/head_explo/margwa_head_explo_1.mp3"),
+	Sound("nz_moo/zombies/vox/_margwa/head_explo/margwa_head_explo_2.mp3"),
+	Sound("nz_moo/zombies/vox/_margwa/head_explo/margwa_head_explo_3.mp3"),
+}
+
+ENT.LickerDodgeSequences = {
+	"dodge_b",
+	"dodge_l",
+	"dodge_r",
+}
+
 ENT.SequenceTables = {
 	{Threshold = 0, Sequences = {
 		{
@@ -116,11 +134,11 @@ ENT.SequenceTables = {
 
 function ENT:StatsInitialize()
 	if SERVER then
-		self.Sprinting = false
-		self:SetRunSpeed( 25 )
-		self.loco:SetDesiredSpeed( 25 )
+		self:SetRunSpeed( 101 )
+		self.loco:SetDesiredSpeed( 101 )
 	end
-	self:SetCollisionBounds(Vector(-20,-20, 0), Vector(20, 20, 45))
+
+	self.DodgeTime = CurTime() + math.Rand(1.34, 3.12)
 end
 
 function ENT:OnSpawn()
@@ -147,35 +165,48 @@ function ENT:OnSpawn()
 	nzRound:SetNextSpawnTime(CurTime() + 3) -- This one spawning delays others by 3 seconds
 end
 
-function ENT:PerformDeath(dmgInfo)
-		if IsValid(self) then
-			self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
-			self:DoDeathAnimation(self.DeathSequences[math.random(#self.DeathSequences)])
+function ENT:PerformDeath(dmginfo)
+
+	self.Dying = true
+
+	local damagetype = dmginfo:GetDamageType()
+	if damagetype == DMG_REMOVENORAGDOLL then
+		self:Remove(dmginfo)
+	end
+	if IsValid(self) then
+		self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
+		self:EmitSound(self.ExplodeSounds[math.random(#self.ExplodeSounds)], SNDLVL_GUNFIRE, math.random(95,105))
+		self:EmitSound(self.ExplodeSWTSounds[math.random(#self.ExplodeSWTSounds)], SNDLVL_GUNFIRE, math.random(95,105))
+		ParticleEffect("zmb_monster_explosion", self:GetPos() + Vector(0,0,10), Angle(0,0,0), nil) 
+
+		if IsValid(dmginfo) then
+			self:Remove(dmginfo)
+		else
+			self:Remove()
+		end
 	end
 end
 
-function ENT:DoDeathAnimation(seq)
-	self.BehaveThread = coroutine.create(function()
-		self:PlaySequenceAndWait(seq)
-		if IsValid(self) then
-				self:Remove()
-		end
-	end)
-end
+function ENT:AI()
+	local target = self.Target
 
+	-- Attempt to jump out of target's aim.
+	if self:IsAimedAt() and !nzPowerUps:IsPowerupActive("timewarp") then
+		if self:TargetInRange(750) and !self.AttackIsBlocked and CurTime() > self.DodgeTime then
+			if !self:IsFacingEnt(target) then return end
+			if self:TargetInRange(70) then return end
+			if IsValid(target) and target:IsPlayer() then
+				local seq = self.LickerDodgeSequences[math.random(#self.LickerDodgeSequences)]
 
-function ENT:OnPathTimeOut()
-	local distToTarget = self:GetPos():Distance(self:GetTargetPosition())
-	if IsValid(self:GetTarget()) then
-		if not self.Sprinting and distToTarget < 750 then
-			self:EmitSound(self.AppearSounds[math.random(#self.AppearSounds)], 511, math.random(85, 105), 1, 2)
-			self.Sprinting = true
-			self:SetRunSpeed( 101 )
-			self.loco:SetDesiredSpeed( 101 )
-			self:SpeedChanged()
-			--ParticleEffectAttach("fx_hellhound_aura_fire",PATTACH_ABSORIGIN_FOLLOW,self,0)
+				if self:SequenceHasSpace(seq) and self:HasSequence(seq) then
+					self:DoSpecialAnimation(seq, true, true)
+					-- If there isn't space at all, don't dodge.
+					self.DodgeTime = CurTime() + math.Rand(1.34, 3.12)
+				end
+			end
 		end
 	end
+
 end
 
 function ENT:HandleAnimEvent(a,b,c,d,e)
@@ -186,38 +217,6 @@ function ENT:HandleAnimEvent(a,b,c,d,e)
 	if e == "step" then
 		self:EmitSound("enemies/specials/licker/step"..math.random(1,6)..".ogg",80,math.random(95,100))
 	end
-
-end
-
-
-function ENT:PlayAttackAndWait( name, speed )
-
-	local len = self:SetSequence( name )
-	speed = speed or 1
-
-	self:ResetSequenceInfo()
-	self:SetCycle( 0 )
-	self:SetPlaybackRate( speed )
-
-	local endtime = CurTime() + len / speed
-
-	while ( true ) do
-
-		if ( endtime < CurTime() ) then
-			if !self:GetStop() then
-				self:ResetMovementSequence()
-				self.loco:SetDesiredSpeed( self:GetRunSpeed() )
-			end
-			return
-		end
-		if self:IsValidTarget( self:GetTarget() ) then
-			self.loco:FaceTowards( self:GetTarget():GetPos() )
-		end
-
-		coroutine.yield()
-
-	end
-
 end
 
 function ENT:IsValidTarget( ent )

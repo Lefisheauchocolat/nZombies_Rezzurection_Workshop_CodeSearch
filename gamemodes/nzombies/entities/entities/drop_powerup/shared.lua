@@ -318,7 +318,6 @@ function ENT:StartTouch(ent)
 end
 
 local LAST_PULL_VEC = Vector(0,0,0)
-local CURRENT_PUSH = 0
 local PUSH_STRENGTH = 5
 
 local PUSH = {
@@ -387,7 +386,7 @@ function ENT:Think()
 				end
 			end
 
-			if !self:GetAnti() and !self:GetBeingHeld() and !self:GetSpawnedPowerUp() then
+			if !self:GetAnti() and !self:GetBeingHeld() and !self:GetSpawnedPowerUp() and !self.DontVultureDrag then
 				local vulturetargets = {}
 				for _, ply in ipairs(player.GetAll()) do
 					if ply:HasUpgrade("vulture") then
@@ -402,20 +401,13 @@ function ENT:Think()
 
 					local vtarget = vulturetargets[1]
 					if IsValid(vtarget) and vtarget:Visible(self) then
-						local angle = 1 - math.cos(math.rad(40))
-						local dir = vtarget:EyeAngles():Forward()
-						local facingdir = (vtarget:EyePos() - self:GetPos()):GetNormalized()
-
-						local faceing = !((facingdir:Dot(dir) + 1) / 2 > angle)
-						local eyesight = (vtarget:GetEyeTrace().Entity == self)
-
-						local ratio = (1/engine.TickInterval())*(0.1*engine.TickInterval()) //0.1 taking into account tps
-						local maxspeed = (eyesight and 24) or (faceing and 12) or 6
-						CURRENT_PUSH = Lerp(ratio, CURRENT_PUSH, maxspeed) //smooth out speed
 						local targetpos = vtarget:OnGround() and (vtarget:GetPos() + vector_up*50) or vtarget:GetPos()
+						if targetpos:DistToSqr(self:GetPos()) > 64^2 then
+							local maxspeed = (vtarget:GetEyeTrace().Entity == self) and 2 or 1
 
-						LAST_PULL_VEC = LerpVector(ratio*0.5, LAST_PULL_VEC, (self:GetPos() - targetpos):GetNormalized()) //smooth out turning
-						self:SetPos(self:GetPos() - LAST_PULL_VEC*CURRENT_PUSH)
+							LAST_PULL_VEC = LerpVector(0.05, LAST_PULL_VEC, (self:GetPos() - targetpos):GetNormalized())
+							self:SetPos(self:GetPos() - LAST_PULL_VEC*maxspeed)
+						end
 					end
 				end
 			end
@@ -458,11 +450,15 @@ if SERVER then
 	function ENT:RerollPowerUp(sequential)
 		local next_roll
 		local powerup_list = nzMapping.Settings.poweruplist
+		local rounddata = nzMapping.Settings.poweruprounds
 
 		if sequential then
 			local go_next = false
 
 			for k, v in pairs(nzPowerUps.Data) do
+				if nzMapping.Settings.poweruproundbased and rounddata and rounddata[k] and rounddata[k] > nzRound:GetNumber() then
+					continue
+				end
 				if go_next and powerup_list[k] and powerup_list[k][1] and ((self.GlobalPowerup and v.global) or (!self.GlobalPowerup and !v.global)) then
 					next_roll = k
 					break
@@ -474,6 +470,9 @@ if SERVER then
 
 			if !next_roll and go_next then
 				for k, v in pairs(nzPowerUps.Data) do
+					if nzMapping.Settings.poweruproundbased and rounddata and rounddata[k] and rounddata[k] > nzRound:GetNumber() then
+						continue
+					end
 					if go_next and powerup_list[k] and powerup_list[k][1] and ((self.GlobalPowerup and v.global) or (!self.GlobalPowerup and !v.global)) then
 						next_roll = k
 						break
@@ -482,6 +481,9 @@ if SERVER then
 			end
 		else
 			for k, v in RandomPairs(nzPowerUps.Data) do
+				if nzMapping.Settings.poweruproundbased and rounddata and rounddata[k] and rounddata[k] > nzRound:GetNumber() then
+					continue
+				end
 				if k ~= self:GetPowerUp() and powerup_list[k] and powerup_list[k][1] and ((self.GlobalPowerup and v.global) or (!self.GlobalPowerup and !v.global)) then
 					next_roll = k
 					break

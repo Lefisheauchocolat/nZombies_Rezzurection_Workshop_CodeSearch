@@ -549,10 +549,10 @@ nzChatCommand.Add("/spawnpowerup", SERVER, function(ply, text)
 		if powerupcheatsheet[1][text[1]] then
 			local drop = ents.Create("drop_vulture")
 			drop:SetOwner(ply)
-			drop:SetPos(ply:GetEyeTrace().HitPos - ply:GetEyeTrace().HitNormal)
+			drop:SetPos(ply:GetEyeTrace().HitPos + ply:GetEyeTrace().HitNormal*2)
 			drop:SetAngles(Angle(0,math.random(-180,180),0))
 
-			if text[2] and nzPerks.VultureDropsTable and nzPerks.VultureDropsTable[text[2]] then
+			if text[2] and nzPerks:GetVultureDrop(text[2]) then
 				drop:SetDropType(text[2])
 			end
 
@@ -560,7 +560,7 @@ nzChatCommand.Add("/spawnpowerup", SERVER, function(ply, text)
 		elseif powerupcheatsheet[2][text[1]] then
 			local drop = ents.Create("drop_widows")
 			drop:SetOwner(ply)
-			drop:SetPos(ply:GetEyeTrace().HitPos - ply:GetEyeTrace().HitNormal)
+			drop:SetPos(ply:GetEyeTrace().HitPos + ply:GetEyeTrace().HitNormal+50)
 			drop:SetAngles(Angle(0,math.random(-180,180),0))
 			drop:Spawn()
 		elseif powerupcheatsheet[3][text[1]] then
@@ -570,7 +570,7 @@ nzChatCommand.Add("/spawnpowerup", SERVER, function(ply, text)
 			local drop = ents.Create("drop_tombstone")
 			drop:SetOwner(plyv)
 			drop:SetFunny(math.random(100) == 1 or text[2] == "funny")
-			drop:SetPos(plyv:GetEyeTrace().HitPos - ply:GetEyeTrace().HitNormal)
+			drop:SetPos(plyv:GetEyeTrace().HitPos + ply:GetEyeTrace().HitNormal*50)
 			drop:Spawn()
 
 			local weps = {}
@@ -660,6 +660,12 @@ nzChatCommand.Add("/spawnboss", SERVER, function(ply, text)
 	end
 end, false, "Spawn a given boss by its class name, second input of a number is supported.")
 
+nzChatCommand.Add("/forcenukedround", SERVER, function(ply, text)
+	if IsValid(ply) and ply:IsAdmin() then
+		nzPerks.NextNukedRound = 0
+	end
+end, false, "Forces next round to drop a perk machine if nuketown perks are enabled.")
+
 -- QOL
 
 nzChatCommand.Add("/navflush", SERVER, function(ply, text)
@@ -702,3 +708,21 @@ nzChatCommand.Add("/getbored", SERVER, function(ply, text)
 		ply:EmitSound("nz_moo/perkacolas/sake_sting.mp3", 511, math.random(50,150), 1, 0)
 	end
 end, false, "Can I have my perms back?")
+
+//tool related
+nzChatCommand.Add("/setnukedspawn", SERVER, function(ply, text) -- Moo Mark: Added this so new barricades can automatically be reposed correctly(Just don't do it more than once.)
+	if IsValid(ply) and ply:IsAdmin() and nzRound:InState(ROUND_CREATE) then
+		nzMapping.Settings.nukedspawn = ply:EyePos()
+
+		local fucker = tostring(nzMapping.Settings.nukedspawn)
+		print("Nuked perk spawn set to Vector("..fucker..")")
+		PrintMessage(HUD_PRINTTALK, "[NZ] Please press submit in map settings to save nuked spawn location!")
+	end
+end, false, "If Nuketown Perks is enabled, sets where perks should fall from the sky to the players current position.")
+
+nzChatCommand.Add("/removenukedspawn", SERVER, function(ply, text) -- Moo Mark: Added this so new barricades can automatically be reposed correctly(Just don't do it more than once.)
+	if IsValid(ply) and ply:IsAdmin() and nzRound:InState(ROUND_CREATE) and nzMapping.Settings.nukedspawn then
+		nzMapping.Settings.nukedspawn = nil
+		nzMapping:LoadMapSettings(nzMapping.Settings)
+	end
+end, false, "Removes the spawn point for Nuketown Perks.")

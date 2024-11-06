@@ -222,7 +222,7 @@ end
 
 function ENT:ZapTarget(ent, delay)
 	if IsValid(ent) then
-		if (ent.NZBossType) then return end -- Bosses shouldn't die from traps!
+		if (ent.NZBossType or ent.IsMooBossZombie or ent.IsMiniBoss) then return end -- Bosses shouldn't die from traps!
 
 		-- Play a zap sound
 		if ((self:TargetIsPlayer(ent) or self:TargetIsZombie(ent)) and (!self.NextZapSound or CurTime() > self.NextZapSound)) then	

@@ -210,14 +210,15 @@ function nzRound:AddBoxType(id, class)
 	end
 end
 
-nzRound:AddBoxType("Original", 			"", {}) 
-nzRound:AddBoxType("Black Ops 3", 		"", {}) 
-nzRound:AddBoxType("Black Ops 3(Quiet Cosmos)", "", {}) 
-nzRound:AddBoxType("Leviathan", 		"", {}) 
-nzRound:AddBoxType("Mob of the Dead", 	"", {}) 
-nzRound:AddBoxType("Nacht Der Untoten", "", {}) 
-nzRound:AddBoxType("Verruckt", 			"", {})
-nzRound:AddBoxType("UGX Coffin", 		"", {})
+nzRound:AddBoxType("Original", 							"", {}) 
+nzRound:AddBoxType("Black Ops 3", 						"", {}) 
+nzRound:AddBoxType("Black Ops 3(Quiet Cosmos)", 		"", {}) 
+nzRound:AddBoxType("Leviathan", 						"", {}) 
+nzRound:AddBoxType("Mob of the Dead", 					"", {}) 
+nzRound:AddBoxType("Nacht Der Untoten", 				"", {}) 
+nzRound:AddBoxType("Verruckt", 							"", {})
+nzRound:AddBoxType("UGX Coffin", 						"", {})
+nzRound:AddBoxType("Cold War",			 				"", {})
 
 nzRound.HudSelectData = nzRound.HudSelectData or {}
 function nzRound:AddHUDType(id, class)
@@ -343,12 +344,16 @@ nzRound:AddZombieType("Green Flu(Airport)", 		"nz_zombie_walker_greenflu_airport
 nzRound:AddZombieType("Green Flu(Military)", 		"nz_zombie_walker_greenflu_military", {})
 nzRound:AddZombieType("Green Flu(Hospital)", 		"nz_zombie_walker_greenflu_hospital", {})
 nzRound:AddZombieType("Green Flu", 					"nz_zombie_walker_greenflu", {})
+nzRound:AddZombieType("Green Flu(Revised)", 		"nz_zombie_walker_greenflu_c_ci", {})
+nzRound:AddZombieType("Green Flu(Revised Airport)", "nz_zombie_walker_greenflu_c_ci_airport", {})
+nzRound:AddZombieType("Green Flu(Revised Hospital)","nz_zombie_walker_greenflu_c_ci_hospital", {})
 nzRound:AddZombieType("Gorod Krovi", 				"nz_zombie_walker_gorodkrovi", {}) 
 nzRound:AddZombieType("Headcrab Zombies", 			"nz_zombie_walker_headcrab", {}) 
 nzRound:AddZombieType("Humorous Eves at Fredricks", "nz_zombie_walker_fredricks", {}) 
 nzRound:AddZombieType("IX", 						"nz_zombie_walker_ix", {}) 
 nzRound:AddZombieType("Kino der Toten", 			"nz_zombie_walker", {}) 
 nzRound:AddZombieType("Kino der Toten(Classic)", 	"nz_zombie_walker_classic", {}) 
+nzRound:AddZombieType("Kino der Toten(Classic Wii)","nz_zombie_walker_classic_wii", {}) 
 nzRound:AddZombieType("Leviathan", 					"nz_zombie_walker_leviathan", {})
 nzRound:AddZombieType("Mannequins", 				"nz_zombie_walker_mannequin", {})
 nzRound:AddZombieType("Mob of the Dead", 			"nz_zombie_walker_hellcatraz", {})
@@ -375,8 +380,11 @@ nzRound:AddZombieType("Shangri-La(Classic)", 		"nz_zombie_walker_shangrila_class
 nzRound:AddZombieType("Shi no Numa", 				"nz_zombie_walker_sumpf", {}) 
 nzRound:AddZombieType("Shi no Numa(Classic)", 		"nz_zombie_walker_sumpf_classic", {}) 
 nzRound:AddZombieType("Spaceland Zombies",			"nz_zombie_walker_park", {})
+nzRound:AddZombieType("Spaceland Zombies(3arc)",	"nz_zombie_walker_park_3arc", {})
 nzRound:AddZombieType("Skeleton", 					"nz_zombie_walker_skeleton", {}) 
 nzRound:AddZombieType("Tag Der Toten", 				"nz_zombie_walker_orange", {}) 
+nzRound:AddZombieType("Terminus(Lab)", 				"nz_zombie_walker_quartz_lab", {})
+nzRound:AddZombieType("Terminus(Hazmat)", 			"nz_zombie_walker_quartz_hazmat", {}) 
 nzRound:AddZombieType("Tranzit", 					"nz_zombie_walker_greenrun", {}) 
 nzRound:AddZombieType("Vanguard Zombies", 			"nz_zombie_walker_griddy", {})
 nzRound:AddZombieType("Voyage of Despair", 			"nz_zombie_walker_titanic", {}) 
@@ -421,6 +429,16 @@ function nzRound:AddSpecialRoundType(id, data, spawnfunc, roundfunc, endfunc)
 		nzRound.SpecialData[id] = (data and true or nil)
 	end
 end
+
+nzRound:AddSpecialRoundType("Manglers", {
+	specialTypes = {
+		["nz_zombie_special_raz"] = {chance = 100},
+		["nz_zombie_special_raz_jup"] = {chance = 100},
+		["nz_zombie_special_raz_t10"] = {chance = 100},
+	},
+	specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.15, 2) end,
+	specialCountMod = function(original) return math.Clamp(nzRound:GetNumber() * #player.GetAllPlaying(), 4, 8) end,
+})
 
 nzRound:AddSpecialRoundType("Frogs", {
 	specialTypes = {
@@ -627,6 +645,52 @@ nzRound:AddSpecialRoundType("Extra Spicy", {
 			hp = hp * 1.1
 			if hp > 1000 then
 				hp = 1000
+			end
+		end
+		dog:SetHealth(hp)
+	end
+end) -- No round func or end func
+
+nzRound:AddSpecialRoundType("Toxic Hazmat Zombies(ZHD)", {
+	specialTypes = {
+		["nz_zombie_special_toxic_hazmat_zhd"] = {chance = 100}
+	},
+		specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.15, 2) end, -- Dynamically change spawn speed depending on player count
+		specialCountMod = function(original) return math.floor(original * 0.5) end, -- Modify the count
+	},
+	function(dog) -- We want to modify health
+		local round = nzRound:GetNumber()
+		if round == -1 then
+			dog:SetHealth(math.random(50,250))
+		else
+			local hp = 75
+			for i = 1, nzRound:GetNumber() do 
+			hp = hp * 1.1
+			if hp > 2000 then
+				hp = 2000
+			end
+		end
+		dog:SetHealth(hp)
+	end
+end) -- No round func or end func
+
+nzRound:AddSpecialRoundType("Toxic Hazmat Zombies(Classic)", {
+	specialTypes = {
+		["nz_zombie_special_toxic_hazmat"] = {chance = 100}
+	},
+		specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.15, 2) end, -- Dynamically change spawn speed depending on player count
+		specialCountMod = function(original) return math.floor(original * 0.5) end, -- Modify the count
+	},
+	function(dog) -- We want to modify health
+		local round = nzRound:GetNumber()
+		if round == -1 then
+			dog:SetHealth(math.random(50,250))
+		else
+			local hp = 75
+			for i = 1, nzRound:GetNumber() do 
+			hp = hp * 1.1
+			if hp > 2000 then
+				hp = 2000
 			end
 		end
 		dog:SetHealth(hp)
@@ -1230,8 +1294,7 @@ end) -- No round func or end func
 nzRound:AddSpecialRoundType("Nova Crawlers", {
 	specialTypes = {
 		["nz_zombie_special_nova"] = {chance = 100},
-		["nz_zombie_special_nova_bomber"] = {chance = 75},
-		["nz_zombie_special_nova_electric"] = {chance = 50}
+		["nz_zombie_special_nova_moon"] = {chance = 100},
 	},
 	specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.5, 2) end, -- Dynamically change spawn speed depending on player count
 	specialCountMod = function() return math.Clamp(nzRound:GetNumber() * #player.GetAllPlaying(), 6, 24) end, -- Modify the count
@@ -1627,6 +1690,10 @@ nzRound:AddSpecialRoundType("WTF", {
 		["nz_zombie_special_l4d_smoker"] = {chance = 100},
 		["nz_zombie_special_l4d_hunter"] = {chance = 100},
 		["nz_zombie_special_mimic"] = {chance = 100},
+		["nz_zombie_special_toxic_hazmat_zhd"] = {chance = 100},
+		["nz_zombie_special_raz"] = {chance = 100},
+		["nz_zombie_special_raz_jup"] = {chance = 100},
+		["nz_zombie_special_raz_t10"] = {chance = 100},
 	},
 	normalDelay = 0.75,
 	normalCountMod = function(original) return math.floor(original * 0.5) end,

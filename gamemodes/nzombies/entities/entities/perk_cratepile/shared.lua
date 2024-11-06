@@ -8,6 +8,10 @@ ENT.Contact			= ""
 ENT.Purpose			= ""
 ENT.Instructions	= ""
 
+function ENT:SetupDataTables()
+	self:NetworkVar("Bool", 0, "Landed")
+end
+
 function ENT:Initialize()
 	self:SetModel("models/moo/_codz_ports_props/t6/zm/p6_zm_cratepile/_codz_p6_zm_cratepile.mdl")
 
@@ -15,6 +19,7 @@ function ENT:Initialize()
 	self:SetMoveType(MOVETYPE_NONE)
 	self:SetSolid(SOLID_VPHYSICS)
 	self:DrawShadow(true)
+	self:SetLanded(false)
 
 	if CLIENT then return end
 	self:SetTrigger(true)
@@ -144,4 +149,12 @@ function ENT:Hide()
 	self:SetSolid(SOLID_NONE)
 	self:DrawShadow(false)
 	self:SetTrigger(false)
+	self:SetLanded(true)
+end
+
+if CLIENT then
+	function ENT:Draw()
+		if self.GetLanded and self:GetLanded() then return end
+		self:DrawModel()
+	end
 end

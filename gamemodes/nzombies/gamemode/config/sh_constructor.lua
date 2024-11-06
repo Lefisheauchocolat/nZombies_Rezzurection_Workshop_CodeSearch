@@ -16,6 +16,7 @@ if not ConVarExists("nz_round_dropins_allow") then CreateConVar("nz_round_dropin
 if not ConVarExists("nz_difficulty_barricade_planks_max") then CreateConVar("nz_difficulty_barricade_planks_max", 6, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED}) end
 if not ConVarExists("nz_difficulty_powerup_chance") then CreateConVar("nz_difficulty_powerup_chance", 2, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED}) end
 if not ConVarExists("nz_difficulty_perks_max") then CreateConVar("nz_difficulty_perks_max", 4, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_GAMEDLL}) end
+if not ConVarExists("nz_difficulty_respawn_on_players") then CreateConVar("nz_difficulty_respawn_on_players", 0, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_GAMEDLL}, "Enable or disable players respawning on other players in co-op. PLEASE HAVE A DISABLED PLAYER COLLISIONS MOD. (0 Disable, 1 Enabled)", 0, 1) end
 if not ConVarExists("nz_point_notification_clientside") then CreateConVar("nz_point_notification_clientside", 0, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED}) end
 if not ConVarExists("nz_zombie_lagcompensated") then CreateConVar("nz_zombie_lagcompensated", 1, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
 if not ConVarExists("nz_spawnpoint_update_rate") then CreateConVar("nz_spawnpoint_update_rate", 4, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
@@ -26,7 +27,7 @@ if not ConVarExists("nz_oldwallbuys") then CreateConVar("nz_oldwallbuys", 0, {FC
 if not ConVarExists("nz_weapon_auto_reload") then CreateConVar("nz_weapon_auto_reload", 1, {FCVAR_USERINFO, FCVAR_ARCHIVE}) end
 
 if not ConVarExists("nz_zombie_eye_trails") then CreateConVar("nz_zombie_eye_trails", 0, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
---if not ConVarExists("nz_oldtunes") then CreateConVar("nz_oldtunes", 0, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
+if not ConVarExists("nz_oldtunes") then CreateConVar("nz_oldtunes", 0, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
 if not ConVarExists("nz_difficulty_zombie_stumble") then CreateConVar("nz_difficulty_zombie_stumble", 1, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
 
 cvars.AddChangeCallback("nz_downtime", function(name, old, new)
@@ -99,6 +100,9 @@ local zombieconfig = {
 	"walker_greenflu_hospital",
 	"walker_greenflu_riot",
 	"walker_greenflu",
+	"walker_greenflu_c_ci",
+	"walker_greenflu_c_ci_hospital",
+	"walker_greenflu_c_ci_airport",
 	"walker_dierise",
 	"walker_prototype",
 	"walker_derriese",
@@ -106,6 +110,7 @@ local zombieconfig = {
 	"walker_derriese_enhanced",
 	"walker_ascension_classic",
 	"walker_classic",
+	"walker_classic_wii",
 	"walker_moon_classic",
 	"walker_moon_classic_guard",
 	"walker_five_classic",
@@ -119,12 +124,15 @@ local zombieconfig = {
 	"walker_mannequin",
 	"walker_leviathan",
 	"walker_armoredheavy",
+	"walker_park_3arc",
 	"walker_park_cop",
 	"walker_park",
 	"walker_blud",
 	"walker_elf",
 	"walker_headcrab",
 	"walker_nut",
+	"walker_quartz_lab",
+	"walker_quartz_hazmat",
 
 	"special_alien_scout",
 	"special_alien_scorpion",
@@ -165,6 +173,7 @@ local zombieconfig = {
 	"special_mimic",
 	"special_nemacyte",
 	"special_nova",
+	"special_nova_moon",
 	"special_nova_electric",
 	"special_nova_bomber",
 	"special_pack",
@@ -194,6 +203,12 @@ local zombieconfig = {
 	"special_juggernaut",
 	"special_cloverfield",
 	"special_l4d_charger",
+	"special_toxic_hazmat",
+	"special_toxic_hazmat_zhd",
+	
+	"special_raz",
+	"special_raz_jup",
+	"special_raz_t10",
 }
 
 

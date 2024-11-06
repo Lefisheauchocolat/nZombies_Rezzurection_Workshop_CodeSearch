@@ -38,6 +38,7 @@ local nz_indicators = GetConVar("nz_hud_player_indicators")
 local nz_indicatorangle = GetConVar("nz_hud_player_indicator_angle")
 local nz_healthplayercolor = GetConVar("nz_hud_health_playercolor")
 local nz_useplayercolor = GetConVar("nz_hud_use_playercolor")
+local nz_powerupstyle = GetConVar("nz_hud_powerup_style")
 
 local nz_perkrowmod = GetConVar("nz_hud_perk_row_modulo")
 local nz_mapfont = GetConVar("nz_hud_use_mapfont")
@@ -1594,9 +1595,8 @@ local function DeathHud_t7()
 	end
 end
 
-local totalWidth = 0
-local downed = false
-local downdelay = 0
+local powerup_data = {}
+local antipowerup_data = {}
 
 local function PowerUpsHud_t7()
 	if not cl_drawhud:GetBool() then return end
@@ -1618,100 +1618,144 @@ local function PowerUpsHud_t7()
 	end
 
 	local scale = (scw/1920 + 1)/2
-	local width = (scw / 2) 
-	local powerupsActive = 0
-	local c = 0
+	local height = sch - 170*scale
+	local size = 72*scale
 
-	local function ReturnPosition(id, seconds, subtractBy) -- When the powerup disappears we need to align everything back again
-		if timer.Exists(id) then return end -- We already did this, we need to wait..
-		timer.Create(id, seconds, 1, function()
-			totalWidth = totalWidth - (70*scale)
-		end)
+	local powerupsActive = 0
+	local powerupsTotal = 0
+
+	local tActivePowerUps = nzPowerUps.ActivePowerUps
+	for k, v in pairs(tActivePowerUps) do
+		if (v - CurTime()) < engine.TickInterval() then continue end
+		powerupsTotal = powerupsTotal + 1
 	end
 
-	local function AddPowerup(material, time, anti, noflash) -- Display another powerup on the player's screen
-		local width = scw / 2 + (70*scale) * powerupsActive - totalWidth / 2
+	local tActiveAntiPowerUps = nzPowerUps.ActiveAntiPowerUps
+	for k, v in pairs(tActiveAntiPowerUps) do
+		powerupsTotal = powerupsTotal + 1
+	end
 
-		if width - scw / 2 > totalWidth then 
-			prevWidth = totalWidth
-			totalWidth = width - scw / 2 
-		end
+	local tPlayerPowerUps = ply:AllActivePowerUps()
+	for k, v in pairs(tPlayerPowerUps) do
+		powerupsTotal = powerupsTotal + 1
+	end
 
-		if not material or material:IsError() then
-			material = zmhud_icon_missing
-		end
+	local tPlayerAntiPowerUps = ply:AllActiveAntiPowerUps()
+	for k, v in pairs(tPlayerAntiPowerUps) do
+		powerupsTotal = powerupsTotal + 1
+	end
 
+	local function AddPowerup(powerup, icon, time, anti, noflash) -- Display another powerup on the player's screen
 		local timeleft = time - ctime
+		if timeleft < engine.TickInterval() then return end
+
+		if icon:IsError() then
+			icon = zmhud_icon_missing
+		end
+
+		if !anti and !powerup_data[powerup] then
+			powerup_data[powerup] = {[1] = (scw/2), [2] = 1}
+		end
+		if anti and !antipowerup_data[powerup] then
+			antipowerup_data[powerup] = {[1] = (scw/2), [2] = 1}
+		end
+
+		local width = (scw/2) + (size/2 + (-(size/2) * powerupsTotal + (powerupsActive * size)))
+		local convarstyle = nz_powerupstyle:GetInt()
+		if convarstyle > 0 then
+			if anti then
+				antipowerup_data[powerup][1] = math.Approach(antipowerup_data[powerup][1], width, FrameTime()*160)
+				antipowerup_data[powerup][2] = convarstyle > 1 and 0 or math.Approach(antipowerup_data[powerup][2], 0, FrameTime()*3)
+			else
+				powerup_data[powerup][1] = math.Approach(powerup_data[powerup][1], width, FrameTime()*160)
+				powerup_data[powerup][2] = convarstyle > 1 and 0 or math.Approach(powerup_data[powerup][2], 0, FrameTime()*3)
+			end
+		else
+			if anti then
+				antipowerup_data[powerup][1] = width
+				antipowerup_data[powerup][2] = 0
+			else
+				powerup_data[powerup][1] = width
+				powerup_data[powerup][2] = 0
+			end
+		end
+
 		local warningthreshold = anti and 5 or 10 --at what time does the icon start blinking?
-		local frequency1 = 0.25 --how long in seconds it takes for the icon to toggle visibility
+		local frequency1 = 0.1 --how long in seconds it takes for the icon to toggle visibility
 		local urgencythreshold = anti and 2 or 5 --at what time does the blinking get faster/slower?
 		local frequency2 = 0.1 --how long in seconds it takes for the icon to toggle visibility in urgency mode
+
 		if noflash then
 			warningthreshold = 0
 			urgencythreshold = 0
 		end
-		if timeleft > warningthreshold or (timeleft > urgencythreshold and timeleft % (frequency1 * 2) > frequency1) or (timeleft <= urgencythreshold and timeleft % (frequency2*2) > frequency2) then
-			surface.SetMaterial(material)
-			surface.SetDrawColor(anti and color_red_255 or color_white)
-			surface.DrawTexturedRect(width - 32*scale, sch - 155*scale, 64*scale, 64*scale)
+
+		if timeleft > warningthreshold or (timeleft > urgencythreshold and timeleft % (frequency1 * 4) > frequency1) or (timeleft <= urgencythreshold and timeleft % (frequency2*2) > frequency2) then
+			local finalwidth = anti and antipowerup_data[powerup][1] or powerup_data[powerup][1]
+			local cuntas = anti and antipowerup_data[powerup][2] or powerup_data[powerup][2]
+			local finalfade = math.Clamp(1 - cuntas, 0, 1)
+			local bonus = (32*cuntas)
+
+			surface.SetMaterial(icon)
+			surface.SetDrawColor(ColorAlpha(anti and color_red_255 or color_white, 300*finalfade))
+			surface.DrawTexturedRect(finalwidth - (32*scale) - (bonus/2), sch - 160*scale - (bonus/2), 64*scale + bonus, 64*scale + bonus)
+
 			if nz_showpoweruptimer:GetBool() then
-				draw.SimpleTextOutlined(math.Round(timeleft), font, width, sch - 170*scale, color_t7, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, color_t7_outline)
+				draw.SimpleTextOutlined(math.Round(timeleft), font, finalwidth, sch - 175*scale - (bonus/2), color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, color_black_100)
 			end
 		end
+
 		powerupsActive = powerupsActive + 1
 	end
 
-	for k,v in pairs(nzPowerUps.ActivePowerUps) do	
-		if nzPowerUps:IsPowerupActive(k) then
-			local icon, noflash = GetPowerupIconMaterial(k)
-			if icon then
-				AddPowerup(icon, v, false, noflash)
-				ReturnPosition("Returning"..k, v - ctime)	
-			end
-
-			local powerupData = nzPowerUps:Get(k)
-			c = c + 1
+	for powerup, time in pairs(tActivePowerUps) do
+		local icon, noflash = GetPowerupIconMaterial(powerup)
+		if icon then
+			AddPowerup(powerup, icon, time, false, noflash)
 		end
 	end
 
-	for k,v in pairs(nzPowerUps.ActiveAntiPowerUps) do	
-		if nzPowerUps:IsAntiPowerupActive(k) then
-			local icon = GetPowerupIconMaterial(k)
-			if icon then
-				AddPowerup(icon, v, true)
-				ReturnPosition("Returning anti"..k, v - ctime)	
-			end
-
-			local powerupData = nzPowerUps:Get(k)
-			c = c + 1
+	for powerup, time in pairs(tActiveAntiPowerUps) do	
+		local icon = GetPowerupIconMaterial(powerup)
+		if icon then
+			AddPowerup(powerup, icon, time, true)
 		end
 	end
 
-	if not nzPowerUps.ActivePlayerPowerUps[ply] then nzPowerUps.ActivePlayerPowerUps[ply] = {} end
-	for k,v in pairs(nzPowerUps.ActivePlayerPowerUps[ply]) do
-		if nzPowerUps:IsPlayerPowerupActive(ply, k) then
-			local icon, noflash = GetPowerupIconMaterial(k)
-			if icon then
-				AddPowerup(icon, v, false, noflash)
-				ReturnPosition("Returning"..k, v - ctime)	
-			end
-
-			local powerupData = nzPowerUps:Get(k)
-			c = c + 1
+	for powerup, time in pairs(tPlayerPowerUps) do
+		local icon, noflash = GetPowerupIconMaterial(powerup)
+		if icon then
+			AddPowerup(powerup, icon, time, false, noflash)
 		end
 	end
 
-	if not nzPowerUps.ActivePlayerAntiPowerUps[ply] then nzPowerUps.ActivePlayerAntiPowerUps[ply] = {} end
-	for k,v in pairs(nzPowerUps.ActivePlayerAntiPowerUps[ply]) do
-		if nzPowerUps:IsPlayerAntiPowerupActive(ply, k) then
-			local icon = GetPowerupIconMaterial(k)
-			if icon then
-				AddPowerup(icon, v, true)
-				ReturnPosition("Returning anti"..k, v - ctime)	
-			end
+	for powerup, time in pairs(tPlayerAntiPowerUps) do
+		local icon = GetPowerupIconMaterial(powerup)
+		if icon then
+			AddPowerup(powerup, icon, time, true)
+		end
+	end
 
-			local powerupData = nzPowerUps:Get(k)
-			c = c + 1
+	for k, v in pairs(nzPowerUps.Data) do
+		if v.global then
+			local active = nzPowerUps:IsPowerupActive(k)
+			local antiactive = nzPowerUps:IsAntiPowerupActive(k)
+			if !active and powerup_data[k] then
+				powerup_data[k] = nil
+			end
+			if !antiactive and antipowerup_data[k] then
+				antipowerup_data[k] = nil
+			end
+		else
+			local pactive = nzPowerUps:IsPlayerPowerupActive(ply, k)
+			local pantiactive = nzPowerUps:IsPlayerAntiPowerupActive(ply, k)
+
+			if !pactive and powerup_data[k] then
+				powerup_data[k] = nil
+			end
+			if !pantiactive and antipowerup_data[k] then
+				antipowerup_data[k] = nil
+			end
 		end
 	end
 

@@ -59,6 +59,10 @@ if GetConVar("nz_hud_show_player_portrait") == nil then
 	CreateClientConVar("nz_hud_show_player_portrait", 1, true, false, "Enable or disable displaying the players portrait next to their score. (0 false, 1 true), Default is 1.", 0, 1)
 end
 
+if GetConVar("nz_hud_show_game_start_text") == nil then
+	CreateClientConVar("nz_hud_show_game_start_text", 1, true, false, "Enable or disable showing the text that appears on game begin, usually 'Round', only works with W@W/BO1/BO2 styled HUDs. (0 false, 1 true), Default is 1.", 0, 1)
+end
+
 if GetConVar("nz_hud_player_indicators") == nil then
 	CreateClientConVar("nz_hud_player_indicators", 1, true, false, "Enable or disable player indicators appearing around the screen, ONLY WORKS IN PVS. (0 false, 1 true), Default is 1.", 0, 1)
 end
@@ -99,6 +103,10 @@ if GetConVar("nz_hud_health_style") == nil then
 	CreateClientConVar("nz_hud_health_style", 0, true, false, "Changes placement of the healthbar on certain HUDs. (0 Disabled, 1 Enabled), Default is 0.", 0, 1)
 end
 
+if GetConVar("nz_hud_powerup_style") == nil then
+	CreateClientConVar("nz_hud_powerup_style", 1, true, false, "Changes style of Power-Up tray. (0 Static, 1 Animated, 2 Animated (No Fade)), Default is 1.", 0, 2)
+end
+
 if GetConVar("nz_bloodmeleeoverlay") == nil then
 	CreateClientConVar("nz_bloodmeleeoverlay", 1, true, true, "Enable or disable drawing the blood splatter effect on the screen when damaging zombies with a melee weapon. (0 false, 1 true), Default is 1.", 0, 1)
 end
@@ -134,6 +142,7 @@ local nz_indicators = GetConVar("nz_hud_player_indicators")
 local nz_indicatorangle = GetConVar("nz_hud_player_indicator_angle")
 local nz_betterscaling = GetConVar("nz_hud_better_scaling")
 local nz_useplayercolor = GetConVar("nz_hud_use_playercolor")
+local nz_powerupstyle = GetConVar("nz_hud_powerup_style")
 
 local nz_aatstyle = GetConVar("nz_hud_aat_style")
 local nz_aatcolor = GetConVar("nz_hud_aat_textcolor")
@@ -185,6 +194,15 @@ roundassets["sparks"] = {}
 for i = 0, 19 do
 	roundassets["sparks"][i] = Material("round/sparks/" .. i .. ".png", "unlitgeneric")
 end
+
+sound.Add({
+	name = "nz.typewriter",
+	channel = CHAN_STATIC,
+	volume = 1.0,
+	level = 75,
+	pitch = {97, 103},
+	sound = {"nz_moo/effects/typewriter/type_00.wav", "nz_moo/effects/typewriter/type_01.wav", "nz_moo/effects/typewriter/type_02.wav", "nz_moo/effects/typewriter/type_03.wav", "nz_moo/effects/typewriter/type_04.wav", "nz_moo/effects/typewriter/type_05.wav"}
+})
 
 /*local spark_center = {x = 33, y = -84}
 local spark_size = {x = 168, y = 252}
@@ -388,28 +406,6 @@ local spacing = 70
 
 -------------------------
 //------------------------------------------------GHOSTLYMOO'S HUD------------------------------------------------\\
-
-//------Pre-Loading POWERUP Icons------\\
-/*local t8_powerup_minigun = Material("nz_moo/icons/bo4/t8_hud_robit_powerup_death_machine.png", "unlitgeneric")
-local t8_powerup_blood = Material("nz_moo/icons/bo4/t8_hud_robit_powerup_blood.png", "unlitgeneric")
-local t8_powerup_2x = Material("nz_moo/icons/bo4/t8_hud_robit_powerup_2x.png", "unlitgeneric")
-local t8_powerup_killjoy = Material("nz_moo/icons/bo4/t8_hud_robit_powerup_instakill.png", "unlitgeneric")
-local t8_powerup_firesale = Material("nz_moo/icons/bo4/t8_hud_robit_powerup_firesale.png", "unlitgeneric")
-local t8_powerup_bonfiresale = Material("nz_moo/icons/bo4/t8_hud_robit_powerup_campfire.png", "unlitgeneric")
-local t8_powerup_timewarp = Material("vgui/t8_hud_robit_powerup_time_warp.png", "unlitgeneric")
-local t8_powerup_berzerk = Material("vgui/bo4_bzk.png", "unlitgeneric")*/
-
-/*local t8_powerup_minigun = Material("vgui/cw_death.png", "unlitgeneric")
-local t8_powerup_blood = Material("vgui/cw_blood.png", "unlitgeneric")
-local t8_powerup_2x = Material("vgui/robit_cw_powerup_double_points.png", "unlitgeneric")
-local t8_powerup_killjoy = Material("vgui/robit_cw_powerup_instakill.png", "unlitgeneric")
-local t8_powerup_firesale = Material("vgui/robit_cw_powerup_firesale.png", "unlitgeneric")
-local t8_powerup_bonfiresale = Material("vgui/cw_bonfire.png", "unlitgeneric")
-local t8_powerup_timewarp = Material("vgui/cw_time_alt.png", "unlitgeneric")
-local t8_powerup_berzerk = Material("vgui/cw_bzk.png", "unlitgeneric")
-local t8_powerup_infinite = Material("vgui/cw_infinite.png", "unlitgeneric")
-local t8_powerup_godmode = Material("vgui/cw_greyson.png", "unlitgeneric")
-local t8_powerup_quick = Material("vgui/cw_fast.png", "unlitgeneric")*/
 
 //------Pre-Loading Max Ammo Elements------\\
 local t8_powerup_kaboomtext = Material("nz_moo/huds/bo4/pow_notifs/t8_zmhud_nuke_text.png", "unlitgeneric smooth")
@@ -1758,9 +1754,8 @@ net.Receive("nzPowerUps.PickupHud", function( length )
 	PowerupNotification(text)
 end)
 
-local fadeouttime = nil
-local fadeout = 0
-local totalWidth = 0
+local powerup_data = {}
+local antipowerup_data = {}
 
 local function PowerUpsHud()
 	if not cl_drawhud:GetBool() then return end
@@ -1777,98 +1772,146 @@ local function PowerUpsHud()
 
 	local fontColor = !IsColor(nzMapping.Settings.textcolor) and color_white or nzMapping.Settings.textcolor
 	local font = "nz.powerup"
-	local scale = (scw/1920 + 1)/2
-	local width = (scw / 2) 
-	local powerupsActive = 0
-	local c = 0
 
-	local function ReturnPosition(id, seconds, subtractBy) -- When the powerup disappears we need to align everything back again
-		if timer.Exists(id) then return end -- We already did this, we need to wait..
-		timer.Create(id, seconds, 1, function()
-			totalWidth = totalWidth - (70*scale)
-		end)
+	local scale = (scw/1920 + 1)/2
+	local height = sch - 170*scale
+	local size = 72*scale
+
+	local powerupsActive = 0
+	local powerupsTotal = 0
+
+	local tActivePowerUps = nzPowerUps.ActivePowerUps
+	for k, v in pairs(tActivePowerUps) do
+		if (v - CurTime()) < engine.TickInterval() then continue end
+		powerupsTotal = powerupsTotal + 1
 	end
 
-	local function AddPowerup(material, time, anti, noflash) -- Display another powerup on the player's screen
-		local width = scw / 2 + (70*scale) * powerupsActive - totalWidth / 2
-			
-		if width - scw / 2 > totalWidth then 
-			prevWidth = totalWidth
-			totalWidth = width - scw / 2 
+	local tActiveAntiPowerUps = nzPowerUps.ActiveAntiPowerUps
+	for k, v in pairs(tActiveAntiPowerUps) do
+		powerupsTotal = powerupsTotal + 1
+	end
+
+	local tPlayerPowerUps = ply:AllActivePowerUps()
+	for k, v in pairs(tPlayerPowerUps) do
+		powerupsTotal = powerupsTotal + 1
+	end
+
+	local tPlayerAntiPowerUps = ply:AllActiveAntiPowerUps()
+	for k, v in pairs(tPlayerAntiPowerUps) do
+		powerupsTotal = powerupsTotal + 1
+	end
+
+	local function AddPowerup(powerup, icon, time, anti, noflash) -- Display another powerup on the player's screen
+		local timeleft = time - ctime
+		if timeleft < engine.TickInterval() then return end
+
+		if icon:IsError() then
+			icon = zmhud_icon_missing
 		end
 
-		local timeleft = time - ctime
+		if !anti and !powerup_data[powerup] then
+			powerup_data[powerup] = {[1] = (scw/2), [2] = 1}
+		end
+		if anti and !antipowerup_data[powerup] then
+			antipowerup_data[powerup] = {[1] = (scw/2), [2] = 1}
+		end
+
+		local width = (scw/2) + (size/2 + (-(size/2) * powerupsTotal + (powerupsActive * size)))
+		local convarstyle = nz_powerupstyle:GetInt()
+		if convarstyle > 0 then
+			if anti then
+				antipowerup_data[powerup][1] = math.Approach(antipowerup_data[powerup][1], width, FrameTime()*160)
+				antipowerup_data[powerup][2] = convarstyle > 1 and 0 or math.Approach(antipowerup_data[powerup][2], 0, FrameTime()*3)
+			else
+				powerup_data[powerup][1] = math.Approach(powerup_data[powerup][1], width, FrameTime()*160)
+				powerup_data[powerup][2] = convarstyle > 1 and 0 or math.Approach(powerup_data[powerup][2], 0, FrameTime()*3)
+			end
+		else
+			if anti then
+				antipowerup_data[powerup][1] = width
+				antipowerup_data[powerup][2] = 0
+			else
+				powerup_data[powerup][1] = width
+				powerup_data[powerup][2] = 0
+			end
+		end
+
 		local warningthreshold = anti and 5 or 10 --at what time does the icon start blinking?
-		local frequency1 = 0.25 --how long in seconds it takes for the icon to toggle visibility
+		local frequency1 = 0.1 --how long in seconds it takes for the icon to toggle visibility
 		local urgencythreshold = anti and 2 or 5 --at what time does the blinking get faster/slower?
 		local frequency2 = 0.1 --how long in seconds it takes for the icon to toggle visibility in urgency mode
+
 		if noflash then
 			warningthreshold = 0
 			urgencythreshold = 0
 		end
-		if timeleft > warningthreshold or (timeleft > urgencythreshold and timeleft % (frequency1 * 2) > frequency1) or (timeleft <= urgencythreshold and timeleft % (frequency2*2) > frequency2) then
-			surface.SetMaterial(material)
-			surface.SetDrawColor(anti and color_red_255 or color_white)
-			surface.DrawTexturedRect(width - 32*scale, ScrH() - 155*scale, 64*scale, 64*scale)
-			
+
+		if timeleft > warningthreshold or (timeleft > urgencythreshold and timeleft % (frequency1 * 4) > frequency1) or (timeleft <= urgencythreshold and timeleft % (frequency2*2) > frequency2) then
+			local finalwidth = anti and antipowerup_data[powerup][1] or powerup_data[powerup][1]
+			local cuntas = anti and antipowerup_data[powerup][2] or powerup_data[powerup][2]
+			local finalfade = math.Clamp(1 - cuntas, 0, 1)
+			local bonus = (32*cuntas)
+
+			surface.SetMaterial(icon)
+			surface.SetDrawColor(ColorAlpha(anti and color_red_255 or color_white, 300*finalfade))
+			surface.DrawTexturedRect(finalwidth - (32*scale) - (bonus/2), sch - 160*scale - (bonus/2), 64*scale + bonus, 64*scale + bonus)
+
 			if nz_showpoweruptimer:GetBool() then
-				draw.SimpleTextOutlined(math.Round(timeleft), font, width, sch - 170*scale, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, color_black)
+				draw.SimpleTextOutlined(math.Round(timeleft), font, finalwidth, sch - 175*scale - (bonus/2), color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, color_black_100)
 			end
 		end
+
 		powerupsActive = powerupsActive + 1
 	end
 
-	for k,v in pairs(nzPowerUps.ActivePowerUps) do	
-		if nzPowerUps:IsPowerupActive(k) then
-			local icon, noflash = GetPowerupIconMaterial(k)
-			if icon then
-				AddPowerup(icon, v, false, noflash)
-				ReturnPosition("Returning"..k, v - ctime)	
-			end
-
-			local powerupData = nzPowerUps:Get(k)
-			c = c + 1
+	for powerup, time in pairs(tActivePowerUps) do
+		local icon, noflash = GetPowerupIconMaterial(powerup)
+		if icon then
+			AddPowerup(powerup, icon, time, false, noflash)
 		end
 	end
 
-	for k,v in pairs(nzPowerUps.ActiveAntiPowerUps) do	
-		if nzPowerUps:IsAntiPowerupActive(k) then
-			local icon = GetPowerupIconMaterial(k)
-			if icon then
-				AddPowerup(icon, v, true)
-				ReturnPosition("Returning anti"..k, v - ctime)	
-			end
-
-			local powerupData = nzPowerUps:Get(k)
-			c = c + 1
+	for powerup, time in pairs(tActiveAntiPowerUps) do	
+		local icon = GetPowerupIconMaterial(powerup)
+		if icon then
+			AddPowerup(powerup, icon, time, true)
 		end
 	end
 
-	if not nzPowerUps.ActivePlayerPowerUps[ply] then nzPowerUps.ActivePlayerPowerUps[ply] = {} end
-	for k,v in pairs(nzPowerUps.ActivePlayerPowerUps[ply]) do
-		if nzPowerUps:IsPlayerPowerupActive(ply, k) then
-			local icon, noflash = GetPowerupIconMaterial(k)
-			if icon then
-				AddPowerup(icon, v, false, noflash)
-				ReturnPosition("Returning"..k, v - ctime)	
-			end
-
-			local powerupData = nzPowerUps:Get(k)
-			c = c + 1
+	for powerup, time in pairs(tPlayerPowerUps) do
+		local icon, noflash = GetPowerupIconMaterial(powerup)
+		if icon then
+			AddPowerup(powerup, icon, time, false, noflash)
 		end
 	end
 
-	if not nzPowerUps.ActivePlayerAntiPowerUps[ply] then nzPowerUps.ActivePlayerAntiPowerUps[ply] = {} end
-	for k,v in pairs(nzPowerUps.ActivePlayerAntiPowerUps[ply]) do
-		if nzPowerUps:IsPlayerAntiPowerupActive(ply, k) then
-			local icon = GetPowerupIconMaterial(k)
-			if icon then
-				AddPowerup(icon, v, true)
-				ReturnPosition("Returning anti"..k, v - ctime)	
-			end
+	for powerup, time in pairs(tPlayerAntiPowerUps) do
+		local icon = GetPowerupIconMaterial(powerup)
+		if icon then
+			AddPowerup(powerup, icon, time, true)
+		end
+	end
 
-			local powerupData = nzPowerUps:Get(k)
-			c = c + 1
+	for k, v in pairs(nzPowerUps.Data) do
+		if v.global then
+			local active = nzPowerUps:IsPowerupActive(k)
+			local antiactive = nzPowerUps:IsAntiPowerupActive(k)
+			if !active and powerup_data[k] then
+				powerup_data[k] = nil
+			end
+			if !antiactive and antipowerup_data[k] then
+				antipowerup_data[k] = nil
+			end
+		else
+			local pactive = nzPowerUps:IsPlayerPowerupActive(ply, k)
+			local pantiactive = nzPowerUps:IsPlayerAntiPowerupActive(ply, k)
+
+			if !pactive and powerup_data[k] then
+				powerup_data[k] = nil
+			end
+			if !pantiactive and antipowerup_data[k] then
+				antipowerup_data[k] = nil
+			end
 		end
 	end
 
@@ -2066,123 +2109,6 @@ local function VultureVision()
 		surface.DrawTexturedRect(data.x - 21*scale, data.y - 21*scale, 42*scale, 42*scale)
 	end
 end
-
---[[This is a modified Classic nZ Round Counter... If you want a Counter thats styled after the classic era of Zombies, use this one.
-local round_white = 0
-local round_alpha = 255
-local round_num = 0
-local infmat = Material("materials/nz_moo/round_tallies/chalk_infinity.png", "smooth")
-local tallymats = {
-	Material("nz_moo/round_tallies/bo1_tallies/chalkmarks_bo1_1.png", "unlitgeneric smooth"),
-	Material("nz_moo/round_tallies/bo1_tallies/chalkmarks_bo1_2.png", "unlitgeneric smooth"),
-	Material("nz_moo/round_tallies/bo1_tallies/chalkmarks_bo1_3.png", "unlitgeneric smooth"),
-	Material("nz_moo/round_tallies/bo1_tallies/chalkmarks_bo1_4.png", "unlitgeneric smooth"),
-	Material("nz_moo/round_tallies/bo1_tallies/chalkmarks_bo1_5.png", "unlitgeneric smooth")
-}
-local function RoundHud()
-
-	local text = ""
-	local font = ("nz.rounds."..GetFontType(nzMapping.Settings.roundfont))
-	local w = 35
-	local h = ScrH() - 15
-	local round = round_num
-	local col = Color(200 + round_white, round_white, round_white,round_alpha)
-	surface.SetDrawColor(col.r,round_white,round_white,round_alpha)
-	if round == -1 then
-			surface.SetMaterial(infmat)
-			--surface.SetDrawColor(col.r,round_white,round_white,round_alpha)
-			surface.DrawTexturedRect(w - 25, h - 100, 200, 100)
-		return
-	elseif round < 11 then
-		if round < 6 then -- Instead of using text for the tallies, We're now using the actual tally textures instead.
-			for i = 1, round do
-				--surface.SetDrawColor(col.r,round_white,round_white,round_alpha)
-				surface.SetMaterial(tallymats[round])
-				surface.DrawTexturedRect(w, h - 125, 125, 125)
-			end
-		end
-		if round <= 10 and round > 5 then
-				--surface.SetDrawColor(col.r,round_white,round_white,round_alpha)
-				surface.SetMaterial(tallymats[5]) -- Always display five.
-				surface.DrawTexturedRect(w, h - 125, 125, 125)
-			for i = 1, round do
-				surface.SetMaterial(tallymats[round - 5])
-				surface.DrawTexturedRect(w + 120, h - 125, 125, 125)
-			end
-		end
-	else
-		text = round
-		draw.SimpleText(text, font, w + 15, h - 5, col, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
-	end
-end
-
-local roundchangeending = false
-local prevroundspecial = false
-local function StartChangeRound()
-
-	print(nzRound:GetNumber(), nzRound:IsSpecial())
-	
-	local lastround = nzRound:GetNumber()
-
-	if lastround >= 1 then
-		if prevroundspecial then
-			nzSounds:Play("SpecialRoundEnd")
-		else
-			nzSounds:Play("RoundEnd")
-		end
-	elseif lastround == -2 then
-		surface.PlaySound("nz/round/round_-1_prepare.mp3")
-	else
-		round_num = 0
-	end
-
-	roundchangeending = false
-	round_white = 0
-	local round_charger = 0.25
-	local alphafading = false
-	local haschanged = false
-	hook.Add("HUDPaint", "nz_roundnumWhiteFade", function()
-		if not alphafading then
-			round_white = math.Approach(round_white, round_charger > 0 and 255 or 0, round_charger*350*FrameTime())
-			if round_white >= 255 and not roundchangeending then
-				alphafading = true
-				round_charger = -1
-			elseif round_white <= 0 and roundchangeending then
-				hook.Remove("HUDPaint", "nz_roundnumWhiteFade")
-			end
-		else
-			round_alpha = math.Approach(round_alpha, round_charger > 0 and 255 or 0, round_charger*350*FrameTime())
-			if round_alpha >= 255 then
-				if haschanged then
-					round_charger = -0.25
-					alphafading = false
-				else
-					round_charger = -1
-				end
-			elseif round_alpha <= 0 then
-				if roundchangeending then
-					round_num = nzRound:GetNumber()
-					round_charger = 0.5
-					if round_num == -1 then
-					elseif nzRound:IsSpecial() then
-						nzSounds:Play("SpecialRoundStart")
-						prevroundspecial = true
-					else
-						nzSounds:Play("RoundStart")
-						prevroundspecial = false
-					end
-					haschanged = true
-				else
-					round_charger = 1
-				end
-			end
-		end
-	end)
-end
-
-local function EndChangeRound()
-	roundchangeending = true
-end]]
 
 --[[ JEN WALTER'S ROUND COUNTER ]]--
 
@@ -2723,9 +2649,103 @@ local function BloodSpatterHUD()
 	end
 end
 
+local next_letter = 0
+local function YaPh1lTypeWriter()
+	if nzDisplay.HasPlayedTypeWriter then return end
+	if !nzMapping.Settings.typewriterintro then return end
+	if !nzMapping.Settings.typewritertext then return end
+
+	nzDisplay.HasPlayedTypeWriter = true
+
+	local w, h = ScrW(), ScrH()
+	local scale = (ScrW()/1920 + 1)/2
+	local wscale = w/1920*scale
+
+	local b_alldone = false
+
+	local mapstring = tostring(nzMapping.Settings.typewritertext)
+	local mapoffset = nzMapping.Settings.typewriteroffset or 420
+	local mapdelay = nzMapping.Settings.typewriterdelay or 0.15
+	local maplinedelay = nzMapping.Settings.typewriterlinedelay or 1.5
+
+	local intro_strings = string.Split(mapstring, ";")
+	local intro_hud = {}
+	for k, v in pairs(intro_strings) do
+		intro_hud[v] = {[1] = 0, [2] = 0, [3] = 0} //1 is alpha, 2 is letter count, 3 is start fadeout time
+	end
+
+	local current_line = 1
+	next_letter = CurTime() + 1
+
+	hook.Add("HUDPaint", "phil_typewriter_intro", function()
+		local font = "nz.small."..GetFontType(nzMapping.Settings.smallfont)
+		local fontColor = !IsColor(nzMapping.Settings.textcolor) and color_white or nzMapping.Settings.textcolor
+
+		surface.SetFont(font)
+		local tw, th = surface.GetTextSize("I")
+
+		local b_newline = false
+		for i=1, #intro_strings do
+			local ourstring = intro_strings[i]
+
+			if next_letter < CurTime() and intro_hud[ourstring][2] < #ourstring then
+				intro_hud[ourstring][2] = math.Clamp(intro_hud[ourstring][2] + 1, 0, #ourstring)
+
+				if i <= current_line and intro_hud[ourstring][1] == 0 then
+					intro_hud[ourstring][1] = 1
+				end
+				if intro_hud[ourstring][2] == #ourstring then
+					current_line = math.Clamp(current_line + 1, 0, #intro_strings)
+					b_newline = true
+
+					if current_line == #intro_strings then
+						for i=1, #intro_strings do
+							intro_hud[intro_strings[i]][3] = CurTime() + (2.5 + i)
+						end
+					end
+				end
+
+				next_letter = CurTime() + (b_newline and maplinedelay or mapdelay)
+
+				if ourstring ~= " " then
+					surface.PlaySound("nz.typewriter")
+				end
+			end
+
+			if intro_hud[ourstring][3] > 0 and intro_hud[ourstring][3] < CurTime() and intro_hud[ourstring][1] > 0 then
+				intro_hud[ourstring][1] = math.Approach(intro_hud[ourstring][1], 0, FrameTime())
+			end
+
+			if current_line >= #intro_strings then
+				local finalist = intro_hud[intro_strings[#intro_strings]]
+			 	if finalist[2] >= #intro_strings[#intro_strings] and finalist[1] == 0 then
+					b_alldone = true
+				end
+			end
+
+			draw.SimpleTextOutlined(string.sub(ourstring, 0, intro_hud[ourstring][2]), font, 5, h - (mapoffset*scale) + (i*th), ColorAlpha(fontColor, 255*intro_hud[ourstring][1]), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM, (nzMapping.Settings.fontthicc or 2), ColorAlpha(color_black, 100*intro_hud[ourstring][1]))
+		end
+
+		if b_alldone then
+			hook.Remove("HUDPaint", "phil_typewriter_intro")
+		end
+	end)
+end
+
+hook.Add("TFA_DrawCrosshair", "GameIntroBlockCrosshair", function(wep)
+	if nzDisplay and nzDisplay.HUDIntroDuration and (nzDisplay.HUDIntroDuration - 0.5) > CurTime() then
+		return true
+	end
+end)
+
 -- Hooks
 hook.Add("HUDPaint", "playersvoiceHUD", PlayerVoiceHUD )
 hook.Add("PostDrawTranslucentRenderables", "nzplayerinfoHUD", PlayerInfoHUD )
+hook.Add("OnRoundPreparation", "typewriteintroHUD", YaPh1lTypeWriter )
+hook.Add("OnRoundEnd", "typewriteintroHUD", function()
+	nzDisplay.HasPlayedTypeWriter = nil
+	hook.Remove("HUDPaint", "phil_typewriter_intro")
+end)
 hook.Add("HUDPaint", "bloodspatterHUD", BloodSpatterHUD )
 
 hook.Add("HUDPaint", "nzHUDswapping_default", function()

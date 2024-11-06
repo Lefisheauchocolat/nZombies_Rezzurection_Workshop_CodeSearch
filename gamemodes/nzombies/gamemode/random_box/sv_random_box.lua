@@ -19,7 +19,7 @@ function nzRandomBox.Spawn(exclude, first)
 		local pos = rand:GetPos()
 		local ang = rand:GetAngles()
 		
-		if (nzMapping.Settings.boxtype == "Original" or nzMapping.Settings.boxtype == "Black Ops 3" or nzMapping.Settings.boxtype == "Black Ops 3(Quiet Cosmos)" or nzMapping.Settings.boxtype == "Leviathan") then
+		if (nzMapping.Settings.boxtype == "Original" or nzMapping.Settings.boxtype == "Black Ops 3" or nzMapping.Settings.boxtype == "Black Ops 3(Quiet Cosmos)" or nzMapping.Settings.boxtype == "Leviathan" or nzMapping.Settings.boxtype == "Cold War") then
 			box:SetPos( pos + ang:Up()*10 + ang:Right()*7 )
 		else
 			box:SetPos( pos + ang:Right()*7 )

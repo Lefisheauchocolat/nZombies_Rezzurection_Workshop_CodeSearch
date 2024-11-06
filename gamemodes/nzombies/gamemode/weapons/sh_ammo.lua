@@ -110,8 +110,8 @@ local wepMeta = FindMetaTable("Weapon")
 local oldammotype = wepMeta.GetPrimaryAmmoType
 function wepMeta:GetPrimaryAmmoType()
 	local id = self:GetNWInt("SwitchSlot", -1)
-	if id == -1 and self.NZSpecialCategory and usesammo[self.NZSpecialCategory] and oldammotype(self) > 0 then
-		id = usesammo[self.NZSpecialCategory]
+	if id == -1 and self.NZSpecialCategory == "trap" and oldammotype(self) > 0 then
+		id = "equipment"
 	end
 
 	if ammoids[id] then

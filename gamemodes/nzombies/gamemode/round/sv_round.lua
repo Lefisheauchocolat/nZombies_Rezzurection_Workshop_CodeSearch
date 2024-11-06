@@ -73,19 +73,37 @@ function nzRound:Prepare( time )
 	end
 
 	local slot_reward = nzMapping.Settings.roundperkbonus
-	local cvar_maxperks = GetConVar("nz_difficulty_perks_max")
-	if (self:GetNumber() == 16 or self:GetNumber() == 26) and (slot_reward == nil or tobool(slot_reward)) then -- Beating rounds 15 and 25 will reward you with your 2 slots.
-		cvar_maxperks:SetInt(cvar_maxperks:GetInt() + 1) -- No longer a Powerup, You'll just get slots depending on the round. //powerup again but now its a reward
-		for k, v in pairs(player.GetAll()) do
-			if (v:IsPlaying() or v:IsInCreative()) then
-				v:SetMaxPerks(v:GetMaxPerks() + 1)
-			end
+	if slot_reward == nil or tobool(slot_reward) then
+		local n_rewardround = nzMapping.Settings.slotrewardround or 15
+		local n_rewardinterval = nzMapping.Settings.slotrewardinterval or 10
+		local n_maxslots = nzMapping.Settings.slotrewardcount or 2
+
+		local b_dothething = false
+		if !nzRound.RewardedPerkSlots and self:GetNumber() >= (n_rewardround + 1) then
+			nzRound.RewardedPerkSlots = 1
+			nzRound.NextPerkSlot = self:GetNumber() + n_rewardinterval
+			b_dothething = true
+		elseif nzRound.RewardedPerkSlots and nzRound.RewardedPerkSlots < n_maxslots and (self:GetNumber() >= nzRound.NextPerkSlot) then
+			nzRound.RewardedPerkSlots = nzRound.RewardedPerkSlots + 1
+			nzRound.NextPerkSlot = self:GetNumber() + n_rewardinterval
+			b_dothething = true
 		end
 
-		net.Start("nzPowerUps.PickupHud")
-			net.WriteString("Perk Slot!")
-			net.WriteBool(true)
-		net.Broadcast()
+		if b_dothething then
+			local cvar_maxperks = GetConVar("nz_difficulty_perks_max")
+
+			cvar_maxperks:SetInt(cvar_maxperks:GetInt() + 1)
+			for k, v in pairs(player.GetAll()) do
+				if (v:IsPlaying() or v:IsInCreative()) then
+					v:SetMaxPerks(v:GetMaxPerks() + 1)
+				end
+			end
+
+			net.Start("nzPowerUps.PickupHud")
+				net.WriteString("Perk Slot!")
+				net.WriteBool(true)
+			net.Broadcast()
+		end
 	end
 
 	if nzMapping.Settings.timedgame ~= 1 then
@@ -214,12 +232,13 @@ function nzRound:Prepare( time )
 	CurRoundOverSpawned = false
 
 	--Start the next round
-	local time = 15
+	local time = (nzMapping.Settings.roundwaittime or 15)
 	if self:GetNumber() == -1 then time = 10 end
-	if self:GetNumber() == 1 then time = 1 end
+	if self:GetNumber() == 1 then time = (nzMapping.Settings.firstroundwaittime or 1) end
+	if self:IsSpecial() then time = (nzMapping.Settings.specialroundwaittime or 15) end
 
-	if nzMapping.Settings.timedgame == 1 then time = 0.5 end -- Timed Gameplay has next to no time in between rounds, in order to keep the zombie spawning near constant.
-	
+	if nzMapping.Settings.timedgame == 1 then time = (nzMapping.Settings.timedgameroundwaittime or 0.5) end -- Timed Gameplay has next to no time in between rounds, in order to keep the zombie spawning near constant.
+
 	local starttime = CurTime() + time
 	hook.Add("Think", "nzRoundPreparing", function()
 		if CurTime() > starttime then
@@ -229,7 +248,8 @@ function nzRound:Prepare( time )
 	end)
 
 	if self:IsSpecial() and nzMapping.Settings.timedgame ~= 1 then
-		self:SetNextSpecialRound( self:GetNumber() + math.random(5, 7) ) -- Every 5 to 7 rounds can have a chance of being a special round.
+		local specialround = math.random(nzMapping.Settings.specialroundmin or 5, nzMapping.Settings.specialroundmax or 7)
+		self:SetNextSpecialRound(self:GetNumber() + specialround)
 	end
 end
 
@@ -414,6 +434,10 @@ function nzRound:ResetGame()
 	--Reset Box and Pap uses.
 	nzPowerUps.HasPaped = false
 	nzPowerUps.BoxMoved = false
+
+	--Reset perk slot rewards
+	nzRound.RewardedPerkSlots = nil
+	nzRound.NextPerkSlot = nil
 
 	nzPerks:ResetMaxPlayerPerks()
 	GetConVar("nz_downtime"):SetFloat(nzMapping.Settings.downtime or 45)
@@ -704,7 +728,11 @@ function nzRound:SetupGame()
 	nzPerks:UpdateQuickRevive()
 
 	if nzMapping.Settings.timedgame ~= 1 then
-		nzRound:SetNextSpecialRound( self:GetNumber() + math.random(5, 7) )
+		local specialround = math.random(nzMapping.Settings.specialroundmin or 5, nzMapping.Settings.specialroundmax or 7)
+		if nzMapping.Settings.forcefirstspecialround then
+			specialround = (nzMapping.Settings.firstspecialround or 5)
+		end
+		nzRound:SetNextSpecialRound(self:GetNumber() + specialround)
 	end
 
 	nzEE.Major:Reset()

@@ -105,7 +105,7 @@ ENT.InflictDamage = function(self, ent)
 	damage:SetDamagePosition(ent:EyePos())
 	damage:SetDamageForce(vector_up)
 
-	if nzombies and ent.NZBossType then
+	if nzombies and (ent.NZBossType or ent.IsMooBossZombie or ent.IsMiniBoss) then
 		damage:SetDamage(math.max(1200, ent:GetMaxHealth() / 8))
 		damage:ScaleDamage(math.Round(nzRound:GetNumber()/10))
 	end

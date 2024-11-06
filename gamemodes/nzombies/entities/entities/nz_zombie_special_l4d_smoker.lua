@@ -334,13 +334,14 @@ ENT.BehindSoundDistance = 0
 
 function ENT:StatsInitialize()
 	if SERVER then
+		local speeds = nzRound:GetZombieCoDSpeeds()
 		if speeds then
 			self:SetRunSpeed( nzMisc.WeightedRandom(speeds) + math.random(0,35) )
 		else
 			self:SetRunSpeed( 1 )
 		end
-		self:SetHealth( nzRound:GetZombieHealth() * 1.75 or 75 )
-		self:SetMaxHealth( nzRound:GetZombieHealth() * 1.75 or 75 )
+		self:SetHealth( nzRound:GetZombieHealth() * 2 or 75 )
+		self:SetMaxHealth( nzRound:GetZombieHealth() * 2 or 75 )
 
 		self:SetBodygroup(1,0)
 		self:SetBodygroup(2,0)
@@ -350,6 +351,8 @@ function ENT:StatsInitialize()
 		self.UsingTongue = false
 		self.WaitForTongue = false
 		self.TongueCooldown = CurTime() + math.Rand(3.75, 4.5)
+
+		self.SniperPos = nil
 	end
 end
 
@@ -398,23 +401,72 @@ function ENT:AI()
 	end
 
 	-- Tongue
-	if CurTime() > self.TongueCooldown and self:TargetInRange(1250) and !self:TargetInRange(225) then
-		if self:IsAttackBlocked() then return end
-		if self:GetSpecialAnimation() then return end
-		if !IsValid(target) then return end
-
-		self:TempBehaveThread(function(self)
-
-			self:FaceTowards(target:GetPos())
-
-			self.UsingTongue = true
-			self:SetSpecialAnimation(true)
-			self:PlaySequenceAndMove("smoker_tongue_attack_start", 1, self.FaceEnemy)
-			
-			self.KillTongue = CurTime() + 4
-			self.TongueCooldown = CurTime() + math.Rand(5.75, 7.14)
-		end)
+	if CurTime() > self.TongueCooldown and !self.UsingTongue and self:TargetInRange(1250) and !self:TargetInRange(225) then
+		self:TryTongue(target)
 	end
+end
+
+function ENT:TryTongue(target)
+	if self:IsAttackBlocked() then return end
+	if self:GetSpecialAnimation() then return end
+	if !IsValid(target) then return end
+
+	self:TempBehaveThread(function(self)
+
+		local seq = "smoker_tongue_attack_start"
+		if self:GetRunSpeed() > 200 then seq = "smoker_tongue_attack_start_instant" end
+
+		if isvector(self.SniperPos) then self.SniperPos = nil end
+
+		self:FaceTowards(target:GetPos())
+
+		self.UsingTongue = true
+		self.SpottedTarget = true
+		self:SetSpecialAnimation(true)
+		self:PlaySequenceAndMove(seq, 1, self.FaceEnemy)
+		self.SpottedTarget = false
+			
+		self.KillTongue = CurTime() + 4
+		self.TongueCooldown = CurTime() + math.Rand(5.75, 7.14)
+	end)
+end
+
+function ENT:LaunchTongue()
+
+	if IsValid(self.Tongue) then return end
+
+	self:EmitSound(self.TongueLaunchSounds[math.random(#self.TongueLaunchSounds)], 95, math.random(95,105))
+
+	local pos = self:GetAttachment(self:LookupAttachment("smoker_mouth")).Pos
+		
+	if IsValid(self.Target) and self.Target:IsPlayer() then
+		local tr = util_traceline({
+			start = self:EyePos(),
+			endpos = self.Target:EyePos(),
+			filter = self,
+			ignoreworld = false,
+		})
+		local b = tr.Entity
+
+		debugoverlay.Line(self:EyePos(), self.Target:EyePos(), 5, Color( 255, 255, 255 ), false)
+			
+		if tr.HitWorld then 
+			self.UsingTongue = false
+			self:SetSpecialAnimation(false)
+			return 
+		end
+
+		if IsValid(self.Target) then
+			self.Tongue = ents.Create("nz_proj_smoker_tongue")
+			self.Tongue:SetPos(pos)
+			self.Tongue:Spawn()
+			self.Tongue:SetSmoker(self)
+			self.Tongue:Launch(((self.Target:GetPos() + Vector(0,0,50) + self.Target:GetVelocity() * math.Clamp(self.Target:GetVelocity():Length2D(),0,0.15)) - self.Tongue:GetPos()):GetNormalized())
+		end
+	end
+
+	self:SetBodygroup(1,1)
+	self:Stop()
 end
 
 function ENT:OnThink()
@@ -426,7 +478,9 @@ function ENT:OnThink()
 
 		self.WaitForTongue = false
 		self.UsingTongue = false
+		self.SpottedTarget = false
 	end
+
 	if self.UsingTongue and !IsValid(self.Tongue) then
 		self:FinishGrab()
 	end
@@ -516,38 +570,7 @@ function ENT:CustomAnimEvent(a,b,c,d,e)
 	end
 
 	if e == "smoker_tongue_attack" then
-		self:EmitSound(self.TongueLaunchSounds[math.random(#self.TongueLaunchSounds)], 95, math.random(95,105))
-
-		local pos = self:GetAttachment(self:LookupAttachment("smoker_mouth")).Pos
-		
-		if IsValid(self.Target) and self.Target:IsPlayer() then
-			local tr = util_traceline({
-				start = self:EyePos(),
-				endpos = self.Target:EyePos(),
-				filter = self,
-				ignoreworld = false,
-			})
-			local b = tr.Entity
-
-			debugoverlay.Line(self:EyePos(), self.Target:EyePos(), 5, Color( 255, 255, 255 ), false)
-			
-			if tr.HitWorld then 
-				self.UsingTongue = false
-				self:SetSpecialAnimation(false)
-				return 
-			end
-
-			if IsValid(self.Target) then
-				self.Tongue = ents.Create("nz_proj_smoker_tongue")
-				self.Tongue:SetPos(pos)
-				self.Tongue:Spawn()
-				self.Tongue:SetSmoker(self)
-				self.Tongue:Launch(((self.Target:GetPos() + Vector(0,0,50) + self.Target:GetVelocity() * math.Clamp(self.Target:GetVelocity():Length2D(),0,0.5)) - self.Tongue:GetPos()):GetNormalized())
-			end
-		end
-
-		self:SetBodygroup(1,1)
-		self:Stop()
+		self:LaunchTongue()
 	end
 
 	if e == "smoker_land" then

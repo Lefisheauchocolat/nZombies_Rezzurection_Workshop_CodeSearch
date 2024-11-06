@@ -1,7 +1,10 @@
 nzEffects = nzEffects or AddNZModule("Effects")
 
-//game.AddParticles("particles/drops_powerups.pcf")
 game.AddParticles("particles/drops_powerups_new.pcf")
+game.AddParticles("particles/drops_powerup_security.pcf")
+
+game.AddParticles("particles/magicbox.pcf")
+
 game.AddParticles("particles/perk_machines.pcf")
 
 game.AddParticles("particles/perks_cherry.pcf")
@@ -13,8 +16,6 @@ game.AddParticles("particles/perks_winterswail.pcf")
 game.AddParticles("particles/perks_chuggabud.pcf")
 game.AddParticles("particles/perks_banana.pcf")
 game.AddParticles("particles/perks_wonderfizz.pcf")
-
-game.AddParticles("particles/magicbox.pcf")
 
 game.AddParticles("particles/perks_aat_blastfurnace.pcf")
 game.AddParticles("particles/perks_aat_thunderwall.pcf")
@@ -107,3 +108,5 @@ PrecacheParticleSystem("bo3_vending_wonder_ball")
 
 PrecacheParticleSystem("nz_magicbox")
 PrecacheParticleSystem("nz_magicbox_sharing")
+
+PrecacheParticleSystem("nz_hbarrier_loop")

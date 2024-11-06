@@ -372,16 +372,30 @@ function nzMapping:ZedExtraSpawn4(pos, angle, link, master, spawntype, zombietyp
 end
 ]]
 
-function nzMapping:PlayerSpawn(pos, angle, ply)
-
+function nzMapping:PlayerSpawn(pos, angle, data, ply)
 	local ent = ents.Create("player_spawns")
 	pos.z = pos.z - ent:OBBMaxs().z
-	ent:SetPos( pos )
-	if angle ~= nil then -- Just incase something stupid happens.
-		ent:SetAngles( angle )
-	else
-		ent:SetAngles(Angle(0,0,0))
+	ent:SetPos(pos)
+	ent:SetAngles(angle or Angle(0,0,0))
+
+	if data then
+		if data.dooractivate ~= nil then
+			ent:SetDoorActivated(tobool(data.dooractivate))
+		end
+		if data.activatetype then
+			ent:SetDoorActivateType(tonumber(data.activatetype))
+		end
+		if data.doorflag then
+			ent:SetDoorFlag(tostring(data.doorflag))
+		end
+		if data.doorflag2 then
+			ent:SetDoorFlag2(tostring(data.doorflag2))
+		end
+		if data.doorflag3 then
+			ent:SetDoorFlag3(tostring(data.doorflag3))
+		end
 	end
+
 	ent:Spawn()
 
 	if ply then
@@ -523,14 +537,13 @@ function nzMapping:PropBuy(pos, ang, model, flags, ply)
 	prop:Spawn()
 	prop:PhysicsInit( SOLID_VPHYSICS )
 	
-	-- REMINDER APPY FLAGS
-	if flags != nil then
-		nzDoors:CreateLink( prop, flags )
-	end
-
 	local phys = prop:GetPhysicsObject()
 	if phys:IsValid() then
 		phys:EnableMotion(false)
+	end
+
+	if flags != nil then
+		nzDoors:CreateLink( prop, flags )
 	end
 
 	if ply then
@@ -542,18 +555,38 @@ function nzMapping:PropBuy(pos, ang, model, flags, ply)
 	return prop
 end
 
-function nzMapping:Electric(pos, ang, limited, aoe, ply)
+function nzMapping:Electric(pos, ang, data, ply)
 	--THERE CAN ONLY BE ONE TRUE HERO, actually thats cap this is my zombie acadummya
 	--[[local prevs = ents.FindByClass("power_box")
 	if prevs[1] != nil then
 		prevs[1]:Remove()
 	end]]
 
+	if not data then return end
+
 	local ent = ents.Create( "power_box" )
 	ent:SetPos( pos )
 	ent:SetAngles( ang )
-	ent:SetLimited(limited)
-	ent:SetAOE(aoe or 1000)
+
+	if data.limited ~= nil then
+		ent:SetLimited(tobool(data.limited))
+	end
+	if data.aoe ~= nil then
+		ent:SetAOE(tonumber(data.aoe))
+	else
+		ent:SetAOE(1000)
+	end
+
+	if data.requireall ~= nil then
+		ent:SetRequireAll(tobool(data.requireall))
+	end
+	if data.reset ~= nil then
+		ent:SetDoReset(tobool(data.reset))
+	end
+	if data.resettime then
+		ent:SetResetTime(tonumber(data.resettime))
+	end
+
 	ent:Spawn()
 	ent:PhysicsInit( SOLID_VPHYSICS )
 
@@ -1130,18 +1163,20 @@ function nzMapping:CreateAntiCheatExclusion(vec1, vec2, ply)
 	return wall
 end
 
-function nzMapping:CreateInvisibleDamageWall(vec1, vec2, ply, dmg, delay, dmgtype)
+function nzMapping:CreateInvisibleDamageWall(vec1, vec2, ply, dmg, delay, dmgtype, respawnz)
 	local wall = ents.Create( "invis_damage_wall" )
 	wall:SetPos( vec1 )
 	wall:SetMaxBound(vec2)
+
+	wall:SetDamage(dmg)
+	wall:SetDelay(delay)
+	wall:SetRespawnZombie(respawnz)
+	wall:SetDamageWallType(dmgtype or 1)
+
 	wall:Spawn()
 	wall:PhysicsInitBox( Vector(0,0,0), vec2 )
 	wall:SetNotSolid(true)
 	wall:SetTrigger(true)
-	wall:SetDamage(dmg)
-	wall:SetDelay(delay)
-
-	wall:SetDamageWallType(dmgtype or 1)
 
 	local phys = wall:GetPhysicsObject()
 	if IsValid(phys) then
@@ -1153,6 +1188,42 @@ function nzMapping:CreateInvisibleDamageWall(vec1, vec2, ply, dmg, delay, dmgtyp
 			undo.SetPlayer( ply )
 			undo.AddEntity( wall )
 		undo.Finish( "Effect (" .. tostring( model ) .. ")" )
+	end
+	return wall
+end
+
+function nzMapping:CreateDamageIgnoreWall(vec1, vec2, data, ply)
+	local wall = ents.Create( "damage_ignore_wall" )
+	wall:SetPos( vec1 )
+	wall:SetMaxBound(vec2)
+	
+	if data then
+		if data.dmg1 then
+			wall:SetDamage(tonumber(data.dmg1))
+		end
+		if data.dmg2 then
+			wall:SetDamage2(tonumber(data.dmg2))
+		end
+		if data.dmg3 then
+			wall:SetDamage3(tonumber(data.dmg3))
+		end
+	end
+
+	wall:Spawn()
+	wall:PhysicsInitBox( Vector(0,0,0), vec2 )
+	wall:SetNotSolid(true)
+	wall:SetTrigger(true)
+
+	local phys = wall:GetPhysicsObject()
+	if IsValid(phys) then
+		phys:EnableMotion(false)
+	end
+
+	if ply then
+		undo.Create("Damage Ignore Trigger")
+			undo.SetPlayer( ply )
+			undo.AddEntity( wall )
+		undo.Finish("")
 	end
 	return wall
 end

@@ -24,8 +24,8 @@ function ENT:Initialize()
 	self.killtime = CurTime() + 8
 
 	util.ScreenShake(self:GetPos(), 10, 255, 1, 150)
-	self:EmitSound("bo1_overhaul/n6/xplo"..math.random(2)..".mp3")
-	ParticleEffect("novagas_xplo", self:GetPos(), Angle(0,0,0), self)
+	self:EmitSound("nz_moo/zombies/vox/_quad/_classic/explo/explo_0"..math.random(3)..".mp3")
+	ParticleEffect("zmb_gas_explo", self:GetPos() + Vector(0,0,4), Angle(0,0,0), self)
 
 	if CLIENT then return end
 	util.BlastDamage(self, self, self:GetPos(), 150, 15)

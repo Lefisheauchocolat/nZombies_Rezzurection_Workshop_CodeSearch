@@ -33,13 +33,27 @@ ENT.AttackRange = 110
 ENT.DamageRange = 110
 ENT.AttackDamage = 80
 
-ENT.Models = {
-	{Model = "models/wavy/wavy_enemies/hulk/l4d1/hulk.mdl", Skin = 0, Bodygroups = {0,0}},
-	{Model = "models/wavy/wavy_enemies/hulk/l4d2/hulk.mdl", Skin = 0, Bodygroups = {0,0}},
-	{Model = "models/wavy/wavy_enemies/hulk/l4d_ml/hulk_l4d1_ml.mdl", Skin = 3, Bodygroups = {0,0}},
-	{Model = "models/moo/_moo_ports/l4d/infected/hulk_remastered/spicyjam_hulk.mdl", Skin = 0, Bodygroups = {0,0}}, -- Army man
+ENT.SoundDelayMin = 1.75
+ENT.SoundDelayMax = 2.75
+ENT.MinSoundPitch = 98 				-- Limits the minimum pitch for passive sounds the zombie can make.
+ENT.MaxSoundPitch = 102 				-- Limits the maximum pitch for passive sounds the zombie can make.
+ENT.SoundVolume = 150
 
-	--{Model = "models/wavy/wavy_enemies/hulk/l4d_dlc3/hulk_dlc3.mdl", Skin = 0, Bodygroups = {0,0}},
+ENT.Models = {
+	{Model = "models/wavy_ports/wavy_enemies/l4d/l4d1_hulk.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/wavy_ports/wavy_enemies/l4d/l4d2_hulk.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/wavy_ports/wavy_enemies/l4d/sacrifice_hulk.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/wavy_ports/wavy_enemies/l4d/kbar_hulk.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/wavy_ports/wavy_enemies/l4d/flesh_hulk.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/wavy_ports/wavy_enemies/l4d/warfare_hulk.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/wavy_ports/wavy_enemies/l4d/urban_hulk.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/wavy_ports/wavy_enemies/l4d/mutilated_hulk.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/wavy_ports/wavy_enemies/l4d/maniac_hulk.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/wavy_ports/wavy_enemies/l4d/haggard_hulk.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/wavy_ports/wavy_enemies/l4d/football_hulk.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/wavy_ports/wavy_enemies/l4d/military_hulk.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/wavy_ports/wavy_enemies/l4d/police_hulk.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_moo_ports/l4d/infected/hulk_remastered/spicyjam_hulk.mdl", Skin = 0, Bodygroups = {0,0}}, -- Army man
 }
 
 local util_tracehull = util.TraceHull
@@ -283,6 +297,19 @@ ENT.CustomAttackImpactSounds = {
 	"wavy_zombie/hulk/hulk_punch_1.wav",
 }
 
+ENT.ShotPainSounds = {
+	Sound("wavy_zombie/hulk/tank_pain_01.wav"),
+	Sound("wavy_zombie/hulk/tank_pain_02.wav"),
+	Sound("wavy_zombie/hulk/tank_pain_03.wav"),
+	Sound("wavy_zombie/hulk/tank_pain_04.wav"),
+	Sound("wavy_zombie/hulk/tank_pain_05.wav"),
+	Sound("wavy_zombie/hulk/tank_pain_06.wav"),
+	Sound("wavy_zombie/hulk/tank_pain_07.wav"),
+	Sound("wavy_zombie/hulk/tank_pain_08.wav"),
+	Sound("wavy_zombie/hulk/tank_pain_09.wav"),
+	Sound("wavy_zombie/hulk/tank_pain_10.wav"),
+}
+
 ENT.BehindSoundDistance = 1 -- When the zombie is within 200 units of a player, play these sounds instead
 ENT.BehindSounds = {
 	Sound("nz_moo/zombies/vox/mute_00.wav"),
@@ -319,6 +346,7 @@ function ENT:StatsInitialize()
 		self.Throwing = false
 		self.HasPoppedOff = false
 		self.IsPoppingOff = false
+		self.PainSoundCooldown = CurTime() + 1
 	end
 end
 
@@ -358,6 +386,10 @@ function ENT:OnTakeDamage(dmginfo)
 	end
 	if meleetypes[dmginfo:GetDamageType()] then
 		dmginfo:ScaleDamage(3)
+	end
+	if CurTime() > self.PainSoundCooldown then
+		self:EmitSound(self.ShotPainSounds[math.random(#self.ShotPainSounds)], 150, 100, 1, 2)
+		self.PainSoundCooldown = CurTime() + 1
 	end
 end
 

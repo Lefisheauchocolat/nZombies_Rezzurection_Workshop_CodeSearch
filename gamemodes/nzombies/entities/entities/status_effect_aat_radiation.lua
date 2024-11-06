@@ -12,7 +12,7 @@ if SERVER then
 	entMeta.AATRadiation = function(self, duration, attacker, inflictor, blockattack)
 		if self.IsAATTurned and self:IsAATTurned() then return end
 		local boss = false
-		if nzombies and (self.NZBossType or self.IsMooBossZombie or string.find(self:GetClass(), "zombie_boss")) then
+		if nzombies and (self.NZBossType or self.IsMooBossZombie or self.IsMiniBoss or string.find(self:GetClass(), "zombie_boss")) then
 			boss = true
 		end
 		if duration == nil then

@@ -825,7 +825,7 @@ if SERVER then
 				if IsValid(v) and v:IsValidZombie() and v.IsMooZombie then
 				if v.IsMooSpecial or v.IsMooBossZombie or v.NZBossType or v.IsCatalyst or v:WaterBuff() then continue end -- will ignore itself and Bosses
 					self:ResetMovementSequence()
-					self:MoveToPos(v:GetPos(), {lookahead = 10, tolerance = 50, maxage = 3})
+					self:MoveToPos(v:GetPos(), {lookahead = 10, tolerance = 50, maxage = 3, repath = 1})
 					self:FleeTarget(3)
 					if v.SpeedBasedSequences then
 						if self:BomberBuff() then

@@ -81,14 +81,14 @@ if CLIENT then
 end
 
 //for selecting a random gum
-nzGum.RollData = {} //on the client this table is just roll counts
-nzGum.TotalGumCount = 0
+nzGum.RollData = nzGum.RollData or {} //on the client this table is just roll counts
+nzGum.TotalGumCount = nzGum.TotalGumCount or 0
 
 //default chance for all gums
-nzGum.RollChance = 10
+nzGum.RollChance = nzGum.RollChance or 10
 
 //default round modulo for resetting all gum chances
-nzGum.RollChanceResetRounds = 10
+nzGum.RollChanceResetRounds = nzGum.RollChanceResetRounds or 10
 
 //default round interval for a gum's count to get reset
 nzGum.RollCountResetRounds = {
@@ -133,9 +133,9 @@ nzGum.RoundPrices = {
 }
 
 //gum specific data
-nzGum.TemporalGiftTime = 0
-nzGum.ProfitSharingDist = 1024^2
-nzGum.ProfitSharingPlayers = {}
+nzGum.TemporalGiftTime = nzGum.TemporalGiftTime or 0
+nzGum.ProfitSharingDist = nzGum.ProfitSharingDist or 1024^2
+nzGum.ProfitSharingPlayers = nzGum.ProfitSharingPlayers or {}
 
 nzGum.UnbreakableFunc = {
 	["callPhone_Body"] = true,
