@@ -70,7 +70,7 @@ end
 function ENT:StartTouch(ent)
 	if ent:IsPlayer() then
 		ent.NZBananaSlip = self
-		ent:SetFriction(0.15)
+		ent:SetFriction(0.2)
 		return
 	end
 

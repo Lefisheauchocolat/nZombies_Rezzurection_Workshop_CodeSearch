@@ -287,13 +287,9 @@ function ENT:PerformDeath(dmginfo)
 				--print(packapunch)
 				ply:Give(weapon)
 
-				--[[timer.Simple(0, function()
-					if packapunch then
-						local abuser = weapons.Get(weapon)
-						print("pap")
-						abuser:ApplyNZModifier("pap")
-					end
-				end)]]
+				--[[if packapunch then
+					ply:GetActiveWeapon().NZPaPME = true
+				end]]
 			end
 		end
 		for k,v in pairs(player.GetAll()) do

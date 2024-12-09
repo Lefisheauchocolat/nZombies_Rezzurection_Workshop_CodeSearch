@@ -229,6 +229,7 @@ nzMapping:AddSaveModule("PlayerSpawns", {
 					doorflag = v:GetDoorFlag(),
 					doorflag2 = v:GetDoorFlag2(),
 					doorflag3 = v:GetDoorFlag3(),
+					preferred = v:GetPreferred(),
 				},
 			})
 		end
@@ -236,7 +237,7 @@ nzMapping:AddSaveModule("PlayerSpawns", {
 	end,
 	loadfunc = function(data)
 		for k,v in pairs(data) do
-			nzMapping:PlayerSpawn(v.pos,v.angle,v.tab)
+			nzMapping:PlayerSpawn(v.pos, v.angle, v.tab)
 		end
 	end,
 	cleanents = {"player_spawns"},
@@ -477,26 +478,6 @@ nzMapping:AddSaveModule("PropEffects", {
 	cleanents = {"nz_prop_effect", "nz_prop_effect_attachment"},
 })
 
-nzMapping:AddSaveModule("AmmoBox", {
-	savefunc = function()
-		local ammoboxes = {}
-		for _, v in pairs(ents.FindByClass("ammo_box")) do
-			table.insert(ammoboxes, {
-			pos = v:GetPos(),
-			angle = v:GetAngles(),
-			model = v:GetModel(),
-			})
-		end
-		return ammoboxes
-	end,
-	loadfunc = function(data)
-		for k,v in pairs(data) do
-			nzMapping:AmmoBox(v.pos, v.angle, v.model)
-		end
-	end,
-	cleanents = {"ammo_box"},
-})
-
 nzMapping:AddSaveModule("ElecSpawns", {
 	savefunc = function()
 		local elec_spawn = {}
@@ -505,6 +486,7 @@ nzMapping:AddSaveModule("ElecSpawns", {
 				pos = v:GetPos(),
 				angle = v:GetAngles(),
 				tab = {
+					model = v:GetPowerSwitchModel(),
 					limited = v:GetLimited(),
 					aoe = v:GetAOE(),
 					requireall = v:GetRequireAll(),
@@ -601,14 +583,16 @@ nzMapping:AddSaveModule("PerkMachineSpawns", {
 				angle = v:GetAngles(),
 				tab = {
 					id = v:GetPerkID(),
-					random = v.Randomize,
-					fizzlist = v.RandomizeFizzlist,
-					randomround = v.RandomizeRoundStart,
-					roundnum = v.RandomizeRoundInterval,
-					door = v.HideBehindDoor,
+					random = v:GetRandomize(),
+					fizzlist = v:GetRandomizeFizz(),
+					randomround = v:GetRandomizeRounds(),
+					roundnum = v:GetRandomizeInterval(),
+					door = v:GetDoorActivated(),
 					doorflag = v.DoorFlag,
 					doorflag2 = v.DoorFlag2,
 					doorflag3 = v.DoorFlag3,
+					price = v.PriceOverride,
+					priceupg = v.PriceOverrideUpgrade,
 				}
 			})
 		end
@@ -617,13 +601,14 @@ nzMapping:AddSaveModule("PerkMachineSpawns", {
 				pos = v:GetPos(),
 				angle = v:GetAngles(),
 				id = "wunderfizz",
+				price = v.PriceOverride,
 			})
 		end
 		return perk_machinespawns
 	end,
 	loadfunc = function(data)
 		for k, v in pairs(data) do
-			nzMapping:PerkMachine(v.pos, v.angle, v.tab or v.id)
+			nzMapping:PerkMachine(v.pos, v.angle, v.tab or v.id, nil, v.price)
 		end
 	end,
 	cleanents = {"perk_machine", "wunderfizz_machine"},
@@ -843,6 +828,7 @@ nzMapping:AddSaveModule("DamageWalls", {
 				delay = v:GetDelay(),
 				dmgtype = v:GetDamageWallType(),
 				respawnz = v:GetRespawnZombie(),
+				elec = v:GetElectric(),
 				//radiation = v:GetRadiation(),
 				//poison = v:GetPoison(),
 				//tesla = v:GetTesla(),
@@ -862,7 +848,7 @@ nzMapping:AddSaveModule("DamageWalls", {
 				fuckoffdie = 3
 			end
 
-			nzMapping:CreateInvisibleDamageWall(v.pos, v.maxbound, nil, v.damage, v.delay, v.dmgtype or fuckoffdie, v.respawnz)
+			nzMapping:CreateInvisibleDamageWall(v.pos, v.maxbound, nil, v.damage, v.delay, v.dmgtype or fuckoffdie, v.respawnz, v.elec)
 		end
 	end,
 	cleanents = {"invis_damage_wall"},

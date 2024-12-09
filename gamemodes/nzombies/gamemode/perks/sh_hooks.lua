@@ -30,7 +30,7 @@ if SERVER then
 								ParticleEffect("driese_tp_arrival_phase2", v:GetPos(), Angle(0,0,0))
 								v:EmitSound("amb/weather/lightning/lightning_flash_0"..math.random(0,3)..".wav", 511, 100, 1, CHAN_STATIC)
 
-								if (!v.HideBehindDoor or v.DoorRevealed) then
+								if (!v:GetDoorActivated() or v.DoorRevealed) then
 									v:ShowMachine()
 								end
 								break
@@ -47,7 +47,7 @@ if SERVER then
 					for k, v in RandomPairs(machines) do
 						if v:GetPerkID() == "pap" and !v:GetSelected() then
 							v:SetSelected(true)
-							if (!v.HideBehindDoor or v.DoorRevealed) then
+							if (!v:GetDoorActivated() or v.DoorRevealed) then
 								v:ShowMachine()
 							end
 							break
@@ -57,11 +57,11 @@ if SERVER then
 			end
 
 			for _, v in pairs(machines) do
-				if v.HideBehindDoor then
+				if v:GetDoorActivated() then
 					v:HideMachine()
 					continue
 				end
-				if v.Randomize then
+				if v:GetRandomize() then
 					v:StartRolling()
 				end
 			end
@@ -86,10 +86,10 @@ if SERVER then
 
 					v:SetSelected(true)
 
-					ParticleEffect("driese_tp_arrival_phase2", v:GetPos(), Angle(0,0,0))
+					ParticleEffect("driese_tp_arrival_phase2", v:GetPos() + vector_up, Angle(0,0,0))
 					v:EmitSound("amb/weather/lightning/lightning_flash_0"..math.random(0,3)..".wav", 511, 100, 1, CHAN_STATIC)
 
-					if (!v.HideBehindDoor or v.DoorRevealed) then
+					if (!v:GetDoorActivated() or v.DoorRevealed) then
 						v:ShowMachine()
 					end
 					break
@@ -98,8 +98,8 @@ if SERVER then
 		end
 
 		for k, v in pairs(machines) do
-			if v.Randomize and (!v.HideBehindDoor or v.DoorRevealed) and v.RandomizeRoundStart and v.RandomizeRoundInterval then
-				if round%(v.RandomizeRoundInterval) == 0 and round ~= 1 then
+			if v:GetRandomize() and (!v:GetDoorActivated() or v.DoorRevealed) and v:GetRandomizeRounds() and v:GetRandomizeInterval() then
+				if round%(v:GetRandomizeInterval()) == 0 and round ~= 1 then
 					v:StartRolling(true)
 				end
 			end
@@ -108,7 +108,7 @@ if SERVER then
 
 	hook.Add("OnDoorUnlocked", "NZ.PerkMachineRolling", function(ent, link, rebuyable, ply)
 		for _, v in pairs(ents.FindByClass("perk_machine")) do
-			if v.HideBehindDoor and !v.DoorRevealed then
+			if v:GetDoorActivated() and !v.DoorRevealed then
 				local door_flags = {}
 				if v.DoorFlag then
 					door_flags[v.DoorFlag] = true
@@ -121,8 +121,11 @@ if SERVER then
 				end
 
 				if door_flags[tostring(link)] then
-					if v:GetPerkID() == "pap" then
-						if nzMapping.Settings.randompap and (nzPowerUps:IsPowerupActive("bonfiresale") or v:GetSelected() or (nzPerks.PackAPunchCount or 0) <= 1) then
+					if v:GetPerkID() == "pap" and nzMapping.Settings.randompap then
+						if (nzPowerUps:IsPowerupActive("bonfiresale") or v:GetSelected() or (nzPerks.PackAPunchCount or 0) <= 1) then
+							if (nzPerks.PackAPunchCount or 0) <= 1 and !v:GetSelected() then
+								v:SetSelected(true)
+							end
 							v:ShowMachine(true)
 						else
 							v.DoorRevealed = true
@@ -131,7 +134,7 @@ if SERVER then
 						v:ShowMachine(true)
 					end
 
-					if v.Randomize then
+					if v:GetRandomize() then
 						v:StartRolling()
 					end
 				end
@@ -141,13 +144,14 @@ if SERVER then
 
 	hook.Add("OnRoundInit", "nz.PerkMachineRolling", function()
 		for _, v in pairs(ents.FindByClass("perk_machine")) do
+			v.SpawnPos = v:GetPos()
 			v:Reset()
 		end
 	end)
 
 	hook.Add("OnRoundEnd", "nz.PerkMachineRolling", function()
 		nzPerks.LastPaPMachine = nil
-		nzPerks.PackAPunchCount = nil
+		nzPerks:RebuildPaPCount()
 		for _, v in pairs(ents.FindByClass("perk_machine")) do
 			v:Reset()
 		end
@@ -247,14 +251,16 @@ if SERVER then
 
 					local data = {
 						id = ourperk,
-						random = ent.Randomize,
-						fizzlist = ent.RandomizeFizzlist,
-						randomround = ent.RandomizeRoundStart,
-						roundnum = ent.RandomizeRoundInterval,
-						door = ent.HideBehindDoor,
+						random = ent:GetRandomize(),
+						fizzlist = ent:GetRandomizeFizz(),
+						randomround = ent:GetRandomizeRounds(),
+						roundnum = ent:GetRandomizeInterval(),
+						door = ent:GetDoorActivated(),
 						doorflag = ent.DoorFlag,
 						doorflag2 = ent.DoorFlag2,
 						doorflag3 = ent.DoorFlag3,
+						price = ent.PriceOverride,
+						priceupg = ent.PriceOverrideUpgrade,
 					}
 
 					print('////////////////// Original Perk '..storedperk)
@@ -279,14 +285,16 @@ if SERVER then
 				else
 					local data = {
 						id = ent:GetPerkID(),
-						random = ent.Randomize,
-						fizzlist = ent.RandomizeFizzlist,
-						randomround = ent.RandomizeRoundStart,
-						roundnum = ent.RandomizeRoundInterval,
-						door = ent.HideBehindDoor,
+						random = ent:GetRandomize(),
+						fizzlist = ent:GetRandomizeFizz(),
+						randomround = ent:GetRandomizeRounds(),
+						roundnum = ent:GetRandomizeInterval(),
+						door = ent:GetDoorActivated(),
 						doorflag = ent.DoorFlag,
 						doorflag2 = ent.DoorFlag2,
 						doorflag3 = ent.DoorFlag3,
+						price = ent.PriceOverride,
+						priceupg = ent.PriceOverrideUpgrade,
 					}
 
 					nzMapping:PerkCratePile(ent:GetPos(), ent:GetAngles(), data)
@@ -396,6 +404,7 @@ if SERVER then
 		end
 	end)
 
+	//perk effects
 	local boobookeys = {
 		[IN_RELOAD] = true,
 		[IN_ATTACK] = true,
@@ -628,6 +637,31 @@ if SERVER then
 			ply:SetNW2Float("nz.CherryWaffe", CurTime() + 10)
 		end
 	end)
+
+	-- Resseting player stats on round start
+	hook.Add("OnRoundStart", "nz.ResetKillStats", function()
+		for _, ply in ipairs(player.GetAll()) do
+			if ply:HasPerk("vulture") then
+				ply:SetNW2Int("nz.VultureCount", 0)
+			end
+			if ply:HasPerk("everclear") then
+				ply:SetNW2Float("nz.ZombShellDelay", 1)
+				ply:SetNW2Int("nz.ZombShellCount", 0)
+			end
+			if ply:HasPerk("fire") then
+				ply:SetNW2Float("nz.BurnDelay", 1)
+				ply:SetNW2Int("nz.BurnCount", 0)
+			end
+			if ply:HasPerk("winters") then
+				ply:SetNW2Float("nz.WailDelay", 1)
+				ply:SetNW2Int("nz.WailCount", ply:HasUpgrade("winters") and 4 or 3)
+			end
+			if ply:HasUpgrade("jugg") then
+				local bonus = math.max(ply:GetMaxArmor(), ply:Armor())
+				ply:SetArmor(bonus)
+			end
+		end
+	end)
 end
 
 local PLAYER = FindMetaTable("Player")
@@ -839,9 +873,13 @@ hook.Add("TFA_Reload", "nzCherryEffects", function(wep)
 						ParticleEffectAttach("bo3_waffe_eyes", PATTACH_POINT_FOLLOW, v, 4)
 					end
 				end
+				
+				if v:IsValidZombie() and !v:GetSpecialAnimation() and !v.IsMooSpecial and !v:GetCrawler() and !(v.NZBossType or v.IsMooBossZombie) then
+					v:PerformStun( math.Clamp((dmg * scale) / 10, 1, 4) )
+				end
 
 				if SERVER then
-					if v.TempBehaveThread and v.SparkySequences then
+					--[[if v.TempBehaveThread and v.SparkySequences then
 						ParticleEffectAttach("bo3_shield_electrify_zomb", PATTACH_ABSORIGIN_FOLLOW, v, 2)
 						if v.PlaySound and v.ElecSounds then
 							v:PlaySound(v.ElecSounds[math.random(#v.ElecSounds)], v.SoundVolume or SNDLVL_NORM, math.random(v.MinSoundPitch, v.MaxSoundPitch), 1, 2)
@@ -853,7 +891,7 @@ hook.Add("TFA_Reload", "nzCherryEffects", function(wep)
 							v:PlaySequenceAndWait(seq)
 							v:StopParticles()
 						end)
-					end
+					end]]
 
 					v.WasShockedThisTick = true
 					v:TakeDamageInfo(damage)

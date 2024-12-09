@@ -39,7 +39,8 @@ function PLAYER:Loadout()
 	end
 
 	if nzMapping.Settings.grenade and weapons.Get(tostring(nzMapping.Settings.grenade)) then
-		self.Player:Give(nzMapping.Settings.grenade)
+		local nade = self.Player:Give(nzMapping.Settings.grenade)
+		nade.NoSpawnAmmo = true
 	else
 		self.Player:Give("tfa_bo1_m67")
 	end
@@ -61,6 +62,57 @@ local cvar_revive = GetConVar("nz_revivetime")
 local cvar_perkmax = GetConVar("nz_difficulty_perks_max")
 local cvar_respawnonplayers = GetConVar("nz_difficulty_respawn_on_players")
 
+local function GetClearPaths(ply, pos, tiles)
+	local clearPaths = {}
+	local filter = player.GetAll()
+	for _, tile in pairs( tiles ) do
+		local tr = util.TraceLine({
+			start = pos,
+			endpos = tile,
+			filter = filter,
+			mask = MASK_PLAYERSOLID
+		})
+		
+		if not tr.Hit and util.IsInWorld(tile) then
+			table.insert( clearPaths, tile )
+		end
+	end
+	
+	return clearPaths
+end
+
+local function GetSurroundingTiles(ply, pos)
+	local tiles = {}
+	local x, y, z
+	local minBound, maxBound = ply:GetHull()
+	local checkRange = math.max(48, maxBound.x, maxBound.y)
+	
+	for z = -1, 1, 1 do
+		for y = -1, 1, 1 do
+			for x = -1, 1, 1 do
+				local testTile = Vector(x,y,z)
+				testTile:Mul( checkRange )
+				local tilePos = pos + testTile
+				table.insert( tiles, tilePos )
+			end
+		end
+	end
+	
+	return tiles
+end
+
+local function CollisionBoxClear(ply, pos, minBound, maxBound)
+	local filter = {ply}
+	local tr = util.TraceEntity({
+		start = pos,
+		endpos = pos,
+		filter = filter,
+		mask = MASK_PLAYERSOLID
+	}, ply)
+
+	return !tr.StartSolid || !tr.AllSolid
+end
+
 function PLAYER:Spawn()
 	local starting = nzMapping.Settings.startpoints or 500
 	local round = nzRound:GetNumber() > 0 and nzRound:GetNumber() or 1
@@ -71,8 +123,11 @@ function PLAYER:Spawn()
 	end
 
 	local health = nzMapping.Settings.hp
-	self.Player:SetHealth(health or 100)
-	self.Player:SetMaxHealth(health or 100)
+	self.Player:SetHealth(health or 150)
+	self.Player:SetMaxHealth(health or 150)
+	self.Player:SetArmor(nzMapping.Settings.startarmor or 0)
+	self.Player:SetMaxArmor(nzMapping.Settings.armor or 200)
+	self.Player:SetJumpPower(nzMapping.Settings.jumppower or 200)
 
 	self.Player:RemovePerks()
 	self.Player:RemoveUpgrades()
@@ -90,7 +145,7 @@ function PLAYER:Spawn()
 
 		local mins, maxs = spawn:GetCollisionBounds()
 		for _, ply in pairs(ents.FindInBox(spawn:LocalToWorld(mins), spawn:LocalToWorld(maxs))) do
-			if IsValid(ply) and ply:IsPlayer() and ply:Alive() and ply:IsPlaying() then
+			if IsValid(ply) and ply:IsPlayer() and ply:Alive() then
 				isSpawnOccupied = true
 			end
 		end
@@ -100,24 +155,39 @@ function PLAYER:Spawn()
 		end
 	end
 
-	-- Randomly select a spawn point
-	local selectedSpawn = table.Random(availableSpawns)
-	if IsValid(selectedSpawn) then
-		finalpos = selectedSpawn:GetPos()
+	for _, spawn in RandomPairs(availableSpawns) do
+		finalpos = spawn:GetPos()
+		if spawn:GetPreferred() then break end
 	end
 
 	if cvar_respawnonplayers:GetBool() and nzRound:GetNumber() > 1 then
-		local spawns = nzRound:InState(ROUND_CREATE) and player.GetAll() or player.GetAllPlayingAndAlive()
+		local spawns = player.GetAllPlaying()
 
 		local spectator = self.Player:GetObserverTarget()
 		if IsValid(spectator) and spectator:Alive() and spectator:IsPlaying() then
 			finalpos = spectator:GetPos()
 		elseif not table.IsEmpty(spawns) then
-			finalpos = spawns[math.random(#spawns)]:GetPos()
+			for _, ply in RandomPairs(spawns) do
+				finalpos = ply:GetPos()
+				if !ply:GetNotDowned() then break end
+				//prefer respawning on downed players :)
+			end
 		end
 	end
 
-	self.Player:SetPos(finalpos)
+	local minBound, maxBound = self.Player:GetHull()
+	if not CollisionBoxClear( self.Player, finalpos, minBound, maxBound ) then
+		local surroundingTiles = GetSurroundingTiles( self.Player, finalpos )
+		local clearPaths = GetClearPaths( self.Player, finalpos, surroundingTiles )	
+		for _, tile in pairs( clearPaths ) do
+			if CollisionBoxClear( self.Player, tile, minBound, maxBound ) then
+				finalpos = tile
+				break
+			end
+		end
+	end
+
+	self.Player:SetPos(finalpos + vector_up)
 
 	self.Player:SetUsingSpecialWeapon(false)
 	self.Player:SetBleedoutTime(cvar_bleedout:GetFloat())
@@ -125,13 +195,25 @@ function PLAYER:Spawn()
 	self.Player:SetMaxPerks(cvar_perkmax:GetInt())
 	self.Player:AllowFlashlight(tobool(nzMapping.Settings.flashlight))
 
-	/*-- Resend the map data to any player that spawns/respawns(They might've joined late and haven't recived the mapsettings.)
-	nzMapping:SendMapData(self.Player)*/
-	//see line #38 in sv_players.lua
+	-- Resend the map data to any player that spawns/respawns(They might've joined late and haven't recived the mapsettings.)
+	nzMapping:SendMapData(self.Player)
 end
 
+function PLAYER:ViewModelChanged(vm, oldmodel, newmodel)
+	local wep
+	for k, v in ipairs(self.Player:GetWeapons()) do
+		if v:GetWeaponViewModel() == newmodel then
+			wep = v
+			break
+		end
+	end
 
-function PLAYER:OnTakeDamage(dmginfo)
+	if not IsValid(vm) or not IsValid(wep) then return end
+	if wep.NZCamoBlacklist then return end
+	if wep.NZSpecialCategory then return end
+	if not wep:HasNZModifier("pap") then return end
+
+	nzCamos:UpdatePlayerViewmodel(self.Player, newmodel)
 end
 
 player_manager.RegisterClass( "player_ingame", PLAYER, "player_default" )

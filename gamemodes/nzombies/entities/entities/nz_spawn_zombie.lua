@@ -26,11 +26,12 @@ function ENT:SetupDataTables()
 	self:NetworkVar("Bool", 0, "Skip")
 	self:NetworkVar("Bool", 1, "MasterSpawn")
 	self:NetworkVar("Bool", 2, "MixedSpawn")
+	self:NetworkVar("Float", 0, "SpawnChance")
 	self:NetworkVar("Int", 0, "SpawnType")
 	self:NetworkVar("Int", 1, "ActiveRound")
-	self:NetworkVar("Int", 2, "SpawnChance")
 	self:NetworkVar("Int", 3, "TotalSpawns")
 	self:NetworkVar("Int", 4, "AliveAmount")
+	--self:NetworkVar("Int", 5, "SpeedOverride")
 end
 
 function ENT:Initialize()
@@ -421,7 +422,7 @@ if CLIENT then
 	local outline = Color(0,0,0,59)
 	local drawdistance = 800^2
 	local size = 0.25
-	local col = Color(33,0,127)
+	local col = Color(255,255,0)
 
 	function ENT:Draw()
 		if not nzRound:InState( ROUND_CREATE ) then return end
@@ -432,6 +433,7 @@ if CLIENT then
 		local ourcolor = self:GetColor()
 		if self.GetMixedSpawn and self:GetMixedSpawn() and ourcolor ~= col then
 			self:SetColor(col)
+			--self:SetModel("models/combine_super_soldier.mdl")
 		end
 
 		local oh_god_what_the_fuck = self:GetPos():DistToSqr(LocalPlayer():EyePos()) < drawdistance
@@ -470,6 +472,9 @@ if CLIENT then
 				if self.GetAliveAmount then
 					draw.SimpleText("Alive Cap: "..self:GetAliveAmount().."", displayfont, 0, -135, ourcolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				end
+				--[[if self.GetSpeedOverride and self:GetSpeedOverride() then
+					draw.SimpleText("Speed Override: "..self:GetSpeedOverride().."", displayfont, 0, -150, ourcolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				end]]
 				if self.GetMixedSpawn and self:GetMixedSpawn() then
 					draw.SimpleText("Mixed Spawn", displayfont, 0, -150, ourcolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				end

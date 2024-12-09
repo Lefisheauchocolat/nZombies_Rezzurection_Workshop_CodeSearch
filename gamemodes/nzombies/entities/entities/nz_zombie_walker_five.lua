@@ -19,9 +19,18 @@ ENT.IsMooZombie = true
 ENT.RedEyes = true
 
 ENT.Models = {
-	{Model = "models/moo/_codz_ports/t8/male_ofc/moo_codz_t8_male_ofc_a.mdl", Skin = 0, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/t8/male_ofc/moo_codz_t8_male_ofc_a.mdl", Skin = 1, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/t8/male_ofc/moo_codz_t8_male_ofc_b.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/office/moo_codz_t8_ofc_male_1.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/office/moo_codz_t8_ofc_male_1.mdl", Skin = 1, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/office/moo_codz_t8_ofc_male_2.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/office/moo_codz_t8_ofc_male_2.mdl", Skin = 1, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/office/moo_codz_t8_ofc_male_3.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/office/moo_codz_t8_ofc_male_3.mdl", Skin = 1, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/office/moo_codz_t8_ofc_male_4.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/office/moo_codz_t8_ofc_male_4.mdl", Skin = 1, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/office/moo_codz_t8_ofc_male_5.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/office/moo_codz_t8_ofc_male_5.mdl", Skin = 1, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/office/moo_codz_t8_ofc_male_6.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/office/moo_codz_t8_ofc_male_6.mdl", Skin = 1, Bodygroups = {0,0}},
 }
 
 local spawnslow = {"nz_spawn_ground_v1", "nz_spawn_ground_ad_v2", "nz_spawn_ground_v2", "nz_spawn_ground_v2_altb"}
@@ -93,59 +102,6 @@ local CrawlAttackSequences = {
 local CrawlJumpSequences = {
 	{seq = "nz_barricade_crawl_1"},
 	{seq = "nz_barricade_crawl_2"},
-}
-
-local SlowClimbUp36 = {
-	"nz_traverse_climbup36"
-}
-local SlowClimbUp48 = {
-	"nz_traverse_climbup48"
-}
-local SlowClimbUp72 = {
-	"nz_traverse_climbup72"
-}
-local SlowClimbUp96 = {
-	"nz_traverse_climbup96"
-}
-local SlowClimbUp128 = {
-	"nz_traverse_climbup128",
-	"nz_l4d_traverse_climbup132_01",
-	"nz_l4d_traverse_climbup132_02",
-	"nz_l4d_traverse_climbup132_03",
-}
-local SlowClimbUp160 = {
-	"nz_traverse_climbup160",
-	"nz_l4d_traverse_climbup156_01",
-	"nz_l4d_traverse_climbup156_02",
-	"nz_l4d_traverse_climbup156_03",
-}
-local FastClimbUp36 = {
-	"nz_traverse_fast_climbup36",
-	"nz_l4d_traverse_climbup36_01",
-	"nz_l4d_traverse_climbup36_02",
-	"nz_l4d_traverse_climbup36_03",
-}
-local FastClimbUp48 = {
-	"nz_traverse_fast_climbup48",
-	"nz_l4d_traverse_climbup48_01",
-	"nz_l4d_traverse_climbup48_02",
-	"nz_l4d_traverse_climbup48_03",
-	"nz_l4d_traverse_climbup48_04",
-}
-local FastClimbUp72 = {
-	"nz_traverse_fast_climbup72",
-	"nz_l4d_traverse_climbup72_01",
-	"nz_l4d_traverse_climbup72_02",
-	"nz_l4d_traverse_climbup72_03",
-}
-local FastClimbUp96 = {
-	"nz_traverse_fast_climbup96",
-	"nz_l4d_traverse_climbup96_01",
-	"nz_l4d_traverse_climbup96_02",
-	"nz_l4d_traverse_climbup96_03",
-}
-local ClimbUp200 = {
-	"nz_traverse_climbup200"
 }
 
 local AttackSequences = {
@@ -721,15 +677,14 @@ ENT.SequenceTables = {
 			MovementSequence = {
 				--"nz_legacy_sprint_v5",
 				--"nz_legacy_jap_run_v3",
-				"nz_sprint_ad1",
-				"nz_sprint_ad2",
+				"nz_t9_base_sprint_ad_v01",
+				"nz_t9_base_sprint_ad_v02",
+				"nz_t9_base_sprint_ad_v05",
+				"nz_t9_base_sprint_ad_v21",
+				"nz_t9_base_sprint_ad_v22",
+				"nz_t9_base_sprint_ad_v23",
 				"nz_sprint_ad3",
 				"nz_sprint_ad4",
-				"nz_sprint_ad5",
-				"nz_sprint_ad21",
-				"nz_sprint_ad22",
-				"nz_sprint_ad23",
-				"nz_sprint_ad24",
 				"nz_fast_sprint_v1",
 				"nz_fast_sprint_v2",
 			},
@@ -810,15 +765,15 @@ ENT.SequenceTables = {
 			MovementSequence = {
 				--"nz_legacy_sprint_v5",
 				--"nz_legacy_jap_run_v3",
-				"nz_sprint_au1",
-				"nz_sprint_au2",
+				"nz_t9_base_sprint_au_v01",
+				"nz_t9_base_sprint_au_v02",
+				"nz_t9_base_sprint_au_v20",
+				"nz_t9_base_sprint_au_v21",
+				"nz_t9_base_sprint_au_v22",
+				"nz_t9_base_sprint_au_v25",
 				"nz_sprint_au3",
 				"nz_sprint_au4",
-				"nz_sprint_au20",
-				"nz_sprint_au21",
-				"nz_sprint_au22",
-				"nz_sprint_au25",
-				"nz_fast_sprint_v1",
+				"nz_fast_sprint_v3",
 				"nz_fast_sprint_v2",
 			},
 			LowgMovementSequence = {
@@ -953,6 +908,8 @@ ENT.SequenceTables = {
 				"nz_t9_base_player_sprint_v06",
 				"nz_t9_base_player_sprint_v07",
 				"nz_t9_base_player_sprint_v08",
+				"nz_l4d_run_03",
+				"nz_l4d_run_04",
 			},
 			PatrolMovementSequence = {
 				"nz_base_zombie_idle_patrol_01",
@@ -1037,6 +994,8 @@ ENT.SequenceTables = {
 				"nz_t9_base_player_sprint_v06",
 				"nz_t9_base_player_sprint_v07",
 				"nz_t9_base_player_sprint_v08",
+				"nz_l4d_run_03",
+				"nz_l4d_run_04",
 			},
 			PatrolMovementSequence = {
 				"nz_base_zombie_idle_patrol_01",
@@ -1080,34 +1039,32 @@ ENT.TauntSequences = {
 	"nz_taunt_v9"
 }
 
-ENT.IdleSequence = "nz_idle_ad"
-
 ENT.DeathSounds = {
-	"nz_moo/zombies/vox/_zhd/death/death_00.mp3",
-	"nz_moo/zombies/vox/_zhd/death/death_01.mp3",
-	"nz_moo/zombies/vox/_zhd/death/death_02.mp3",
-	"nz_moo/zombies/vox/_zhd/death/death_03.mp3",
-	"nz_moo/zombies/vox/_zhd/death/death_04.mp3",
-	"nz_moo/zombies/vox/_zhd/death/death_05.mp3",
-	"nz_moo/zombies/vox/_zhd/death/death_06.mp3",
-	"nz_moo/zombies/vox/_zhd/death/death_07.mp3",
-	"nz_moo/zombies/vox/_zhd/death/death_08.mp3",
-	"nz_moo/zombies/vox/_zhd/death/death_09.mp3",
-	"nz_moo/zombies/vox/_zhd/death/death_10.mp3",
-	"nz_moo/zombies/vox/_zhd/death/death_11.mp3",
-	"nz_moo/zombies/vox/_zhd/death/death_12.mp3",
-	"nz_moo/zombies/vox/_zhd/death/death_13.mp3",
-	"nz_moo/zombies/vox/_zhd/death/death_14.mp3",
-	"nz_moo/zombies/vox/_zhd/death/death_15.mp3"
+	Sound("nz_moo/zombies/vox/_zhd/death/death_00.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/death/death_01.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/death/death_02.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/death/death_03.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/death/death_04.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/death/death_05.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/death/death_06.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/death/death_07.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/death/death_08.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/death/death_09.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/death/death_10.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/death/death_11.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/death/death_12.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/death/death_13.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/death/death_14.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/death/death_15.mp3")
 }
 
 ENT.ElecSounds = {
-	"nz_moo/zombies/vox/_classic/elec/elec_00.mp3",
-	"nz_moo/zombies/vox/_classic/elec/elec_01.mp3",
-	"nz_moo/zombies/vox/_classic/elec/elec_02.mp3",
-	"nz_moo/zombies/vox/_classic/elec/elec_03.mp3",
-	"nz_moo/zombies/vox/_classic/elec/elec_04.mp3",
-	"nz_moo/zombies/vox/_classic/elec/elec_05.mp3"
+	Sound("nz_moo/zombies/vox/_classic/elec/elec_00.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/elec/elec_01.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/elec/elec_02.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/elec/elec_03.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/elec/elec_04.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/elec/elec_05.mp3")
 }
 
 ENT.LaunchSounds = {
@@ -1125,47 +1082,47 @@ ENT.LaunchSounds = {
 }
 
 ENT.NukeDeathSounds = {
-	"nz_moo/zombies/vox/nuke_death/soul_00.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_01.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_02.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_03.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_04.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_05.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_06.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_07.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_08.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_09.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_10.mp3"
+	Sound("nz_moo/zombies/vox/nuke_death/soul_00.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_01.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_02.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_03.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_04.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_05.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_06.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_07.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_08.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_09.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_10.mp3")
 }
 
 ENT.AttackSounds = {
-	"nz_moo/zombies/vox/_zhd/attack/series_1/attack_00.mp3",
-	"nz_moo/zombies/vox/_zhd/attack/series_1/attack_01.mp3",
-	"nz_moo/zombies/vox/_zhd/attack/series_1/attack_02.mp3",
-	"nz_moo/zombies/vox/_zhd/attack/series_1/attack_03.mp3",
-	"nz_moo/zombies/vox/_zhd/attack/series_1/attack_04.mp3",
-	"nz_moo/zombies/vox/_zhd/attack/series_1/attack_05.mp3",
-	"nz_moo/zombies/vox/_zhd/attack/series_1/attack_06.mp3",
-	"nz_moo/zombies/vox/_zhd/attack/series_1/attack_07.mp3",
-	"nz_moo/zombies/vox/_zhd/attack/series_1/attack_08.mp3",
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_1/attack_00.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_1/attack_01.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_1/attack_02.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_1/attack_03.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_1/attack_04.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_1/attack_05.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_1/attack_06.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_1/attack_07.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_1/attack_08.mp3"),
 
-	"nz_moo/zombies/vox/_zhd/attack/series_2/attack_00.mp3",
-	"nz_moo/zombies/vox/_zhd/attack/series_2/attack_01.mp3",
-	"nz_moo/zombies/vox/_zhd/attack/series_2/attack_02.mp3",
-	"nz_moo/zombies/vox/_zhd/attack/series_2/attack_03.mp3",
-	"nz_moo/zombies/vox/_zhd/attack/series_2/attack_04.mp3",
-	"nz_moo/zombies/vox/_zhd/attack/series_2/attack_05.mp3",
-	"nz_moo/zombies/vox/_zhd/attack/series_2/attack_06.mp3",
-	"nz_moo/zombies/vox/_zhd/attack/series_2/attack_07.mp3",
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_2/attack_00.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_2/attack_01.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_2/attack_02.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_2/attack_03.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_2/attack_04.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_2/attack_05.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_2/attack_06.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_2/attack_07.mp3"),
 
-	"nz_moo/zombies/vox/_zhd/attack/series_3/attack_00.mp3",
-	"nz_moo/zombies/vox/_zhd/attack/series_3/attack_01.mp3",
-	"nz_moo/zombies/vox/_zhd/attack/series_3/attack_02.mp3",
-	"nz_moo/zombies/vox/_zhd/attack/series_3/attack_03.mp3",
-	"nz_moo/zombies/vox/_zhd/attack/series_3/attack_04.mp3",
-	"nz_moo/zombies/vox/_zhd/attack/series_3/attack_05.mp3",
-	"nz_moo/zombies/vox/_zhd/attack/series_3/attack_06.mp3",
-	"nz_moo/zombies/vox/_zhd/attack/series_3/attack_07.mp3"
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_3/attack_00.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_3/attack_01.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_3/attack_02.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_3/attack_03.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_3/attack_04.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_3/attack_05.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_3/attack_06.mp3"),
+	Sound("nz_moo/zombies/vox/_zhd/attack/series_3/attack_07.mp3")
 }
 
 ENT.CrawlerSounds = {

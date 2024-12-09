@@ -8,7 +8,7 @@ ENT.Author = "GhostlyMoo"
 ENT.Spawnable = true
 
 function ENT:InitDataTables()
-	self:NetworkVar("Bool", 5, "UsingLifeDrain")
+	self:NetworkVar("Bool", 6, "UsingLifeDrain")
 	self:NetworkVar("Entity", 6, "CurrentTarget")
 end
 

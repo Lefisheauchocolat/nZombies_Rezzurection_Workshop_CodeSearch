@@ -98,7 +98,12 @@ local walksounds = {
 	Sound("nz_moo/zombies/vox/_raz/_t10/lines/see_them_run.mp3"),
 	Sound("nz_moo/zombies/vox/_raz/_t10/lines/so_small_you_will_shatter.mp3"),
 	Sound("nz_moo/zombies/vox/_raz/_t10/lines/this_is_my_domain.mp3"),
+	Sound("nz_moo/zombies/vox/_raz/_t10/lines/this_world_will_burn.mp3"),
+	Sound("nz_moo/zombies/vox/_raz/_t10/lines/there_you_are_now_die.mp3"),
+	Sound("nz_moo/zombies/vox/_raz/_t10/lines/your_world_is_ours_now.mp3"),
+	Sound("nz_moo/zombies/vox/_raz/_t10/lines/your_time_is_done.mp3"),
 	Sound("nz_moo/zombies/vox/_raz/_t10/lines/you_stink_of_fear.mp3"),
+	Sound("nz_moo/zombies/vox/_raz/_t10/lines/you_will_turn_to_ash.mp3"),
 }
 
 ENT.NormalMantleOver48 = {
@@ -139,12 +144,19 @@ ENT.ZombieLandSequences = {
 	"nz_base_zmb_raz_land", -- Will only ever be one, for easy overridding.
 }
 
-ENT.SparkySequences = {
-	"nz_base_zmb_raz_stun_loop",
-}
-
 ENT.IdleSequence 	= "nz_base_zmb_raz_idle"
 ENT.IdleSequenceAU 	= "nz_base_zmb_raz_idle"
+
+ENT.ZombieStunInSequence = "nz_base_zmb_raz_stun_in"
+ENT.ZombieStunOutSequence = "nz_base_zmb_raz_stun_out"
+
+ENT.SparkySequences = {
+	"nz_base_zmb_raz_stun_loop",
+	"nz_base_zmb_raz_stun_loop",
+	"nz_base_zmb_raz_stun_loop",
+	"nz_base_zmb_raz_stun_loop",
+	"nz_base_zmb_raz_stun_loop",
+}
 
 ENT.SequenceTables = {
 	{Threshold = 0, Sequences = {
@@ -197,32 +209,57 @@ ENT.MeleeWhooshSWTSounds = {
 }
 
 ENT.WalkFootstepsSounds = {
-	Sound("nz_moo/zombies/vox/_raz/step/step_00.mp3"),
-	Sound("nz_moo/zombies/vox/_raz/step/step_01.mp3"),
-	Sound("nz_moo/zombies/vox/_raz/step/step_02.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/step/footstep_00.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/step/footstep_01.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/step/footstep_02.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/step/footstep_03.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/step/footstep_04.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/step/footstep_05.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/step/footstep_06.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/step/footstep_07.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/step/footstep_08.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/step/footstep_09.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/step/footstep_10.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/step/footstep_11.mp3"),
 }
 
 ENT.WalkFootstepsGearSounds = {
-	Sound("nz_moo/zombies/vox/_raz/gear/gear_00.mp3"),
-	Sound("nz_moo/zombies/vox/_raz/gear/gear_01.mp3"),
-	Sound("nz_moo/zombies/vox/_raz/gear/gear_02.mp3"),
-	Sound("nz_moo/zombies/vox/_raz/gear/gear_03.mp3"),
-	Sound("nz_moo/zombies/vox/_raz/gear/gear_04.mp3"),
-	Sound("nz_moo/zombies/vox/_raz/gear/gear_05.mp3"),
-	Sound("nz_moo/zombies/vox/_raz/gear/gear_06.mp3"),
-	Sound("nz_moo/zombies/vox/_raz/gear/gear_07.mp3"),
-	Sound("nz_moo/zombies/vox/_raz/gear/gear_08.mp3"),
-	Sound("nz_moo/zombies/vox/_raz/gear/gear_09.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/foley/movement/movement_00.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/foley/movement/movement_01.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/foley/movement/movement_02.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/foley/movement/movement_03.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/foley/movement/movement_04.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/foley/movement/movement_05.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/foley/movement/movement_06.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/foley/movement/movement_07.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/foley/movement/movement_08.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/foley/movement/movement_09.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/foley/movement/movement_10.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/foley/movement/movement_11.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/foley/movement/movement_12.mp3"),
+	Sound("nz_moo/zombies/vox/_gladiator/foley/movement/movement_13.mp3"),
 }
 
 ENT.ArmCannonShootSounds = {
-	Sound("nz_moo/zombies/vox/_raz/mangler/shot/fire_00.mp3"),
-	Sound("nz_moo/zombies/vox/_raz/mangler/shot/fire_01.mp3"),
-	Sound("nz_moo/zombies/vox/_raz/mangler/shot/fire_02.mp3"),
-	Sound("nz_moo/zombies/vox/_raz/mangler/shot/fire_03.mp3"),
+	Sound("nz_moo/zombies/vox/_raz/_t10/cannon/fire.mp3"),
 }
 
 ENT.PainSounds = {
+	Sound("nz_moo/zombies/vox/_raz/_t10/pain/pain_00.mp3"),
+	Sound("nz_moo/zombies/vox/_raz/_t10/pain/pain_01.mp3"),
+	Sound("nz_moo/zombies/vox/_raz/_t10/pain/pain_02.mp3"),
+	Sound("nz_moo/zombies/vox/_raz/_t10/pain/pain_03.mp3"),
+	Sound("nz_moo/zombies/vox/_raz/_t10/pain/pain_04.mp3"),
+	Sound("nz_moo/zombies/vox/_raz/_t10/pain/pain_05.mp3"),
+	Sound("nz_moo/zombies/vox/_raz/_t10/pain/pain_06.mp3"),
+	Sound("nz_moo/zombies/vox/_raz/_t10/pain/pain_07.mp3"),
+	Sound("nz_moo/zombies/vox/_raz/_t10/pain/pain_08.mp3"),
+	Sound("nz_moo/zombies/vox/_raz/_t10/pain/pain_09.mp3"),
+	Sound("nz_moo/zombies/vox/_raz/_t10/pain/pain_10.mp3"),
+	Sound("nz_moo/zombies/vox/_raz/_t10/pain/pain_11.mp3"),
+}
+
+ENT.ElecSounds = {
 	Sound("nz_moo/zombies/vox/_raz/_t10/pain/pain_00.mp3"),
 	Sound("nz_moo/zombies/vox/_raz/_t10/pain/pain_01.mp3"),
 	Sound("nz_moo/zombies/vox/_raz/_t10/pain/pain_02.mp3"),
@@ -345,12 +382,12 @@ function ENT:StatsInitialize()
 		local count = #player.GetAllPlaying()
 
 		if nzRound:InState( ROUND_CREATE ) then
-			self:SetHealth(2500)
-			self:SetMaxHealth(2500)
+			self:SetHealth(5000)
+			self:SetMaxHealth(5000)	
 		else
 			if nzRound:InState( ROUND_PROG ) then
-				self:SetHealth(math.Clamp(nzRound:GetNumber() * 750 + 500, 1000, 55000 * count))
-				self:SetMaxHealth(math.Clamp(nzRound:GetNumber() * 750 + 500, 1000, 55000 * count))
+				self:SetHealth(math.Clamp(nzRound:GetNumber() * 425 + 225, 1000, 25000 * count))
+				self:SetMaxHealth(math.Clamp(nzRound:GetNumber() * 425 + 225, 1000, 25000 * count))
 			else
 				self:SetHealth(5000)
 				self:SetMaxHealth(5000)	
@@ -363,10 +400,10 @@ function ENT:StatsInitialize()
 		self.ArmCannonHP = self:GetMaxHealth() * 0.01
 
 		self.Helmet = true
-		self.HelmetHP = self:GetMaxHealth() * 0.25
+		self.HelmetHP = self:GetMaxHealth() * 0.125
 
 		self.Chest = true
-		self.ChestHP = self:GetMaxHealth() * 0.25
+		self.ChestHP = self:GetMaxHealth() * 0.125
 
 		self.RandomEnrage = CurTime() + math.random(15,27)
 		self.ShouldEnrage = false
@@ -422,6 +459,10 @@ function ENT:OnSpawn()
 	end
 end
 
+function ENT:OnStunOut() 
+	self:PlaySound(self.AttackSounds[math.random(#self.AttackSounds)], 90, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
+end
+
 function ENT:AI()
 	-- Cannon
 	if CurTime() > self.NextShoot and self.ArmCannon and self:IsOnGround() and IsValid(self.Target) then
@@ -432,6 +473,8 @@ function ENT:AI()
 				self:SetSpecialAnimation(true)
 
 				self.UsingArmCannon = true
+				
+				self:EmitSound("nz_moo/zombies/vox/_raz/_t10/cannon/prefire.mp3", 90)
 				self:PlaySequenceAndMove(self.ShootSequences[math.random(#self.ShootSequences)], 1, self.FaceEnemy)
 				
 				self.UsingArmCannon = false
@@ -468,28 +511,6 @@ function ENT:AI()
 	if math.random(10) <= 3 and !self.ArmCannon then
 		self:EmitSound(self.BloodSounds[math.random(#self.BloodSounds)],75,math.random(95, 105))
 		ParticleEffectAttach("ins_blood_impact_generic", 4, self, 6)
-	end
-end
-
-function ENT:Sound()
-	if self:GetAttacking() or !self:Alive() or self:GetDecapitated() then return end
-
-	local vol = self.SoundVolume
-
-	local chance = math.random(100)
-
-	for k,v in nzLevel.GetZombieArray() do -- FUCK YOU, ARRAYS ARE AWESOME!!!
-		if k < 2 then vol = 511 else vol = self.SoundVolume end
-	end
-
-	if !self:HasTarget() then
-		self:PlaySound(self.MumbleSounds[math.random(#self.MumbleSounds)],vol, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
-	elseif self.PassiveSounds then
-		self:PlaySound(self.PassiveSounds[math.random(#self.PassiveSounds)],vol, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
-	else
-
-		-- We still delay by max sound delay even if there was no sound to play
-		self.NextSound = CurTime() + self.SoundDelayMax
 	end
 end
 
@@ -700,7 +721,8 @@ function ENT:CustomAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 	end
 
 	if e == "raz_charge" then
-		self:EmitSound("nz_moo/zombies/vox/_raz/_t10/canon_charge_xsound_d73dc9d0d21beb5.mp3", 90)
+		self:EmitSound("nz_moo/zombies/vox/_raz/_t10/cannon/charge.mp3", 90)
+		self:EmitSound("nz_moo/zombies/vox/_raz/_t10/cannon/charge_swt.mp3", 90)
 		ParticleEffectAttach("hcea_hunter_ab_charge", PATTACH_POINT_FOLLOW, self, 13)
 	end
 	if e == "raz_shoot" then
@@ -716,8 +738,9 @@ function ENT:CustomAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 		if IsValid(target) then
 			self.ZapShot = ents.Create("nz_proj_mangler_shot_cw")
 			self.ZapShot:SetPos(rarmfx_tag)
+			self.ZapShot:SetAngles((target:GetPos() - self:GetPos()):Angle())
 			self.ZapShot:Spawn()
-			self.ZapShot:Launch(((target:EyePos() - Vector(0,0,7) + target:GetVelocity() * math.Clamp(target:GetVelocity():Length2D(),0,0.5)) - self.ZapShot:GetPos()):GetNormalized())
+			self.ZapShot:SetVictim(target)
 		end
 
 		if self.Enraged then 

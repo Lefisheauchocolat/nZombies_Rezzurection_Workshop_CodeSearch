@@ -31,6 +31,7 @@ nzTools:CreateTool("elec", {
 	end,
 	interface = function(frame, data)
 		local valz = {}
+		valz["PowerSwitchModel"] = data.model
 		valz["Row1"] = data.limited
 		valz["Row2"] = data.aoe
 		valz["Row3"] = data.requireall
@@ -42,6 +43,7 @@ nzTools:CreateTool("elec", {
 		DProperties:SetPos( 10, 10 )
 
 		function DProperties.CompileData()
+			data.model = tonumber(valz["PowerSwitchModel"])
 			data.limited = tobool(valz["Row1"])
 			data.aoe = tostring(valz["Row2"])
 			data.requireall = tobool(valz["Row3"])
@@ -53,6 +55,16 @@ nzTools:CreateTool("elec", {
 		function DProperties.UpdateData(data)
 			nzTools:SendData(data, "elec")
 		end
+
+		local PowerSwitchModel = DProperties:CreateRow( "Power Switch", "Model" )
+		PowerSwitchModel:Setup( "Combo" )
+		PowerSwitchModel:AddChoice("Small Switch(BO2)",0)
+        PowerSwitchModel:AddChoice("Modern Switch(BO3+)",1)
+        PowerSwitchModel:AddChoice("Classic Switch(W@W-BO1)",2)
+        PowerSwitchModel:AddChoice("Classic Switch Short(BO1)",3)
+        PowerSwitchModel:AddChoice("Circuit Breaker(WWII)",4)
+        PowerSwitchModel:AddChoice("Electric Panel(IW)",5)
+		PowerSwitchModel.DataChanged = function( _, val ) valz["PowerSwitchModel"] = val DProperties.UpdateData(DProperties.CompileData()) end
 
 		local Row1 = DProperties:CreateRow("Power Switch", "Limit Area of Effect?")
 		Row1:Setup("Boolean")
@@ -92,6 +104,7 @@ nzTools:CreateTool("elec", {
 
 	end,
 	defaultdata = {
+		model = 0,
 		limited = 0,
 		aoe = 0,
 		requireall = false,

@@ -11,6 +11,8 @@ ENT.Instructions	= ""
 local cvar_developer = GetConVar("developer")
 
 function ENT:SetupDataTables()
+	self:NetworkVar("Entity", 0, "LastUser")
+
 	self:NetworkVar("String", 0, "PerkID")
 	self:NetworkVar("String", 1, "PapWeapon")
 	self:NetworkVar("String", 2, "LoopingSound")
@@ -23,6 +25,13 @@ function ENT:SetupDataTables()
 
 	self:NetworkVar("Bool", 5, "Winding")
 	self:NetworkVar("Bool", 6, "Selected")
+
+	self:NetworkVar("Bool", 7, "Randomize")
+	self:NetworkVar("Bool", 8, "RandomizeFizz")
+	self:NetworkVar("Bool", 9, "RandomizeRounds")
+	self:NetworkVar("Bool", 10, "DoorActivated")
+
+	self:NetworkVar("Int", 2, "RandomizeInterval")
 
 	self:NetworkVar("Int", 0, "Price")
 	self:NetworkVar("Int", 1, "UpgradePrice")
@@ -51,8 +60,10 @@ function ENT:SetupDataTables()
 	end
 	if (SERVER) then
 		self:NetworkVarNotify("PerkID", function(ent, name, old, new)
-			if nzRound and nzRound:InProgress() and ((tostring(old) == "pap") or (tostring(new) == "pap")) then
-				nzPerks:RebuildPaPCount()
+			if ((tostring(old) == "pap") or (tostring(new) == "pap")) then
+				timer.Simple(0, function()
+					nzPerks:RebuildPaPCount()
+				end)
 			end
 		end)
 	end
@@ -100,7 +111,6 @@ function ENT:Initialize()
 		self.RandomizationTime = 5
 		self.RisingTime = 4.85
 		self.FallingTime = 0.15 //these two should equal randomization time
-		self.SpawnPos = self:GetPos()
 	end
 
 	self:SetBeingUsed(false)
@@ -175,7 +185,7 @@ function ENT:ShowMachine(revealed)
 		timer.Simple(0, function()
 			if not IsValid(self) then return end
 			ParticleEffect("nz_perkmachine_warp_end", self:GetPos() + vector_up, angle_zero)
-			if !self.Randomize then
+			if !self:GetRandomize() then
 				self:EmitSound("nz_moo/perkacola/beam_fx.wav", SNDLVL_TALKING, math.random(97,103), 1, CHAN_STATIC)
 			end
 		end)
@@ -229,6 +239,7 @@ function ENT:StartRolling(reroll)
 	self.GlowFucker = ents.Create("nz_script_prop")
 	self.GlowFucker:SetPos(self:GetPos())
 	self.GlowFucker:SetNoDraw(true)
+	self.GlowFucker:AddEFlags(EFL_IN_SKYBOX)
 	self.GlowFucker:Spawn()
 	self.GlowFucker:SetSolid(SOLID_NONE)
 
@@ -298,6 +309,9 @@ end
 function ENT:Reset()
 	self:TurnOff()
 
+	self.StoredPrice = nil
+	self.StoredPriceUpgrade = nil
+
 	if self.StoredPerkID then
 		self:SetPerkID(self.StoredPerkID)
 		self:Update()
@@ -325,6 +339,7 @@ function ENT:Reset()
 	self.MarkedForRemoval = nil
 	self.DoorRevealed = nil
 	self:SetSelected(false)
+	self:SetLastUser(nil)
 
 	if self.GlowFucker and IsValid(self.GlowFucker) then
 		self.GlowFucker:StopParticles()
@@ -424,6 +439,17 @@ function ENT:Update()
 			UpgradePrice 	= {PerkData.upgradeprice},
 			Jingle 			= {PerkData.jingle},
 			Sting 			= {PerkData.sting},
+			PowerOnSnd 		= {"nz_moo/perkacolas/fountain/zmb_fntn_zm_blood_on.mp3"},
+			AmbSnd 			= {"nz_moo/perkacolas/fountain/zmb_fntn_main_lp.wav"},
+			AllowJingle 	= {false},
+			AllowMist 		= {false},
+		},
+		["RZ"] = {
+			PerkModel       = {PerkData.model_rz},
+			Price 			= {PerkData.price},
+			UpgradePrice 	= {PerkData.upgradeprice},
+			Jingle 			= {PerkData.jingle},
+			Sting 			= {PerkData.sting},
 			PowerOnSnd 		= {"effects/perk_turn_on.ogg"},
 			AmbSnd 			= {"nz_moo/perkacolas/hum_loop.wav"},
 			AllowJingle 	= {true},
@@ -441,10 +467,10 @@ function ENT:Update()
 		self:SetLoopingSound(self.PerkTbl[perktype].AmbSnd[1])
 	end
 
-	--[[if GetConVar("nz_oldtunes"):GetInt() == 1 and isstring(PerkData.old_jingle) and isstring(PerkData.old_sting) then
+	if GetConVar("nz_oldtunes"):GetInt() == 1 and isstring(PerkData.old_jingle) and isstring(PerkData.old_sting) then
 		self.Jingle = PerkData.old_jingle
 		self.Sting = PerkData.old_sting
-	end]]--
+	end
 
 	self:PhysicsDestroy()
 
@@ -521,8 +547,8 @@ function ENT:Update()
 		self.Sting 			= tbl[paptype].Stinger[1]
 	end
 
-	self:SetPrice(self.PerkTbl[perktype].Price[1])
-	self:SetUpgradePrice(self.PerkTbl[perktype].UpgradePrice[1])
+	self:SetPrice(self.StoredPrice or self.PriceOverride or self.PerkTbl[perktype].Price[1])
+	self:SetUpgradePrice(self.StoredPriceUpgrade or self.PriceOverrideUpgrade or self.PerkTbl[perktype].UpgradePrice[1])
 
 	local maxrevives = (nzMapping.Settings.solorevive or 3)
 
@@ -544,6 +570,7 @@ function ENT:Use(activator, caller)
 	if nzRound:InProgress() and nzMapping.Settings.randompap and self:GetPerkID() == "pap" and (!self:GetSelected() and !nzPowerUps:IsPowerupActive("bonfiresale") and !IsValid(self.PapWpn)) then
 		return
 	end
+	if self:GetBeingUsed() and self:IsOn() and activator == self:GetLastUser() then return end
 
 	if CurTime() < self.PerkUseCoolDown then return end
 
@@ -556,7 +583,7 @@ function ENT:Use(activator, caller)
 	end 
 
 	if self:IsOn() and !self:BrutusLocked() then
-		local price = self:GetPrice()
+		local price = activator:IsInCreative() and 0 or self:GetPrice()
 
 		local func = function()
 			local id = self:GetPerkID()
@@ -574,6 +601,7 @@ function ENT:Use(activator, caller)
 
 				if given then
 					if !PerkData.specialmachine then
+						activator:SetUsingSpecialWeapon(true)
 						local wep = activator:Give(nzMapping.Settings.bottle or "tfa_perk_bottle")
 						if IsValid(wep) then wep:SetPerk(id) end
 
@@ -582,6 +610,8 @@ function ENT:Use(activator, caller)
 								activator:GivePerk(id, self)
 							end
 						end)
+
+						self:SetLastUser(activator)
 					else
 						activator:GivePerk(id, self)
 					end
@@ -634,14 +664,15 @@ function ENT:Use(activator, caller)
 
 				if given then
 					if !PerkData.specialmachine then
+						activator:SetUsingSpecialWeapon(true)
 						local wep = activator:Give(nzMapping.Settings.bottle or "tfa_perk_bottle")
 						if IsValid(wep) then wep:SetPerk(id) end
 
-						timer.Simple(3, function()
-							if IsValid(activator) and activator:GetNotDowned() then
-								activator:GiveUpgrade(id, self)
-							end
-						end)
+						if IsValid(activator) and activator:GetNotDowned() then
+							activator:GiveUpgrade(id, self)
+						end
+
+						self:SetLastUser(activator)
 					else
 						activator:GiveUpgrade(id, self)
 					end
@@ -660,19 +691,19 @@ function ENT:Use(activator, caller)
 		local id = self:GetPerkID()
 		if not PerkData.nobuy then
 			if not activator:HasPerk(id) then
-				if #activator:GetPerks() < activator:GetMaxPerks() or self:GetPerkID() == "pap" then
+				if #activator:GetPerks() < activator:GetMaxPerks() or self:GetPerkID() == "pap" or (activator:IsInCreative() and nzRound:InState(ROUND_CREATE)) then
 					activator:Buy(price, self, func)
 				end
 			else
 				if tobool(nzMapping.Settings.perkupgrades) then
-					activator:Buy(self:GetUpgradePrice(), self, upgradefunc)
+					activator:Buy(activator:IsInCreative() and 0 or self:GetUpgradePrice(), self, upgradefunc)
 				end
 			end
 		else
 			func()
 		end
 
-		if self:GetPerkID() ~= "pap" and !self:GetBeingUsed() and self:IsOn() and !activator:CanAfford(price) and self.UseJingle then
+		if self:GetPerkID() ~= "pap" and !activator:CanAfford(price) and self.UseJingle and !activator:IsInCreative() then
 			self:EmitSound("nz_moo/perkacolas/deny_00.mp3", 90, math.random(97, 103))
 		end
 
@@ -732,6 +763,7 @@ function ENT:PapAction(activator)
 	activator:Buy(cost, machine, function()
 		hook.Call("OnPlayerBuyPackAPunch", nil, activator, wep, machine)
 
+		activator:SetUsingSpecialWeapon(true)
 		activator:Give(nzMapping.Settings.paparms or "tfa_paparms")
 		activator:StripWeapon(class)
 
@@ -812,7 +844,7 @@ function ENT:Think()
 					end
 
 					self:EmitSound("nz_moo/perkacola/beam_fx.wav", SNDLVL_NORM, math.random(97,103), 1, CHAN_STATIC)
-					util.ScreenShake(self.SpawnPos, 5, 5, 2, 32)
+					util.ScreenShake(self.SpawnPos or self:GetPos(), 5, 5, 2, 32)
 				end
 
 				self:SetPos(self:GetPos() - vector_up*(self.RisingDistance/(self.FallingTime/engine.TickInterval())))
@@ -879,7 +911,7 @@ function ENT:Think()
 
 		if nzMapping.Settings.randompap and self:GetPerkID() == "pap" and nzRound:InProgress() then
 			if self:IsOn() and nzPowerUps:IsPowerupActive("bonfiresale") then
-				if (!self.HideBehindDoor or self.DoorRevealed) and self:GetNoDraw() then
+				if (!self:GetDoorActivated() or self.DoorRevealed) and self:GetNoDraw() then
 					self:ShowMachine()
 				end
 			elseif !self:GetSelected() and !self:GetNoDraw() then
@@ -963,9 +995,9 @@ function ENT:GetRandomPerk(reroll)
 	end
 
 	for _, ent in pairs(machines) do
-		if ent.Randomize and !ent.RandomizeFizzlist then
-			if reroll and self.RandomizeRoundStart then
-				if (ent.RandomizeRoundStart and ent.RandomizeRoundInterval == self.RandomizeRoundInterval) or (ent.HideBehindDoor and !ent.DoorRevealed) then
+		if ent:GetRandomize() and !ent:GetRandomizeFizz() then
+			if reroll and self:GetRandomizeRounds() then
+				if (ent:GetRandomizeRounds() and ent:GetRandomizeInterval() == self:GetRandomizeInterval()) or (ent:GetDoorActivated() and !ent.DoorRevealed) then
 					random_perks[ent.StoredReroll or ent.RolledPerk or ent:GetPerkID()] = true
 				end
 			else
@@ -978,7 +1010,7 @@ function ENT:GetRandomPerk(reroll)
 		//this code is run on first call only, to determine actual perk
 		if reroll then
 			for _, ent in pairs(machines) do
-				if ent.StoredReroll and random_perks[ent.RolledPerk] and !ent.RandomizeFizzlist then
+				if ent.StoredReroll and random_perks[ent.RolledPerk] and !ent:GetRandomizeFizz() then
 					random_perks[ent.RolledPerk] = nil
 				end
 			end
@@ -990,10 +1022,10 @@ function ENT:GetRandomPerk(reroll)
 			end
 		end
 	else
-		if self.StoredReroll and self.RandomizeRoundStart then
+		if self.StoredReroll and self:GetRandomizeRounds() then
 			for _, ent in pairs(machines) do
-				if (!ent.RandomizeRoundStart or ent.RandomizeRoundInterval ~= self.RandomizeRoundInterval) then
-					if random_perks[ent.RolledPerk or ent:GetPerkID()] and !ent.RandomizeFizzlist then
+				if (!ent:GetRandomizeRounds() or ent:GetRandomizeInterval() ~= self:GetRandomizeInterval()) then
+					if random_perks[ent.RolledPerk or ent:GetPerkID()] and !ent:GetRandomizeFizz() then
 						random_perks[ent.RolledPerk or ent:GetPerkID()] = nil
 					end
 				end
@@ -1015,7 +1047,7 @@ function ENT:GetRandomPerk(reroll)
 
 	for _, ent in pairs(machines) do
 		if ent.GetPerkID then
-			if ent.RandomizeFizzlist then
+			if ent:GetRandomizeFizz() then
 				map_perks[ent.RolledPerk or ent:GetPerkID()] = true
 			else
 				map_perks[ent.StoredPerkID or ent:GetPerkID()] = true
@@ -1023,7 +1055,7 @@ function ENT:GetRandomPerk(reroll)
 		end
 	end
 
-	if self.RandomizeFizzlist then
+	if self:GetRandomizeFizz() then
 		for perk, _ in RandomPairs(nzPerks:GetList()) do
 			if illegal_perks[perk] then continue end
 			if fizz_list and (!fizz_list[perk] or !fizz_list[perk][1]) then continue end
@@ -1043,15 +1075,46 @@ function ENT:GetRandomPerk(reroll)
 		end
 	end
 
-	if cvar_developer:GetBool() then
-		if next_roll then
-			if !self:GetWinding() then
+	if next_roll then
+		if !self:GetWinding() then
+			if !self:GetRandomizeFizz() then
+				for _, ent in pairs(machines) do
+					if ent:GetRandomize() and ent:GetPerkID() == next_roll then
+						local b_machinefound = false
+
+						if (ent.StoredPrice or ent.PriceOverride) then
+							if reroll then
+								self.StoredPrice = ent.StoredPrice or ent.PriceOverride
+							else
+								self.StoredPrice = ent.PriceOverride
+							end
+
+							b_machinefound = true
+						end
+						if (ent.StoredPriceUpgrade or ent.PriceOverrideUpgrade) then
+							if reroll then
+								self.StoredPriceUpgrade = ent.StoredPriceUpgrade or ent.PriceOverrideUpgrade
+							else
+								self.StoredPriceUpgrade = ent.PriceOverrideUpgrade
+							end
+
+							b_machinefound = true
+						end
+
+						if b_machinefound then
+							break
+						end
+					end
+				end
+			end
+
+			if cvar_developer:GetBool() then
 				print("next roll "..next_roll)
 				PrintTable(random_perks)
 			end
-		else
-			print("nothing to roll!")
 		end
+	elseif cvar_developer:GetBool() then
+		print("nothing to roll!")
 	end
 
 	return next_roll
@@ -1096,6 +1159,11 @@ end
 
 if CLIENT then
 	local usedcolor = Color(255,255,255)
+	local nz_preview = GetConVar("nz_creative_preview")
+	local displayfont = "ChatFont"
+	local outline = Color(0,0,0,59)
+	local drawdistance = 400^2
+	local size = 0.25
 
 	function ENT:Draw()
 		self:DrawModel()
@@ -1143,17 +1211,23 @@ if CLIENT then
 					local PerkData = nzPerks:Get(self:GetPerkID())
 					local col = PerkData.color or usedcolor
 					local col_cw = PerkData.color_cw or col
+					local col_vg = PerkData.color_vg or col
 					local col_spooky = PerkData.color_spooky or col
 					local col_origins_red = PerkData.color_redtomb or col
 					local col_classic = PerkData.color_classic or col
 
 					local cwskin = PerkData.model_cw
+					local vgskin = PerkData.model_vg
 					local spookyskin = PerkData.model_spooky
 					local redtombskin = PerkData.model_origins_red
 					local classicskin = PerkData.model_classic
 
 					if self:GetModel() == cwskin then
 						col = col_cw
+					end
+
+					if self:GetModel() == vgskin then
+						col = col_vg
 					end
 					
 					if self:GetModel() == classicskin then
@@ -1185,9 +1259,8 @@ if CLIENT then
 				if math.random(300) == 1 then self.NextLight = CurTime() + 0.05 end
 			end
 
-			if (!self.IdleAmbience or !IsValid(self.IdleAmbience)) and isstring(self:GetLoopingSound()) then
-				self.IdleAmbience = self:GetLoopingSound()
-				self:EmitSound(self.IdleAmbience, 65, 100, 1, 3)
+			if self:GetLoopingSound() ~= "" then
+				self:EmitSound(self:GetLoopingSound(), 65, 100, 1, 3)
 			end
 		elseif self.Beam and IsValid(self.Beam) then
 			self.Beam:StopEmissionAndDestroyImmediately()
@@ -1197,11 +1270,15 @@ end
 
 function ENT:OnRemove()
 	if CLIENT then
-		if self.IdleAmbience or IsValid(self.IdleAmbience) then
-			self:StopSound(self.IdleAmbience)
-		end
+		self:StopSound(self:GetLoopingSound())
 		if self.Beam and IsValid(self.Beam) then
 			self.Beam:StopEmissionAndDestroyImmediately()
 		end
+	end
+
+	if SERVER and self:GetPerkID() == "pap" then
+		timer.Simple(0, function()
+			nzPerks:RebuildPaPCount()
+		end)
 	end
 end

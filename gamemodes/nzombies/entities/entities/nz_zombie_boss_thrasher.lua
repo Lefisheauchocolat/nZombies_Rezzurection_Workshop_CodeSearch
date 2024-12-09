@@ -448,6 +448,8 @@ function ENT:AI()
 		local target = self.Target
 		local pos = self:FindSpotBehindPlayer(target:GetPos(), 10)
 
+		self:SolidMaskDuringEvent(MASK_NPCSOLID_BRUSHONLY)
+
 		self:CreateVinesOut()
 		self:PlaySequenceAndWait("nz_thrasher_teleport_out")
 		self:SetSpecialAnimation(true)

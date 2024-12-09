@@ -62,6 +62,21 @@ PrecacheParticleSystem("tomb_pap_roller_lens_flare_red")
 PrecacheParticleSystem("mob_box_aura")
 PrecacheParticleSystem("tomb_box_aura")
 
+PrecacheParticleSystem("zmb_margwa_spawn")
+PrecacheParticleSystem("zmb_margwa_spawn_fire")
+PrecacheParticleSystem("zmb_margwa_spawn_shadow")
+PrecacheParticleSystem("zmb_fire_margwa_firetell")
+PrecacheParticleSystem("zmb_fire_margwa_firewave")
+PrecacheParticleSystem("zmb_shadow_margwa_shadowtell")
+PrecacheParticleSystem("zmb_shadow_margwa_shockwave_explo")
+PrecacheParticleSystem("zmb_shadow_margwa_shadowportal")
+PrecacheParticleSystem("zmb_shadow_margwa_chomper_explo")
+PrecacheParticleSystem("zmb_zombie_shadow_marked")
+PrecacheParticleSystem("zmb_zombie_shadow_trap")
+PrecacheParticleSystem("fire_margwa_footstep")
+PrecacheParticleSystem("shdw_margwa_footstep")
+PrecacheParticleSystem("shdw_margwa_smoke")
+
 
 -- SNPC Particles
 game.AddParticles("particles/horror/bloodsplosion.pcf")

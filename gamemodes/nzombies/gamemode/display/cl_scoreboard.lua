@@ -136,6 +136,8 @@ local SCOREBOARD = {
 		server:SizeToContentsY()
 		server:DockMargin(0,0,0,5)
 
+		self.ServerLabel = server
+
 		local header = self:Add("DPanel")
 		header:Dock(TOP)
 		header:SetHeight(lineheight)
@@ -162,8 +164,18 @@ local SCOREBOARD = {
 		self.Lines:Dock(FILL)
 		end,
 	PerformLayout = function(self)
-		self:SetSize(ScrW()/2, ScrH() - 200)
-		self:SetPos(ScrW()/4, 100)
+		if nzRound:InState(ROUND_GO) then
+			local scale = (ScrW()/1920 + 1)/2
+			local font = "nz.main."..GetFontType(nzMapping.Settings.mainfont)
+			surface.SetFont(font)
+			local tw, th = surface.GetTextSize("I")
+
+			self:SetSize(ScrW()/2, ScrH() - 200)
+			self:SetPos(ScrW()/4, (280*scale) + th)
+		else
+			self:SetSize(ScrW()/2, ScrH() - 200)
+			self:SetPos(ScrW()/4, 100)
+		end
 	end,
 	Think = function(self)
 		for k,v in pairs(player.GetAll()) do
@@ -175,11 +187,6 @@ local SCOREBOARD = {
 				self.Lines:AddItem(v.ScoreboardLine)
 			end
 		end
-
-		if IsValid(self.GameOverPanel) and nzu.Round:GetState() ~= ROUND_GAMEOVER then
-			self.GameOverPanel:Remove()
-			self:Hide()
-		end
 	end,
 }
 SCOREBOARD = vgui.RegisterTable(SCOREBOARD, "EditablePanel")
@@ -190,94 +197,57 @@ local function show()
 		scoreboard = vgui.CreateFromTable(SCOREBOARD)
 	end
 
+	if scoreboard.ServerLabel then
+		if nzRound:InState(ROUND_GO) then
+			scoreboard.ServerLabel:SetText("")
+		elseif scoreboard.ServerLabel:GetText() == "" then
+			scoreboard.ServerLabel:SetText(GetHostName())
+		end
+
+		if nzMapping.Settings.textcolor and IsColor(nzMapping.Settings.textcolor) then
+			scoreboard.ServerLabel:SetTextColor(nzMapping.Settings.textcolor)
+		end
+		scoreboard.ServerLabel:SetFont("nz.small."..GetFontType(nzMapping.Settings.smallfont))
+	end
+
+	if nzRound:InState(ROUND_GO) then
+		local scale = (ScrW()/1920 + 1)/2
+		local font = "nz.main."..GetFontType(nzMapping.Settings.mainfont)
+		surface.SetFont(font)
+		local tw, th = surface.GetTextSize("I")
+
+		scoreboard:SetSize(ScrW()/2, ScrH() - 200)
+		scoreboard:SetPos(ScrW()/4, (280*scale) + th)
+	else
+		scoreboard:SetSize(ScrW()/2, ScrH() - 200)
+		scoreboard:SetPos(ScrW()/4, 100)
+	end
+
 	scoreboard:Show()
 	scoreboard:MakePopup()
 	scoreboard:SetKeyboardInputEnabled(false)
 end
 
+local gameoverwait = 0
 function GM:ScoreboardShow()
 	show()
 end
 
 function GM:ScoreboardHide()
-	if IsValid(scoreboard) then
-		if not scoreboard.GameOverShown or nzu.Round:GetState() ~= ROUND_GAMEOVER then
+	if IsValid(scoreboard) and (!nzRound:InState(ROUND_GO) or nzRound:InState(ROUND_GO) and gameoverwait > CurTime()) then
+		scoreboard:Hide()
+	end
+end
+
+hook.Add("OnRoundEnd", "nzu_Scoreboard_ShowOnGameOver", function()
+	gameoverwait = CurTime() + nzMapping.Settings.gocamerawait
+
+	timer.Simple(nzMapping.Settings.gocamerawait, function()
+		show()
+	end)
+	timer.Simple(nzRound:GameOverDuration(), function()
+		if IsValid(scoreboard) then
 			scoreboard:Hide()
 		end
-	end
-end
-
---[[-------------------------------------------------------------------------
-Game over sequence panel
----------------------------------------------------------------------------]]
-
--- Global so extensions can replace it
-local gameoverpanelfunc = function()
-	local p = vgui.Create("Panel")
-	local txt = p:Add("DLabel")
-	txt:SetFont("nz.small.default")
-	txt:SetTextColor(Color(150,0,0))
-	txt:SetText("GAME OVER")
-	txt:SetContentAlignment(5)
-	txt:Dock(FILL)
-	txt:DockMargin(0,0,0,-50)
-
-	local r = p:Add("DLabel")
-	r:SetFont("nz.small.default")
-	r:SetText(nzu.Round:GetRound() == 1 and "You survived 1 round." or "You survived "..(nzu.Round:GetRound() or 0).." rounds.")
-	r:SetTextColor(Color(150,0,0))
-	r:SetContentAlignment(5)
-	r:Dock(BOTTOM)
-	r:SizeToContentsY()
-	r:DockMargin(0,0,0,50)
-
-	p:SetTall(250)
-	p:SetWide(1000)
-
-	return p
-end
-
-local gameoverpanel
-hook.Add("nzu_GameOverSequence", "nzu_Scoreboard_ShowOnGameOver", function(time)
-	if not LocalPlayer()then
-		local gp = gameoverpanel
-		if not gp then
-			local hud = nzu.HUD
-			if hud and hud.GameOverPanel then
-				gp = hud:GameOverPanel()
-			else
-				gp = gameoverpanelfunc()
-			end
-		end
-
-		show()
-
-		gp:SetParent(scoreboard)
-		gp:Dock(TOP)
-		gp:SetZPos(-1000)
-
-		scoreboard.GameOverPanel = gp
-		gameoverpanel = nil
-	end
-end)
-
-hook.Add("nzu_GameOver", "nzu_Scoreboard_ShowGameOverText", function(time)
-	if not LocalPlayer()then
-		if IsValid(gameoverpanel) then gameoverpanel:Remove() end
-
-		local hud = nzu.HUD
-		if hud and hud.GameOverPanel then -- Ask the HUD object to define a Game Over panel
-			gameoverpanel = hud:GameOverPanel()
-		else
-			gameoverpanel = gameoverpanelfunc()
-		end
-
-		gameoverpanel:ParentToHUD()
-		gameoverpanel:SetPos(ScrW()/2 - gameoverpanel:GetWide()/2, ScrH()/2 - gameoverpanel:GetTall()/2)
-		gameoverpanel:SetVisible(true)
-	end
-end)
-
-hook.Add("nzu_PlayerUnspawned", "nzu_Scoreboard_RemoveGameOverText", function(ply)
-	if ply == LocalPlayer() and IsValid(gameoverpanel) then gameoverpanel:Remove() end
+	end)
 end)

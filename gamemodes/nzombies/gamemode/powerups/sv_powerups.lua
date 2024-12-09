@@ -45,29 +45,37 @@ function nzPowerUps:Nuke(pos, nopoints, noeffect, instant)
 		ent:Ignite(5)
 		ent:EmitSound("nz_moo/powerups/nuke_ignite.mp3", 511)	
 		if ent.NukeDeathSounds then
-			ent:EmitSound(ent.NukeDeathSounds[math.random(#ent.NukeDeathSounds)], 75, math.random(85,115))
+			ent:EmitSound(ent.NukeDeathSounds[math.random(#ent.NukeDeathSounds)], 75, math.random(75,135))
 		end
 	end
 
 	for _, ent in nzLevel.GetZombieArray() do
-		if IsValid(ent) and ent:IsValidZombie() and !ent.NZBossType and !ent.IsMooBossZombie and !ent.IsTurned and ent:Alive() then
-			highesttime = highesttime + math.Rand(0.15, 0.45)
+		if IsValid(ent) and ent:IsValidZombie() and !ent.IsTurned and ent:Alive() then
+			ent:OnNuke() -- Call this function on the zombies so special enemies can react if coded.
 
-			ent:SetRunSpeed(1)
-			ent:SpeedChanged()
-			ent:SetBlockAttack(true)
+			if !ent.NZBossType and !ent.IsMiniBoss and !ent.IsMooBossZombie then
+				highesttime = highesttime + math.Rand(0.15, 0.45)
 
-			ent.BeingNuked = true
-			table.insert(total, ent)
+				ent:SetRunSpeed(1)
+				ent:SpeedChanged()
+				ent:SetBlockAttack(true)
 
-			if instant then
-				NukeKill(ent)
-			else
-				-- In Serverside related stuff, timers are fine.
-				timer.Simple(highesttime, function()
-					if not IsValid(ent) then return end
+				if math.random(100) < 50 then
+					ent:PerformStun(666)
+				end
+
+				ent.BeingNuked = true
+				table.insert(total, ent)
+
+				if instant then
 					NukeKill(ent)
-				end)
+				else
+					-- In Serverside related stuff, timers are fine.
+					timer.Simple(highesttime, function()
+						if not IsValid(ent) then return end
+						NukeKill(ent)
+					end)
+				end
 			end
 		end
 	end

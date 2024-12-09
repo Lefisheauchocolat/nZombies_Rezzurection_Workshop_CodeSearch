@@ -310,6 +310,7 @@ end
 function ENT:PostAttack()
 	if self.ManNoLongerMad then
 		self.ManNoLongerMad = false
+		self.BlockBigJumpThink = false
 
 		self:SetRunSpeed(72)
 		self:SpeedChanged()
@@ -340,6 +341,7 @@ function ENT:AI()
 		if CurTime() > self.ManIsMadCooldown and !self.ManIsMad and !self.IsTurned and math.random(100) <= 50 then
 
 			self.ManIsMad = true
+			self.BlockBigJumpThink = true
 			self.ManIsMadTime = CurTime() + math.Rand(2.2, 2.8)
 
 			self:SetRunSpeed(156)
@@ -357,6 +359,7 @@ function ENT:AI()
 		self:DoSpecialAnimation("Shoved_Forward")
 
 		self.ManIsMad = false
+		self.BlockBigJumpThink = false
 		self.ManIsMadCooldown = CurTime() + 9
 
 		self:SetRunSpeed(72)

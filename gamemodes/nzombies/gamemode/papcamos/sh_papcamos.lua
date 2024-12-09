@@ -110,7 +110,7 @@ nzCamos:NewCamo("waw_etching", {
 })
 
 nzCamos:NewCamo("nz_classic", {
-	name = "Classic (NZR)",
+	name = "Classic (NZ)",
 	camotable = {
 		"models/XQM/LightLinesRed_tool",
 	},

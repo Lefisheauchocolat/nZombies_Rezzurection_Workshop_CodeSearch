@@ -138,7 +138,7 @@ local function DrawRevivalProgress_t7()
 	local scale = (w/1920 + 1)/2
 
 	local data = nzRevive.Players[id]
-	if data and data.RevivePlayer == ply then
+	if data and data.RevivePlayer == ply and ply ~= reviving then
 		revnum = revnum + FrameTime()
 		if revnum >= 1 then revnum = 0 end
 		local pulsing = 1.5 - ((1 + revnum)*0.25)

@@ -7,7 +7,7 @@ ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 
 function ENT:InitDataTables()
-	self:NetworkVar("Bool", 5, "Helmet")
+	self:NetworkVar("Bool", 6, "Helmet")
 end
 
 AccessorFunc( ENT, "fLastToast", "LastToast", FORCE_NUMBER)
@@ -175,7 +175,18 @@ ENT.NormalJumpDown128 = {
 }
 
 ENT.ZombieLandSequences = {
-	"nz_soldat_jump_land",
+	"nz_soldat_land",
+}
+
+ENT.ZombieStunInSequence = "nz_soldat_head_stun_intro"
+ENT.ZombieStunOutSequence = "nz_soldat_head_stun_outro"
+
+ENT.SparkySequences = {
+	"nz_soldat_head_stun_loop",
+	"nz_soldat_head_stun_loop",
+	"nz_soldat_head_stun_loop",
+	"nz_soldat_head_stun_loop",
+	"nz_soldat_head_stun_loop",
 }
 
 ENT.SequenceTables = {

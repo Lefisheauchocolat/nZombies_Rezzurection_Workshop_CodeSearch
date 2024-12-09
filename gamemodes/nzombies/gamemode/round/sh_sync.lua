@@ -2,6 +2,7 @@ if SERVER then
 	util.AddNetworkString( "nzRoundNumber" )
 	util.AddNetworkString( "nzRoundState" )
 	util.AddNetworkString( "nzRoundSpecial" )
+	util.AddNetworkString( "nzRoundVictory" )
 	util.AddNetworkString( "nzPlayerReadyState" )
 	util.AddNetworkString( "nzPlayerPlayingState" )
 
@@ -47,9 +48,18 @@ if SERVER then
 
 	end
 
+	function nzRound:SendVictoryState( bool, ply )
+
+		net.Start( "nzRoundVictory" )
+			net.WriteBool( bool or false )
+		return ply and net.Send( ply ) or net.Broadcast()
+
+	end
+
 	function nzRound:SendSync(ply)
-		self:SendNumber( self:GetNumber(), ply )
-		self:SendSpecialRound( self:IsSpecial(), ply)
+		self:SendNumber(self:GetNumber(), ply)
+		self:SendSpecialRound(self:IsSpecial(), ply)
+		self:SendVictoryState(self:Victory(), ply)
 		self:SendState(self:GetState(), ply)
 
 		for _, v in pairs(player.GetAll()) do
@@ -57,8 +67,7 @@ if SERVER then
 			self:SendPlayingState(v, v:GetPlaying(), ply)
 		end
 
-		self:SetEndTime( self:GetEndTime() )
-
+		self:SetEndTime(self:GetEndTime())
 	end
 
 	FullSyncModules["Round"] = function(ply)
@@ -90,6 +99,10 @@ if CLIENT then
 	end
 	net.Receive( "nzRoundSpecial", receiveSpecialRound )
 
+	local function receiveVictoryState()
+		nzRound.Winner = net.ReadBool()
+	end
+	net.Receive( "nzRoundVictory", receiveVictoryState )
 
 	local function receivePlayerReadyState()
 		local ply = net.ReadEntity()

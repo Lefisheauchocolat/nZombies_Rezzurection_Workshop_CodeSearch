@@ -8,7 +8,7 @@ ENT.PrintName = "Mimic"
 ENT.Spawnable = true
 
 function ENT:InitDataTables()
-	self:NetworkVar("Bool", 5, "UsingGrab")
+	self:NetworkVar("Bool", 6, "UsingGrab")
 	self:NetworkVar("Entity", 6, "CurrentPlayer")
 	self:NetworkVar("Entity", 7, "Mimic")
 	self:NetworkVar("Bool", 8, "IsHidden")
@@ -593,7 +593,7 @@ function ENT:AI()
 		end
 
 		-- Hiding/Comedy(THE MIMIC)
-		--[[if IsValid(target) and target:IsPlayer()and !self.Hiding and self:IsAttackBlocked() and !self:TargetInRange(295) then
+		if IsValid(target) and target:IsPlayer()and !self.Hiding and self:IsAttackBlocked() and !self:TargetInRange(295) then
 			if CurTime() > self.HideCooldown and math.random(25) < 25 then
 
 				local nav = navmesh.GetNearestNavArea(self:GetPos(), false, 500, false, true, -2)
@@ -621,6 +621,23 @@ function ENT:AI()
 					self:DoSpecialAnimation("nz_ai_mimic_trans_prop")
 				end
 			end
+		end
+
+		--[[if !self:GetIsHidden() then
+
+			self.Hiding = true
+			self:SetIsHidden(true)
+			ParticleEffect("zmb_mimic_hide", self:GetPos(), Angle(0,0,0), self)
+			self:EmitSound("nz_moo/zombies/vox/_mimic/evt/transform.mp3", 100, math.random(95,105))
+
+			self.FalseDrop = ents.Create("nz_prop_effect_attachment")
+			self.FalseDrop:SetPos(self:GetPos())
+			self.FalseDrop:SetAngles(self:GetAngles())
+			self.FalseDrop:SetParent(self,1)
+			self.FalseDrop:SetModel("models/player/odessa.mdl")
+			self.FalseDrop:Spawn()
+
+			self:DeleteOnRemove(self.FalseDrop)
 		end]]
 	end
 end
@@ -652,7 +669,7 @@ function ENT:OnThink()
 		if self:GetUsingGrab() and self.GrabHitboxActive and !self.GrabbedPlayer then
 			if CurTime() > self.GrabHitboxTick then
 
-				self.GrabHitboxTick = CurTime() + 0.25
+				self.GrabHitboxTick = CurTime() + 0.35
 
 				local bone = self:GetAttachment(self:LookupAttachment("player_attach")) -- lol... lmao even.
 				pos = bone.Pos
@@ -754,6 +771,7 @@ function ENT:AttemptGrab(revealed)
 
 	self:FaceTowards(target:GetPos())
 	self:TempBehaveThread(function(self)
+		self:SolidMaskDuringEvent(MASK_NPCSOLID_BRUSHONLY)
 		self:SetSpecialAnimation(true)
 		self:PlaySequenceAndMove(seq, 1)
 
@@ -766,6 +784,7 @@ function ENT:AttemptGrab(revealed)
 
 		self:SetUsingGrab(false)
 		self:SetSpecialAnimation(false)
+		self:CollideWhenPossible()
 
 	end)
 end
@@ -840,7 +859,7 @@ function ENT:OnTakeDamage(dmginfo) -- Added by Ethorbit for implementation of th
 
 	local headpos = self:GetBonePosition(self:LookupBone("j_head"))
 
-	if (self.SpawnProtection or self.Hidden) and !self.BeingNuked then
+	if (self.SpawnProtection or self.Hidden or self.GrabbedPlayer) and !self.BeingNuked then
 		dmginfo:ScaleDamage(0) -- Stop zombies from taking damage if they're being spawnprotected.
 		return 				   -- A humble surprise is that this seems to stop Zero Health Zombies from appearing like 90% of the time. I'm being optimistic with the 90%.
 	end

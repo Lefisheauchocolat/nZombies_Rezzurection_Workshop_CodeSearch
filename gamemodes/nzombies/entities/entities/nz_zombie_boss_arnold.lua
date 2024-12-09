@@ -1,13 +1,14 @@
 AddCSLuaFile()
 
 ENT.Base = "nz_zombiebase_moo"
-ENT.PrintName = "GET TO THA CHOPPA"
+--ENT.PrintName = "GET TO THA CHOPPA"
+ENT.PrintName = "The Terminator"
 ENT.Category = "Brainz"
 ENT.Author = "Laby"
 
 function ENT:InitDataTables()
-	self:NetworkVar("Bool", 5, "IsIdle")
-	self:NetworkVar("Bool", 6, "IsEnraged")
+	self:NetworkVar("Bool", 6, "IsIdle")
+	self:NetworkVar("Bool", 7, "IsEnraged")
 end
 
 if CLIENT then 
@@ -340,7 +341,7 @@ if target:GetPerks() then
 				ENT.AttackDamage = 80
 				end
 				if perkLost == "speed" or perkLost =="time" then
-				self.CanCancelAttack = false 
+				self.CanCancelAttack = true 
 				end
 				if perkLost == "mulekick" or perkLost == "gin" then
 				self.perklimit = self.perklimit +3

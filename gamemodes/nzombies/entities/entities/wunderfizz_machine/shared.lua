@@ -77,7 +77,7 @@ function ENT:Initialize()
 		self:SetUseType( SIMPLE_USE )
 		self:SetBeingUsed(false)
 		self:SetIsTeddy(false)
-		self:SetPrice(1500)
+		self:SetPrice(self.PriceOverride or nzMapping.Settings.fizzprice or 1500)
 
 		self:SetSharing(false)
 
@@ -192,7 +192,7 @@ function ENT:Use(activator, caller)
 			-- Can only be bought if you have free perk slots
 			if #activator:GetPerks() < activator:GetMaxPerks() then
 				-- If they have enough money
-				local price = self:GetPrice()
+				local price = activator:IsInCreative() and 0 or self:GetPrice()
 				activator:Buy(price, self, function()
 					self:StopSound("nz_moo/perks/wonderfizz/rand_perk_mach_stop.wav")
 					self:EmitSound("nz_moo/perks/wonderfizz/rand_perk_mach_start.mp3", SNDLVL_TALKING, math.random(97, 103), 1, CHAN_STATIC)
@@ -438,8 +438,12 @@ if CLIENT then
 				self.LightningEffects4:StopEmission()
 			end
 
+			local point = self:GetAttachment(9)
 			render.SetMaterial(onlight)
-			render.DrawSprite(self:GetAttachment(9).Pos, math.Rand(7,8), math.Rand(7,8), color_red)
+
+			if point then
+				render.DrawSprite(point.Pos, math.Rand(7,8), math.Rand(7,8), color_red)
+			end
 		end
 	end
 end

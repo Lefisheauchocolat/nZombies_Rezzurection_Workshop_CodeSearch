@@ -89,7 +89,7 @@ nzTools:CreateTool("colorsettings", {
 		local function UpdateData() -- Will remain a local function here. There is no need for the context menu to intercept
 			if !istable(valz["Row1"]) then data.zombieeyecolor = Color(0, 255, 255, 255) else data.zombieeyecolor = valz["Row1"] end
 			if !istable(valz["Row2"]) then data.boxlightcolor = Color(0, 150,200,255) else data.boxlightcolor = valz["Row2"] end
-			if !istable(valz["Row3"]) then data.textcolor = Color(0, 255, 255, 255) else data.textcolor = valz["Row3"] end
+			if !istable(valz["Row3"]) then data.textcolor = Color(255, 255, 255, 255) else data.textcolor = valz["Row3"] end
 			if !istable(valz["Row4"]) then data.paplightcolor = Color(156, 81, 182, 255) else data.paplightcolor = valz["Row4"] end
 			if !istable(valz["Row5"]) then data.zombieeyecolor2 = Color(255, 0, 0, 255) else data.zombieeyecolor2 = valz["Row5"] end
 			if valz["Row6"] == nil then data.zombieeyechange = false else data.zombieeyechange = tobool(valz["Row6"]) end
@@ -497,7 +497,7 @@ nzTools:CreateTool("colorsettings", {
 			wallbuyDrag:SetSize(96, 96)
 			wallbuyDrag.Think = function()
 				if wallbuyDrag:IsDragging() then
-					local x, y = DProperties:CursorPos()
+					local x, y = wallbuyPanel:CursorPos()
 					local maxx, maxy = sheet:GetSize()
 					x = math.Clamp(x, 0, maxx)
 					y = math.Clamp(y, 0, maxy-30)

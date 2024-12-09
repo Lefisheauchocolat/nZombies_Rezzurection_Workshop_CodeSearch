@@ -20,6 +20,8 @@ if (CLIENT) then
 		if id == "Default NZR" 		then return "default" 	end
 		if id == "BO4" 				then return "blackops4" end
 		if id == "Black Ops 1" 		then return "bo1"		end
+		if id == "WW2" 				then return "ww2"		end
+		if id == "IW" 				then return "iw7"		end
 		return "classic"
 	end
 
@@ -45,6 +47,8 @@ if (CLIENT) then
 end
 
 if (SERVER) then
+	util.AddNetworkString("nz_game_end_notif")
+
 	//every hud needs a unique netmessages
 	util.AddNetworkString("nz_points_notification_bo1")
 	util.AddNetworkString("nz_points_notification_bo2")
@@ -89,6 +93,13 @@ nzDisplay.HUDnetstrings = {
 	["Encampment"] = "nz_points_notification_encampment",
 	["Origins (HD)"] = "nz_points_notification_tomb_hd",
 	["World at War"] = "nz_points_notification_waw",
+}
+
+nzDisplay.leftsidedHUDs = {
+	["Black Ops 3"] = true,
+	["Shadows of Evil"] = true,
+	["Origins (HD)"] = true,
+	["Encampment"] = true,
 }
 
 //used in cl_target for the black background on hint strings

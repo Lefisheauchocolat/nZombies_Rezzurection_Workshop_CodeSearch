@@ -55,13 +55,16 @@ local function DrawColorModulation()
 	end
 end
 
-local function CalcZombieBloodView(ply, pos, ang, fov, znear, zfar)
+local function CalcZombieBloodView(ply, origin, angles, fov)
 	if IsValid(ply:GetObserverTarget()) then ply = ply:GetObserverTarget() end
-	
-	local gum = nzGum:GetActiveGum(ply)
-	if nzPowerUps:IsPlayerPowerupActive(ply, "zombieblood") or (gum and gum == "in_plain_sight" and nzGum:IsWorking(ply)) then
-		local fov = fov + 12
-		return {origin = pos, angles = ang, fov = fov, znear = znear, zfar = zfar, drawviewer = false }
+	if not ply:ShouldDrawLocalPlayer() then //temp fix for zombieblood not playing nice with thirdperson mods
+		local gum = nzGum:GetActiveGum(ply)
+		if nzPowerUps:IsPlayerPowerupActive(ply, "zombieblood") or (gum and gum == "in_plain_sight" and nzGum:IsWorking(ply)) then
+			local fov = fov + 12
+			return {
+				fov = fov,
+			}
+		end
 	end
 end
 

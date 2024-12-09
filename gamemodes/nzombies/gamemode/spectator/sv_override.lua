@@ -18,9 +18,8 @@ function GM:PlayerDeath( ply, wep, killer )
 end
 
 function GM:PlayerDeathThink( ply )
-
 	-- Allow players in creative mode to respawn
-	if ply:IsInCreative() and nzRound:InState( ROUND_CREATE ) then
+	if ply:IsInCreative() and nzRound:InState(ROUND_CREATE) then
 		if ply:KeyDown(IN_JUMP) or ply:KeyDown(IN_ATTACK) then
 			ply:Spawn()
 			return true
@@ -29,21 +28,30 @@ function GM:PlayerDeathThink( ply )
 
 	local players = player.GetAllPlayingAndAlive()
 
-	if ply:KeyPressed( IN_RELOAD ) then
-		ply:SetSpectatingType( ply:GetSpectatingType() + 1 )
+	if ply:KeyPressed(IN_RELOAD) then
+		ply:SetSpectatingType(ply:GetSpectatingType() + 1)
 		if ply:GetSpectatingType() > 5 then
-			ply:SetSpectatingType( 4 )
-			ply:SetupHands(players[ ply:GetSpectatingID() ])
+			ply:SetSpectatingType(4)
+			ply:SetupHands(players[ply:GetSpectatingID()])
 		end
-		ply:Spectate( ply:GetSpectatingType() )
-	elseif ply:KeyPressed( IN_ATTACK ) then
-		ply:SetSpectatingID( ply:GetSpectatingID() + 1 )
-		if ply:GetSpectatingID() > #players then ply:SetSpectatingID( 1 ) end
-		ply:SpectateEntity( players[ ply:GetSpectatingID() ] )
-	elseif ply:KeyPressed( IN_ATTACK2 ) then
-		ply:SetSpectatingID( ply:GetSpectatingID() - 1 )
-		if ply:GetSpectatingID() <= 0 then ply:SetSpectatingID( #players ) end
-		ply:SpectateEntity( players[ ply:GetSpectatingID() ] )
+
+		ply:Spectate(ply:GetSpectatingType())
+	elseif ply:KeyPressed(IN_ATTACK) then
+		ply:SetSpectatingID(ply:GetSpectatingID() + 1)
+		if ply:GetSpectatingID() > #players then
+			ply:SetSpectatingID(1)
+		end
+
+		ply:SpectateEntity(players[ply:GetSpectatingID()])
+		ply:SetupHands(players[ply:GetSpectatingID()])
+	elseif ply:KeyPressed(IN_ATTACK2) then
+		ply:SetSpectatingID(ply:GetSpectatingID() - 1)
+		if ply:GetSpectatingID() <= 0 then
+			ply:SetSpectatingID(#players)
+		end
+
+		ply:SpectateEntity(players[ply:GetSpectatingID()])
+		ply:SetupHands(players[ply:GetSpectatingID()])
 	end
 
 	//evil

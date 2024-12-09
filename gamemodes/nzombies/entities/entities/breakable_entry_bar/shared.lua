@@ -32,6 +32,10 @@ function ENT:Think()
 		if self.ZombieUsing and !IsValid(self.ZombieUsing) then
 			self.ZombieUsing = nil
 		end
+
+		if self.ZombieUsing and IsValid(self.ZombieUsing) and !self.ZombieUsing.BarricadeTearing then
+			self.ZombieUsing = nil
+		end
 	end
 
 	self:NextThink( CurTime() )

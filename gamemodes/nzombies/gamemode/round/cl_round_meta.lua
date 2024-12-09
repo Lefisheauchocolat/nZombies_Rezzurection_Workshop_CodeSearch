@@ -15,6 +15,13 @@ function nzRound:InProgress()
 	return nzRound:GetState() == ROUND_PREP or nzRound:GetState() == ROUND_PROG
 end
 
+function nzRound:Victory()
+	return self.Winner or false
+end
+
+function nzRound:GameOverDuration()
+	return (nzRound:Victory() and (nzMapping.Settings.gamewintime or 15) or (nzMapping.Settings.gameovertime or 15)) + (nzMapping.Settings.gocamerawait or 5)
+end
 
 function nzRound:GetStartMusic()
 	self.RndMusic = self.RndMusic or false

@@ -348,7 +348,7 @@ if nzombies then
         nzPerks:RegisterBottle("tfa_perk_goblet", "VGGoblet", {
             [1] = "models/nz/perks/goblet/logo_",
             [2] = "models/nz/perks/goblet/blood_"
-        }, "models/nzr/2024/perks/vangriddy/world/wm_s4_goblet.mdl", Vector(300,0,55), Angle(0,180,0))
+        }, "models/nzr/2024/perks/vangriddy/world/wm_s4_goblet.mdl", Vector(300,-100,55), Angle(0,180,0))
     
         nzPerks:RegisterBottle("tfa_bo1_bottle", "Bo1Bottle", {
             [0] = "models/nz/perks/bo1/logo_"
@@ -364,23 +364,27 @@ if nzombies then
         }, "models/nzr/2024/perks/bo2/world/wm_t6_perk_bottle.mdl", Vector(0,0,50), Angle(0,90,0))
 
         nzPerks:RegisterBottle("tfa_bo4_bottle", "Bo4Bottle", {
-    		[1] = "models/nzr/perk_bottles/bo3/bottle_",
-    		[2] = "models/nzr/perk_bottles/bo3/logo_"
+        	[0] = "models/nz/perks/bo3/metal_",
+    		[1] = "models/nz/perks/bo3/bottle_",
+    		[2] = "models/nz/perks/bo3/logo_"
 		}, "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
 
         nzPerks:RegisterBottle("tfa_aae_bottle", "AAEBottle", {
-    		[1] = "models/nzr/perk_bottles/bo3/bottle_",
-    		[2] = "models/nzr/perk_bottles/bo3/logo_"
+        	[0] = "models/nz/perks/bo3/metal_",
+    		[1] = "models/nz/perks/bo3/bottle_",
+    		[2] = "models/nz/perks/bo3/logo_"
 		}, "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
 
         nzPerks:RegisterBottle("tfa_rd_bottle", "RDBottle", {
-    		[2] = "models/nzr/perk_bottles/bo3/bottle_",
-    		[3] = "models/nzr/perk_bottles/bo3/logo_"
+        	[0] = "models/nz/perks/bo3/metal_",
+    		[1] = "models/nz/perks/bo3/bottle_",
+    		[2] = "models/nz/perks/bo3/logo_"
 		}, "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
 
         nzPerks:RegisterBottle("tfa_t7c_bottle", "T7ComplexBottle", {
-    		[1] = "models/nzr/perk_bottles/bo3/bottle_",
-    		[2] = "models/nzr/perk_bottles/bo3/logo_"
+        	[0] = "models/nz/perks/bo3/metal_",
+    		[1] = "models/nz/perks/bo3/bottle_",
+    		[2] = "models/nz/perks/bo3/logo_"
 		}, "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
 
     end)

@@ -25,7 +25,7 @@ nzChatCommand.Add("/fixme", SERVER, function(ply, text)
 		ply:ConCommand("snd_restart")
 
 		timer.Simple(0, function()
-			if not IsValid(ply) then print('fck') return end
+			if not IsValid(ply) then return end
 			nzMapping:SendMapData(ply)
 		end)
 
@@ -61,6 +61,37 @@ nzChatCommand.Add("/preloadbox", SERVER, function(ply, text)
     end
 end, false, "Spawns a dumby entity that cycles through the Box weapons in an effort to reduce freezing and hitching during inital box spins.")
 
+nzChatCommand.Add("/home", SERVER, function(ply, text)
+	local spawns = ents.FindByClass("player_spawns")
+	if not IsValid(spawns[1]) then return end
+
+	local availableSpawns = {}
+	local finalpos = spawns[math.random(#spawns)]:GetPos()
+
+	-- Find all available spawn points
+	for _, spawn in ipairs(spawns) do
+		local isSpawnOccupied = false
+
+		local mins, maxs = spawn:GetCollisionBounds()
+		for _, ply in pairs(ents.FindInBox(spawn:LocalToWorld(mins), spawn:LocalToWorld(maxs))) do
+			if IsValid(ply) and ply:IsPlayer() and ply:Alive() then
+				isSpawnOccupied = true
+			end
+		end
+
+		if not isSpawnOccupied then
+			availableSpawns[#availableSpawns + 1] = spawn
+		end
+	end
+
+	for _, spawn in RandomPairs(availableSpawns) do
+		finalpos = spawn:GetPos()
+		if spawn:GetPreferred() then break end
+	end
+
+	ply:SetPos(finalpos + vector_up)
+end, true, "Teleport to first available player spawn, use if stuck.")
+
 -- general
 
 nzChatCommand.Add("/cheats", CLIENT, function(ply, text)
@@ -75,21 +106,50 @@ nzChatCommand.Add("/cheats", CLIENT, function(ply, text)
 	end
 end, false, "Opens the cheat panel.")
 
+nzChatCommand.Add("/printperks", SERVER, function(ply, text)
+	for k, v in pairs(nzPerks.Data) do
+		if v.specialmachine then continue end
+		ply:PrintMessage(HUD_PRINTCONSOLE, k)
+	end
+end, true, "Prints all perks internal names to console.")
+
+nzChatCommand.Add("/printgums", SERVER, function(ply, text)
+	for k, v in pairs(nzPerks.Gums) do
+		ply:PrintMessage(HUD_PRINTCONSOLE, k)
+	end
+end, true, "Prints all perks internal names to console.")
+
+nzChatCommand.Add("/printpowerups", SERVER, function(ply, text)
+	for k, v in pairs(nzPowerUps.Data) do
+		ply:PrintMessage(HUD_PRINTCONSOLE, k)
+	end
+end, true, "Prints all powerup internal names to console.")
+
 nzChatCommand.Add("/help", SERVER, function(ply, text)
-	ply:PrintMessage( HUD_PRINTTALK, "-----" )
 	ply:PrintMessage( HUD_PRINTTALK, "[NZ] Available commands:" )
 	ply:PrintMessage( HUD_PRINTTALK, "Arguments in [] are optional." )
+
+	local commands = {}
 	for _, cmd in pairs(nzChatCommand.commands) do
 		local cmdText = cmd[1]
 		if cmd[4] then
 			cmdText = cmdText .. " " .. cmd[4]
 		end
-		if cmd[3]  or (!cmd[3] and ply:IsSuperAdmin()) then
-			ply:PrintMessage( HUD_PRINTTALK, cmdText )
+		if cmd[3] or (!cmd[3] and ply:IsSuperAdmin()) then
+			commands[#commands + 1] = cmdText
 		end
 	end
-	ply:PrintMessage( HUD_PRINTTALK, "-----" )
-	ply:PrintMessage( HUD_PRINTTALK, "" )
+
+	for i=1, #commands do
+		local msg = commands[i]
+		timer.Simple(i*engine.TickInterval(), function()
+			ply:PrintMessage(HUD_PRINTTALK, msg)
+		end)
+	end
+
+	timer.Simple((#commands + 1)*engine.TickInterval(), function()
+		ply:PrintMessage(HUD_PRINTTALK, "")
+	end)
 end, true, "Print this list.")
 
 nzChatCommand.Add("/ready", SERVER, function(ply, text)
@@ -496,6 +556,10 @@ nzChatCommand.Add("/elec", SERVER, function(ply, text)
 	nzElec:Activate()
 end, false, "Activates power.")
 
+nzChatCommand.Add("/resetelec", SERVER, function(ply, text)
+	nzElec:Reset()
+end, false, "Resets power.")
+
 nzChatCommand.Add("/forcepowerup", SERVER, function(ply, text)
 	if IsValid(ply) and ply:IsAdmin() then
 		nzPowerUps:SetPowerUpChance(99)
@@ -608,10 +672,12 @@ end, false, "Spawns an Anti Powerup where the player is currenty looking.")
 nzChatCommand.Add("/giveall", SERVER, function(ply, text)
 	if IsValid(ply) and ply:IsAdmin() then
 		ply:GiveMaxAmmo()
-		ply:SetArmor(200)
+		ply:GiveAllPerks()
+
+		ply:SetHealth(ply:GetMaxHealth())
+		ply:SetArmor(ply:GetMaxArmor())
 
 		local specials = ply.NZSpecialWeapons
-
 		local shield = weapons.Get(nzMapping.Settings.shield or "")
 		if !specials or !specials["shield"] and shield then
 			local gun = ply:Give(nzMapping.Settings.shield)
@@ -622,17 +688,8 @@ nzChatCommand.Add("/giveall", SERVER, function(ply, text)
 				end)
 			end
 		end
-
-		for id, data in pairs(nzPerks.Data) do
-			if data.specialmachine or id == "gum" then continue end
-			if ply:HasPerk(id) then
-				ply:GiveUpgrade(id)
-			else
-				ply:GivePerk(id)
-			end
-		end
 	end
-end, false, "Gives the player max ammo, 200 armor, a shield, and all perks (or perk upgrades for already held perks).")
+end, false, "Gives the player max ammo, 200 armor, a shield, and all perks.")
 
 nzChatCommand.Add("/spawnboss", SERVER, function(ply, text)
 	if IsValid(ply) and ply:IsAdmin() and nzRound:InProgress() then
@@ -681,15 +738,6 @@ nzChatCommand.Add("/tools", SERVER, function(ply, text)
 	end
 end, true, "Give creative mode tools to yourself if in Creative.")
 
-nzChatCommand.Add("/beanmeup", SERVER, function(ply, text)
-    if IsValid(ply) and ply:IsAdmin() then
-		local pspawn = ents.FindByClass("player_spawns")[1]
-		if IsValid(pspawn) then
-			ply:SetPos(pspawn:GetPos())
-		end
-    end
-end, false, "Teleport to first player spawn.")
-
 nzChatCommand.Add("/clearscoreboard", SERVER, function(ply, text)
 	if IsValid(ply) and ply:IsAdmin() and nzRound:InState(ROUND_CREATE) then
 		for k, v in pairs(player.GetAll()) do
@@ -701,28 +749,53 @@ nzChatCommand.Add("/clearscoreboard", SERVER, function(ply, text)
 	end
 end, false, "Clears the Scoreboard.")
 
-nzChatCommand.Add("/getbored", SERVER, function(ply, text)
-	if IsValid(ply) and ply:IsAdmin() then
-		ply:Give("tfa_bo3_gkzmk3")
-		ply:GivePerk("speed")
-		ply:EmitSound("nz_moo/perkacolas/sake_sting.mp3", 511, math.random(50,150), 1, 0)
+nzChatCommand.Add("/giveloadout", SERVER, function(ply, text)
+	if ply:IsInCreative() then
+		if nzMapping.Settings.startwep and weapons.Get(tostring(nzMapping.Settings.startwep)) then
+			ply:Give(nzMapping.Settings.startwep)
+		else
+			ply:Give("tfa_bo3_wepsteal")
+			ply:PrintMessage( HUD_PRINTTALK, "You have to change the starting weapon in Map Settings!" )
+		end
+
+		if nzMapping.Settings.knife and weapons.Get(tostring(nzMapping.Settings.knife)) then
+			ply:Give(nzMapping.Settings.knife)
+		else
+			ply:Give("tfa_bo1_knife")
+		end
+
+		if nzMapping.Settings.grenade and weapons.Get(tostring(nzMapping.Settings.grenade)) then
+			local nade = ply:Give(nzMapping.Settings.grenade)
+			nade.NoSpawnAmmo = true
+		else
+			ply:Give("tfa_bo1_m67")
+		end
 	end
-end, false, "Can I have my perms back?")
+end, true, "Give player spawn loadout to yourself if in Creative.")
 
 //tool related
-nzChatCommand.Add("/setnukedspawn", SERVER, function(ply, text) -- Moo Mark: Added this so new barricades can automatically be reposed correctly(Just don't do it more than once.)
+nzChatCommand.Add("/setnukedspawn", SERVER, function(ply, text)
 	if IsValid(ply) and ply:IsAdmin() and nzRound:InState(ROUND_CREATE) then
 		nzMapping.Settings.nukedspawn = ply:EyePos()
+		nzMapping:LoadMapSettings(nzMapping.Settings)
 
 		local fucker = tostring(nzMapping.Settings.nukedspawn)
-		print("Nuked perk spawn set to Vector("..fucker..")")
-		PrintMessage(HUD_PRINTTALK, "[NZ] Please press submit in map settings to save nuked spawn location!")
+		PrintMessage(HUD_PRINTTALK, "[NZ] Nuked perk spawn set to Vector("..fucker..")")
 	end
 end, false, "If Nuketown Perks is enabled, sets where perks should fall from the sky to the players current position.")
 
-nzChatCommand.Add("/removenukedspawn", SERVER, function(ply, text) -- Moo Mark: Added this so new barricades can automatically be reposed correctly(Just don't do it more than once.)
+nzChatCommand.Add("/removenukedspawn", SERVER, function(ply, text)
 	if IsValid(ply) and ply:IsAdmin() and nzRound:InState(ROUND_CREATE) and nzMapping.Settings.nukedspawn then
 		nzMapping.Settings.nukedspawn = nil
 		nzMapping:LoadMapSettings(nzMapping.Settings)
 	end
 end, false, "Removes the spawn point for Nuketown Perks.")
+
+nzChatCommand.Add("/gotogocamera", SERVER, function(ply, text)
+	if IsValid(ply) and ply:IsAdmin() and nzRound:InState(ROUND_CREATE) and nzMapping.Settings.gocamerastart and text[1] and nzMapping.Settings.gocamerastart[tonumber(text[1])] then
+		ply:SetPos(nzMapping.Settings.gocamerastart[tonumber(text[1])])
+		if nzMapping.Settings.gocameraend and nzMapping.Settings.gocameraend[tonumber(text[1])] then
+			ply:SetEyeAngles((nzMapping.Settings.gocameraend[tonumber(text[1])] - ply:GetPos()):Angle())
+		end
+	end
+end, false, "Teleporters player to given Game Over camera start.")

@@ -6,7 +6,7 @@ ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 
 function ENT:InitDataTables()
-	self:NetworkVar("Bool", 5, "Helmet")
+	self:NetworkVar("Bool", 6, "Helmet")
 end
 
 AccessorFunc( ENT, "fLastToast", "LastToast", FORCE_NUMBER)
@@ -149,6 +149,17 @@ ENT.JetPackIdleSequence = "nz_soldat_hover_loop"
 ENT.RunePrisonSequence = "nz_soldat_runeprison_struggle_loop"
 ENT.TeslaSequence = "nz_soldat_tesla_loop"
 
+ENT.ZombieStunInSequence = "nz_soldat_head_stun_intro"
+ENT.ZombieStunOutSequence = "nz_soldat_head_stun_outro"
+
+ENT.SparkySequences = {
+	"nz_soldat_head_stun_loop",
+	"nz_soldat_head_stun_loop",
+	"nz_soldat_head_stun_loop",
+	"nz_soldat_head_stun_loop",
+	"nz_soldat_head_stun_loop",
+}
+
 ENT.BarricadeTearSequences = {
 	"nz_soldat_melee_a",
 	"nz_soldat_melee_b",
@@ -184,7 +195,7 @@ ENT.NormalJumpDown128 = {
 }
 
 ENT.ZombieLandSequences = {
-	"nz_soldat_jump_land",
+	"nz_soldat_land",
 }
 
 ENT.SequenceTables = {
@@ -878,7 +889,9 @@ function ENT:PerformIdle()
 	if self.UsingFlamethrower then
 		self:StopToasting()
 	end
-	if self.Jetpacking then
+	if self.Stunned then
+		self:ResetSequence(self.SparkyAnim)
+	elseif self.Jetpacking then
 			self:ResetSequence(self.JetPackIdleSequence)
 	elseif self.DGLift then
 		self:ResetSequence(self.TeslaSequence)

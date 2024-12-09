@@ -7,7 +7,7 @@ ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 
 function ENT:InitDataTables()
-	self:NetworkVar("Bool", 5, "Helmet")
+	self:NetworkVar("Bool", 6, "Helmet")
 end
 
 function ENT:ComedyGrab()
@@ -183,7 +183,18 @@ ENT.NormalJumpDown128 = {
 }
 
 ENT.ZombieLandSequences = {
-	"nz_soldat_jump_land",
+	"nz_soldat_land",
+}
+
+ENT.ZombieStunInSequence = "nz_soldat_head_stun_intro"
+ENT.ZombieStunOutSequence = "nz_soldat_head_stun_outro"
+
+ENT.SparkySequences = {
+	"nz_soldat_head_stun_loop",
+	"nz_soldat_head_stun_loop",
+	"nz_soldat_head_stun_loop",
+	"nz_soldat_head_stun_loop",
+	"nz_soldat_head_stun_loop",
 }
 
 ENT.SequenceTables = {
@@ -414,11 +425,15 @@ function ENT:StatsInitialize()
 end
 
 function ENT:OnSpawn()
+	local comedyday = os.date("%d-%m") == "01-04"
+	if math.random(1150) == 1 or comedyday then
+		self:SetColor(Color(0,255,0))
+	end
+
 	local seq = self:SelectSpawnSequence()
 	local _, dur = self:LookupSequence(seq)
 
 	debugoverlay.BoxAngles(self:GetPos() + self:GetUp() * 75, Vector(-5,-5,0), Vector(5,5,750), self:GetAngles(), 3, Color( 255, 255, 255, 10))
-
 	local tr = util.TraceHull({
 		start = self:GetPos(),
 		endpos = self:GetPos(),
@@ -756,7 +771,9 @@ function ENT:PerformIdle()
 		if self.UsingFlamethrower then
 			self:StopToasting()
 		end
-		if self.Jetpacking then
+		if self.Stunned then
+			self:ResetSequence(self.SparkyAnim)
+		elseif self.Jetpacking then
 			self:ResetSequence(self.JetPackIdleSequence)
 		elseif self.DGLift then
 			self:ResetSequence(self.TeslaSequence)

@@ -1,24 +1,29 @@
-local function HandlePlayerDiving(ply, vel)
-	if ply:GetDiving() then
+local playersDiving = {}
 
-		ply.CalcIdeal = ACT_HL2MP_SWIM_DUEL
+hook.Add("CalcMainActivity", "KLEINANDDIVESOCIETY", function(ply)
+	local b_diving = ply:GetDiving()
 
-		local len = vel:Length2D()
-		if ( len <= 1 ) then
-			ply.CalcIdeal = ACT_HL2MP_SWIM_PISTOL
-		end
+	if b_diving and !playersDiving[ply] then
+		playersDiving[ply] = true
 
-		return ply.CalcIdeal, ply.CalcSeqOverride
+		local seq, dur = ply:LookupSequence("bo1_stand2dive")
+		ply:SetPlaybackRate(1)
+		ply:AddVCDSequenceToGestureSlot(6, seq, 0, true)
 	end
-end
-hook.Add("CalcMainActivity", "dive_to_prone.anims", HandlePlayerDiving)
 
-if CLIENT then
-	local function RenderDivingPlayers(ply)
-		if ply:GetDiving() then
-			local wep = ply:GetActiveWeapon()
-			if IsValid(wep) then wep:InvalidateBoneCache() end
+	if !b_diving and playersDiving[ply] and (ply:IsOnGround() or (ply:WaterLevel() > 2)) then
+		playersDiving[ply] = nil
+
+		if ply:WaterLevel() < 2 then
+			local seq, dur = ply:LookupSequence("bo1_dive2stand")
+			ply:SetPlaybackRate(1)
+			ply:SetCycle(0)
+			ply:AddVCDSequenceToGestureSlot(6, seq, 0, true)
 		end
 	end
-	hook.Add("PrePlayerDraw", "dive_to_prone.clietnanims", RenderDivingPlayers)
-end
+
+	if playersDiving[ply] then
+		local seq = ply:LookupSequence("bo1_dive_idle")
+		return ACT_IDLE, seq
+	end
+end)

@@ -257,7 +257,7 @@ end
 
 
 function ENT:Update()
-	self:SetModel("models/teleporters/der_riese/zombie_teleporter_pad.mdl")
+	self:SetModel("models/moo/_codz_ports_props/t5/zm/zombie_teleporter_pad/moo_codz_zm_teleporter_pad.mdl")
 	self:SetModelType(1)
 		--if self:GetModelType() == 1 then
 		--if self:IsOn() then

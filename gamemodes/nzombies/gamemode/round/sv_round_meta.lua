@@ -232,3 +232,16 @@ end
 function nzRound:GetTimedRoundTime()
 	return self.TimedRoundTime
 end
+
+function nzRound:GameOverDuration()
+	return (nzRound:Victory() and (nzMapping.Settings.gamewintime or 15) or (nzMapping.Settings.gameovertime or 15)) + (nzMapping.Settings.gocamerawait or 5)
+end
+
+function nzRound:SetVictory(bool)
+	self.Winner = bool
+	self:SendVictoryState(bool)
+end
+
+function nzRound:Victory()
+	return self.Winner or false
+end

@@ -49,6 +49,8 @@ nzTools:CreateTool("perk", {
 		valz["Row7"] = tostring(data.doorflag)
 		valz["Row8"] = tostring(data.doorflag2)
 		valz["Row9"] = tostring(data.doorflag3)
+		valz["Row10"] = tonumber(data.price)
+		valz["Row11"] = tonumber(data.priceupg)
 
 		local DProperties = vgui.Create( "DProperties", frame )
 		DProperties:SetSize( 500, 480 )
@@ -64,6 +66,8 @@ nzTools:CreateTool("perk", {
 			data.doorflag = tostring(valz["Row7"])
 			data.doorflag2 = tostring(valz["Row8"])
 			data.doorflag3 = tostring(valz["Row9"])
+			data.price = tonumber(valz["Row10"])
+			data.priceupg = tonumber(valz["Row11"])
 
 			return data
 		end
@@ -125,6 +129,18 @@ nzTools:CreateTool("perk", {
 		Row9:SetValue(valz["Row9"])
 		Row9.DataChanged = function( _, val) valz["Row9"] = val DProperties.UpdateData(DProperties.CompileData()) end
 
+		local Row10 = DProperties:CreateRow("Price Override", "Base")
+		Row10:Setup("Generic")
+		Row10:SetValue(valz["Row10"])
+		Row10.DataChanged = function( _, val) valz["Row10"] = math.max(tonumber(val), 0) DProperties.UpdateData(DProperties.CompileData()) end
+		Row10:SetTooltip("Set to a number other than 0 to enable. Only applies to the machine, not things like the cold war wunderfizz.")
+
+		local Row11 = DProperties:CreateRow("Price Override", "Upgraded")
+		Row11:Setup("Generic")
+		Row11:SetValue(valz["Row11"])
+		Row11.DataChanged = function( _, val) valz["Row11"] = math.max(tonumber(val), 0) DProperties.UpdateData(DProperties.CompileData()) end
+		Row11:SetTooltip("Set to a number other than 0 to enable. Only applies to the machine, not things like the cold war wunderfizz.")
+
 		local color_red = Color(150, 50, 50)
 
 		local textw1 = vgui.Create("DLabel", DProperties)
@@ -132,7 +148,7 @@ nzTools:CreateTool("perk", {
 		textw1:SetFont("Trebuchet18")
 		textw1:SetTextColor(color_red)
 		textw1:SizeToContents()
-		textw1:SetPos(0, 280)
+		textw1:SetPos(0, 315)
 		textw1:CenterHorizontal()
 
 		local textw2 = vgui.Create("DLabel", DProperties)
@@ -140,7 +156,7 @@ nzTools:CreateTool("perk", {
 		textw2:SetFont("Trebuchet18")
 		textw2:SetTextColor(color_red)
 		textw2:SizeToContents()
-		textw2:SetPos(0, 300)
+		textw2:SetPos(0, 335)
 		textw2:CenterHorizontal()
 
 		local textw3 = vgui.Create("DLabel", DProperties)
@@ -148,7 +164,7 @@ nzTools:CreateTool("perk", {
 		textw3:SetFont("Trebuchet18")
 		textw3:SetTextColor(color_red)
 		textw3:SizeToContents()
-		textw3:SetPos(0, 320)
+		textw3:SetPos(0, 355)
 		textw3:CenterHorizontal()
 
 		local textw4 = vgui.Create("DLabel", DProperties)
@@ -156,7 +172,7 @@ nzTools:CreateTool("perk", {
 		textw4:SetFont("Trebuchet18")
 		textw4:SetTextColor(color_red)
 		textw4:SizeToContents()
-		textw4:SetPos(0, 340)
+		textw4:SetPos(0, 375)
 		textw4:CenterHorizontal()
 
 		local textw5 = vgui.Create("DLabel", DProperties)
@@ -164,7 +180,7 @@ nzTools:CreateTool("perk", {
 		textw5:SetFont("Trebuchet18")
 		textw5:SetTextColor(color_red)
 		textw5:SizeToContents()
-		textw5:SetPos(0, 360)
+		textw5:SetPos(0, 395)
 		textw5:CenterHorizontal()
 
 		local textw6 = vgui.Create("DLabel", DProperties)
@@ -172,7 +188,7 @@ nzTools:CreateTool("perk", {
 		textw6:SetFont("Trebuchet18")
 		textw6:SetTextColor(color_red)
 		textw6:SizeToContents()
-		textw6:SetPos(0, 380)
+		textw6:SetPos(0, 415)
 		textw6:CenterHorizontal()
 
 		local textw7 = vgui.Create("DLabel", DProperties)
@@ -180,7 +196,7 @@ nzTools:CreateTool("perk", {
 		textw7:SetFont("Trebuchet18")
 		textw7:SetTextColor(color_red)
 		textw7:SizeToContents()
-		textw7:SetPos(0, 400)
+		textw7:SetPos(0, 435)
 		textw7:CenterHorizontal()
 
 		local textw8 = vgui.Create("DLabel", DProperties)
@@ -188,7 +204,7 @@ nzTools:CreateTool("perk", {
 		textw8:SetFont("Trebuchet18")
 		textw8:SetTextColor(color_red)
 		textw8:SizeToContents()
-		textw8:SetPos(0, 420)
+		textw8:SetPos(0, 455)
 		textw8:CenterHorizontal()
 
 		return DProperties
@@ -203,6 +219,8 @@ nzTools:CreateTool("perk", {
 		doorflag = "",
 		doorflag2 = "",
 		doorflag3 = "",
+		price = 0,
+		priceupg = 0,
 	},
 })
 

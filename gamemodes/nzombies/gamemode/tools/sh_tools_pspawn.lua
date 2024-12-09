@@ -36,6 +36,7 @@ nzTools:CreateTool("pspawn", {
 		valz["Row3"] = data.doorflag
 		valz["Row4"] = data.doorflag2
 		valz["Row5"] = data.doorflag3
+		valz["Row6"] = data.preferred
 
 		local DProperties = vgui.Create( "DProperties", frame )
 		DProperties:SetSize( 480, 450 )
@@ -47,6 +48,7 @@ nzTools:CreateTool("pspawn", {
 			data.doorflag = tostring(valz["Row3"])
 			data.doorflag2 = tostring(valz["Row4"])
 			data.doorflag3 = tostring(valz["Row5"])
+			data.preferred = tobool(valz["Row6"])
 			return data
 		end
 
@@ -80,6 +82,11 @@ nzTools:CreateTool("pspawn", {
 		Row5:SetValue(valz["Row5"])
 		Row5.DataChanged = function( _, val ) valz["Row5"] = val DProperties.UpdateData(DProperties.CompileData()) end
 
+		local Row6 = DProperties:CreateRow("Options", "Preferred Spawn")
+		Row6:Setup("Boolean")
+		Row6:SetValue(valz["Row6"])
+		Row6.DataChanged = function( _, val ) valz["Row6"] = tobool(val) DProperties.UpdateData(DProperties.CompileData()) end
+
 		local text = vgui.Create("DLabel", DProperties)
 		text:SetText("Set round num to 0 and flag to nothing to disable")
 		text:SetFont("Trebuchet18")
@@ -96,6 +103,7 @@ nzTools:CreateTool("pspawn", {
 		doorflag = "",
 		doorflag2 = "",
 		doorflag3 = "",
+		preferred = false,
 	}
 })
 
@@ -115,6 +123,7 @@ if SERVER then
 						doorflag = ent:GetDoorFlag(),
 						doorflag2 = ent:GetDoorFlag2(),
 						doorflag3 = ent:GetDoorFlag3(),
+						preferred = ent:GetPreferred(),
 					}
 				}
 				table.insert(nzPlayers.StoredSpawnData, savedata)

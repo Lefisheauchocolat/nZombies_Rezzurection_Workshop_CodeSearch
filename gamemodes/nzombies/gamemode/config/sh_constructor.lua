@@ -89,6 +89,7 @@ local zombieconfig = {
 	"walker_necromorph",
 	"walker_xeno",
 	"walker_fredricks",
+	"walker_fredricks_canon",
 	"walker_former",
 	"walker_kleiner",
 	"walker_cheaple",
@@ -133,6 +134,8 @@ local zombieconfig = {
 	"walker_nut",
 	"walker_quartz_lab",
 	"walker_quartz_hazmat",
+	"walker_seal",
+	"walker_lmghost",
 
 	"special_alien_scout",
 	"special_alien_scorpion",
@@ -204,7 +207,10 @@ local zombieconfig = {
 	"special_cloverfield",
 	"special_l4d_charger",
 	"special_toxic_hazmat",
+	"special_toxic_hazmat_codol",
 	"special_toxic_hazmat_zhd",
+	"special_scrake",
+	"special_goliathcodol",
 	
 	"special_raz",
 	"special_raz_jup",

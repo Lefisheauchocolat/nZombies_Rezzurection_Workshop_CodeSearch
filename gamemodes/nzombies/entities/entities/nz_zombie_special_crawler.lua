@@ -128,7 +128,6 @@ function ENT:StatsInitialize()
 			self:SetHealth( nzRound:GetZombieHealth() )
 		end
 		
-		self:SetCollisionBounds(Vector(-20,-20, 0), Vector(20, 20, 70))
 		self:SetRunSpeed(36)
 		
 		self.JumpCooldown = CurTime() + 2

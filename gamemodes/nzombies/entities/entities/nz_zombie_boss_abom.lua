@@ -7,17 +7,17 @@ ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 
 function ENT:InitDataTables()
-	self:NetworkVar("Bool", 5, "OpenMidHead")
-	self:NetworkVar("Bool", 6, "OpenLeftHead")
-	self:NetworkVar("Bool", 7, "OpenRightHead")
-	self:NetworkVar("Bool", 8, "UsingLaser")
+	self:NetworkVar("Bool", 6, "OpenMidHead")
+	self:NetworkVar("Bool", 7, "OpenLeftHead")
+	self:NetworkVar("Bool", 8, "OpenRightHead")
+	self:NetworkVar("Bool", 9, "UsingLaser")
 end
 
 if CLIENT then 
 	function ENT:PostDraw()
 		if self:Alive() then
 			if !IsValid(self) then return end
-			local color = Color(93,0,255)
+			local color = Color(95,10,255)
 			if (!self.Draw_FX or !IsValid(self.Draw_FX)) and (self:GetOpenMidHead() or self:GetOpenLeftHead() or self:GetOpenRightHead()) then
 				if self:GetOpenRightHead() then
 					self.Draw_FX = CreateParticleSystem(self, "zmb_mimic_mouth", PATTACH_POINT_FOLLOW, 17)
@@ -29,6 +29,11 @@ if CLIENT then
 				self.Draw_FX:SetControlPoint(2, Vector(color.r/255, color.g/255, color.b/255)) -- Color
 			end
 			if (self.Draw_FX or IsValid(self.Draw_FX)) and (!self:GetOpenMidHead() and !self:GetOpenLeftHead() and !self:GetOpenRightHead()) then
+				self.Draw_FX:StopEmission(false, true)
+				self.Draw_FX = nil
+			end
+		else
+			if (self.Draw_FX or IsValid(self.Draw_FX)) then
 				self.Draw_FX:StopEmission(false, true)
 				self.Draw_FX = nil
 			end
@@ -357,6 +362,12 @@ function ENT:StatsInitialize()
 
 		self.OpenMouthTime = CurTime() + 3
 		self.NextMouthOpen = CurTime() + math.Rand(3.5, 7.5)
+
+		self.HeadTbl = {
+			[1] = 1,
+			[2] = 2,
+			[3] = 3,
+		}
 	end
 end
 
@@ -393,6 +404,14 @@ end
 
 function ENT:PerformDeath(dmgInfo)	
 	self.Dying = true
+
+	if self.MidHead then
+		self:PopMidHeadEffect()
+	elseif self.LeftHead then
+		self:PopLeftHeadEffect()
+	elseif self.RightHead then
+		self:PopRightHeadEffect()
+	end
 
 	self:StopLaser()
 	self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
@@ -443,6 +462,7 @@ function ENT:PostAttack()
 	if self.StopBullCharge then
 		self.StopBullCharge = false
 		self.Enraged = false -- No longer enraged after a charge
+		self.BlockBigJumpThink = false
 
 
 		self:SetRunSpeed(1)
@@ -471,6 +491,12 @@ function ENT:AI()
 		if !initiatethelaser then 
 			initiatethelaser = true 
 
+			self:SetAttackRange(1)
+
+			self:SetOpenMidHead(false)
+			self:SetOpenLeftHead(false)
+			self:SetOpenRightHead(false)
+
 			self:TempBehaveThread(function(self)
 				self:SetSpecialAnimation(true)
 				self:PlaySequenceAndMove(self.LaserChargeSequences[math.random(#self.LaserChargeSequences)])
@@ -486,6 +512,7 @@ function ENT:AI()
 		if CurTime() > self.BullChargeCooldown and !self.BullCharge and !self.IsTurned and math.random(100) <= 50 then
 
 			self.BullCharge = true
+			self.BlockBigJumpThink = true
 			self.BullChargeTime = CurTime() + math.Rand(4.25, 4.95)
 
 			self:SetRunSpeed(155)
@@ -509,6 +536,7 @@ function ENT:AI()
 		self.BullChargeCooldown = CurTime() + 12
 
 		self.Enraged = false -- No longer enraged after a charge
+		self.BlockBigJumpThink = false -- allow interaction with big jumps again.
 
 		self:SetRunSpeed(36)
 		self:SpeedChanged()
@@ -521,16 +549,21 @@ function ENT:AI()
 	-- OPEN MOUTH
 	if !self:GetSpecialAnimation() or !self.BullCharge or !self.StandingLaser then
 		if CurTime() > self.NextMouthOpen then
-			local maxheads = 3 - self.HeadCount
+			local randomhead = table.Random(self.HeadTbl)
+			--print(randomhead)
 
 			self.NextMouthOpen = CurTime() + math.Rand(3.25, 6.15)
 			self.OpenMouthTime = CurTime() + 1.95
-			if maxheads == 3 then -- A dreaded elseif pyramid.
-				self:SetOpenRightHead(true)
-			elseif maxheads == 2 then
-				self:SetOpenLeftHead(true)
-			else
+			
+
+			if randomhead == 1 and self.MidHead then
 				self:SetOpenMidHead(true)
+			end
+			if randomhead == 2 and self.LeftHead then
+				self:SetOpenLeftHead(true)
+			end
+			if randomhead == 3 and self.RightHead then
+				self:SetOpenRightHead(true)
 			end
 		end
 
@@ -602,6 +635,7 @@ end
 function ENT:FiringMyLaser()
 	self:SetUsingLaser(true)
 	if self:GetUsingLaser() then
+
 		self:SetStuckCounter(0)
 		self.NextLaserTrace = CurTime()
 
@@ -643,6 +677,8 @@ end
 
 function ENT:StopLaser()
 	if self:GetUsingLaser() then
+		self:SetAttackRange(self.AttackRange)
+		
 		self:StopParticles()
 		self:SetStop(false)
 		self.StandingLaser = false
@@ -701,130 +737,171 @@ function ENT:OnInjured(dmginfo)
 
 	local attacker = dmginfo:GetAttacker()
 
-
 	local middlehead = self:GetBonePosition(self:LookupBone("j_head"))
-
 	local lefthead = self:GetBonePosition(self:LookupBone("j_head_le"))
-
 	local righthead = self:GetBonePosition(self:LookupBone("j_head_ri"))
+
+	local healththreshold1 = self:GetMaxHealth() * 0.65
+	local healththreshold2 = self:GetMaxHealth() * 0.35
 
 	if math.random(100) <= 25 and !self.Enraged then
 		self.Enraged = true
 	end
 
-	if hitpos:DistToSqr(middlehead) < 35^2 and self.MidHead and self:GetOpenMidHead() and CurTime() > self.IFrames then
-		if self.MidHeadHP > 0 then
-			self.MidHeadHP = self.MidHeadHP - damage
-
-			self:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], 95, math.random(95,105))
-			attacker:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], SNDLVL_GUNFIRE, math.random(95,105))
-		else
-			self.IFrames = CurTime() + 3
-			self.LostAHead = true
-			self.MidHead = false
-			self.HeadCount = self.HeadCount + 1
-			self:SetBodygroup(1,1)
-    		ParticleEffectAttach("hcea_hunter_shade_cannon_explode_ergy_fbl_trcr_ball_smk", 4, self, 2)
-    		self:EmitSound(self.HeadExploSounds[math.random(#self.HeadExploSounds)], 511)
-
-			self:SetOpenMidHead(false)
-			self:SetOpenLeftHead(false)
-			self:SetOpenRightHead(false)
-			
-    		if IsValid(attacker) then
-    			attacker:GivePoints(500)
-    		end
-    		timer.Simple(engine.TickInterval(), function()
-				if self.HeadCount >= 3 then
-					self:OnKilled(dmginfo)
-				else
-					self:TempBehaveThread(function(self)
-						self:SetSpecialAnimation(true)
-						self:SolidMaskDuringEvent(MASK_PLAYERSOLID, collision)
-						self:PlaySequenceAndMove("nz_ai_abom_shot_middle_head", {gravity = true})
-						self:CollideWhenPossible()
-						self:SetSpecialAnimation(false) -- Stops them from going back to idle.
-					end)
-				end
-			end)
-		end
-	end
-	if hitpos:DistToSqr(lefthead) < 33^2 and self.LeftHead and self:GetOpenLeftHead() and CurTime() > self.IFrames then
-		if self.LeftHeadHP > 0 then
-			self.LeftHeadHP = self.LeftHeadHP - damage
-
-			self:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], 95, math.random(95,105))
-			attacker:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], SNDLVL_GUNFIRE, math.random(95,105))
-		else
-			self.IFrames = CurTime() + 3
-			self.LostAHead = true
-			self.LeftHead = false
-			self.HeadCount = self.HeadCount + 1
-			self:SetBodygroup(2,1)
-    		ParticleEffectAttach("hcea_hunter_shade_cannon_explode_ergy_fbl_trcr_ball_smk", 4, self, 3)
-    		self:EmitSound(self.HeadExploSounds[math.random(#self.HeadExploSounds)], 511)
-
-			self:SetOpenMidHead(false)
-			self:SetOpenLeftHead(false)
-			self:SetOpenRightHead(false)
-			
-    		if IsValid(attacker) then
-    			attacker:GivePoints(500)
-    		end
-    		timer.Simple(engine.TickInterval(), function()
-				if self.HeadCount >= 3 then
-					self:OnKilled(dmginfo)
-				else
-					self:TempBehaveThread(function(self)
-						self:SetSpecialAnimation(true)
-						self:SolidMaskDuringEvent(MASK_PLAYERSOLID, collision)
-						self:PlaySequenceAndMove("nz_ai_abom_shot_left_head", {gravity = true})
-						self:CollideWhenPossible()
-						self:SetSpecialAnimation(false) -- Stops them from going back to idle.
-					end)
-				end
-			end)
-		end
-	end
-	if hitpos:DistToSqr(righthead) < 33^2 and self.RightHead and self:GetOpenRightHead() and CurTime() > self.IFrames then
-		if self.RightHeadHP > 0 then
-			self.RightHeadHP = self.RightHeadHP - damage
-
-			self:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], 95, math.random(95,105))
-			attacker:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], SNDLVL_GUNFIRE, math.random(95,105))
-		else
-			self.IFrames = CurTime() + 3
-			self.LostAHead = true
-			self.RightHead = false
-			self.HeadCount = self.HeadCount + 1
-			self:SetBodygroup(3,1)
-    		ParticleEffectAttach("hcea_hunter_shade_cannon_explode_ergy_fbl_trcr_ball_smk", 4, self, 4)
-    		self:EmitSound(self.HeadExploSounds[math.random(#self.HeadExploSounds)], 511)
-
-			self:SetOpenMidHead(false)
-			self:SetOpenLeftHead(false)
-			self:SetOpenRightHead(false)
-			
-    		if IsValid(attacker) then
-    			attacker:GivePoints(500)
-    		end
-    		timer.Simple(engine.TickInterval(), function()
-				if self.HeadCount >= 3 then
-					self:OnKilled(dmginfo)
-				else
-					self:TempBehaveThread(function(self)
-						self:SetSpecialAnimation(true)
-						self:SolidMaskDuringEvent(MASK_PLAYERSOLID, collision)
-						self:PlaySequenceAndMove("nz_ai_abom_shot_right_head", {gravity = true})
-						self:CollideWhenPossible()
-						self:SetSpecialAnimation(false) -- Stops them from going back to idle.
-					end)
-				end
-			end)
+	if CurTime() > self.IFrames and !self:GetUsingLaser() then
+		if self:Health() <= healththreshold1 and self.HeadCount == 0 then
+			self:TestMiddleHead(dmginfo)
+			self:TestLeftHead(dmginfo)
+			self:TestRightHead(dmginfo)
+		elseif self:Health() <= healththreshold2 and self.HeadCount == 1 then
+			self:TestMiddleHead(dmginfo)
+			self:TestLeftHead(dmginfo)
+			self:TestRightHead(dmginfo)
 		end
 	end
 
-	dmginfo:ScaleDamage(0.05) -- My fella here takes a small amount of damage normally... Shoot their heads.
+	if hitpos:DistToSqr(middlehead) < 35^2 and self.MidHead and self:GetOpenMidHead() then
+		self:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], 95, math.random(95,105))
+		attacker:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], SNDLVL_GUNFIRE, math.random(95,105))
+		dmginfo:ScaleDamage(0.45)
+	elseif hitpos:DistToSqr(lefthead) < 33^2 and self.LeftHead and self:GetOpenLeftHead() then
+		self:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], 95, math.random(95,105))
+		attacker:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], SNDLVL_GUNFIRE, math.random(95,105))
+		dmginfo:ScaleDamage(0.45)
+	elseif hitpos:DistToSqr(righthead) < 33^2 and self.RightHead and self:GetOpenRightHead() then
+		self:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], 95, math.random(95,105))
+		attacker:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], SNDLVL_GUNFIRE, math.random(95,105))
+		dmginfo:ScaleDamage(0.45)
+	else
+		if self:GetUsingLaser() then
+			dmginfo:ScaleDamage(0.125)
+		else
+			dmginfo:ScaleDamage(0.01) -- My fella here takes a small amount of damage normally... Shoot their heads.
+		end
+	end
+end
+
+function ENT:PopMidHeadEffect()
+	self:SetBodygroup(1,1)
+	ParticleEffectAttach("hcea_hunter_shade_cannon_explode_ergy_fbl_trcr_ball_smk", 4, self, 2)
+	self:EmitSound(self.HeadExploSounds[math.random(#self.HeadExploSounds)], 511)
+end
+
+function ENT:PopLeftHeadEffect()
+	self:SetBodygroup(2,1)
+	ParticleEffectAttach("hcea_hunter_shade_cannon_explode_ergy_fbl_trcr_ball_smk", 4, self, 3)
+	self:EmitSound(self.HeadExploSounds[math.random(#self.HeadExploSounds)], 511)
+end
+
+function ENT:PopRightHeadEffect()
+	self:SetBodygroup(3,1)
+	ParticleEffectAttach("hcea_hunter_shade_cannon_explode_ergy_fbl_trcr_ball_smk", 4, self, 4)
+	self:EmitSound(self.HeadExploSounds[math.random(#self.HeadExploSounds)], 511)
+end
+
+function ENT:TestMiddleHead(dmginfo)
+	local hitpos = dmginfo:GetDamagePosition()
+	local middlehead = self:GetBonePosition(self:LookupBone("j_head"))
+	if hitpos:DistToSqr(middlehead) < 35^2 and self.MidHead and self:GetOpenMidHead() then
+		local attacker = dmginfo:GetAttacker()
+
+		self.IFrames = CurTime() + 3
+		self.LostAHead = true
+		self.MidHead = false
+		self.HeadCount = self.HeadCount + 1
+
+		self:StopLaser()
+		self:PopMidHeadEffect()
+
+		self:SetOpenMidHead(false)
+		self:SetOpenLeftHead(false)
+		self:SetOpenRightHead(false)
+				
+	    if IsValid(attacker) then
+	    	attacker:GivePoints(500)
+	    end
+	    timer.Simple(engine.TickInterval(), function()
+			if self.HeadCount <= 2 then
+				self:TempBehaveThread(function(self)
+					self:SetSpecialAnimation(true)
+					self:SolidMaskDuringEvent(MASK_PLAYERSOLID, collision)
+					self:PlaySequenceAndMove("nz_ai_abom_shot_middle_head", {gravity = true})
+					self:CollideWhenPossible()
+					self:SetSpecialAnimation(false) -- Stops them from going back to idle.
+				end)
+			end
+		end)
+	end
+end
+
+function ENT:TestLeftHead(dmginfo)
+	local hitpos = dmginfo:GetDamagePosition()
+	local lefthead = self:GetBonePosition(self:LookupBone("j_head_le"))
+	if hitpos:DistToSqr(lefthead) < 33^2 and self.LeftHead and self:GetOpenLeftHead() then
+		local attacker = dmginfo:GetAttacker()
+
+		self.IFrames = CurTime() + 3
+		self.LostAHead = true
+		self.LeftHead = false
+		self.HeadCount = self.HeadCount + 1
+
+		self:StopLaser()
+		self:PopLeftHeadEffect()
+
+		self:SetOpenMidHead(false)
+		self:SetOpenLeftHead(false)
+		self:SetOpenRightHead(false)
+				
+	    if IsValid(attacker) then
+	    	attacker:GivePoints(500)
+	    end
+	    timer.Simple(engine.TickInterval(), function()
+			if self.HeadCount <= 2 then
+				self:TempBehaveThread(function(self)
+					self:SetSpecialAnimation(true)
+					self:SolidMaskDuringEvent(MASK_PLAYERSOLID, collision)
+					self:PlaySequenceAndMove("nz_ai_abom_shot_left_head", {gravity = true})
+					self:CollideWhenPossible()
+					self:SetSpecialAnimation(false) -- Stops them from going back to idle.
+				end)
+			end
+		end)
+	end
+end
+
+function ENT:TestRightHead(dmginfo)
+	local hitpos = dmginfo:GetDamagePosition()
+	local righthead = self:GetBonePosition(self:LookupBone("j_head_ri"))
+	if hitpos:DistToSqr(righthead) < 33^2 and self.RightHead and self:GetOpenRightHead() then
+		local attacker = dmginfo:GetAttacker()
+
+		self.IFrames = CurTime() + 3
+		self.LostAHead = true
+		self.RightHead = false
+		self.HeadCount = self.HeadCount + 1
+
+		self:StopLaser()
+		self:PopRightHeadEffect()
+
+		self:SetOpenMidHead(false)
+		self:SetOpenLeftHead(false)
+		self:SetOpenRightHead(false)
+				
+	    if IsValid(attacker) then
+	    	attacker:GivePoints(500)
+	    end
+	    timer.Simple(engine.TickInterval(), function()
+			if self.HeadCount <= 2 then
+				self:TempBehaveThread(function(self)
+					self:SetSpecialAnimation(true)
+					self:SolidMaskDuringEvent(MASK_PLAYERSOLID, collision)
+					self:PlaySequenceAndMove("nz_ai_abom_shot_right_head", {gravity = true})
+					self:CollideWhenPossible()
+					self:SetSpecialAnimation(false) -- Stops them from going back to idle.
+				end)
+			end
+		end)
+	end
 end
 
 function ENT:CustomAnimEvent(a,b,c,d,e) 
@@ -855,7 +932,7 @@ function ENT:CustomAnimEvent(a,b,c,d,e)
 	end
 	if e == "abom_roar_quick" then
 		self.NextSound = CurTime() + self.SoundDelayMax
-		self:PlaySound(self.RoarSounds[math.random(#self.RoarSounds)],vol, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
+		self:PlaySound(self.RoarSounds[math.random(#self.RoarSounds)],95, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 	end
 	if e == "abom_explode" then
 		self:EmitSound(self.ExplodeSounds[math.random(#self.ExplodeSounds)], SNDLVL_GUNFIRE, math.random(95,105))

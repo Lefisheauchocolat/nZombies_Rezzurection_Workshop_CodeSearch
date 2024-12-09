@@ -25,8 +25,11 @@ local nz_betterscaling = GetConVar("nz_hud_better_scaling")
 local nz_bloodoverlay = GetConVar("nz_bloodoverlay")
 
 local zmhud_icon_revive = Material("nz_moo/huds/cod5/waypoint_revive.png", "unlitgeneric smooth")
-local zmhud_blood_overlay = Material("materials/nz_moo/huds/t7/i_blood_damage_c.png", "unlitgeneric smooth")
-local zmhud_blood_highlight = Material("materials/nz_moo/huds/t7/i_blood_highlights_c.png", "unlitgeneric smooth")
+local zmhud_blood_overlay = Material("nz_moo/huds/t7/i_blood_damage_c.png", "unlitgeneric smooth")
+local zmhud_blood_highlight = Material("nz_moo/huds/t7/i_blood_highlights_c.png", "unlitgeneric smooth")
+local CircleMaterial = Material("color")
+local zmhud_perk_pointer = Material("nz_moo/huds/t6/hud_arrow_down.png", "unlitgeneric smooth")
+local zmhud_perk_pointer_up = Material("nz_moo/huds/t6/hud_arrow_up.png", "unlitgeneric smooth")
 
 local vector_up_35 = Vector(0,0,35)
 
@@ -106,7 +109,7 @@ local function DrawColorModulation()
 	local ply = LocalPlayer()
 	if IsValid(ply:GetObserverTarget()) then ply = ply:GetObserverTarget() end
 
-	if nzRevive.Players[ply:EntIndex()] then
+	if nzRevive.Players[ply:EntIndex()] and !nzRound:InState(ROUND_GO) then
 		local fadeadd = ((1/(ply.GetBleedoutTime and ply:GetBleedoutTime() or nz_bleedouttime:GetFloat())) * FrameTime()) * -1
 		tab[ "$pp_colour_addr" ] = math.Approach(tab[ "$pp_colour_addr" ], 0.28, fadeadd *-0.28)
 		tab[ "$pp_colour_mulr" ] = math.Approach(tab[ "$pp_colour_mulr" ], 1, -fadeadd)
@@ -134,7 +137,7 @@ local function DrawDownedPlayers()
 		if not data.DownTime then continue end
 		
 		local revivor = data.RevivePlayer
-		if IsValid(revivor) and revivor == pply then continue end
+		//if IsValid(revivor) and revivor == pply then continue end
 
 		local ppos = ply:GetPos()
 		local posxy = (ppos + vector_up_35):ToScreen()
@@ -154,7 +157,7 @@ local function DrawDownedPlayers()
 
 		if IsValid(revivor) and data.ReviveTime then
 			local hasrevive = revivor:HasPerk("revive")
-			local revtime = ply:GetReviveTime(revivor)
+			local revtime = revivor:GetReviveTime()
 			local revivescale = math.Clamp((CurTime() - data.ReviveTime) / revtime, 0, 1)
 
 			surface.SetDrawColor(color_white)
@@ -180,7 +183,7 @@ local function DrawRevivalProgress()
 	local id = reviving:EntIndex()
 
 	local hasrevive = ply:HasPerk("revive")
-	local revtime = reviving:GetReviveTime(ply)
+	local revtime = ply:GetReviveTime()
 	local bleedtime = nz_bleedouttime:GetFloat()
 	local w, h = ScrW(), ScrH()
 	local pscale = 1
@@ -189,7 +192,7 @@ local function DrawRevivalProgress()
 	end
 
 	local data = nzRevive.Players[id]
-	if data and data.RevivePlayer == ply then
+	if data and data.RevivePlayer == ply and ply ~= reviving then
 		local revivescale = math.Clamp((CurTime() - data.ReviveTime) / revtime, 0, 1)
 
 		if data.DownTime then
@@ -243,7 +246,7 @@ local function DrawDownedNotify()
 		}
 	end
 
-	if downdata then
+	if downdata and ply.Alive and ply.IsInCreative and (ply:Alive() or ply:IsInCreative()) then
 		if not ply.downambience then
 			ply.downstring = downdata.loop
 			ply.downambience = CreateSound(ply, downdata.loop)
@@ -254,24 +257,24 @@ local function DrawDownedNotify()
 			ply.downambience = CreateSound(ply, downdata.loop)
 		end
 
-		if !ply:GetNotDowned() and not downed then
+		if !ply:GetNotDowned() and not downed and !nzRound:InState(ROUND_GO) then
 			downed = true
 			downdelay = CurTime() + downdata.delay
 			if downdata.down then
 				surface.PlaySound(downdata.down)
 			end
 		end
-		if (not ply:Alive() or ply:GetNotDowned()) and downed then
+		if (not ply:Alive() or ply:GetNotDowned() or nzRound:InState(ROUND_GO)) and downed then
 			downed = false
 		end
 
-		if downed then
+		if downed and !nzRound:InState(ROUND_GO) then
 			if downdelay < CurTime() then
 				ply.downambience:Play()
 				ply.downambience:ChangeVolume(downdata.volume,0)
 			end
 		else
-			if downdata.revive and ply.downambience:IsPlaying() then
+			if downdata.revive and ply.downambience:IsPlaying() and !nzRound:InState(ROUND_GO) then
 				ply:EmitSound(downdata.revive)
 			end
 			ply.downambience:Stop()
@@ -292,13 +295,23 @@ local function DrawDownedNotify()
 				font = ("nz.points."..GetFontType(nzMapping.Settings.smallfont))
 			end
 
-			draw.SimpleTextOutlined(rply:Nick().." is reviving you!", font, w/2, h - 280*pscale, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, color_black_180)
+			surface.SetFont(font)
+			local wt, ht = surface.GetTextSize("I")
+
+			draw.SimpleTextOutlined(rply:Nick().." is reviving you!", font, w/2, h - 220*pscale - ht - 5*pscale, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, color_black_180)
 		end
 	end
 end
 
 local function DrawDownedHeadsUp()
 	if not cl_drawhud:GetBool() then return end
+	if nzRound:InState(ROUND_GO) then
+		if !table.IsEmpty(nzRevive.Notify) then
+			table.Empty(nzRevive.Notify)
+		end
+		return
+	end
+
 	local font = ("nz.small."..GetFontType(nzMapping.Settings.smallfont))
 
 	local w, h = ScrW(), ScrH()
@@ -471,8 +484,164 @@ local function DrawWhosWhoProgress()
 	end
 end
 
+local math_cos = math.cos
+local math_sin = math.sin
+local math_rad = math.rad
+local color_grey_100 = Color(100,100,100,255)
+local color_red_70 = Color(255, 70, 70, 255)
+local color_yellow_70 = Color(255, 255, 70, 255)
+local nz_bleedoutstyle = GetConVar("nz_hud_bleedout_style")
+
+local function DrawBleedoutProgress()
+	if not cl_drawhud:GetBool() then return end
+	if nzRound:InState(ROUND_GO) then return end
+
+	local ply = LocalPlayer()
+	if IsValid(ply:GetObserverTarget()) then
+		ply = ply:GetObserverTarget()
+	end
+
+	local id = ply:EntIndex()
+	local data = nzRevive.Players[id]
+	if not data or not data.DownTime then return end
+	if not data.PerksToKeep then return end
+	
+	local perks = data.PerksToKeep
+	if next(perks) == nil then return end
+
+	local CT = CurTime()
+
+	local bleedtime = ply.GetBleedoutTime and ply:GetBleedoutTime() or nz_bleedouttime:GetFloat()
+	local revtime = ply:GetReviveTime()
+	local timetodeath = data.DownTime + bleedtime - CT
+	local progress = 1 - math.Clamp((CT - data.DownTime) / bleedtime, 0, 1)
+	local reviving = data.ReviveTime
+	if reviving then
+		progress = math.Clamp((CT - data.ReviveTime) / revtime, 0, 1)
+	end
+
+	local style = nz_bleedoutstyle:GetInt()
+	if style == 0 then
+		for k, perkdata in ipairs(perks) do
+			if (timetodeath / bleedtime) <= perkdata.prc and !perkdata.lost and !reviving then
+				perkdata.lost = true
+			end
+		end
+		return
+	end
+
+	local w, h = ScrW(), ScrH()
+	local pscale = 1
+	if nz_betterscaling:GetBool() then
+		pscale = (w/1920 + 1)/2
+	end
+
+	local icon_x = (w/2)
+	local icon_y = (h/2 + 120*pscale)
+
+	if progress > 0 then
+		if style == 2 then
+			local angle = 360 * progress
+			local pipouter = 56*pscale + 6*pscale
+			local perkouter = 88*pscale + 6*pscale
+
+			surface.SetMaterial(CircleMaterial)
+
+			surface.SetDrawColor(color_black_100)
+			surface.DrawArc(icon_x, icon_y, 42*pscale, -40*pscale, 270 - 360, 270, 48)
+
+			surface.SetDrawColor(color_black_180)
+			surface.DrawArc(icon_x, icon_y, 42*pscale, 10*pscale, 270 - 360, 270, 48)
+
+			surface.SetDrawColor(reviving and color_white or color_red_70)
+			surface.DrawArc(icon_x, icon_y, 44*pscale, 6*pscale, 270 - angle, 270, 48)
+
+			local pulse = math.abs(math.sin(CT*4))
+			local finalpulse = math.Remap(pulse, 0, 1, 0.8, 1)
+
+			local sizex = 50*finalpulse
+			local sizey = 16*finalpulse
+			local bigx = 54*finalpulse
+			local bigy = 20*finalpulse
+
+			surface.SetDrawColor(ColorAlpha(reviving and color_white or color_yellow_70, 60))
+			surface.DrawRect(icon_x - (bigx/2)*pscale, icon_y - (bigy/2)*pscale, bigx*pscale, bigy*pscale)
+
+			surface.SetDrawColor(reviving and color_white or color_yellow_70)
+			surface.DrawRect(icon_x - (sizex/2)*pscale, icon_y - (sizey/2)*pscale, sizex*pscale, sizey*pscale)
+
+			surface.SetDrawColor(ColorAlpha(reviving and color_white or color_yellow_70, 60))
+			surface.DrawRect(icon_x - (bigy/2)*pscale, icon_y - (bigx/2)*pscale, bigy*pscale, bigx*pscale)
+
+			surface.SetDrawColor(reviving and color_white or color_yellow_70)
+			surface.DrawRect(icon_x - (sizey/2)*pscale, icon_y - (sizex/2)*pscale, sizey*pscale, sizex*pscale)
+
+			surface.SetDrawColor(color_white)
+
+			for k, perkdata in ipairs(perks) do
+				if (timetodeath / bleedtime) <= perkdata.prc and !perkdata.lost and !reviving then
+					perkdata.lost = true
+				end
+
+				local fuck = 270 - (360 * perkdata.prc)
+				local ourang = math_rad(fuck)
+
+				local pipx = icon_x + math_cos(ourang) * pipouter
+				local pipy = icon_y + math_sin(ourang) * pipouter
+
+				surface.SetMaterial(zmhud_perk_pointer)
+				surface.DrawTexturedRectRotated(pipx, pipy, 32*pscale, 32*pscale, (360 * perkdata.prc))
+
+				local perkx = icon_x + math_cos(ourang) * perkouter
+				local perky = icon_y + math_sin(ourang) * perkouter
+
+				surface.SetDrawColor(perkdata.lost and color_grey_100 or color_white)
+				surface.SetMaterial(GetPerkIconMaterial(perkdata.id))
+				surface.DrawTexturedRect(perkx - 26*pscale, perky - 26*pscale, 52*pscale, 52*pscale)
+
+				surface.SetDrawColor(color_white)
+				surface.SetMaterial(GetPerkFrameMaterial())
+				surface.DrawTexturedRect(perkx - 26*pscale, perky - 26*pscale, 52*pscale, 52*pscale)
+			end
+		else
+			local size = 500*pscale
+			local bar_y = (h/2 + 120*pscale)
+			surface.SetDrawColor(color_black_180)
+			surface.DrawRect(w/2 - (size/2) - 3*pscale, bar_y, size + 6*pscale, 20*pscale)
+
+			surface.SetDrawColor(reviving and color_white or color_red_70)
+			surface.DrawRect(w/2 - (size/2), bar_y + 3*pscale, size*progress, 14*pscale)
+
+			if not data.PerksToKeep then return end
+			local perks = data.PerksToKeep
+
+			surface.SetDrawColor(color_white)
+
+			for k, perkdata in ipairs(perks) do
+				if (timetodeath / bleedtime) <= perkdata.prc and !perkdata.lost and !reviving then
+					perkdata.lost = true
+				end
+
+				local fuck = size*(1 - perkdata.prc)
+
+				surface.SetMaterial(zmhud_perk_pointer_up)
+				surface.DrawTexturedRect(w/2 + size/2 - fuck - 16*pscale, bar_y + 24*pscale, 32*pscale, 32*pscale)
+
+				surface.SetDrawColor(perkdata.lost and color_grey_100 or color_white)
+				surface.SetMaterial(GetPerkIconMaterial(perkdata.id))
+				surface.DrawTexturedRect(w/2 + size/2 - fuck - 26*pscale, bar_y + 42*pscale, 52*pscale, 52*pscale)
+
+				surface.SetDrawColor(color_white)
+				surface.SetMaterial(GetPerkFrameMaterial())
+				surface.DrawTexturedRect(w/2 + size/2 - fuck - 26*pscale, bar_y + 42*pscale, 52*pscale, 52*pscale)
+			end
+		end
+	end
+end
+
 -- Hooks
 hook.Add("RenderScreenspaceEffects", "DrawColorModulation", DrawColorModulation )
+hook.Add("HUDPaint", "DrawBleedoutProgress", DrawBleedoutProgress )
 hook.Add("HUDPaint", "DrawDamageOverlay", DrawDamageOverlay )
 hook.Add("HUDPaint", "DrawDownedNotify", DrawDownedNotify )
 hook.Add("HUDPaint", "DrawDownedPlayersNotify", DrawDownedHeadsUp )

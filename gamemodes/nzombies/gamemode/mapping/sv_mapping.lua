@@ -394,6 +394,9 @@ function nzMapping:PlayerSpawn(pos, angle, data, ply)
 		if data.doorflag3 then
 			ent:SetDoorFlag3(tostring(data.doorflag3))
 		end
+		if data.preferred ~= nil then
+			ent:SetPreferred(tobool(data.preferred))
+		end
 	end
 
 	ent:Spawn()
@@ -429,28 +432,6 @@ function nzMapping:EasterEgg(pos, ang, tab, ply)
 		undo.Finish( "Effect" )
 	end
 	return egg
-end
-
-function nzMapping:AmmoBox(pos, ang, model, ply)
-	local ammobox = ents.Create( "ammo_box" )
-	ammobox:SetModel( model )
-	ammobox:SetPos( pos )
-	ammobox:SetPrice( 4500 )
-	ammobox:SetAngles( ang )
-	ammobox:Spawn()
-
-	local phys = ammobox:GetPhysicsObject()
-	if phys:IsValid() then
-		phys:EnableMotion(false)
-	end
-
-	if ply then
-		undo.Create( "Ammo Box" )
-			undo.SetPlayer( ply )
-			undo.AddEntity( ammobox )
-		undo.Finish( "Effect (" .. tostring( model ) .. ")" )
-	end
-	return ammobox
 end
 
 function nzMapping:StinkyLever(pos, ang, ply)
@@ -585,6 +566,9 @@ function nzMapping:Electric(pos, ang, data, ply)
 	end
 	if data.resettime then
 		ent:SetResetTime(tonumber(data.resettime))
+	end
+	if data.model then
+		ent:SetPowerSwitchModel(tonumber(data.model))
 	end
 
 	ent:Spawn()
@@ -731,7 +715,7 @@ function nzMapping:PerkCratePile(pos, ang, data, oldperk)
 	return perk
 end
 
-function nzMapping:PerkMachine(pos, ang, data, ply)
+function nzMapping:PerkMachine(pos, ang, data, ply, fizzprice)
 	if not data then return end
 
 	if istable(data) then
@@ -741,6 +725,11 @@ function nzMapping:PerkMachine(pos, ang, data, ply)
 			local perk = ents.Create("wunderfizz_machine")
 			perk:SetPos(pos)
 			perk:SetAngles(ang)
+
+			if data.price and data.price > 0 then
+				perk.PriceOverride = tonumber(data.price)
+			end
+
 			perk:Spawn()
 			perk:Activate()
 			perk:PhysicsInit( SOLID_VPHYSICS )
@@ -764,19 +753,19 @@ function nzMapping:PerkMachine(pos, ang, data, ply)
 			perk:TurnOff()
 
 			if data.random then
-				perk.Randomize = tobool(data.random)
+				perk:SetRandomize(tobool(data.random))
 			end
 			if data.fizzlist then
-				perk.RandomizeFizzlist = tobool(data.fizzlist)
+				perk:SetRandomizeFizz(tobool(data.fizzlist))
 			end
 			if data.randomround then
-				perk.RandomizeRoundStart = tobool(data.randomround)
+				perk:SetRandomizeRounds(tobool(data.randomround))
 			end
 			if data.roundnum then
-				perk.RandomizeRoundInterval = tonumber(data.roundnum)
+				perk:SetRandomizeInterval(tonumber(data.roundnum))
 			end
 			if data.door then
-				perk.HideBehindDoor = tobool(data.door)
+				perk:SetDoorActivated(tobool(data.door))
 			end
 			if data.doorflag then
 				perk.DoorFlag = tostring(data.doorflag)
@@ -786,6 +775,12 @@ function nzMapping:PerkMachine(pos, ang, data, ply)
 			end
 			if data.doorflag3 then
 				perk.DoorFlag3 = tostring(data.doorflag3)
+			end
+			if data.price and data.price > 0 then
+				perk.PriceOverride = tonumber(data.price)
+			end
+			if data.priceupg and data.priceupg > 0 then
+				perk.PriceOverrideUpgrade = tonumber(data.priceupg)
 			end
 
 			perk:SetPos(pos)
@@ -812,9 +807,14 @@ function nzMapping:PerkMachine(pos, ang, data, ply)
 		local perk = ents.Create("wunderfizz_machine")
 		perk:SetPos(pos)
 		perk:SetAngles(ang)
+
+		if fizzprice then
+			perk.PriceOverride = fizzprice
+		end
+
 		perk:Spawn()
 		perk:Activate()
-		perk:PhysicsInit( SOLID_VPHYSICS )
+		perk:PhysicsInit(SOLID_VPHYSICS)
 		perk:TurnOff()
 
 		local phys = perk:GetPhysicsObject()
@@ -832,12 +832,17 @@ function nzMapping:PerkMachine(pos, ang, data, ply)
 	else
 		local perk = ents.Create("perk_machine")
 		perk:SetPerkID(data)
-		perk:TurnOff()
 		perk:SetPos(pos)
 		perk:SetAngles(ang)
+
+		if fizzprice then
+			perk.PriceOverride = fizzprice
+		end
+
 		perk:Spawn()
 		perk:Activate()
-		perk:PhysicsInit( SOLID_VPHYSICS )
+		perk:PhysicsInit(SOLID_VPHYSICS)
+		perk:TurnOff()
 
 		local phys = perk:GetPhysicsObject()
 		if phys:IsValid() then
@@ -1163,15 +1168,16 @@ function nzMapping:CreateAntiCheatExclusion(vec1, vec2, ply)
 	return wall
 end
 
-function nzMapping:CreateInvisibleDamageWall(vec1, vec2, ply, dmg, delay, dmgtype, respawnz)
+function nzMapping:CreateInvisibleDamageWall(vec1, vec2, ply, dmg, delay, dmgtype, respawnz, elec)
 	local wall = ents.Create( "invis_damage_wall" )
 	wall:SetPos( vec1 )
 	wall:SetMaxBound(vec2)
 
 	wall:SetDamage(dmg)
 	wall:SetDelay(delay)
-	wall:SetRespawnZombie(respawnz)
+	wall:SetRespawnZombie(tobool(respawnz))
 	wall:SetDamageWallType(dmgtype or 1)
+	wall:SetElectric(elec or false)
 
 	wall:Spawn()
 	wall:PhysicsInitBox( Vector(0,0,0), vec2 )

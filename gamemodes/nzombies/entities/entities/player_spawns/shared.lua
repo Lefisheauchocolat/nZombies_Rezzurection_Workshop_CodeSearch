@@ -12,6 +12,8 @@ ENT.NZOnlyVisibleInCreative = true
 
 function ENT:SetupDataTables()
 	self:NetworkVar("Bool", 0, "DoorActivated")
+	self:NetworkVar("Bool", 1, "Preferred")
+
 	self:NetworkVar("Int", 0, "DoorActivateType")
 
 	self:NetworkVar("String", 0, "DoorFlag")
@@ -20,7 +22,7 @@ function ENT:SetupDataTables()
 end
 
 function ENT:Initialize()
-	self:SetModel( "models/player/odessa.mdl" )
+	self:SetModel( "models/player/kleiner.mdl" )
 	self:SetMoveType( MOVETYPE_NONE )
 	self:SetSolid( SOLID_VPHYSICS )
     self:SetCollisionGroup( COLLISION_GROUP_DEBRIS )
@@ -50,24 +52,29 @@ if CLIENT then
 
 		self:DrawModel()
 
-		if self.GetDoorActivated and self:GetDoorActivated() then
+		if (self.GetDoorActivated and self:GetDoorActivated()) or (self.GetPreferred and self:GetPreferred()) then
 			local oh_god_what_the_fuck = self:GetPos():DistToSqr(LocalPlayer():EyePos()) < drawdistance
 			if oh_god_what_the_fuck then
 				local angle = EyeAngles()
 				angle:RotateAroundAxis( angle:Up(), -90 )
 				angle:RotateAroundAxis( angle:Forward(), 90 )
 				cam.Start3D2D(self:GetPos() + Vector(0,0,80), angle, size)
-					if self.GetDoorActivateType then
-						draw.SimpleText(types_table[self:GetDoorActivateType()], displayfont, 0, 0, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+					if self.GetPreferred and self:GetPreferred() then
+						draw.SimpleText("Preferred", displayfont, 0, 15, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 					end
-					if self.GetDoorFlag and self:GetDoorFlag() ~= "" then
-						draw.SimpleText("Link1: "..self:GetDoorFlag(), displayfont, 0, -15, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-					end
-					if self.GetDoorFlag and self:GetDoorFlag2() ~= "" then
-						draw.SimpleText("Link2: "..self:GetDoorFlag2(), displayfont, 0, -30, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-					end
-					if self.GetDoorFlag and self:GetDoorFlag3() ~= "" then
-						draw.SimpleText("Link3: "..self:GetDoorFlag3(), displayfont, 0, -45, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+					if self:GetDoorActivated() then
+						if self.GetDoorActivateType then
+							draw.SimpleText(types_table[self:GetDoorActivateType()], displayfont, 0, 0, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+						end
+						if self.GetDoorFlag and self:GetDoorFlag() ~= "" then
+							draw.SimpleText("Link1: "..self:GetDoorFlag(), displayfont, 0, -15, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+						end
+						if self.GetDoorFlag and self:GetDoorFlag2() ~= "" then
+							draw.SimpleText("Link2: "..self:GetDoorFlag2(), displayfont, 0, -30, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+						end
+						if self.GetDoorFlag and self:GetDoorFlag3() ~= "" then
+							draw.SimpleText("Link3: "..self:GetDoorFlag3(), displayfont, 0, -45, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+						end
 					end
 				cam.End3D2D()
 			end

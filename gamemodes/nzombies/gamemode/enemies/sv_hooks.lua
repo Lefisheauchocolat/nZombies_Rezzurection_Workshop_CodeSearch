@@ -62,7 +62,7 @@ function nzEnemies:OnEnemyKilled(enemy, attacker, dmginfo, hitgroup)
 		attacker:AddFrags(1)
 
 		if attacker:HasUpgrade("jugg") and hitgroup == HITGROUP_HEAD and dmginfo:IsBulletDamage() then
-			attacker:SetArmor(math.min(attacker:Armor() + 10, 200))
+			attacker:SetArmor(math.min(attacker:Armor() + 10, attacker:GetMaxArmor()))
 		end
 
 		if attacker:HasPerk("vulture") then
@@ -163,6 +163,15 @@ function nzEnemies:OnEnemyKilled(enemy, attacker, dmginfo, hitgroup)
 			wido:SetPos(enemy:GetPos() + (vector_up*50))
 			wido:SetAngles(enemy:GetForward():Angle())
 			wido:Spawn()
+		end
+
+		if math.random(100) < 45 and attacker:HasUpgrade("melee") and dmginfo:GetDamageType() == DMG_ENERGYBEAM then
+			for i = 1, math.random(1,3) do
+				local drops = ents.Create("drop_treasure")
+				drops:SetPos(enemy:GetPos() + Vector(math.random(-18,18), math.random(-18,18), math.Rand(1,4)))
+				drops:SetAngles(Angle(0,math.random(-180,180),0))
+				drops:Spawn()
+			end
 		end
 
 		if meleetypes[dmginfo:GetDamageType()] then
@@ -373,7 +382,7 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 
 			-- Mini Bosses will grant points.
 			if zombie.IsMiniBoss then
-				if nzMapping.Settings.cwpointssystem ~= 1 then
+				if nzMapping.Settings.cwpointssystem ~= 1 and attacker:IsPlayer() then
 					attacker:GivePoints(10)
 				end
 			end
@@ -442,6 +451,42 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 				net.Send(attacker)
 			end
 
+			if isplayer and attacker:HasPerk("melee") and meleetypes[dmgtype] then
+				local stunanim = zombie.ThunderGunSequences[math.random(#zombie.ThunderGunSequences)]
+
+				dmginfo:SetDamageType(DMG_ENERGYBEAM)
+				dmginfo:ScaleDamage(4)
+				dmginfo:SetDamageForce(zombie:GetUp()*20000 + wep:GetAimVector()*50000)
+
+				if !zombie:GetSpecialAnimation() and zombie:HasSequence(stunanim) then
+					zombie:DoSpecialAnimation(stunanim)
+
+					if zombie.ElecSounds then	
+						zombie:PlaySound(zombie.ElecSounds[math.random(#zombie.ElecSounds)], 90, math.random(zombie.MinSoundPitch, zombie.MaxSoundPitch), 1, 2)
+					end
+				end
+
+				if attacker:HasUpgrade("melee") then
+
+					if math.random(100) < 45 and attacker:GetNW2Float("nz.MMDelay", 0) < CurTime() then
+						local aat = ents.Create("elemental_pop_effect_4")
+						aat:SetPos(zombie:GetPos())
+						aat:SetParent(zombie)
+						aat:SetOwner(attacker)
+						aat:SetAttacker(dmginfo:GetAttacker())
+						aat:SetInflictor(dmginfo:GetInflictor())
+						aat:SetAngles(angle_zero)
+
+						aat:Spawn()
+
+						attacker:SetNW2Float("nz.MMDelay", CurTime() + 20)
+						attacker:EmitSound("NZ.POP.Thunderwall.Shoot")
+					end
+
+					attacker:SetHealth(math.Clamp(math.Round(attacker:Health() + math.random(25,75)), 0, attacker:GetMaxHealth()))
+				end
+			end
+
 			if isplayer and attacker:HasPerk("sake") and meleetypes[dmgtype] then
 				dmginfo:SetDamageType(DMG_MISSILEDEFENSE)
 
@@ -500,7 +545,7 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 				dmginfo:ScaleDamage(2)
 			end
 
-			if isplayer and IsValid(wep) and hitgroup == HITGROUP_HEAD and (zombie.GetDecapitated and !zombie:GetDecapitated()) then 
+			if isplayer and IsValid(wep) and hitgroup == HITGROUP_HEAD and (zombie.GetDecapitated and !zombie:GetDecapitated()) and (!wep.IsMelee or (wep.IsMelee and attacker:HasPerk('melee'))) then 
 				if attacker:HasPerk("death") then
 					dmginfo:SetDamage(dmg * (attacker:HasUpgrade("death") and 1.5 or 1.25))
 				end
@@ -601,31 +646,6 @@ hook.Add("OnRoundPreparation", "NZIncreaseSpawnedZombies", function()
 		if (NZZombiesMaxAllowed != maxspawns) then
 			print("Max zombies allowed at once capped at: " .. maxspawns)
 			NZZombiesMaxAllowed = maxspawns
-		end
-	end
-end)
-
--- Resseting player stats on round start
-hook.Add("OnRoundStart", "nz.ResetKillStats", function()
-	for _, ply in ipairs(player.GetAll()) do
-		if ply:HasPerk("vulture") then
-			ply:SetNW2Int("nz.VultureCount", 0)
-		end
-		if ply:HasPerk("everclear") then
-			ply:SetNW2Float("nz.ZombShellDelay", 1)
-			ply:SetNW2Int("nz.ZombShellCount", 0)
-		end
-		if ply:HasPerk("fire") then
-			ply:SetNW2Float("nz.BurnDelay", 1)
-			ply:SetNW2Int("nz.BurnCount", 0)
-		end
-		if ply:HasPerk("winters") then
-			ply:SetNW2Float("nz.WailDelay", 1)
-			ply:SetNW2Int("nz.WailCount", ply:HasUpgrade("winters") and 4 or 3)
-		end
-		if ply:HasUpgrade("jugg") then
-			local bonus = math.max(200, ply:Armor())
-			ply:SetArmor(bonus)
 		end
 	end
 end)

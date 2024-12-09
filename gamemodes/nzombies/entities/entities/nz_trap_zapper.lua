@@ -243,6 +243,12 @@ function ENT:ZapTarget(ent, delay)
 			end
 	
 			if (self:TargetIsZombie(ent)) then
+				ent:EmitSound("NZ.POP.Deadwire.Shock")
+				ParticleEffectAttach("bo3_waffe_electrocute", PATTACH_POINT_FOLLOW, ent, 2)
+				if ent:OnGround() then
+					ParticleEffectAttach("bo3_waffe_ground", PATTACH_ABSORIGIN_FOLLOW, ent, 0)
+				end
+
 				local dmg = DamageInfo()
 				dmg:SetAttacker(Entity(0))
 				dmg:SetDamageType(DMG_SHOCK)

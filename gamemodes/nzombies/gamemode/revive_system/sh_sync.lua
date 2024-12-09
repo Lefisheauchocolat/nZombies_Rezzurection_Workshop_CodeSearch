@@ -35,10 +35,12 @@ if SERVER then
 
 	function nzRevive:SendPlayerBeingRevived(ply, revivor, receiver)
 		net.Start( "nzRevivePlayerBeingRevived" )
-			net.WriteInt(ply:EntIndex(), 13)
+			local id = ply:EntIndex()
+			net.WriteInt(id, 13)
 			if IsValid(revivor) then
 				net.WriteBool(true)
 				net.WriteInt(revivor:EntIndex(), 13)
+				net.WriteFloat(nzRevive.Players[id].ReviveLength)
 			else -- No valid revivor means the player stopped being revived
 				net.WriteBool(false)
 			end
@@ -61,20 +63,19 @@ if SERVER then
 end
 
 if CLIENT then
-
 	local function ReceivePlayerDowned()
 		--print("Gotten")
 		local id = net.ReadInt(13)
 		local attached = net.ReadTable()
-		
+
 		nzRevive.Players[id] = nzRevive.Players[id] or {}
 		nzRevive.Players[id].DownTime = CurTime()
-		
+
 		for k,v in pairs(attached) do
-			print(k,v)
+			//print(k,v)
 			nzRevive.Players[id][k] = v
 		end
-		
+
 		local ply = Entity(id)
 		if IsValid(ply) and ply:IsPlayer() then
 			--ply:AnimRestartGesture(GESTURE_SLOT_CUSTOM, ACT_HL2MP_SWIM_PISTOL)
@@ -97,12 +98,18 @@ if CLIENT then
 		local id = net.ReadInt(13)
 		local bool = net.ReadBool()
 		if bool then
+			local reviving = Entity(id)
 			local revivor = Entity(net.ReadInt(13))
 			nzRevive.Players[id] = nzRevive.Players[id] or {}
 			if !nzRevive.Players[id].ReviveTime then
 				nzRevive.Players[id].ReviveTime = CurTime()
+
+				local bleedtime = reviving.GetBleedoutTime and reviving:GetBleedoutTime() or cvar_bleedout:GetFloat()
+
+				nzRevive.Players[id].KillTime = (nzRevive.Players[id].DownTime + bleedtime) - CurTime()
 				nzRevive.Players[id].RevivePlayer = revivor
-				revivor.Reviving = Entity(id)
+				revivor.Reviving = reviving
+				nzRevive.Players[id].ReviveLength = net.ReadFloat(13)
 			end
 		else
 			local revivor = nzRevive.Players[id].RevivePlayer
@@ -111,6 +118,8 @@ if CLIENT then
 			nzRevive.Players[id] = nzRevive.Players[id] or {}
 			nzRevive.Players[id].ReviveTime = nil
 			nzRevive.Players[id].RevivePlayer = nil
+			nzRevive.Players[id].KillTime = nil
+			nzRevive.Players[id].ReviveLength = nil
 		end
 	end
 

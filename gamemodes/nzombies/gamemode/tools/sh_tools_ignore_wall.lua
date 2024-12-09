@@ -232,7 +232,7 @@ if SERVER then
 		end,
 		loadfunc = function(data)
 			for k, v in pairs(data) do
-				nzMapping:CreateDamageIgnoreWall(v.pos, v.angle, v.tab, nil)
+				nzMapping:CreateDamageIgnoreWall(v.pos, v.maxbound, v.tab, nil)
 			end
 		end,
 		cleanents = {"damage_ignore_wall"}

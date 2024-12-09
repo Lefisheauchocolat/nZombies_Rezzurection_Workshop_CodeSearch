@@ -1,327 +1,240 @@
 AddCSLuaFile()
 
-ENT.Base = "nz_zombiebase"
+ENT.Base = "nz_zombiebase_moo"
 ENT.PrintName = "Birkin Stage 3"
 ENT.Category = "Brainz"
-ENT.Author = "Laby"
+ENT.Author = "Laby and GhostlyMoo"
 
-ENT.Models = { "models/bosses/g3v3.mdl" }
+--my head is not a penis
 
-ENT.AttackRange = 160
-ENT.DamageLow = 99
-ENT.DamageHigh = 99
+if CLIENT then return end -- Client doesn't really need anything beyond the basics
 
+ENT.SpeedBasedSequences = true
+ENT.IsMooZombie = true
+ENT.RedEyes = true
+ENT.IsMooSpecial = true
 
-ENT.AttackSequences = {
-{seq = "attack1", dmgtimes = {1}},
-	{seq = "attack2", dmgtimes = {1.1}},
-	{seq = "attack3", dmgtimes = {1.1}},
-	{seq = "attack4", dmgtimes = {0.9}},
-	{seq = "attack5", dmgtimes = {2,2.6,3,4}}
+ENT.AttackRange = 100
+
+ENT.TraversalCheckRange = 80
+
+ENT.Models = {
+	{Model = "models/bosses/g3v3.mdl", Skin = 0, Bodygroups = {0,0}},
 }
+
+local spawn = {"reaction"}
 
 ENT.DeathSequences = {
 	"death"
 }
 
+
+
+ENT.BarricadeTearSequences = {
+	--Leave this empty if you don't intend on having a special enemy use tear anims.
+}
+
+local AttackSequences = {
+	{seq = "attack1"},
+	{seq = "attack2"},
+	{seq = "attack3"},
+	{seq = "attack4"},
+}
+
+ENT.SlamSequences = {
+	"attack4b"
+}
+
+local JumpSequences = {
+	{seq = "land"}
+}
+
+
+local walksounds = {
+	Sound("enemies/bosses/re2/em7200/breathe1.ogg"),
+	Sound("enemies/bosses/re2/em7200/breathe2.ogg"),
+	Sound("enemies/bosses/re2/em7200/breathe3.ogg"),
+	Sound("enemies/bosses/re2/em7200/idle1.ogg"),
+	Sound("enemies/bosses/re2/em7200/idle2.ogg"),
+	Sound("enemies/bosses/re2/em7200/idle3.ogg"),
+	Sound("enemies/bosses/re2/em7200/pain1.ogg"),
+	Sound("enemies/bosses/re2/em7200/pain2.ogg"),
+	Sound("enemies/bosses/re2/em7200/reaction3.ogg"),
+	Sound("enemies/bosses/re2/em7200/pain3.ogg")
+
+}
+
 ENT.AttackSounds = {
-	"re2/em7200/att1.mp3",
-	"re2/em7200/att2.mp3",
-	"re2/em7200/att3.mp3",
-	"re2/em7200/reaction2.mp3"
-	
+	"enemies/bosses/re2/em7200/att1.ogg",
+	"enemies/bosses/re2/em7200/att2.ogg",
+	"enemies/bosses/re2/em7200/att3.ogg"
+
 }
 
 ENT.PainSounds = {
-"physics/flesh/flesh_impact_bullet1.wav",
+	"physics/flesh/flesh_impact_bullet1.wav",
 	"physics/flesh/flesh_impact_bullet2.wav",
 	"physics/flesh/flesh_impact_bullet3.wav",
 	"physics/flesh/flesh_impact_bullet4.wav",
 	"physics/flesh/flesh_impact_bullet5.wav"
 }
 
-ENT.AttackHitSounds = {
-	"re2/em7000/hit_body1.mp3",
-	"re2/em7000/hit_body2.mp3",
-	"re2/em7000/hit_body3.mp3",
-	"re2/em7000/hit_body4.mp3",
-	"re2/em7000/hit_body5.mp3"
+ENT.DeathSounds = {
+	"enemies/bosses/re2/em7100/pain6.ogg"
 }
 
-ENT.WalkSounds = {
-	"re2/em7200/step1.mp3",
-	"re2/em7200/step2.mp3",
-	"re2/em7200/step3.mp3"
+ENT.IdleSequence = "idle"
+
+ENT.SequenceTables = {
+	{Threshold = 0, Sequences = {
+		{
+			SpawnSequence = {spawn},
+			MovementSequence = {
+				"walk"
+			},
+			AttackSequences = {AttackSequences},
+			JumpSequences = {JumpSequences},
+			PassiveSounds = {walksounds},
+		},
+	}},
+	{Threshold = 150, Sequences = {
+		{
+			SpawnSequence = {spawn},
+			MovementSequence = {
+				"run",
+			},
+			AttackSequences = {AttackSequences},
+			JumpSequences = {JumpSequences},
+			PassiveSounds = {walksounds},
+		},
+	}}
 }
-
-ENT.ActStages = {
-	[1] = {
-		act = ACT_WALK,
-		minspeed = 1,
-	}
-}
-
--- We overwrite the Init function because we do not change bodygroups randomly!
-function ENT:Initialize()
-
-	self:Precache()
-
-	
-	self:SetModel( self.Models[math.random( #self.Models )] )
-
-	self:SetJumping( false )
-	self:SetLastLand( CurTime() + 1 ) --prevent jumping after spawn
-	self:SetLastTargetCheck( CurTime() )
-	self:SetLastTargetChange( CurTime() )
-
-	--sounds
-	self:SetNextMoanSound( CurTime() + 1 )
-
-	--stuck prevetion
-	self:SetLastPush( CurTime() )
-	self:SetLastPostionSave( CurTime() )
-	self:SetStuckAt( self:GetPos() )
-	self:SetStuckCounter( 0 )
-
-	self:SetAttacking( false )
-	self:SetLastAttack( CurTime() )
-	self:SetAttackRange( self.AttackRange )
-	self:SetTargetCheckRange(0) -- 0 for no distance restriction (infinite)
-
-	--target ignore
-	self:ResetIgnores()
-
-	self:SetHealth( 75 ) --fallback
-
-	self:SetRunSpeed( self.RunSpeed ) --fallback
-	self:SetWalkSpeed( self.WalkSpeed ) --fallback
-
-	self:SetCollisionBounds(Vector(-18,-18, 0), Vector(18, 18, 90))
-
-	self:SetActStage(0)
-	self:SetSpecialAnimation(false)
-
-	self:StatsInitialize()
-	self:SpecialInit()
-	
-	-- Fallback for buggy tool
-	if !self:GetRunSpeed() then self:SetRunSpeed(145) end
-
-	if SERVER then
-		self.loco:SetDeathDropHeight( self.DeathDropHeight )
-		self.loco:SetDesiredSpeed( self:GetRunSpeed() )
-		self.loco:SetAcceleration( self.Acceleration )
-		self.loco:SetJumpHeight( self.JumpHeight )
-		if GetConVar("nz_zombie_lagcompensated"):GetBool() then
-			self:SetLagCompensated(true)
-		end
-		
-		self.HelmetDamage = 0 -- Used to save how much damage the light has taken
-		self:SetUsingClaw(false)
-		
-		self.NextAction = 0
-		self.NextClawTime = 0
-		self.NextFlameTime = 0
-	end
-	
-	self.ZombieAlive = true
-
-end
 
 function ENT:StatsInitialize()
 	if SERVER then
-		taunting = true
-		counting = true
-		dying = false
-		self:SetRunSpeed(145)
-		self:SetHealth(10000)
-		self:SetMaxHealth(100000)
-	end
-
-	--PrintTable(self:GetSequenceList())
-end
-
-function ENT:SpecialInit()
-
-	if CLIENT then
-		--make them invisible for a really short duration to blend the emerge sequences
-		self:SetNoDraw(true)
-		self:TimedEvent( 0.5, function()
-			self:SetNoDraw(false)
-		end)
-
-		self:SetRenderClipPlaneEnabled( true )
-		self:SetRenderClipPlane(self:GetUp(), self:GetUp():Dot(self:GetPos()))
-
-		self:TimedEvent( 2, function()
-			self:SetRenderClipPlaneEnabled(false)
-		end)
-
-	end
-end
-
-function ENT:InitDataTables()
-	self:NetworkVar("Entity", 0, "ClawHook")
-	self:NetworkVar("Bool", 1, "UsingClaw")
-	self:NetworkVar("Bool", 2, "Flamethrowing")
-end
-
-function ENT:OnSpawn()
-	local seq = "reaction"
-	local tr = util.TraceLine({
-		start = self:GetPos() + Vector(0,0,500),
-		endpos = self:GetPos(),
-		filter = self,
-		mask = MASK_SOLID_BRUSHONLY,
-	})
-	if tr.Hit then seq = "reaction" end
-	local _, dur = self:LookupSequence(seq)
-
-	-- play emerge animation on spawn
-	-- if we have a coroutine else just spawn the zombie without emerging for now.
-	if coroutine.running() then
-		
-		local pos = self:GetPos() + (seq == "reaction" and Vector(0,0,100) or Vector(0,0,450))
-		self:EmitSound("re2/em7200/idle3.mp3",511,100)
-		util.ScreenShake(self:GetPos(),10,1000,dur,2048)
-		--[[effectData = EffectData()
-		effectData:SetStart( pos + Vector(0, 0, 1000) )
-		effectData:SetOrigin( pos )
-		effectData:SetMagnitude( 0.75 )
-		util.Effect("lightning_strike", effectData)]]
-		
-		self:TimedEvent(dur, function()
-			--dust cloud
-			self:SetPos(self:GetPos() + Vector(0,0,0))
-			local effectData = EffectData()
-			effectData:SetStart( self:GetPos() )
-			effectData:SetOrigin( self:GetPos() )
-			effectData:SetMagnitude(1)
-			
-		end)
-		taunting = false
-		counting = false
-		self:PlaySequenceAndWait(seq)
-	end
-end
-
-function ENT:OnZombieDeath(dmgInfo)
-	dying = true
-	self:ReleasePlayer()
-	self:StopFlames()
-	self:SetRunSpeed(0)
-	self.loco:SetVelocity(Vector(0,0,0))
-	self:Stop()
-	self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
-	local seq, dur = self:LookupSequence(self.DeathSequences[math.random(#self.DeathSequences)])
-	self:EmitSound("re2/em7200/reaction1.mp3",511)
-	self:ResetSequence(seq)
-	self:SetCycle(0)
-	timer.Simple(dur, function()
-		if IsValid(self) then
-		nzPowerUps:SpawnPowerUp(self:GetPos(), "bottle")
-			self:Remove()
-			ParticleEffect("nbnz_gib_explosion",self:LocalToWorld(Vector(0,0,0)),Angle(0,0,0),nil)
+		local data = nzRound:GetBossData(self.NZBossType)
+		local count = #player.GetAllPlaying()
+self:SetCollisionBounds(Vector(-14,-14, 0), Vector(14, 14, 72))
+	self:SetSurroundingBounds(Vector(-50, -50, 0), Vector(50, 50, 100))
+		if nzRound:InState( ROUND_CREATE ) then
+			self:SetHealth(5000)
+			self:SetMaxHealth(5000)
+		else
+			self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+			self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
 		end
-	end)
-
-end
-
-function ENT:BodyUpdate()
-
-	self.CalcIdeal = ACT_IDLE
-
-	local velocity = self:GetVelocity()
-
-	local len2d = velocity:Length2D()
-
-	if ( len2d >200 ) then self.CalcIdeal = ACT_WALK elseif ( len2d > 5 ) then self.CalcIdeal = ACT_WALK end
-
-	if self:IsJumping() and self:WaterLevel() <= 0 then
-		self.CalcIdeal = ACT_JUMP
-	end
-
-	if !self:GetSpecialAnimation() and !self:IsAttacking() then
-		if self:GetActivity() != self.CalcIdeal and !self:GetStop() then self:StartActivity(self.CalcIdeal) end
-
-		if self.ActStages[self:GetActStage()] then
-			self:BodyMoveXY()
-		end
-	end
-
-	self:FrameAdvance()
-
-end
-
-function ENT:OnPathTimeOut()
-	
-end
-
-function ENT:IsValidTarget( ent )
-	if !ent then return false end
-	return IsValid( ent ) and ent:GetTargetPriority() != TARGET_PRIORITY_NONE and ent:GetTargetPriority() != TARGET_PRIORITY_SPECIAL
-	-- Won't go for special targets (Monkeys), but still MAX, ALWAYS and so on
-end
-
--- This function is run every time a path times out, once every 1 seconds of pathing
-
-if CLIENT then
-	local eyeGlow =  Material( "sprites/redglow1" )
-	local white = Color( 255, 255, 255, 255 )
-	local lightglow = Material( "sprites/physg_glow1_noz" )
-	local lightyellow = Color( 255, 255, 200, 200 )
-	local clawglow = Material( "sprites/orangecore1" )
-	local clawred = Color( 255, 100, 100, 255 )
 		
+		self.NextAction = 0
+		self.Charge = false
+		self.ChargeTime = CurTime() + math.Rand(7.5, 20.25)
+		self:SetMooSpecial(true)
+		self:SetRunSpeed( 75 )
+		self.loco:SetDesiredSpeed( 75 )
+	end
 end
 
 function ENT:OnRemove()
-	if IsValid(self.ClawHook) then self.ClawHook:Remove() end
-	if IsValid(self.GrabbedPlayer) then self.GrabbedPlayer:SetMoveType(MOVETYPE_WALK) end
-	if IsValid(self.FireEmitter) then self.FireEmitter:Finish() end
+	self:StopSound("enemies/bosses/re2/DRAMATICMUSIC.mp3")
 end
 
-function ENT:StartFlames(time)
-	self:Stop()
-	if time then self:TimedEvent(time, function() self:StopFlames() end) end
+
+function ENT:OnSpawn()
+
+	self:SolidMaskDuringEvent(MASK_SOLID_BRUSHONLY)
+	self:EmitSound("enemies/bosses/thrasher/tele_hand_up.ogg",511)
+	self:SetInvulnerable(true)
+	util.ScreenShake(self:GetPos(),100000,500000,0.4,2000)
+	self:EmitSound("enemies/bosses/re2/DRAMATICMUSIC.mp3", 577, 100, 1, -1)
+	ParticleEffect("bo3_margwa_death",self:LocalToWorld(Vector(0,0,0)),Angle(0,0,0),nil)
+		self:EmitSound("enemies/bosses/gunker/death_gore"..math.random(1,2)..".ogg", 90, math.random(85, 105), 1, 2)
+		self:EmitSound("enemies/bosses/divider/divider_merge_18.ogg", 94, math.random(90,100))
+		self:EmitSound("enemies/bosses/divider/divider_merge_18.ogg", 94, math.random(90,100))
+		ParticleEffect("nbnz_gib_explosion",self:LocalToWorld(Vector(0,0,0)),Angle(0,0,0),nil)
+				ParticleEffect("divider_slash2",self:LocalToWorld(Vector(20,20,0)),Angle(0,0,0),nil)
+				ParticleEffect("divider_slash3",self:LocalToWorld(Vector(20,20,0)),Angle(0,0,0),nil)
+				ParticleEffect("baby_dead",self:LocalToWorld(Vector(20,20,0)),Angle(0,0,0),nil)
+	self:EmitSound("enemies/bosses/re2/em7200/idle3.ogg",511,100)
+	self:SetSpecialAnimation(true)
+	local seq = self:SelectSpawnSequence()
+	if seq then
+		self:PlaySequenceAndWait(seq)
+		self:SetSpecialAnimation(false)
+		self:SetInvulnerable(false)
+		self:CollideWhenPossible()
+	end
 end
 
-function ENT:StopFlames()
-	self:SetStop(false)
+function ENT:PerformDeath(dmgInfo)
+	if self:GetSpecialAnimation() then
+		self:EmitSound("enemies/bosses/re2/em7200/reaction1.ogg",511)
+		if IsValid(self) then
+		self:PlaySound("enemies/bosses/gunker/death_gore"..math.random(1,2)..".ogg", 90, math.random(85, 105), 1, 2)
+		self:EmitSound("enemies/bosses/divider/divider_merge_18.ogg", 94, math.random(90,100))
+		self:EmitSound("enemies/bosses/divider/divider_merge_18.ogg", 94, math.random(90,100))
+			ParticleEffect("baby_dead",self:LocalToWorld(Vector(0,0,0)),Angle(0,0,0),nil)
+			ParticleEffect("nbnz_gib_explosion",self:LocalToWorld(Vector(0,0,0)),Angle(0,0,0),nil)
+			nzPowerUps:SpawnPowerUp(self:GetPos(), "bottle")
+			self:Remove()
+		end
+	else
+		self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
+		self:DoDeathAnimation(self.DeathSequences[math.random(#self.DeathSequences)])
+	end
 end
 
-function ENT:OnInjured( dmgInfo )
-dmgInfo:ScaleDamage(0.5)
-if math.random(0,100) == 49 then
-self:EmitSound("re2/em7200/pain"..math.random(3)..".mp3")
+function ENT:PostAdditionalZombieStuff()
+	if SERVER then
+		if !self.Charge and CurTime() > self.ChargeTime then
+			self.Charge = true
+			self:SetRunSpeed(175)
+			self:SpeedChanged()
+		end
+
+		if self.Charge and self:TargetInRange(200) and !self:IsAttackBlocked() then
+			self:SetSpecialAnimation(true)
+			self:PlaySequenceAndMove("grab_1", 1, self.FaceEnemy)
+			self:SetSpecialAnimation(false)
+
+			self.Charge = false
+			self.ChargeTime = CurTime() + math.Rand(10.5, 20.25) 
+			self:SetRunSpeed(75)
+			self:SpeedChanged()
+		end
+	end
 end
 
-		
-			if  dmgInfo:IsDamageType( 64 ) and dmgInfo:GetDamage() > 10  then
-			self:SetInvulnerable(true)
-				print("that was not very nice young man")
-				hasMutated = true
-				self:SetSpecialAnimation(true)
-				self:SetBlockAttack(true)
-				local id, dur = self:LookupSequence("reaction")
-				self:ResetSequence(id)
-				self:EmitSound("re2/em7200/reaction1.mp3",511)
-				self:SetCycle(0)
-				self:SetPlaybackRate(1)
-				self.loco:SetDesiredSpeed(0)
-				self:SetVelocity(Vector(0,0,0))
-				self:TimedEvent(dur, function()
-				fuckyoukid = false
-					self.loco:SetDesiredSpeed(145)
-					self:SetRunSpeed(145)
-					self:StartActivity( ACT_WALK)
-					self:SetInvulnerable(false)
-					self:SetSpecialAnimation(false)
-					self:SetBlockAttack(false)
-					
-				end)
-			end
+
+function ENT:DoDeathAnimation(seq)
+	self.BehaveThread = coroutine.create(function()
+		self:PlaySequenceAndWait(seq)
+		if IsValid(self) then
+		self:EmitSound("enemies/bosses/gunker/death_gore"..math.random(1,2)..".ogg", 90, math.random(85, 105), 1, 2)
+		self:EmitSound("enemies/bosses/divider/divider_merge_18.ogg", 94, math.random(90,100))
+		self:EmitSound("enemies/bosses/re2/em7100/down.ogg", 94, math.random(90,100))
+			ParticleEffect("bo3_margwa_death",self:LocalToWorld(Vector(0,0,0)),Angle(0,0,0),nil)
+			ParticleEffect("nbnz_gib_explosion",self:LocalToWorld(Vector(0,0,0)),Angle(0,0,0),nil)
+			nzPowerUps:SpawnPowerUp(self:GetPos(), "bottle")
+			self:Remove()
+		end
+	end)
 end
+
+
+function ENT:OnPathTimeOut()
+	local target = self:GetTarget()
+	local actionchance = math.random(10)
+	
+local distToTarget = self:GetPos():Distance(target:GetPos())
+	if CurTime() < self.NextAction then return end
+			if  distToTarget < 400 and actionchance == 7 and CurTime() > self.NextAction then
+			--HULK SMASH
+			self:PlaySound(self.AttackSounds[math.random(#self.AttackSounds)], 90, math.random(85, 105), 1, 2)
+			self:DoSpecialAnimation(self.SlamSequences[math.random(#self.SlamSequences)])
+				self.NextAction = CurTime() + math.random(1, 20)
+			
+		end
+		end
+
 
 function ENT:PlayAttackAndWait( name, speed )
 
@@ -339,9 +252,14 @@ function ENT:PlayAttackAndWait( name, speed )
 		if ( endtime < CurTime() ) then
 			if !self:GetStop() then
 				self:StartActivity( ACT_WALK )
-				self.loco:SetDesiredSpeed( self:GetRunSpeed() )
+					self.loco:SetDesiredSpeed( self:GetRunSpeed() )
+				
+			
 			end
 			return
+		end
+		if self:IsValidTarget( self:GetTarget() ) then
+			self.loco:FaceTowards( self:GetTarget():GetPos() )
 		end
 
 		coroutine.yield()
@@ -350,137 +268,141 @@ function ENT:PlayAttackAndWait( name, speed )
 
 end
 
-
-function ENT:OnThink()
-self:RemoveAllDecals()
-if !dying and self:Health() > 0 and !counting and !self:IsAttacking() and !self:GetSpecialAnimation() then
-counting = true
-timer.Simple(0.5,function()
-self:EmitSound("enemies/bosses/re2/em7100/step"..math.random(1,2)..".ogg",511)
-counting = false
-end)
-end
-if !taunting and math.random(0,800) == 49 then
-taunting = true
-timer.Simple(4,function()
-taunting = false
-end)
-if  math.random(0,1) == 1 then
-self:EmitSound("re2/em7200/idle"..math.random(3)..".mp3")
-else
-self:EmitSound("re2/em7200/breathe"..math.random(3)..".mp3")
-end
-end
-
-
-end
-
-function ENT:GrabPlayer(ply)
-	if CLIENT then return end
-	
-	
-	self:SetUsingClaw(false)
-	self:SetStop(false)
-	self.loco:SetDesiredSpeed(self:GetRunSpeed())
-	
-	if self:IsValidTarget(ply) then
-		self.GrabbedPlayer = ply
+function ENT:OnInjured( dmgInfo )
+	local hitpos = dmgInfo:GetDamagePosition()
+		local eyeball = self:GetBonePosition(self:LookupBone("ShoulderEyeball"))
+	local headpos = self:GetBonePosition(self:LookupBone("ChestEyeball"))
 		
-		self:TimedEvent(0, function()
-			local att = self:GetAttachment(self:LookupAttachment("clawlight"))
-			local pos = att.Pos + att.Ang:Forward()*10
-			
-			ply:SetPos(pos - Vector(0,0,50))
-			ply:SetMoveType(MOVETYPE_NONE)
-		end)
-		
-		
-		self:SetSequence(self:LookupSequence("nz_grapple_flamethrower"))
-		self:SetCycle(0)
-		self:StartFlames()
-	--[[elseif ply then
-		self.loco:SetDesiredSpeed(self:GetRunSpeed())
-		self:SetSpecialAnimation(false)
-		self:SetBlockAttack(false)
-		self:SetStop(false)]]
-	else
-		
-	end
-end
-
-function ENT:ReleasePlayer()
-	if IsValid(self.GrabbedPlayer) then
-		self.GrabbedPlayer:SetMoveType(MOVETYPE_WALK)
-	end
-	if IsValid(self.ClawHook) then
-		self.ClawHook:Release()
-	end
-	if !self:GetFlamethrowing() then
-		self:SetStop(false)
-	end
-	self:SetUsingClaw(false)
-	self:SetStop(false)
-	self.loco:SetDesiredSpeed(self:GetRunSpeed())
-end
-
-
-function ENT:OnBarricadeBlocking( barricade )
-	if (IsValid(barricade) and barricade:GetClass() == "breakable_entry" ) then
-		if barricade:GetNumPlanks() > 0 then
-			timer.Simple(0.3, function()
-
-				for i = 1, barricade:GetNumPlanks() do
-					barricade:EmitSound("physics/wood/wood_plank_break" .. math.random(1, 4) .. ".wav", 100, math.random(90, 130))
-					barricade:RemovePlank()
-				end
-
-			end)
-
-			self:SetAngles(Angle(0,(barricade:GetPos()-self:GetPos()):Angle()[2],0))
-			
-			local seq, dur
-
-			local attacktbl = self.ActStages[1] and self.ActStages[1].attackanims or self.AttackSequences
-			local target = type(attacktbl) == "table" and attacktbl[math.random(#attacktbl)] or attacktbl
-			
-			if type(target) == "table" then
-				seq, dur = self:LookupSequenceAct(target.seq)
-			elseif target then -- It is a string or ACT
-				seq, dur = self:LookupSequenceAct(target)
-			else
-				seq, dur = self:LookupSequence("swing")
-			end
-			
-			self:SetAttacking(true)
-			self:PlaySequenceAndWait(seq, 1)
-			self:SetLastAttack(CurTime())
-			self:SetAttacking(false)
-			self:UpdateSequence()
-			if coroutine.running() then
-				coroutine.wait(2 - dur)
-			end
-
-			-- this will cause zombies to attack the barricade until it's destroyed
-			local stillBlocked = self:CheckForBarricade()
-			if stillBlocked then
-				self:OnBarricadeBlocking(stillBlocked)
-				return
-			end
-
-			-- Attacking a new barricade resets the counter
-			self.BarricadeJumpTries = 0
-		elseif barricade:GetTriggerJumps() and self.TriggerBarricadeJump then
-			local dist = barricade:GetPos():DistToSqr(self:GetPos())
-			if dist <= 3500 + (1000 * self.BarricadeJumpTries) then
-				self:TriggerBarricadeJump()
-				self.BarricadeJumpTries = 0
-			else
-				-- If we continuously fail, we need to increase the check range (if it is a bigger prop)
-				self.BarricadeJumpTries = self.BarricadeJumpTries + 1
-				-- Otherwise they'd get continuously stuck on slightly bigger props :(
-			end
+		if (hitpos:DistToSqr(headpos) < 15^2) or (hitpos:DistToSqr(eyeball) < 30^2) then
+		--print("ow that hurt asshole")
+		dmgInfo:ScaleDamage(1.5)
 		else
-			self:SetAttacking(false)
+		dmgInfo:ScaleDamage(0.5)
+		end
+		if   (hitpos:DistToSqr(eyeball) < 30^2) and dmgInfo:GetDamage() > 500   then
+		--print("ow that really hurt asshole")
+		if math.random(1,7) > 5 then
+		--ParticleEffectAttach("bo3_explosion_micro", PATTACH_POINT_FOLLOW, self, 10)
+		self:EmitSound("enemies/bosses/re2/em7200/eye_pop"..math.random(1,3)..".ogg", 90, math.random(85, 105), 1, 2)
+		self:EmitSound("enemies/bosses/divider/divider_merge_18.ogg", 94, math.random(90,100))
+				ParticleEffect("baby_dead",eyeball,Angle(0,0,0),nil)
+				self.NextAction = CurTime() + math.random(1, 25)
+				if math.random(1,5) > 2 then
+				self:SetInvulnerable(true)
+				self:EmitSound("enemies/bosses/re2/em7200/pain"..math.random(1,3)..".ogg",511,100)
+				self:DoSpecialAnimation("flinch", true, false)
+				self:SetInvulnerable(false)
+				else
+				self:EmitSound("enemies/bosses/re2/em7200/reaction2.ogg",511,100)
+				self:DoSpecialAnimation("attack5", true, false)
+				end
+			end
+		end
+			
+end
+
+
+function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how sad I am that I didn't know about this sooner.
+	if e == "step" then
+		util.ScreenShake(self:GetPos(),3000,500,0.2,700)
+		self:EmitSound("enemies/bosses/re2/em7200/step"..math.random(1,3)..".ogg",70)
+	end
+	if e == "attackhit" then
+		self:EmitSound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(85, 105), 1, 2)
+		self:DoAttackDamage()
+	end
+	if e == "attackslam" or e =="slam" or e =="down" then
+		self:EmitSound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(85, 105), 1, 2)
+		self:EmitSound("enemies/bosses/re2/em7100/slam"..math.random(1,2)..".ogg", 100)
+		self:EmitSound("nz_moo/zombies/vox/_margwa/slam_attack/slam_attack_far.mp3", 511)
+		local clawpos = self:GetBonePosition(self:LookupBone("R_SecondHand_s"))
+		ParticleEffect("bo3_panzer_landing",self:LocalToWorld(Vector(20+(1),20,0)),Angle(0,0,0),nil)
+		ParticleEffect("bo3_margwa_slam",clawpos,self:GetAngles(),nil)
+		util.ScreenShake(self:GetPos(),100000,500000,0.4,2000)
+				for k, v in pairs(ents.FindInSphere(self:GetPos(), 350)) do
+            	if v:IsPlayer() or v:IsNPC() or v:IsNextBot() then
+                	if v:GetClass() == self:GetClass() then continue end
+                	if v == self then continue end
+                	if v:EntIndex() == self:EntIndex() then continue end
+                	if v:Health() <= 0 then continue end
+                	--if !v:Alive() then continue end
+                	local expdamage = DamageInfo()
+                	expdamage:SetAttacker(self)
+                	expdamage:SetInflictor(self)
+                	expdamage:SetDamageType(DMG_CRUSH)
+                	expdamage:SetDamage(60)
+                	expdamage:SetDamageForce(v:GetUp()*5000 + (v:GetPos() - self:GetPos()):GetNormalized() * 10000)
+                	v:TakeDamageInfo(expdamage)
+					v:NZSonicBlind(1)
+            	end
+        	end
+	end
+end	
+
+-- A standard attack you can use it or create something fancy yourself
+function ENT:Attack( data )
+
+	self:SetLastAttack(CurTime())
+
+	data = data or {}
+	
+	data.attackseq = data.attackseq
+	if !data.attackseq then
+		
+		local attacktbl = self.AttackSequences
+		local target = type(attacktbl) == "table" and attacktbl[math.random(#attacktbl)] or attacktbl
+		
+		if type(target) == "table" then
+			local id, dur = self:LookupSequenceAct(target.seq)
+			if !target.dmgtimes then
+			data.attackseq = {seq = id, dmgtimes =  {0.5} }
+			else
+			data.attackseq = {seq = id, dmgtimes = target.dmgtimes }
+			end
+			data.attackdur = dur
+		elseif target then -- It is a string or ACT
+			local id, dur = self:LookupSequenceAct(attacktbl)
+			data.attackseq = {seq = id, dmgtimes = {dur/2}}
+			data.attackdur = dur
+		else
+			local id, dur = self:LookupSequence("swing")
+			data.attackseq = {seq = id, dmgtimes = {1}}
+			data.attackdur = dur
 		end
 	end
+	
+	self:SetAttacking( true )
+
+	if self:GetTarget():IsPlayer() then
+		for k,v in pairs(data.attackseq.dmgtimes) do
+			self:TimedEvent( v, function()
+				if self.AttackSounds then self:PlaySound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(85, 105), 1, 2) end
+				self:EmitSound( "enemies/bosses/re2/em7200/att_swing"..math.random(1,3)..".ogg", 90, math.random(95, 105))
+				
+				if !self:GetStop() and self:IsValidTarget( self:GetTarget() ) and self:TargetInRange( self:GetAttackRange() + 10 ) then
+					local dmgInfo = DamageInfo()
+					dmgInfo:SetAttacker( self )
+					dmgInfo:SetDamage( 90 ) -- OW, STUPID BITCH!!!!
+					dmgInfo:SetDamageType( DMG_SLASH )
+					dmgInfo:SetDamageForce( (self:GetTarget():GetPos() - self:GetPos()) * 7 + Vector( 0, 0, 16 ) )
+					self:GetTarget():TakeDamageInfo(dmgInfo)
+					if !IsValid(self:GetTarget()) then return end
+					self:GetTarget():EmitSound( "enemies/bosses/re2/em7000/hit_body"..math.random(1,6)..".ogg", SNDLVL_TALKING, math.random(95,105))
+					self:GetTarget():ViewPunch( VectorRand():Angle() * 0.01 )
+				end
+			end)
+		end
+	end
+
+	self:TimedEvent(data.attackdur, function()
+		self:SetAttacking(false)
+		self:SetLastAttack(CurTime())
+	end)
+
+	self:PlayAttackAndWait(data.attackseq.seq, 1)
+end
+
+function ENT:IsValidTarget( ent )
+	if not ent then return false end
+	return IsValid( ent ) and ent:GetTargetPriority() ~= TARGET_PRIORITY_NONE and ent:GetTargetPriority() ~= TARGET_PRIORITY_MONSTERINTERACT and ent:GetTargetPriority() ~= TARGET_PRIORITY_SPECIAL and ent:GetTargetPriority() ~= TARGET_PRIORITY_FUNNY
 end

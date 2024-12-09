@@ -802,6 +802,7 @@ nzGum:RegisterGum("now_you_see_me", {
 	uses = 2,
 	time = 10,
 	icon = Material("gums/NowYouSeeMe.png", "smooth unlitgeneric"),
+	multiplayer = true,
 	ontimerstart = function(ply)
 		ParticleEffectAttach("bo3_aat_turned", PATTACH_ABSORIGIN_FOLLOW, ply, 0)
 		ply:EmitSound("NZ.POP.Turned.Impact")
@@ -884,8 +885,10 @@ nzGum:RegisterGum("roundrobbin", {
 		nzPowerUps:Nuke(nil, true, true, true)  -- Nuke kills all zombies, no points, no position delay
 
 		local nextRound = currentRound + 1
-		local specint = GetConVar("nz_round_special_interval"):GetInt() or 6
-		nzRound:SetNextSpecialRound(math.ceil(nextRound / specint) * specint)
+		if nzMapping.Settings.timedgame ~= 1 then
+			local specialround = math.random(nzMapping.Settings.specialroundmin or 5, nzMapping.Settings.specialroundmax or 7)
+			self:SetNextSpecialRound(self:GetNumber() + specialround)
+		end
 		nzRound:Prepare()
 
 		for k, v in pairs(player.GetAllPlaying()) do
@@ -1438,7 +1441,7 @@ nzGum:RegisterGum("suit_up", {
 	icon = Material("gums/SuitUp.png", "smooth unlitgeneric"),
 	ongain = function(ply)
 		for k, v in pairs(player.GetAll()) do
-			local bonus = math.max(200, v:Armor())
+			local bonus = math.max(v:GetMaxArmor(), v:Armor())
 			v:SetArmor(bonus)
 			v:EmitSound("nzr/2023/buildables/zm_common.all.sabl.1471.wav", SNDLVL_GUNFIRE)
 		end
@@ -1746,7 +1749,7 @@ nzGum:RegisterGum("blood_debt", {
 	name = "Blood Debt",
 	type = nzGum.Types.TIME,
 	rare = nzGum.RareTypes.ULTRARAREMEGA,
-	time = 60,
+	time = 120,
 	icon = Material("gums/BloodDebt.png", "smooth unlitgeneric"),
 	desc = "Lose points on hit instead of health (Amount lost depends on damage).",
 	ontimerstart = function(ply)
@@ -2373,11 +2376,10 @@ Unused/Scrapped
 	end,
 })*/
 
---[[
 nzGum:RegisterGum("power_keg", {
 	name = "Power Keg",
 	type = nzGum.Types.USABLE,
-	rare = nzGum.RareTypes.RAREMEGA,
+	rare = nzGum.RareTypes.MEGA,
 	uses = 1,
 	desc = "Spawns a Berzerk Power-Up.",
 	icon = Material("gums/PowerKeg.png", "smooth unlitgeneric"),
@@ -2397,7 +2399,7 @@ nzGum:RegisterGum("conflagration_liquidation", {
 	rare = nzGum.RareTypes.MEGA,
 	uses = 1,
 	desc = "Spawns a Bonfire Sale Power-Up.",
-	icon = Material("gums/ImmolationLiquidation.png", "smooth unlitgeneric"),
+	icon = Material("gums/ConflagrationLiquidation.png", "smooth unlitgeneric"),
 	onuse = function(ply)
 		local enddir = Vector(ply:GetPos()[1] + ply:GetAimVector()[1] * 80, ply:GetPos()[2] + ply:GetAimVector()[2] * 80, ply:GetPos()[3] + 1)
 		if not GetBoxAroundEnt(ply, enddir).Hit then
@@ -2408,6 +2410,7 @@ nzGum:RegisterGum("conflagration_liquidation", {
 	end,
 })
 
+--[[
 nzGum:RegisterGum("perkaholic_old", {
 	name = "Perkaholic",
 	type = nzGum.Types.SPECIAL,

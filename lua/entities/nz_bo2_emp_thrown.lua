@@ -165,20 +165,20 @@ function ENT:Explode()
 		if tr1.HitWorld then continue end
 		
 		if IsValid(v) and v:IsPlayer() and v:GetNotDowned() then
-			v:NZSonicBlind(4)
+			v:NZSonicBlind(2)
 		end
 		
 		if IsValid(v) and v:IsValidZombie() and v.IsMooZombie and v:Health() > 0 then
-			v:BO3Mystify(10)
+			v:PerformStun( math.Rand(5,7) )
 		end
 		
-		if v:GetClass() == "perk_machine" then
+		--[[if v:GetClass() == "perk_machine" then
 			if !v:BrutusLocked() then v:OnBrutusLocked() end
-		end
+		end]]
 		
-		if v:GetClass() == "drop_powerup" then
+		--[[if v:GetClass() == "drop_powerup" then
 			v:Remove()
-		end
+		end]]
 		
 		if v:GetClass() == "nz_zombie_boss_avogadro" then
 			v:PerformDeath()
@@ -190,26 +190,26 @@ function ENT:Explode()
 			end
 		end
 		
-		if v:GetClass() == "random_box" then
+		--[[if v:GetClass() == "random_box" then
 			if v:GetOpen() then v:Close() end
-		end
+		end]]
 		
-		if v:GetClass() == "random_box_windup" then
+		--[[if v:GetClass() == "random_box_windup" then
 			v:Remove()
-		end
+		end]]
 		
-		if v:GetClass() == "pap_weapon_fly" then
+		--[[if v:GetClass() == "pap_weapon_fly" then
 			v:Remove()
-		end
+		end]]
 		
 		if v.GetBuildClass then
 			v:SetHealth(1)
 			v:TakeDamage(666, v, v)
 		end
 		
-		if v.MonkeyBomb then
+		--[[if v.MonkeyBomb then
 			v:Remove()
-		end
+		end]]
 
 	end
 

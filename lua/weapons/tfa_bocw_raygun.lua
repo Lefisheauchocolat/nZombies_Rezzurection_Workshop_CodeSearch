@@ -59,7 +59,7 @@ SWEP.Primary.Automatic = true
 SWEP.Primary.RPM = 181
 SWEP.Primary.RPM_Semi = nil
 SWEP.Primary.RPM_Burst = nil
-SWEP.Primary.Damage = 750
+SWEP.Primary.Damage = 400
 SWEP.Primary.Knockback = 5
 SWEP.Primary.NumShots = 1
 SWEP.Primary.AmmoConsumption = 1
@@ -145,7 +145,7 @@ function SWEP:OnPaP()
 self.Ispackapunched = true
 self.Primary_TFA.ClipSize = 40
 self.Primary_TFA.MaxAmmo = 200
-self.Primary_TFA.Damage = 1000
+self.Primary_TFA.Damage = 600
 self.MuzzleFlashEffect = "tfa_bo4_muzzleflash_raygun_pap"
 self:ClearStatCache()
 return true

@@ -157,10 +157,7 @@ ENT.CustomAttackImpactSounds = {
 	"wavy_zombie/fleshpound/stronghit6.wav",
 }
 
-ENT.BehindSoundDistance = 1 -- When the zombie is within 200 units of a player, play these sounds instead
-ENT.BehindSounds = {
-	Sound("nz_moo/zombies/vox/mute_00.wav"),
-}
+ENT.BehindSoundDistance = 0 -- When the zombie is within 200 units of a player, play these sounds instead
 
 function ENT:StatsInitialize()
 	if SERVER then
@@ -184,6 +181,8 @@ function ENT:StatsInitialize()
 		
 		self.ManIsMad = false
 		self.Malding = false
+		self.Calming = false
+		self.AngryTimer = 0
 	end
 end
 
@@ -216,7 +215,8 @@ end
 
 function ENT:PerformDeath(dmginfo)	
 	self.Dying = true
-
+	
+	self:DebuffZombies()
 	self:BecomeRagdoll(dmginfo)
 	self:EmitSound(self.DeathSounds[math.random(#self.DeathSounds)], 500, math.random(95, 105), 1, 2)
 end
@@ -230,21 +230,44 @@ function ENT:PostTookDamage(dmginfo)
 	if !self:Alive() then return end
 	local attacker = dmginfo:GetAttacker()
 	
-	if IsValid(attacker) and attacker:IsPlayer() and !self.ManIsMad and !self:GetSpecialAnimation() then
-		if math.random(4) == 4 then
+	if IsValid(attacker) and attacker:IsPlayer() and !self.ManIsMad and !self:GetSpecialAnimation() and !self.Calming then
+		if math.random(4) == 1 then
 			self.ManIsMad = true
 			self:PoundingTime()
 		end
 	end
-	if !weaktype[dmginfo:GetDamageType()] then
-		dmginfo:ScaleDamage(0.5)
+	if weaktype[dmginfo:GetDamageType()] then
+		dmginfo:ScaleDamage(3)
 	end
 end
 
 function ENT:PoundingTime()
+	local pos = self:GetPos()
 	self:EmitSound("wavy_zombie/fleshpound/voicerage/rage"..math.random(1,4)..".wav", 500, 100, 1, 2)
 	self:EmitSound("wavy_zombie/fleshpound/malletrage"..math.random(1,2)..".wav", 500)
 	self:SetSkin(1)
+	ParticleEffectAttach("bo2_tomahawk_ring", 4, self, 10)
+	
+	for k, v in pairs(ents.FindInSphere(pos, 100)) do
+
+        if IsValid(v) and v.IsMooZombie and !v.IsMooSpecial and v:Health() > 0 then
+			if !v.HasFleshBuff then
+				v.HasFleshBuff = true
+				v:SetRunSpeed(250)
+				v.loco:SetDesiredSpeed( v:GetRunSpeed() )
+				v:SpeedChanged()
+				v:SetBomberBuff(true)
+				v:SetWaterBuff(true)
+			end
+		end
+			
+		if v:IsValidZombie() and !v:GetSpecialAnimation() and !v.IsMooSpecial and v ~= self then
+			v:PerformStun( math.Rand(1,2) )
+		end
+	end
+	
+	
+	self.AngryTimer = CurTime() + math.random(20,30)
 	self:TempBehaveThread(function(self)
 		self:SetSpecialAnimation(true)
 		self.Malding = true
@@ -252,6 +275,50 @@ function ENT:PoundingTime()
 		self.Malding = false
 		self:SetSpecialAnimation(false)
 		self:SetRunSpeed(71)
+		self:SpeedChanged()
+	end)
+end
+
+function ENT:DebuffZombies()
+	for k,v in nzLevel.GetZombieArray() do
+		if IsValid(v) and v.HasFleshBuff then
+			v.HasFleshBuff = false
+			v:SetRunSpeed(71)
+			v.loco:SetDesiredSpeed( v:GetRunSpeed() )
+			v:SetHealth( nzRound:GetZombieHealth() * 0.5 )
+			v:SpeedChanged()
+			v:SetBomberBuff(false)
+			v:SetWaterBuff(false)
+		end
+	end
+end
+
+function ENT:AI()
+	local target = self:GetTarget()
+	
+	if IsValid(target) and target:IsPlayer() and self:TargetInRange(900) and !self:IsAttackBlocked() and !self.ManIsMad and !self:GetSpecialAnimation() and !self.Calming then
+		if math.random(10) == 1 then
+			self.ManIsMad = true
+			self:PoundingTime()
+		end
+	end
+	
+	if CurTime() > self.AngryTimer and self.ManIsMad and !self:GetSpecialAnimation() then
+		self.ManIsMad = false
+		self:CalmTime()
+	end
+
+end
+
+function ENT:CalmTime()
+	self:SetSkin(0)
+	self:TempBehaveThread(function(self)
+		self:SetSpecialAnimation(true)
+		self.Calming = true
+		self:PlaySequenceAndMove("nz_fleshpound_stun", 1)
+		self.Calming = false
+		self:SetSpecialAnimation(false)
+		self:SetRunSpeed(1)
 		self:SpeedChanged()
 	end)
 end

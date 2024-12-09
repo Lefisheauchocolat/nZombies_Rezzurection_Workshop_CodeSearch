@@ -6,7 +6,7 @@ ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 
 function ENT:InitDataTables()
-	self:NetworkVar("Entity", 5, "BoomDevice")
+	self:NetworkVar("Entity", 6, "BoomDevice")
 end
 
 function ENT:Draw()

@@ -89,6 +89,24 @@ local SlowClimbUp160 = {
 	"nz_hulk_traverse_climbup150"
 }
 
+ENT.ZombieLedgeClimbLoopSequences = {
+    "nz_hulk_climbup_loop",
+}
+ENT.ZombieLedgeClimbSequences = {
+    "nz_hulk_climbup", -- Will only ever be one, for easy overridding.
+}
+ENT.ZombieLedgeClimbSmallSequences = {
+    "nz_hulk_climbup_small", -- Will only ever be one, for easy overridding.
+}
+
+ENT.SparkySequences = {
+    "nz_hulk_stun_idle_loop",
+    "nz_hulk_stun_idle_loop",
+    "nz_hulk_stun_idle_loop",
+    "nz_hulk_stun_idle_loop",
+    "nz_hulk_stun_idle_loop",
+}
+
 local AttackSequences = {
 	{seq = "nz_hulk_attack_stand"},
 }
@@ -335,7 +353,7 @@ function ENT:StatsInitialize()
 		-- Now using because the timeout no longer pauses nextbot movements.
 		self:SetRunSpeed(nzRound:GetNumber() >= 35 and 155 or 71) -- could be useful later, but the tanks supersprint is so fast he constantly times out lol
 		--self:SetRunSpeed(71)
-		self:SetCollisionBounds(Vector(-16,-16, 0), Vector(16, 16, 72))			-- Nextbots Collision Box(Mainly for interacting with the world.)
+		self:SetCollisionBounds(Vector(-15,-15, 0), Vector(15, 15, 72))			-- Nextbots Collision Box(Mainly for interacting with the world.)
 		self:SetSurroundingBounds(Vector(-40, -40, 0), Vector(40, 40, 90)) 	-- Nextbots Surrounding Bounds(For Hitbox detection.)
 		
 		self.SmashCooldown = CurTime() + 4

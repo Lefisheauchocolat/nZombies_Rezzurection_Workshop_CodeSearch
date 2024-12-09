@@ -42,6 +42,8 @@ local nz_powerupstyle = GetConVar("nz_hud_powerup_style")
 
 local nz_perkrowmod = GetConVar("nz_hud_perk_row_modulo")
 local nz_mapfont = GetConVar("nz_hud_use_mapfont")
+local nz_bleedoutstyle = GetConVar("nz_hud_bleedout_style")
+local nz_bleedouttime = GetConVar("nz_downtime")
 
 local color_white_50 = Color(255, 255, 255, 50)
 local color_white_100 = Color(255, 255, 255, 100)
@@ -54,6 +56,7 @@ local color_red_200 = Color(200, 0, 0, 255)
 local color_red_255 = Color(255, 0, 0, 255)
 local color_red_20 = Color(255, 0, 0, 20)
 
+local color_grey_100 = Color(100,100,100,255)
 local color_grey = Color(200, 200, 200, 255)
 local color_used = Color(250, 200, 120, 255)
 local color_gold = Color(255, 255, 100, 255)
@@ -381,7 +384,7 @@ local illegalspecials = {
 
 local function StatesHud_t7_zod()
 	if not cl_drawhud:GetBool() then return end
-	if not (nzRound:InState(ROUND_WAITING) or nzRound:InState(ROUND_CREATE) or nzRound:InState(ROUND_GO)) then return end
+	if nzRound:InProgress() then return end
 
 	local text = ""
 	local font = "nz.main.blackops2"
@@ -400,8 +403,6 @@ local function StatesHud_t7_zod()
 		end
 	elseif nzRound:InState(ROUND_CREATE) then
 		text = "Creative Mode"
-	elseif nzRound:InState(ROUND_GO) then
-		text = "Game Over"
 	end
 
 	local fontColor = !IsColor(nzMapping.Settings.textcolor) and color_red_200 or nzMapping.Settings.textcolor
@@ -482,6 +483,9 @@ local function DrawSpecialistCircle( X, Y, target_radius, value, active, empty )
 end
 
 local function InventoryHUD_t7_zod()
+	if not cl_drawhud:GetBool() then return end
+	if not (nzRound:InProgress() or nzRound:InState(ROUND_CREATE)) then return end
+
 	local ply = LocalPlayer()
 	if not IsValid(ply) then return end
 	if ply:IsNZMenuOpen() then return end
@@ -920,7 +924,7 @@ local function ScoreHud_t7_zod()
 		
 			local armor = v:Armor()
 			if armor > 0 then
-				local maxarmor = 200
+				local maxarmor = v:GetMaxArmor()
 				local armorscale = math.Clamp(armor / maxarmor, 0, 1)
 
 				surface.SetDrawColor(color_black_180)
@@ -1002,6 +1006,10 @@ local function GunHud_t7_zod()
 
 	local ply = LocalPlayer()
 	if not IsValid(ply) then return end
+	if nzRound:InState(ROUND_GO) and not ply:Alive() then
+		return
+	end
+
 	if ply:IsNZMenuOpen() then return end
 	if IsValid(ply:GetObserverTarget()) then
 		ply = ply:GetObserverTarget()
@@ -1069,6 +1077,8 @@ local function GunHud_t7_zod()
 		surface.SetDrawColor(color_white)
 		surface.DrawTexturedRectUV(45*scale, h - hight*scale, 256*scale*0.6, 64*scale*0.6, 0 + angle , 0, 0.5 + angle , 1)
 	end
+
+	if not (nzRound:InProgress() or nzRound:InState(ROUND_CREATE)) then return end
 
 	//weapon
 	if IsValid(wep) then
@@ -1827,6 +1837,8 @@ local perkflashtime = 0
 local stinkfade = 0
 local function PerksHud_t7_zod()
 	if not cl_drawhud:GetBool() then return end
+	if not (nzRound:InProgress() or nzRound:InState(ROUND_CREATE)) then return end
+
 	local ply = LocalPlayer()
 	if not IsValid(ply) then return end
 	if IsValid(ply:GetObserverTarget()) then
@@ -1834,8 +1846,20 @@ local function PerksHud_t7_zod()
 	end
 
 	local pscale = (ScrW()/1920 + 1)/2
-
 	local perks = ply:GetPerks()
+
+	local bleedtime = ply.GetBleedoutTime and ply:GetBleedoutTime() or nz_bleedouttime:GetFloat()
+	local data = nzRevive.Players[ply:EntIndex()]
+	if nz_bleedoutstyle:GetInt() == 0 and data then
+		local pdata = data.PerksToKeep
+		if pdata and next(pdata) ~= nil then
+			perks = {}
+			for k, v in ipairs(pdata) do
+				perks[k] = v.id
+			end
+		end
+	end
+
 	local maxperks = ply:GetMaxPerks()
 	local w = ScrW()/1920 + (206*pscale)
 	local h = ScrH()
@@ -1908,7 +1932,7 @@ local function PerksHud_t7_zod()
 		surface.DrawTexturedRect((w - 40*pscale) + ((flashcount-1)*(size + 6))*pscale, h - 148*pscale - 64*flashrow, 128*pscale, 128*pscale)
 	end
 
-	for _, perk in pairs(perks) do
+	for i, perk in pairs(perks) do
 		local icon = GetPerkIconMaterial(perk)
 		if not icon or icon:IsError() then
 			icon = zmhud_icon_missing
@@ -1919,14 +1943,31 @@ local function PerksHud_t7_zod()
 			alpha = 1 - math.Clamp((perkflashtime - CurTime()) / 1, 0, 1)
 		end
 
+		local fuckset = 0
+		local pulse = 1
+		local perkcolor = color_white
+		if data and data.DownTime and data.PerksToKeep and data.PerksToKeep[i] then
+			local pdata = data.PerksToKeep[i]
+			if pdata.lost then
+				perkcolor = color_grey_100
+			elseif !data.ReviveTime then
+				local timetodeath = data.DownTime + bleedtime - CurTime()
+				if (timetodeath / bleedtime) < (pdata.prc + (1/(#data.PerksToKeep + 1))) then
+					local wave = math.Clamp(math.sin(CurTime()*6), 0, 1)
+					pulse = math.Remap(wave, 0, 1, 1, 1.2)
+					fuckset = 5.4*math.Remap(wave, 0, 1, 0, 1)
+				end
+			end
+		end
+
 		surface.SetMaterial(icon)
-		surface.SetDrawColor(alpha < 1 and ColorAlpha(color_white, 800*alpha) or color_white)
-		surface.DrawTexturedRect(w + num*(size + 6)*pscale, h - 100*pscale - (64*row)*pscale, 54*pscale, 54*pscale)
+		surface.SetDrawColor(alpha < 1 and ColorAlpha(perkcolor, 800*alpha) or perkcolor)
+		surface.DrawTexturedRect(w + num*(size + 6)*pscale - fuckset*pscale, h - (100 + fuckset)*pscale - (64*row)*pscale, 54*pulse*pscale, 54*pulse*pscale)
 
 		if ply:HasUpgrade(perk) then
 			surface.SetDrawColor(color_gold)
 			surface.SetMaterial(GetPerkFrameMaterial())
-			surface.DrawTexturedRect(w + num*(size + 6)*pscale, h - 100*pscale - (64*row)*pscale, 54*pscale, 54*pscale)
+			surface.DrawTexturedRect(w + num*(size + 6)*pscale - fuckset*pscale, h - (100 + fuckset)*pscale - (64*row)*pscale, 54*pulse*pscale, 54*pulse*pscale)
 		end
 
 		if perk == "vulture" then
@@ -2077,6 +2118,10 @@ end
 local function RoundHud_t7_zod()
 	if !nzRound then return end
 	if not cl_drawhud:GetBool() then return end
+	if not (nzRound:InProgress() or nzRound:InState(ROUND_GO) or nzRound:InState(ROUND_CREATE)) then return end
+	if nzRound:InState(ROUND_GO) and not LocalPlayer():Alive() then
+		return
+	end
 
 	local w, h = ScrW(), ScrH()
 	local pscale = (w/1920 + 1)/2
@@ -2230,6 +2275,13 @@ local function EndChangeRound_t7_zod()
 end
 
 local function ResetRound_t7_zod()
+	timer.Create("round_reseter", 0, 0, function()
+		local ply = LocalPlayer()
+		if not IsValid(ply) or not ply:Alive() then
+			timer.Remove("round_reseter")
+			WipeRound()
+		end
+	end)
 end
 
 --[[ JEN WALTER'S ROUND COUNTER ]]--
@@ -2262,7 +2314,7 @@ local function PlayerHealthHUD_t7_zod()
 
 	local armor = ply:Armor()
 	if armor > 0 then
-		local maxarmor = 200
+		local maxarmor = ply:GetMaxArmor()
 		local armorscale = math.Clamp(armor / maxarmor, 0, 1)
 
 		surface.SetDrawColor(color_black_180)
@@ -2310,6 +2362,7 @@ end
 local function ZedCounterHUD_t7_zod()
 	if not cl_drawhud:GetBool() then return end
 	if not nz_showzcounter:GetBool() then return end
+	if not (nzRound:InProgress() or nzRound:InState(ROUND_CREATE)) then return end
 
 	local w, h = ScrW(), ScrH()
 	local scale = (w/1920 + 1) / 2

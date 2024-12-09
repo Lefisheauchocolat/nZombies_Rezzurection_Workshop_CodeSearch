@@ -484,7 +484,7 @@ function ENT:PostTookDamage(dmginfo)
 		dmginfo:ScaleDamage(0.25)
 	end
 
-	if CurTime() > self.ManIsMadCooldown and !self.ManIsMad and !self.IsTurned and math.random(100) <= 50 then
+	if CurTime() > self.ManIsMadCooldown and !self.ManIsMad and !self.IsTurned and math.random(100) <= 50 and !self:GetSpecialAnimation() then
 		self.ManIsMad = true
 		self.ManIsMadTime = CurTime() + math.Rand(4.25, 4.95)
 
@@ -499,6 +499,7 @@ function ENT:OnAttack()
 	if self.ManIsMad then
 		self.ManIsMad = false
 		self.ManNoLongerMad = true
+		self.BlockBigJumpThink = false
 		self.ManIsMadCooldown = CurTime() + 6
 	end
 end
@@ -506,6 +507,7 @@ end
 function ENT:PostAttack()
 	if self.ManNoLongerMad then
 		self.ManNoLongerMad = false
+		self.BlockBigJumpThink = false
 
 		self:SetRunSpeed(1)
 		self:SpeedChanged()
@@ -518,6 +520,7 @@ function ENT:AI()
 		self:DoSpecialAnimation("nz_base_follower_charge_attack")
 
 		self.ManIsMad = false
+		self.BlockBigJumpThink = true
 		self.ManIsMadCooldown = CurTime() + 3
 
 		self:SetRunSpeed(1)

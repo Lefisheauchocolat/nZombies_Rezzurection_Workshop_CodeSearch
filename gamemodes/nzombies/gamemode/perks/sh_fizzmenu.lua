@@ -177,7 +177,7 @@ if CLIENT then
 			hover:SetDrawOnTop(true)
 
 			local perkdata = vgui.Create("DImageButton", panel)
-			perkdata:SetPos(106*scale + num*(size + 24)*scale, 156*scale + (72*row)*scale)
+			perkdata:SetPos(106*scale + num*(size + 24)*scale, 157*scale + (72*row)*scale)
 			perkdata:SetSize(size*scale,size*scale)
 			perkdata:SetColor(color_white)
 			perkdata:SetMaterial(GetPerkIconMaterial(perk))

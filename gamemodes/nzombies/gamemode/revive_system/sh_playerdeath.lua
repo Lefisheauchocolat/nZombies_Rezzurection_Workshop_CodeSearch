@@ -47,6 +47,10 @@ local function HandleKillCommand(ply)
 				end
 			end
 
+			if nzRound:InState(ROUND_GO) then
+				return false
+			end
+
 			ply:KillDownedPlayer()
 		end
 	end

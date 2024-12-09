@@ -1178,28 +1178,6 @@ ENT.CustomMeleeWhooshSounds = {
 
 function ENT:StatsInitialize()
 	if SERVER then
-		if nzRound:GetNumber() == -1 then
-			self:SetRunSpeed( math.random(25, 220) )
-			self:SetHealth( math.random(100, 1500) )
-		else
-			local speeds = nzRound:GetZombieCoDSpeeds()
-			if speeds then
-				self:SetRunSpeed( nzMisc.WeightedRandom(speeds) + math.random(0,35) )
-			else
-				self:SetRunSpeed( 100 )
-			end		
-
-			if self:GetModel() == "models/moo/_codz_ports/t6/highrise/moo_codz_t6_highrise_soldier_1.mdl" then -- armored zombies have 50% more health
-				self:SetHealth( math.ceil(nzRound:GetZombieHealth() * 1.5) or 75 )
-			else
-				self:SetHealth( nzRound:GetZombieHealth() or 75 )
-			end			
-		end
-	end
-end
-
-function ENT:StatsInitialize()
-	if SERVER then
 		local speeds = nzRound:GetZombieCoDSpeeds()
 		if speeds then
 			self:SetRunSpeed( nzMisc.WeightedRandom(speeds) + math.random(0,35) )

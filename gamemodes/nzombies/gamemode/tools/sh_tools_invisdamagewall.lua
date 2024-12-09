@@ -76,13 +76,15 @@ nzTools:CreateTool("damagewall", {
 			valz["Delay"] = data.delay or 0.5
 			valz["DmgType"] = data.dmgtype or 1
 			valz["RespawnZ"] = data.respawnz or false
+			valz["Electric"] = data.elec or false
 		end
 
 		function pnl.CompileData()
 			data.dmg = valz["Dmg"]
 			data.delay = valz["Delay"]
 			data.dmgtype = valz["DmgType"]
-			data.respawnz = valz["RespawnZ"]
+			data.respawnz = tobool(valz["RespawnZ"])
+			data.elec = tobool(valz["Electric"])
 			
 			return data
 		end
@@ -124,7 +126,12 @@ nzTools:CreateTool("damagewall", {
 		local respawnz = properties:CreateRow( "Damage Properties", "Respawn Zombies on Contact?" )
 		respawnz:Setup( "Boolean" )
 		respawnz:SetValue( valz["RespawnZ"] )
-		respawnz.DataChanged = function( _, val ) valz["RespawnZ"] = val pnl.UpdateData(pnl.CompileData()) end
+		respawnz.DataChanged = function( _, val ) valz["RespawnZ"] = tobool(val) pnl.UpdateData(pnl.CompileData()) end
+
+		local elec = properties:CreateRow( "Damage Properties", "Require Power On" )
+		elec:Setup( "Boolean" )
+		elec:SetValue( valz["Electric"] )
+		elec.DataChanged = function( _, val ) valz["Electric"] = tobool(val) pnl.UpdateData(pnl.CompileData()) end
 
 		return pnl
 	end,
@@ -153,6 +160,7 @@ nzTools:CreateTool("damagewall", {
 		dmg = 10,
 		delay = 0.5,
 		dmgtype = 1,
-		respawnz = 0,
+		respawnz = false,
+		elec = false,
 	}
 })

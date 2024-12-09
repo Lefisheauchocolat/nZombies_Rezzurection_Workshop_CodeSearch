@@ -6,7 +6,7 @@ SWEP.UseHands = true
 SWEP.Type_Displayed = "Misc"
 SWEP.Author = "FlamingFox"
 SWEP.Slot = 0
-SWEP.PrintName = "Death"
+SWEP.PrintName = ""
 SWEP.DrawCrosshair = false
 SWEP.DrawCrosshairIS = false
 SWEP.DrawAmmo = false
@@ -20,9 +20,10 @@ SWEP.HoldType = "passive"
 SWEP.CameraAttachmentOffsets = {}
 SWEP.CameraAttachmentScale = 1
 SWEP.MuzzleAttachment = "1"
-SWEP.VMPos = Vector(0, 4, 0)
+SWEP.VMPos = Vector(0, 6, 0)
 SWEP.VMAng = Vector(0, 0, 0)
 SWEP.VMPos_Additive = true
+SWEP.ShowViewModel = true
 
 SWEP.Offset = { --Procedural world model animation, defaulted for CS:S purposes.
         Pos = {
@@ -85,9 +86,9 @@ SWEP.ViewModelPunchYawMultiplier = 0.25 -- Default value is 0.6
 SWEP.ViewModelPunchYawMultiplier_IronSights = 0.25 -- Default value is 0.25
 
 --[Spread Related]--
-SWEP.Primary.Spread		  = .05
-SWEP.Primary.IronAccuracy = .05
-SWEP.IronRecoilMultiplier = 0.6
+SWEP.Primary.Spread		  = .0001
+SWEP.Primary.IronAccuracy = .0001
+SWEP.IronRecoilMultiplier = 0.0
 SWEP.CrouchAccuracyMultiplier = 1
 
 SWEP.Primary.KickUp				= 0
@@ -95,9 +96,9 @@ SWEP.Primary.KickDown			= 0
 SWEP.Primary.KickHorizontal		= 0
 SWEP.Primary.StaticRecoilFactor	= 0
 
-SWEP.Primary.SpreadMultiplierMax = 3
+SWEP.Primary.SpreadMultiplierMax = 1
 SWEP.Primary.SpreadIncrement = 0
-SWEP.Primary.SpreadRecovery = 6
+SWEP.Primary.SpreadRecovery = 1
 
 --[Iron Sights]--
 SWEP.data = {}
@@ -136,6 +137,15 @@ SWEP.SprintBobMult = 0
 
 --[Coding]--
 DEFINE_BASECLASS( SWEP.Base )
+
+function SWEP:Think2(...)
+	//the dying animation loops and im too lazy to find a real fix
+	if self:GetCreationTime() + 6.9 < CurTime() and self.ShowViewModel then
+		self.ShowViewModel = false
+	end
+
+	return BaseClass.Think2(self, ...)
+end
 
 -- Disable functions that should not be used
 function SWEP:PrimaryAttack()

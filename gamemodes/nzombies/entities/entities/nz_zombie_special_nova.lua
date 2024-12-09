@@ -509,6 +509,17 @@ function ENT:AI()
 			self.PhaseCooldown = CurTime() + 3.15
 		end
 	end
+
+	if self:GetRunSpeed() < 125 and !self.IsMooSpecial and nzRound:InProgress() and nzRound:GetNumber() >= 4 and !nzRound:IsSpecial() and nzRound:GetZombiesKilled() >= nzRound:GetZombiesMax() - 3 then
+		if self:GetCrawler() then return end
+		self.LastZombieMomento = true
+	end
+	if self.LastZombieMomento and !self:GetSpecialAnimation() --[[and !self.ZCTGiveGreenStats]] then
+		--print("Uh oh Mario, I'm about to beat your fucking ass lol.")
+		self.LastZombieMomento = false
+		self:SetRunSpeed(100)
+		self:SpeedChanged()
+	end
 end
 
 function ENT:PerformDeath(dmginfo)	

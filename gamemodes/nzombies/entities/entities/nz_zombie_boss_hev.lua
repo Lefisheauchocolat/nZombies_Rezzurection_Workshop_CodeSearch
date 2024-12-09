@@ -361,21 +361,9 @@ function ENT:HandleAnimEvent(a,b,c,d,e)
 				v.loco:SetDesiredSpeed( v:GetRunSpeed() )
 				v:SpeedChanged()
 			end
-		if v:IsValidZombie() then
-			if v.TempBehaveThread and v.SparkySequences then
-			ParticleEffectAttach("bo3_shield_electrify_zomb", PATTACH_ABSORIGIN_FOLLOW, v, 2)
-			if v.PlaySound and v.ElecSounds then
-				v:PlaySound(v.ElecSounds[math.random(#v.ElecSounds)], v.SoundVolume or SNDLVL_NORM, math.random(v.MinSoundPitch, v.MaxSoundPitch), 1, 2)
+			if v:IsValidZombie() and !v:GetSpecialAnimation() and !v.IsMooSpecial and v ~= self then
+				v:PerformStun( math.Rand(1,2) )
 			end
-
-			v:TempBehaveThread(function(v)
-				local seq = v.SparkySequences[math.random(#v.SparkySequences)]
-				local id, time = v:LookupSequence(seq)
-				v:PlaySequenceAndWait(seq)
-				v:StopParticles()
-			end)
-			end
-		end
 		end
 	end
 end

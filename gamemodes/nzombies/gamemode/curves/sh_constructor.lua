@@ -64,7 +64,7 @@ if SERVER then
 			max = cap + ((ply - 1) * 6) -- Did the amount of zombies go over the cap? Force it to the capped value. (Considering for multiple players of course.)
 		end
 
-		return (round == -1 and 6 or round <= 5 and math.floor(roundtab[round](max)) or math.floor(max))
+		return (round == -1 and 666 or round <= 5 and math.floor(roundtab[round](max)) or math.floor(max))
 	end
 
 	function nzCurves.GenerateSpeedTable(round)
@@ -98,7 +98,7 @@ if SERVER then
 		local multiplier = nzMapping.Settings.speedmulti or 4 -- Actual value used in BO3 onward. If you want Pre-BO3 Speed increases, use 8 instead.
 		local speed = nzMapping.Settings.startspeed or 0
 
-		local cap = 999
+		local cap = nzMapping.Settings.speedcap
 
 		if cap <= 0 then cap = 999 end -- If its set to 0, then default to 999(Idiot protection).
 

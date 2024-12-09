@@ -14,6 +14,9 @@ local zmhud_icon_missing = Material("nz_moo/icons/statmon_warning_scripterrors.p
 local zmhud_icon_frame = Material("nz_moo_21/icons/perk_frame.png", "unlitgeneric smooth")
 
 function nzPerks:GetPerkIcon(perk, setName)
+if setName == nil then
+setName = "PRESS SUBMIT RIGHT NOW"
+end
 	local cacheKey = setName .. perk
 	if nzPerks.IconCache[cacheKey] then
 		return nzPerks.IconCache[cacheKey]
@@ -52,10 +55,12 @@ nzPerks:RegisterIconSet("Infinite Warfare", "nz_moo_21/icons/iw/", "nz_moo_21/ic
 nzPerks:RegisterIconSet("Modern Warfare", "nz_moo_21/icons/mw/", "nz_moo_21/icons/mw_frame.png")
 nzPerks:RegisterIconSet("Cold War", "nz_moo_21/icons/cw/", "nz_moo_21/icons/perk_frame.png")
 nzPerks:RegisterIconSet("Vanguard", "nz_moo_21/icons/griddy/", "nz_moo_21/icons/griddy_frame.png")
+nzPerks:RegisterIconSet("Classic Vanguard", "nz_moo_21/icons/vangriddy_owl/", "nz_moo_21/icons/griddy_frame.png")
 nzPerks:RegisterIconSet("April Fools", "nz_moo_21/icons/aprilfools/", "nz_moo_21/icons/perk_frame.png")
 nzPerks:RegisterIconSet("No Background", "nz_moo_21/icons/no background/", "nz_moo_21/icons/perk_frame.png")
-nzPerks:RegisterIconSet("Hololive", "perk_icons/holo/", "nz_moo_21/icons/perk_frame.png")
-nzPerks:RegisterIconSet("Shadows of Evil", "nz_moo_21/icons/soe/", "nz_moo_21/icons/perk_frame.png")
+nzPerks:RegisterIconSet("Shadows of Evil", "nz_moo_21/icons/soe_v2/", "nz_moo_21/icons/perk_frame.png")
+nzPerks:RegisterIconSet("Classic Shadows of Evil", "nz_moo_21/icons/soe/", "nz_moo_21/icons/perk_frame.png")
+nzPerks:RegisterIconSet("The Giant", "nz_moo_21/icons/soe_giant/", "nz_moo_21/icons/perk_frame.png")
 nzPerks:RegisterIconSet("WW2", "nz_moo_21/icons/ww2/", "nz_moo_21/icons/perk_frame.png")
 nzPerks:RegisterIconSet("Halloween", "nz_moo_21/icons/halloween/", "nz_moo_21/icons/perk_frame.png")
 nzPerks:RegisterIconSet("Christmas", "nz_moo_21/icons/christmas/", "nz_moo_21/icons/perk_frame.png")
@@ -63,6 +68,7 @@ nzPerks:RegisterIconSet("Classic Christmas", "nz_moo_21/icons/christmas_classic/
 nzPerks:RegisterIconSet("Classic Halloween", "nz_moo_21/icons/halloween_classic/", "nz_moo_21/icons/perk_frame.png")
 nzPerks:RegisterIconSet("Neon", "nz_moo_21/icons/neon/", "nz_moo_21/icons/perk_frame.png")
 nzPerks:RegisterIconSet("Overgrown", "nz_moo_21/icons/overgrown/", "nz_moo_21/icons/perk_frame.png")
+nzPerks:RegisterIconSet("Classic Overgrown", "nz_moo_21/icons/overgrown_old/", "nz_moo_21/icons/perk_frame.png")
 nzPerks:RegisterIconSet("MW3 Zombies", "nz_moo_21/icons/mw3z/", "nz_moo_21/icons/mw3_frame.png")
 nzPerks:RegisterIconSet("Frosted Flakes", "nz_moo_21/icons/frosty/", "nz_moo_21/icons/perk_frame.png")
 nzPerks:RegisterIconSet("Classic Frosted Flakes", "nz_moo_21/icons/frosted/", "nz_moo_21/icons/perk_frame.png")
@@ -76,3 +82,5 @@ nzPerks:RegisterIconSet("So Retro", "nz_moo_21/icons/so_retro/", "nz_moo_21/icon
 nzPerks:RegisterIconSet("Thin & Simple", "nz_moo_21/icons/bo3/", "nz_moo_21/icons/perk_frame.png")
 nzPerks:RegisterIconSet("Rezzurrection", "nz_moo_21/icons/sam/", "nz_moo_21/icons/sam_frame.png")
 nzPerks:RegisterIconSet("Squared", "nz_moo_21/icons/fizzy/", "nz_moo_21/icons/fizzy_frame.png")
+nzPerks:RegisterIconSet("Comic", "nz_moo_21/icons/comic/", "nz_moo_21/icons/comic_frame.png")
+nzPerks:RegisterIconSet("Flask", "nz_moo_21/icons/alchemy/", "nz_moo_21/icons/alchemy_frame.png")

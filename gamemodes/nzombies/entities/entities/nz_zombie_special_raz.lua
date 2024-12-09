@@ -189,7 +189,14 @@ ENT.ZombieLandSequences = {
 	"nz_base_zmb_raz_land", -- Will only ever be one, for easy overridding.
 }
 
+ENT.ZombieStunInSequence = "nz_base_zmb_raz_stun_in"
+ENT.ZombieStunOutSequence = "nz_base_zmb_raz_stun_out"
+
 ENT.SparkySequences = {
+	"nz_base_zmb_raz_stun_loop",
+	"nz_base_zmb_raz_stun_loop",
+	"nz_base_zmb_raz_stun_loop",
+	"nz_base_zmb_raz_stun_loop",
 	"nz_base_zmb_raz_stun_loop",
 }
 
@@ -495,12 +502,12 @@ function ENT:StatsInitialize()
 		local count = #player.GetAllPlaying()
 
 		if nzRound:InState( ROUND_CREATE ) then
-			self:SetHealth(2500)
-			self:SetMaxHealth(2500)
+			self:SetHealth(5000)
+			self:SetMaxHealth(5000)	
 		else
 			if nzRound:InState( ROUND_PROG ) then
-				self:SetHealth(math.Clamp(nzRound:GetNumber() * 750 + 500, 1000, 55000 * count))
-				self:SetMaxHealth(math.Clamp(nzRound:GetNumber() * 750 + 500, 1000, 55000 * count))
+				self:SetHealth(math.Clamp(nzRound:GetNumber() * 425 + 225, 1000, 25000 * count))
+				self:SetMaxHealth(math.Clamp(nzRound:GetNumber() * 425 + 225, 1000, 25000 * count))
 			else
 				self:SetHealth(5000)
 				self:SetMaxHealth(5000)	
@@ -513,12 +520,12 @@ function ENT:StatsInitialize()
 		self.ArmCannonHP = self:GetMaxHealth() * 0.01
 
 		self.Helmet = true
-		self.HelmetHP = self:GetMaxHealth() * 0.25
+		self.HelmetHP = self:GetMaxHealth() * 0.125
 
 		self.Chest = true
-		self.ChestHP = self:GetMaxHealth() * 0.25
+		self.ChestHP = self:GetMaxHealth() * 0.125
 
-		self.RandomEnrage = CurTime() + math.random(7,17)
+		self.RandomEnrage = CurTime() + math.random(15,27)
 		self.ShouldEnrage = false
 		self.Enraged = false
 
@@ -570,6 +577,10 @@ function ENT:OnSpawn()
 		self:SetIsBusy(false)
 		self:CollideWhenPossible()
 	end
+end
+
+function ENT:OnStunOut() 
+	self:PlaySound(self.AttackSounds[math.random(#self.AttackSounds)], 90, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
 end
 
 function ENT:AI()
@@ -868,8 +879,9 @@ function ENT:CustomAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 		if IsValid(target) then
 			self.ZapShot = ents.Create("nz_proj_mangler_shot_bo3")
 			self.ZapShot:SetPos(rarmfx_tag)
+			self.ZapShot:SetAngles((target:GetPos() - self:GetPos()):Angle())
 			self.ZapShot:Spawn()
-			self.ZapShot:Launch(((target:EyePos() - Vector(0,0,7) + target:GetVelocity() * math.Clamp(target:GetVelocity():Length2D(),0,0.5)) - self.ZapShot:GetPos()):GetNormalized())
+			self.ZapShot:SetVictim(target)
 		end
 
 		if self.Enraged then 

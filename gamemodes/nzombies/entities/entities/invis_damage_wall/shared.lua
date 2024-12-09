@@ -16,6 +16,7 @@ function ENT:SetupDataTables()
 	self:NetworkVar("Int", 1, "Damage")
 	self:NetworkVar("Float", 0, "Delay")
 	self:NetworkVar("Bool", 0, "RespawnZombie")
+	self:NetworkVar("Bool", 1, "Electric")
 end
 
 function ENT:Initialize()
@@ -27,14 +28,14 @@ function ENT:Initialize()
 	if self.SetRenderBounds then
 		self:SetRenderBounds(Vector(0,0,0), self:GetMaxBound())
 	end
-	
+
 	if SERVER then
 		self.PlayersInside = {}
 		self.ZombiesInside = {}
 	else
 		self.NextPoisonCloud = 0
 	end
-	
+
 	self.NextDamage = 0
 end
 
@@ -86,7 +87,7 @@ ENT.DamageWallEnums = {
 
 function ENT:Think()
 	local ct = CurTime()
-	if SERVER and (!self.NextAttack or self.NextAttack < ct) then
+	if SERVER and (!self.NextAttack or self.NextAttack < ct) and (!self:GetElectric() or (self:GetElectric() and nzElec:IsOn())) then
 		local dmg = DamageInfo()
 		dmg:SetDamage(self:GetDamage())
 		dmg:SetAttacker(self)
@@ -125,7 +126,7 @@ function ENT:Think()
 			if !v:Alive() then
 				self:EndTouch(v)
 			else
-				if self:GetRespawnZombie() then
+				if self:GetRespawnZombie() == true then
 					v:RespawnZombie(false)
 				end
 			end
@@ -180,6 +181,13 @@ if CLIENT then
 		end
 		
 		if self:GetPoison() then
+			if self:GetElectric() and !nzElec:IsOn() then
+				if self.PoisonEmitter and IsValid(self.PoisonEmitter) then
+					self.PoisonEmitter:Finish()
+				end
+				return
+			end
+
 			local size = self:GetMaxBound()
 			local scale = math.abs(size.x * size.y * size.z)
 			

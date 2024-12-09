@@ -17,31 +17,38 @@ if SERVER then
 			hook.Remove("Think", "nzEECameraThink")
 			return
 		end
-		
+
 		nextqueuetime = RealTime() + q.time
 		local time = nextqueuetime
 		local camtime = q.time
-		
+
 		local startpos = q.startpos
 		local endpos = q.endpos
 		if startpos and endpos then
 			local dir = endpos - startpos
-			hook.Add("SetupPlayerVisibility", "nzEndCameraPVS", function( ply )
+			hook.Add("SetupPlayerVisibility", "nzEndCameraPVS", function(ply, viewEnt)
 				local delta = math.Clamp((time-RealTime())/camtime, 0, 1)
-				local pos = startpos + dir*delta
-				AddOriginToPVS(pos)
-				
+				local pos = endpos - dir*delta
+
+				if viewEnt:IsValid() then
+					if !viewEnt:TestPVS(pos) then
+						AddOriginToPVS(pos)
+					end
+				elseif !ply:TestPVS(pos) then
+					AddOriginToPVS(pos)
+				end
+
 				if time < RealTime() then
 					hook.Remove("SetupPlayerVisibility", "nzEndCameraPVS")
 				end
 			end)
 		end
-		
+
 		if q.func then q.func() end
 	end
 	
 	local function StartCamQueue()
-		PrintTable(queue)
+		//PrintTable(queue)
 		local start = queue[1]
 		if !start then return end
 		
@@ -150,7 +157,7 @@ if CLIENT then
 	local curqueueinsert = 0
 	
 	local function FadeCam()
-		print("Fading")
+		//print("Fading")
 		local fade = 0
 		local fadeup = true
 		hook.Add("HUDPaint", "nzEECameraFade", function()
@@ -230,7 +237,7 @@ if CLIENT then
 	end
 	
 	local function StartCamQueue()
-		PrintTable(queue)
+		//PrintTable(queue)
 		local start = queue[1]
 		if !start then return end
 		

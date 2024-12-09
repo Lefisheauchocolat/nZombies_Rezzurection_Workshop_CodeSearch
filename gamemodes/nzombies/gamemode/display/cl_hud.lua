@@ -107,6 +107,10 @@ if GetConVar("nz_hud_powerup_style") == nil then
 	CreateClientConVar("nz_hud_powerup_style", 1, true, false, "Changes style of Power-Up tray. (0 Static, 1 Animated, 2 Animated (No Fade)), Default is 1.", 0, 2)
 end
 
+if GetConVar("nz_hud_bleedout_style") == nil then
+	CreateClientConVar("nz_hud_bleedout_style", 1, true, false, "Changes the look of the perk bleedout meter. (0 Deck, 1 Line, 2 Circle), Default is 2.", 0, 2)
+end
+
 if GetConVar("nz_bloodmeleeoverlay") == nil then
 	CreateClientConVar("nz_bloodmeleeoverlay", 1, true, true, "Enable or disable drawing the blood splatter effect on the screen when damaging zombies with a melee weapon. (0 false, 1 true), Default is 1.", 0, 1)
 end
@@ -148,6 +152,8 @@ local nz_aatstyle = GetConVar("nz_hud_aat_style")
 local nz_aatcolor = GetConVar("nz_hud_aat_textcolor")
 local nz_perkrowmod = GetConVar("nz_hud_perk_row_modulo")
 local nz_mapfont = GetConVar("nz_hud_use_mapfont")
+local nz_bleedoutstyle = GetConVar("nz_hud_bleedout_style")
+local nz_bleedouttime = GetConVar("nz_downtime")
 
 local color_white_50 = Color(255, 255, 255, 50)
 local color_white_100 = Color(255, 255, 255, 100)
@@ -165,6 +171,7 @@ local color_t7zod_outline = Color(255, 120, 10, 40)
 local color_t7tomb = Color(255, 245, 245, 255)
 local color_t7tomb_outline = Color(200, 40, 80, 10)
 
+local color_grey_100 = Color(100,100,100,255)
 local color_grey = Color(200, 200, 200, 255)
 local color_used = Color(250, 200, 120, 255)
 local color_gold = Color(255, 255, 100, 255)
@@ -515,7 +522,7 @@ local illegalspecials = {
 end]]
 
 local function StatesHud()
-	if cl_drawhud:GetBool() then
+	if cl_drawhud:GetBool() and !nzRound:InProgress() then
 		local text = ""
 		local font = ("nz.main."..GetFontType(nzMapping.Settings.mainfont))
 		local w, h = ScrW(), ScrH()
@@ -529,8 +536,6 @@ local function StatesHud()
 			font = ("nz.small."..GetFontType(nzMapping.Settings.smallfont))
 		elseif nzRound:InState( ROUND_CREATE ) then
 			text = "Creative Mode"
-		elseif nzRound:InState( ROUND_GO ) then
-			text = "Game Over"
 		end
 
 		local fontColor = !IsColor(nzMapping.Settings.textcolor) and color_red_200 or nzMapping.Settings.textcolor
@@ -557,6 +562,7 @@ end)
 //Equipment
 local function InventoryHUD()
 	if not cl_drawhud:GetBool() then return end
+	if not (nzRound:InProgress() or nzRound:InState(ROUND_CREATE)) then return end
 
 	local ply = LocalPlayer()
 	if not IsValid(ply) then return end
@@ -950,7 +956,7 @@ local function ScoreHud()
 
 			local armor = v:Armor()
 			if armor > 0 then
-				local maxarmor = 200
+				local maxarmor = v:GetMaxArmor()
 				local armorscale = math.Clamp(armor / maxarmor, 0, 1)
 
 				surface.SetDrawColor(color_black_180)
@@ -1014,6 +1020,10 @@ local function GunHud()
 
 	local ply = LocalPlayer()
 	if not IsValid(ply) then return end
+	if nzRound:InState(ROUND_GO) and not ply:Alive() then
+		return
+	end
+
 	if ply:IsNZMenuOpen() then return end
 	if IsValid(ply:GetObserverTarget()) then
 		ply = ply:GetObserverTarget()
@@ -1040,6 +1050,8 @@ local function GunHud()
 	surface.SetDrawColor(color_white)
 	surface.DrawTexturedRect(w - 540*scale, h - 205*scale, 550*scale, 200*scale)
 	//------MAIN HUD BG------\\
+
+	if not (nzRound:InProgress() or nzRound:InState(ROUND_CREATE)) then return end
 
 	if IsValid(wep) then
 		local class = wep:GetClass()
@@ -1964,6 +1976,8 @@ end
 local stinkfade = 0
 local function PerksHud()
 	if not cl_drawhud:GetBool() then return end
+	if not (nzRound:InProgress() or nzRound:InState(ROUND_CREATE)) then return end
+
 	local ply = LocalPlayer()
 	if not IsValid(ply) then return end
 	if IsValid(ply:GetObserverTarget()) then
@@ -1976,6 +1990,19 @@ local function PerksHud()
 	end
 
 	local perks = ply:GetPerks()
+
+	local bleedtime = ply.GetBleedoutTime and ply:GetBleedoutTime() or nz_bleedouttime:GetFloat()
+	local data = nzRevive.Players[ply:EntIndex()]
+	if nz_bleedoutstyle:GetInt() == 0 and data then
+		local pdata = data.PerksToKeep
+		if pdata and next(pdata) ~= nil then
+			perks = {}
+			for k, v in ipairs(pdata) do
+				perks[k] = v.id
+			end
+		end
+	end
+
 	local maxperks = ply:GetMaxPerks()
 	local w = ScrW()/1920 + 220
 	local h = ScrH()
@@ -2013,20 +2040,37 @@ local function PerksHud()
 		end
 	end
 
-	for _, perk in pairs(perks) do
+	for i, perk in pairs(perks) do
 		local icon = GetPerkIconMaterial(perk)
 		if not icon or icon:IsError() then
 			icon = zmhud_icon_missing
 		end
 
+		local fuckset = 0
+		local pulse = 1
+		local perkcolor = color_white
+		if data and data.DownTime and data.PerksToKeep and data.PerksToKeep[i] then
+			local pdata = data.PerksToKeep[i]
+			if pdata.lost then
+				perkcolor = color_grey_100
+			elseif !data.ReviveTime then
+				local timetodeath = data.DownTime + bleedtime - CurTime()
+				if (timetodeath / bleedtime) < (pdata.prc + (1/(#data.PerksToKeep + 1))) then
+					local wave = math.Clamp(math.sin(CurTime()*6), 0, 1)
+					pulse = math.Remap(wave, 0, 1, 1, 1.2)
+					fuckset = 5*math.Remap(wave, 0, 1, 0, 1)
+				end
+			end
+		end
+
 		surface.SetMaterial(icon)
-		surface.SetDrawColor(color_white)
-		surface.DrawTexturedRect(w + num*(size + 6)*pscale, h - 75*pscale - (64*row)*pscale, 50*pscale, 50*pscale)
+		surface.SetDrawColor(perkcolor)
+		surface.DrawTexturedRect(w + num*(size + 6)*pscale - fuckset*pscale, h - (75 + fuckset)*pscale - (64*row)*pscale, 50*pulse*pscale, 50*pulse*pscale)
 
 		if ply:HasUpgrade(perk) then
 			surface.SetDrawColor(color_gold)
 			surface.SetMaterial(GetPerkFrameMaterial())
-			surface.DrawTexturedRect(w + num*(size + 6)*pscale, h - 75*pscale - (64*row)*pscale, 50*pscale, 50*pscale)
+			surface.DrawTexturedRect(w + num*(size + 6)*pscale - fuckset*pscale, h - (75 + fuckset)*pscale - (64*row)*pscale, 50*pulse*pscale, 50*pulse*pscale)
 		end
 
 		if perk == "vulture" then
@@ -2196,133 +2240,136 @@ end
 
 local function RoundHud()
 	if !nzRound then return end
+	if not cl_drawhud:GetBool() then return end
+	if not (nzRound:InProgress() or nzRound:InState(ROUND_GO) or nzRound:InState(ROUND_CREATE)) then return end
+	if nzRound:InState(ROUND_GO) and not LocalPlayer():Alive() then
+		return
+	end
 
-	if cl_drawhud:GetBool() then
-		local w, h = ScrW(), ScrH()
-		local pscale = 1
-		if nz_betterscaling:GetBool() then
-			pscale = (w/1920 + 1)/2
-		end
+	local w, h = ScrW(), ScrH()
+	local pscale = 1
+	if nz_betterscaling:GetBool() then
+		pscale = (w/1920 + 1)/2
+	end
 
-		if (!roundbusy or table_isempty(rounddata)) and !(nzRound:InState(ROUND_WAITING) or nzRound:InState(ROUND_PREP) or nzRound:InState(ROUND_CREATE)) then
-			local R = nzRound and nzRound:GetNumber() or 0
-			if R != oldnum then
-				roundbusy = true
-				if R < 6 then
-					if !usingtally or table_count(rounddata) > R then
-						WipeRound()
-						usingtally = true
-					else
-						for i = 1, 5 do
-							if R >= i and not rounddata[i] then
-								AddStroke(i, i, true)
-							end
+	if (!roundbusy or table_isempty(rounddata)) and !(nzRound:InState(ROUND_WAITING) or nzRound:InState(ROUND_PREP) or nzRound:InState(ROUND_CREATE)) then
+		local R = nzRound:GetNumber() or 0
+		if R != oldnum then
+			roundbusy = true
+			if R < 6 then
+				if !usingtally or table_count(rounddata) > R then
+					WipeRound()
+					usingtally = true
+				else
+					for i = 1, 5 do
+						if R >= i and not rounddata[i] then
+							AddStroke(i, i, true)
 						end
 					end
-				else
-					AddStrokeBulk(R)
-				end
-			end
-		elseif !table_isempty(rounddata) and (nzRound:InState(ROUND_WAITING) or nzRound:InState(ROUND_CREATE)) then
-			WipeRound()
-		end
-
-		for k, v in pairs(rounddata) do
-			local timer = v.state - CurTime()
-			local T = v.istally
-			local offset = ((k-1)*spacing)
-			local hi = T and 175 or 160
-			if timer > 3 then
-				surface.SetMaterial(roundassets["burnt"][v.image])
-				surface.SetDrawColor(color_white)
-				surface.DrawTexturedRectUV(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, (T and tallysize or digitsize.y) * (4-timer), 0, 0, 1, 4-timer)
-			elseif timer > 2 then
-				surface.SetMaterial(roundassets["burnt"][v.image])
-				surface.SetDrawColor(color_white)
-				surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
-				surface.SetMaterial(roundassets["heat"][v.image])
-				surface.SetDrawColor(Color(255,255,99,255*(3-timer)))
-				surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
-			elseif timer > 1 and !v.fade then
-				surface.SetMaterial(roundassets["normal"][v.image])
-				surface.SetDrawColor(Color(255,255,255,255*(2-timer)))
-				surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
-				surface.SetMaterial(roundassets["burnt"][v.image])
-				surface.SetDrawColor(Color(255,255,255,1024*(timer-1)))
-				surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
-				surface.SetMaterial(roundassets["heat"][v.image])
-				surface.SetDrawColor(Color(255,80 + (175*(timer-1)),99*(timer-1)))
-				surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
-			elseif timer > 0 and !v.fade then
-				surface.SetMaterial(roundassets["normal"][v.image])
-				surface.SetDrawColor(color_white)
-				surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
-				surface.SetMaterial(roundassets["heat"][v.image])
-				surface.SetDrawColor(Color(255,80,0,255*timer))
-				surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
-			elseif v.fade then
-				local fade_colora = ColorAlpha(color_white, 255*timer)
-				local fade_colorb = ColorAlpha(color_white, 255*(1-timer))
-
-				if timer > 1 then
-					surface.SetMaterial(roundassets["normal"][v.image])
-					surface.SetDrawColor(fade_colora)
-					surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
-					surface.SetMaterial(roundassets["burnt"][v.image])
-					surface.SetDrawColor(fade_colorb)
-					surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
-				else
-					surface.SetMaterial(roundassets["burnt"][v.image])
-					surface.SetDrawColor(fade_colora)
-					surface.DrawTexturedRectUV(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y, 0, 0, 1, 1 - math.sin(math.pi*(0.5 + timer/2)))
-					--surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 				end
 			else
-				surface.SetMaterial(roundassets["normal"][v.image])
-				surface.SetDrawColor(color_white)
-				surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
-				if nzRound:InState(ROUND_PREP) then
-					local prep_color = ColorAlpha(color_white, 127.5 + (127.5*math.sin(CurTime()*8)))
-
-					surface.SetMaterial(roundassets["heat"][v.image])
-					surface.SetDrawColor(prep_color)
-					surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
-				end
+				AddStrokeBulk(R)
 			end
 		end
+	elseif !table_isempty(rounddata) and (nzRound:InState(ROUND_WAITING) or nzRound:InState(ROUND_CREATE)) then
+		WipeRound()
+	end
 
-		local busysparks = false
-		if !table_isempty(sparkdata) then
-			for k, v in pairs(sparkdata) do
-				if CurTime() < v.state then
-					busysparks = true
-					local T = v.istally
-					local timer = 1 - (v.state - CurTime())
-					local spark_color = ColorAlpha(color_white, 512*(1-timer))
-					for a, b in pairs(v.move) do
-						local movement = (table_count(b) * timer) + 0.6
-						local mod1 = math.floor(movement)
-						local mod2 = math.ceil(movement)
-						local mod3 = mod1 == mod2 and 1 or (movement % 1)
-						local X = 10 + (T and 0 or v.offset)
-						local Y = v.offsetheight or (T and 175 or 160)
-						local SIZE = v.overridesize or 1
-						if b[mod1] and b[mod2] then
-							local x1 = b[mod1][1] * (T and tallycoordmult or 1)
-							local y1 = b[mod1][2] * (T and tallycoordmult or 1)
-							local x2 = b[mod2][1] * (T and tallycoordmult or 1)
-							local y2 = b[mod2][2] * (T and tallycoordmult or 1)
-							cwimage("rf/round/sparks/" .. (math.ceil(CurTime()*30) % 20) .. ".png", X + (x1*(1-mod3)) + (x2*mod3) + (33*SIZE), h - Y*pscale + (y1*(1-mod3)) + (y2*mod3) - (84*SIZE), 168 * SIZE, 252 * SIZE, spark_color)
-						elseif b[mod1] then
-							cwimage("rf/round/sparks/" .. (math.ceil(CurTime()*30) % 20) .. ".png", X + (b[mod1][1] * (T and tallycoordmult or 1)) + (33*SIZE), h - Y*pscale + (b[mod1][2] * (T and tallycoordmult or 1)) - (84*SIZE), 168 * SIZE, 252 * SIZE, spark_color)
-						end
+	for k, v in pairs(rounddata) do
+		local timer = v.state - CurTime()
+		local T = v.istally
+		local offset = ((k-1)*spacing)
+		local hi = T and 175 or 160
+		if timer > 3 then
+			surface.SetMaterial(roundassets["burnt"][v.image])
+			surface.SetDrawColor(color_white)
+			surface.DrawTexturedRectUV(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, (T and tallysize or digitsize.y) * (4-timer), 0, 0, 1, 4-timer)
+		elseif timer > 2 then
+			surface.SetMaterial(roundassets["burnt"][v.image])
+			surface.SetDrawColor(color_white)
+			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			surface.SetMaterial(roundassets["heat"][v.image])
+			surface.SetDrawColor(Color(255,255,99,255*(3-timer)))
+			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+		elseif timer > 1 and !v.fade then
+			surface.SetMaterial(roundassets["normal"][v.image])
+			surface.SetDrawColor(Color(255,255,255,255*(2-timer)))
+			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			surface.SetMaterial(roundassets["burnt"][v.image])
+			surface.SetDrawColor(Color(255,255,255,1024*(timer-1)))
+			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			surface.SetMaterial(roundassets["heat"][v.image])
+			surface.SetDrawColor(Color(255,80 + (175*(timer-1)),99*(timer-1)))
+			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+		elseif timer > 0 and !v.fade then
+			surface.SetMaterial(roundassets["normal"][v.image])
+			surface.SetDrawColor(color_white)
+			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			surface.SetMaterial(roundassets["heat"][v.image])
+			surface.SetDrawColor(Color(255,80,0,255*timer))
+			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+		elseif v.fade then
+			local fade_colora = ColorAlpha(color_white, 255*timer)
+			local fade_colorb = ColorAlpha(color_white, 255*(1-timer))
+
+			if timer > 1 then
+				surface.SetMaterial(roundassets["normal"][v.image])
+				surface.SetDrawColor(fade_colora)
+				surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+				surface.SetMaterial(roundassets["burnt"][v.image])
+				surface.SetDrawColor(fade_colorb)
+				surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			else
+				surface.SetMaterial(roundassets["burnt"][v.image])
+				surface.SetDrawColor(fade_colora)
+				surface.DrawTexturedRectUV(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y, 0, 0, 1, 1 - math.sin(math.pi*(0.5 + timer/2)))
+				--surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			end
+		else
+			surface.SetMaterial(roundassets["normal"][v.image])
+			surface.SetDrawColor(color_white)
+			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			if nzRound:InState(ROUND_PREP) then
+				local prep_color = ColorAlpha(color_white, 127.5 + (127.5*math.sin(CurTime()*8)))
+
+				surface.SetMaterial(roundassets["heat"][v.image])
+				surface.SetDrawColor(prep_color)
+				surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi*pscale, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			end
+		end
+	end
+
+	local busysparks = false
+	if !table_isempty(sparkdata) then
+		for k, v in pairs(sparkdata) do
+			if CurTime() < v.state then
+				busysparks = true
+				local T = v.istally
+				local timer = 1 - (v.state - CurTime())
+				local spark_color = ColorAlpha(color_white, 512*(1-timer))
+				for a, b in pairs(v.move) do
+					local movement = (table_count(b) * timer) + 0.6
+					local mod1 = math.floor(movement)
+					local mod2 = math.ceil(movement)
+					local mod3 = mod1 == mod2 and 1 or (movement % 1)
+					local X = 10 + (T and 0 or v.offset)
+					local Y = v.offsetheight or (T and 175 or 160)
+					local SIZE = v.overridesize or 1
+					if b[mod1] and b[mod2] then
+						local x1 = b[mod1][1] * (T and tallycoordmult or 1)
+						local y1 = b[mod1][2] * (T and tallycoordmult or 1)
+						local x2 = b[mod2][1] * (T and tallycoordmult or 1)
+						local y2 = b[mod2][2] * (T and tallycoordmult or 1)
+						cwimage("rf/round/sparks/" .. (math.ceil(CurTime()*30) % 20) .. ".png", X + (x1*(1-mod3)) + (x2*mod3) + (33*SIZE), h - Y*pscale + (y1*(1-mod3)) + (y2*mod3) - (84*SIZE), 168 * SIZE, 252 * SIZE, spark_color)
+					elseif b[mod1] then
+						cwimage("rf/round/sparks/" .. (math.ceil(CurTime()*30) % 20) .. ".png", X + (b[mod1][1] * (T and tallycoordmult or 1)) + (33*SIZE), h - Y*pscale + (b[mod1][2] * (T and tallycoordmult or 1)) - (84*SIZE), 168 * SIZE, 252 * SIZE, spark_color)
 					end
 				end
 			end
 		end
-
-		if !busysparks then sparkdata = {} end
 	end
+
+	if !busysparks then sparkdata = {} end
 end
 
 local prevroundspecial = false
@@ -2350,6 +2397,13 @@ local function EndChangeRound()
 end
 
 local function ResetRound()
+	timer.Create("round_reseter", 0, 0, function()
+		local ply = LocalPlayer()
+		if not IsValid(ply) or not ply:Alive() then
+			timer.Remove("round_reseter")
+			WipeRound()
+		end
+	end)
 end
 
 --[[ JEN WALTER'S ROUND COUNTER ]]--
@@ -2418,7 +2472,7 @@ local function PlayerHealthHUD()
 
 	local armor = ply:Armor()
 	if armor > 0 then
-		local maxarmor = 200
+		local maxarmor = ply:GetMaxArmor()
 		local armorscale = math.Clamp(armor / maxarmor, 0, 1)
 
 		surface.SetDrawColor(color_black_180)
@@ -2435,6 +2489,7 @@ end
 local function ZedCounterHUD()
 	if not cl_drawhud:GetBool() then return end
 	if not nz_showzcounter:GetBool() then return end
+	if not (nzRound:InProgress() or nzRound:InState(ROUND_CREATE)) then return end
 
 	local w, h = ScrW(), ScrH()
 	local scale = (w/1920 + 1) / 2
@@ -2668,6 +2723,11 @@ local function YaPh1lTypeWriter()
 	local mapdelay = nzMapping.Settings.typewriterdelay or 0.15
 	local maplinedelay = nzMapping.Settings.typewriterlinedelay or 1.5
 
+	local leftsided = false
+	if nzDisplay.leftsidedHUDs and nzDisplay.leftsidedHUDs[nzMapping.Settings.hudtype] then
+		leftsided = true
+	end
+
 	local intro_strings = string.Split(mapstring, ";")
 	local intro_hud = {}
 	for k, v in pairs(intro_strings) do
@@ -2683,6 +2743,10 @@ local function YaPh1lTypeWriter()
 
 		surface.SetFont(font)
 		local tw, th = surface.GetTextSize("I")
+
+		if leftsided then
+			mapoffset = (h - th - (5*scale))
+		end
 
 		local b_newline = false
 		for i=1, #intro_strings do
@@ -2731,6 +2795,38 @@ local function YaPh1lTypeWriter()
 		end
 	end)
 end
+
+net.Receive("nz_game_end_notif", function()
+	local gameovertext = net.ReadString()
+	local survivedtext = net.ReadString()
+
+	timer.Simple(nzRound:GameOverDuration() - engine.TickInterval(), function()
+		hook.Remove("HUDPaint", "game_over_notif")
+	end)
+
+	local w, h = ScrW(), ScrH()
+	local scale = (ScrW()/1920 + 1)/2
+	local wscale = w/1920*scale
+
+	local font = "nz.main."..GetFontType(nzMapping.Settings.mainfont)
+	local font2 = "nz.small."..GetFontType(nzMapping.Settings.smallfont)
+	local fontColor = !IsColor(nzMapping.Settings.textcolor) and color_white or nzMapping.Settings.textcolor
+
+	local n_starttime = CurTime()
+	hook.Add("HUDPaint", "game_over_notif", function()
+		local fade = 1 - math.Clamp(((n_starttime + 1) - CurTime())/1, 0, 1)
+
+		surface.SetFont(font)
+
+		local tw, th = surface.GetTextSize(gameovertext)
+
+		draw.SimpleTextOutlined(gameovertext, font, w/2, 285*scale, ColorAlpha(fontColor, 255*fade), TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, (nzMapping.Settings.fontthicc or 2), ColorAlpha(color_black, 100*fade))
+
+		surface.SetFont(font2)
+
+		draw.SimpleTextOutlined(survivedtext, font2, w/2, 285*scale + th, ColorAlpha(fontColor, 255*fade), TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, (nzMapping.Settings.fontthicc or 2), ColorAlpha(color_black, 100*fade))
+	end)
+end)
 
 hook.Add("TFA_DrawCrosshair", "GameIntroBlockCrosshair", function(wep)
 	if nzDisplay and nzDisplay.HUDIntroDuration and (nzDisplay.HUDIntroDuration - 0.5) > CurTime() then

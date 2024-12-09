@@ -22,10 +22,6 @@ function ENT:SetupDataTables()
 	self:NetworkVar("Float", 2, "KillTime")
 end
 
-function ENT:Draw()
-	self:DrawModel()
-end
-
 function ENT:Initialize()
 
 	local mdls = {
@@ -110,5 +106,11 @@ function ENT:OnRemove()
 		self:StopSound("nz_moo/powerups/powerup_intro_lp.wav")
 		self:StopSound("nz_moo/powerups/powerup_lp_zhd.wav")
 		self:StopSound(self.LoopSound)
+	end
+end
+
+if CLIENT then
+	function ENT:Draw()
+		self:DrawModel()
 	end
 end

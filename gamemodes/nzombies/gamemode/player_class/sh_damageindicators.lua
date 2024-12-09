@@ -158,10 +158,10 @@ if CLIENT then
 
 		local scale = h2 * (2 / 1080)
 
-		local eyepos = EyePos()
+		local eyepos = ply:EyePos()
 		local ex, ey, ez = eyepos[1], eyepos[2], eyepos[3]
 
-		local eyeang = EyeAngles()
+		local eyeang = ply:EyeAngles()
 		local eyaw = (eyeang[2] - 180) * 0.017453292519943
 
 		SetMaterial(zmhud_icon_damage)

@@ -11,6 +11,7 @@ local meleetypes = {
 	[DMG_SLASH] = true,
 	[DMG_CRUSH] = true,
 	[DMG_GENERIC] = true,
+	[DMG_SHOCK] = true,
 }
 
 if CLIENT then 
@@ -218,24 +219,7 @@ function ENT:OnSpawn()
 	end
 end
 
-function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how sad I am that I didn't know about this sooner.
-	if e == "melee" then
-		if self.AttackSounds then
-			self:EmitSound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(85, 105), 1, 2)
-		end
-		self:DoAttackDamage()
-	end
-	if e == "death_ragdoll" then
-		self:BecomeRagdoll(DamageInfo())
-	end
-	if e == "start_traverse" then
-		--print("starttraverse")
-		self.TraversalAnim = true
-	end
-	if e == "finish_traverse" then
-		--print("finishtraverse")
-		self.TraversalAnim = false
-	end
+function ENT:CustomAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how sad I am that I didn't know about this sooner.
 	if e == "phase_in" then
 		self:EmitSound("nz_moo/zombies/vox/_quad/teleport/warp_in.mp3", 100)
 		if IsValid(self) then ParticleEffectAttach("hcea_shield_impact", 3, self, 2) end
@@ -247,7 +231,7 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 	end
 end
 
-function ENT:OnTakeDamage(dmginfo)
+function ENT:OnInjured(dmginfo)
 	if !meleetypes[dmginfo:GetDamageType()] then
 		dmginfo:ScaleDamage(0)
 	else
@@ -272,7 +256,7 @@ function ENT:AvoPain()
 	self:SetInvulnerable(false)
 end
 
-function ENT:CustomOnPathTimeOut()
+function ENT:AI()
 	local chance = math.random(2)
 	if !self:IsAttackBlocked() then
 		if chance == 1 then
@@ -314,6 +298,7 @@ function ENT:CustomOnPathTimeOut()
 end
 
 function ENT:PerformDeath(dmgInfo)
+	self.Dying = true
 	self:StopSound("enemies/bosses/avo/move_loop.wav")
 	self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
 	self:DoDeathAnimation("nz_avo_exit")

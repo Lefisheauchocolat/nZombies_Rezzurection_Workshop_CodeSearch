@@ -943,6 +943,103 @@ surface.CreateFont( "nz.rounds.bo1", {
 	antialias = true,
 } )
 
+--WW2
+surface.CreateFont( "nz.main.ww2", {
+	font = "Harbour",
+	size =  58,
+	weight =  300,
+	antialias = true,
+} )
+surface.CreateFont( "nz.small.ww2", {
+	font = "Harbour",
+	extended = true,
+	size = 55,
+	weight =  300,
+	antialias = true,
+} )
+surface.CreateFont( "nz.points.ww2", {
+	font ="Harbour",
+	extended = true,
+	size =  32,
+	weight =300,
+	antialias = true,
+} )
+surface.CreateFont( "nz.pointsmain.ww2", {
+	font ="Harbour",
+	extended = true,
+	size =  42,
+	weight =300,
+	antialias = true,
+} )
+surface.CreateFont( "nz.ammo.ww2", {
+	font = "Harbour" ,
+	size =  30,
+	weight =  50,
+	antialias = true,
+} )
+surface.CreateFont( "nz.ammo2.ww2", {
+	font ="Harbour",
+	size = 20,
+	weight =  50,
+	antialias = true,
+} )
+surface.CreateFont( "nz.rounds.ww2", {
+	font = "Harbour", //Avenir Next
+	extended = true,
+	size = 150,
+	weight = 30,
+	antialias = true,
+} )
+
+-- Infinite Warfare (taken from Kingslayer Kyle's mod for BO3)
+surface.CreateFont( "nz.main.iw7", {
+    font = "Blender Pro Bold",
+    size =  32,
+    weight =  300,
+    antialias = true,
+} )
+surface.CreateFont( "nz.small.iw7", {
+    font = "Blender Pro Bold",
+    extended = true,
+    size = 32,
+    weight =  300,
+    antialias = true,
+} )
+surface.CreateFont( "nz.points.iw7", {
+    font ="Blender Pro Bold",
+    extended = true,
+    size =  32,
+    weight =300,
+    antialias = true,
+} )
+surface.CreateFont( "nz.pointsmain.iw7", {
+    font ="Blender Pro Bold",
+    extended = true,
+    size =  32,
+    weight =300,
+    antialias = true,
+} )
+surface.CreateFont( "nz.ammo.iw7", {
+    font = "Blender Pro Bold",
+    size = 28,
+    weight =  50,
+    antialias = true,
+} )
+surface.CreateFont( "nz.ammo2.iw7", {
+    font = "Blender Pro Bold",
+    size = 24,
+    weight =  50,
+    antialias = true,
+} )
+surface.CreateFont( "nz.rounds.iw7", {
+    font = "Blender Pro Bold", 
+    extended = true,
+    size = 150,
+    weight = 30,
+    antialias = true,
+} )
+
+
 -- Rotated text function, as taken from the gmod wiki
 local matscale = Vector(1,1,1)
 function draw.TextRotatedScaled( text, x, y, color, font, ang, scaleX, scaleY )

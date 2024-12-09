@@ -3,15 +3,13 @@ if SERVER then
 	local cvar_bleedout = GetConVar("nz_downtime")
 
 	hook.Add("Think", "CheckDownedPlayersTime", function()
+		local ct = CurTime()
 		for id, data in pairs(nzRevive.Players) do
 			local ent = Entity(id)
 			local ply = data.RevivePlayer
 
 			if data.ReviveTime and IsValid(ply) and IsValid(ent) then
-				local revivetime = ply.GetReviveTime and ply:GetReviveTime() or 4 //see 252 of revive_system/sh_meta
-				if ent.GetReviveTime and ent:GetReviveTime() < revivetime then
-					revivetime = ent:GetReviveTime()
-				end
+				local revivetime = data.ReviveLength or ply.GetReviveTime and ply:GetReviveTime() or 4 //see 252 of revive_system/sh_meta
 
 				if (CurTime() - data.ReviveTime >= revivetime) then
 					ent:RevivePlayer(ply)
@@ -19,11 +17,28 @@ if SERVER then
 				end
 			end
 
-			if !data.ReviveTime and CurTime() - data.DownTime >= ((IsValid(ent) and ent.GetBleedoutTime) and ent:GetBleedoutTime() or cvar_bleedout:GetFloat()) then
+			if !data.DownTime or !IsValid(ent) then
+				continue 
+			end
+
+			local bleedtime = ent.GetBleedoutTime and ent:GetBleedoutTime() or cvar_bleedout:GetFloat()
+			local timetodeath = data.DownTime + bleedtime - ct
+
+			if data.KillTime then
+				data.DownTime = ct - bleedtime + data.KillTime
+			end
+
+			if timetodeath < 0 and !data.ReviveTime then
 				if IsValid(ent) and ent.KillDownedPlayer then
 					ent:KillDownedPlayer()
 				else
 					nzRevive.Players[id] = nil
+				end
+			elseif data.PerksToKeep and ent.RemovePerk and !ent.DownedWithSoloRevive then
+				for i, pdata in ipairs(data.PerksToKeep) do
+					if (timetodeath / bleedtime) <= pdata.prc and !pdata.lost then
+						pdata.lost = true
+					end
 				end
 			end
 		end
@@ -52,6 +67,8 @@ hook.Add("PlayerPostThink", "CleanupRevive", function(ply)
 
 		if data then
 			if SERVER and data.ReviveTime and (not ply:KeyDown(IN_USE) or (not ply:HasUpgrade("revive") and ply:GetPos():DistToSqr(ply:GetPlayerReviving():GetPos()) > 10000)) then //100^2 same as revive start distance
+				if ply.DownedWithSoloRevive then return end
+
 				revive:StopRevive()
 				ply.Reviving = nil
 			end
@@ -148,9 +165,13 @@ if SERVER then
 		local pos = startpos
 		local spawns = {}
 
-		for k, v in nzLevel.GetSpecialSpawnArray() do
-			if IsValid(v) and (v.link == nil or nzDoors:IsLinkOpened(v.link)) and v:IsSuitable() then
-				table.insert(spawns, v)
+		if nzMapping.Settings.specialsuseplayers then
+			spawns = ents.FindByClass("player_spawns")
+		else
+			for k, v in nzLevel.GetSpecialSpawnArray() do
+				if IsValid(v) and (v.link == nil or nzDoors:IsLinkOpened(v.link)) and v:IsSuitable() then
+					table.insert(spawns, v)
+				end
 			end
 		end
 

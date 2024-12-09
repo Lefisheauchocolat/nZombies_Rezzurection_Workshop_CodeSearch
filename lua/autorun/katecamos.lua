@@ -3,7 +3,7 @@ if engine.ActiveGamemode() == "nzombies" then
 		nzCamos:NewCamo("bo3_datter_matter", {
 			name = "Dark Matter (BO3)",
 			camotable = {
-				"camos/kate/nz/darkmatter.vmt",
+				"camos/vibes/nz/darkmatter.vmt",
 			},
 		})
 		
@@ -39,6 +39,57 @@ if engine.ActiveGamemode() == "nzombies" then
 			name = "Aether Crystal (Loonicity)",
 			camotable = {
 				"camos/kate/nz/aether_crystal/aether_crystal.vmt",
+			},
+		})
+
+			nzCamos:NewCamo("aether_elec", {
+			name = "Electrical Shock (Loonicity)",
+			camotable = {
+				"camos/kate/nz/electrical/electrical.vmt",
+			},
+		})
+
+			nzCamos:NewCamo("frozen_forest", {
+			name = "Winter Woods (Loonicity)",
+			camotable = {
+				"camos/kate/nz/snowy_forest/snowy_forest.vmt",
+			},
+		})
+
+			nzCamos:NewCamo("bana_na", {
+			name = "Going Bananas (Loonicity)",
+			camotable = {
+				"camos/kate/nz/bananas/bananas.vmt",
+			},
+		})
+
+			nzCamos:NewCamo("cuddly_cat", {
+			name = "Cuddly Kittens (Loonicity)",
+			camotable = {
+				"camos/kate/nz/kittens/kittens.vmt",
+			},
+		})
+
+			nzCamos:NewCamo("mystic_gold", {
+			name = "Mystic Gold (BO6)",
+			camotable = {
+				"camos/kate/nz/mystic_gold/mystic_gold.vmt",
+			},
+		})
+
+			nzCamos:NewCamo("constellation", {
+			name = "Constellations (Loonicity)",
+			camotable = {
+				"camos/kate/nz/constellation/constellations.vmt",
+			},
+		})
+
+
+
+		nzCamos:NewCamo("circuit_wii", {
+			name = "Circuit (BO1 Wii)",
+			camotable = {
+				"camos/kate/nz/bo1_wii/circuit_wii.vmt",
 			},
 		})
 
@@ -179,7 +230,34 @@ if engine.ActiveGamemode() == "nzombies" then
 			},
 		})
 
-				nzCamos:NewCamo("115_red", {
+			nzCamos:NewCamo("terminal_illness", {
+			name = "Terminus (BO6)",
+			camotable = {
+				"camos/kate/nz/terminus/terminus_g.vmt",
+				"camos/kate/nz/terminus/terminus_p.vmt",
+				"camos/kate/nz/terminus/terminus_o.vmt",
+			},
+		})
+
+			nzCamos:NewCamo("terminal_cuteness", {
+			name = "Terminal Cuteness (Owlie)",
+			camotable = {
+				"camos/kate/nz/terminal_cute/tc_pap.vmt",
+				"camos/kate/nz/terminal_cute/tc_pap2.vmt",
+				"camos/kate/nz/terminal_cute/tc_pap3.vmt",
+			},
+		})
+
+			nzCamos:NewCamo("liberty_balls", {
+			name = "Liberty Falls (BO6)",
+			camotable = {
+				"camos/kate/nz/liberty/liberty_b.vmt",
+				"camos/kate/nz/liberty/liberty_o.vmt",
+				"camos/kate/nz/liberty/liberty_p.vmt",
+			},
+		})
+
+			nzCamos:NewCamo("115_red", {
 			name = "Element 115 (Red)",
 			camotable = {
 				"camos/kate/nz/115_red/115hd_red.vmt",

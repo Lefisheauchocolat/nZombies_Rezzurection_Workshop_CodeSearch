@@ -1,7 +1,7 @@
 if engine.ActiveGamemode() == "nzombies" then
 	hook.Add("PostGamemodeLoaded", "nz.owl.camos", function()
 		nzCamos:NewCamo("cdm_floral", {
-			name = "Floral",
+			name = "Floral (Owlie)",
 			camotable = {
 				"camos/floral/floralcdm.vmt",
 				"camos/floral/floralcdm_2.vmt",
@@ -9,13 +9,13 @@ if engine.ActiveGamemode() == "nzombies" then
 			},
 		})
 		nzCamos:NewCamo("mw_gold", {
-			name = "Gold",
+			name = "Gold (Owlie)",
 			camotable = {
 				"camos/gold/saxxy_beast.vmt",
 			},
 		})
 		nzCamos:NewCamo("blueprint", {
-			name = "Classified",
+			name = "Classified (BO4)",
 			camotable = {
 				"camos/blueprint/blueprint_1.vmt",
 				"camos/blueprint/blueprint_2.vmt",
@@ -25,7 +25,7 @@ if engine.ActiveGamemode() == "nzombies" then
 			},
 		})
 		nzCamos:NewCamo("mello", {
-			name = "Crazy Place",
+			name = "Crazy Place (Owlie)",
 			camotable = {
 				"camos/mello/mello_pap.vmt",
 				"camos/mello/mello_pap2.vmt",
@@ -35,7 +35,7 @@ if engine.ActiveGamemode() == "nzombies" then
 			},
 		})
 		nzCamos:NewCamo("tiger", {
-			name = "Night Tiger",
+			name = "Night Tiger (Owlie)",
 			camotable = {
 				"camos/tiger/tigerpap.vmt",
 				"camos/tiger/tigerpap2.vmt",
@@ -46,7 +46,7 @@ if engine.ActiveGamemode() == "nzombies" then
 			},
 		})
 		nzCamos:NewCamo("bocw", {
-			name = "Conviction",
+			name = "Conviction (Owlie)",
 			camotable = {
 				"camos/bocw/bocw_pap.vmt",
 				"camos/bocw/bocw_pap2.vmt",
@@ -58,7 +58,7 @@ if engine.ActiveGamemode() == "nzombies" then
 			},
 		})
 		nzCamos:NewCamo("pride", {
-			name = "Pride Camo",
+			name = "Pride (Owlie)",
 			camotable = {
 				"camos/pride/pride_1.vmt",
 				"camos/pride/pride_2.vmt",

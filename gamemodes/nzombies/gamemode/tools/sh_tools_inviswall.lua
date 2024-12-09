@@ -17,7 +17,7 @@ if SERVER then
 			//local radiation = data.dmgtype == 1
 			//local poison = data.dmgtype == 2
 			//local tesla = data.dmgtype == 3
-			nzMapping:CreateInvisibleDamageWall(vec1, vec2, ply, data.dmg or 1, data.delay or 0.5, data.dmgtype or 1, data.respawnz or 0)
+			nzMapping:CreateInvisibleDamageWall(vec1, vec2, ply, data.dmg or 1, data.delay or 0.5, data.dmgtype or 1, data.respawnz or 0, data.elec or false)
 		end
 	end)
 end

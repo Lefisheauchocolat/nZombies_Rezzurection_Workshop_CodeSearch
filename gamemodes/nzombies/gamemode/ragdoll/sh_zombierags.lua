@@ -2,7 +2,7 @@
 local function cleanrag(ent, ragdoll, time)
 	local dTime = math.random(time * 0.75, time * 1.25)
 	
-	if ent.GetDecapitated and ent:GetDecapitated() then
+	--[[if ent.GetDecapitated and ent:GetDecapitated() then
 		local bone = ragdoll:LookupBone("ValveBiped.Bip01_Head1")
 		if not bone then bone = ragdoll:LookupBone("j_head") end
 		
@@ -12,8 +12,21 @@ local function cleanrag(ent, ragdoll, time)
 			--because, it's real dumb
 			ragdoll:ManipulateBoneScale(bone, Vector(0.00001,0.00001,0.00001))
 		end
-	end
-	
+	end]]
+
+    --[[if ent:GetDecapitated() then
+        local head = ents.CreateClientside("nz_prop_effect_attachment")
+        head:SetModel("models/moo/_codz_ports_props/t10/c_zmb_dismembered_gib_cap/p10_c_zmb_dismembered_gib_cap.mdl")
+        head:SetPos(ragdoll:GetPos())
+		head:SetAngles(ragdoll:GetAngles() + Angle(0,90,90))
+        head:SetParent(ragdoll, 10)
+		head:SetCollisionGroup(COLLISION_GROUP_IN_VEHICLE)
+		head:SetModelScale(1, 0)
+		head:Spawn()
+
+		SafeRemoveEntityDelayed(head, dTime + 2.5)
+    end]]
+
 	if ragdoll:GetClass() ~= "class C_HL2MPRagdoll" or SERVER then SafeRemoveEntityDelayed(ragdoll, dTime + 2.5) end
 end
 

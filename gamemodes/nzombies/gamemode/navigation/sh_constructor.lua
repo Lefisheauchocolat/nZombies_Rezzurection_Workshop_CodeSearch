@@ -25,6 +25,8 @@ end
 function nzNav.FlushAllNavModifications()
 	nzNav.Locks = {}
 	nzNav.Data = {}
+	nzNav.NavGroups = {}
+	nzNav.NavGroupIDs = {}
 end
 
 //Reset navmesh attributes so they don't accidentally save

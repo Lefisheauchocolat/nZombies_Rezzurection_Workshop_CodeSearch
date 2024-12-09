@@ -20,6 +20,9 @@ ENT.IsMooZombie = true
 ENT.RedEyes = true
 
 ENT.Models = {
+	{Model = "models/moo/_codz_ports/t9/silver/moo_codz_t9_light_body_1.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t9/silver/moo_codz_t9_light_body_2_1.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t9/silver/moo_codz_t9_light_body_2_2.mdl", Skin = 0, Bodygroups = {0,0}},
 	{Model = "models/moo/_codz_ports/t9/gold/moo_codz_t9_gold_shirtless_1.mdl", Skin = 0, Bodygroups = {0,0}},
 	{Model = "models/moo/_codz_ports/t9/gold/moo_codz_t9_gold_shirtless_2.mdl", Skin = 0, Bodygroups = {0,0}},
 	{Model = "models/moo/_codz_ports/t9/gold/moo_codz_t9_gold_charred_1.mdl", Skin = 0, Bodygroups = {0,0}},
@@ -1198,17 +1201,17 @@ ENT.ElecSounds = {
 }
 
 ENT.LaunchSounds = {
-	Sound("nz_moo/zombies/vox/_classic/launch/zmb_launch_00.mp3"),
-	Sound("nz_moo/zombies/vox/_classic/launch/zmb_launch_01.mp3"),
-	Sound("nz_moo/zombies/vox/_classic/launch/zmb_launch_02.mp3"),
-	Sound("nz_moo/zombies/vox/_classic/launch/zmb_launch_03.mp3"),
-	Sound("nz_moo/zombies/vox/_classic/launch/zmb_launch_04.mp3"),
-	Sound("nz_moo/zombies/vox/_classic/launch/zmb_launch_05.mp3"),
-	Sound("nz_moo/zombies/vox/_classic/launch/zmb_launch_06.mp3"),
-	Sound("nz_moo/zombies/vox/_classic/launch/zmb_launch_07.mp3"),
-	Sound("nz_moo/zombies/vox/_classic/launch/zmb_launch_08.mp3"),
-	Sound("nz_moo/zombies/vox/_classic/launch/zmb_launch_09.mp3"),
-	Sound("nz_moo/zombies/vox/_classic/launch/zmb_launch_10.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/anti_grav/anti_grav_00.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/anti_grav/anti_grav_01.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/anti_grav/anti_grav_02.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/anti_grav/anti_grav_03.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/anti_grav/anti_grav_04.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/anti_grav/anti_grav_05.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/anti_grav/anti_grav_06.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/anti_grav/anti_grav_07.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/anti_grav/anti_grav_08.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/anti_grav/anti_grav_09.mp3"),
+	Sound("nz_moo/zombies/vox/_2k20/anti_grav/anti_grav_10.mp3"),
 }
 
 ENT.NukeDeathSounds = {

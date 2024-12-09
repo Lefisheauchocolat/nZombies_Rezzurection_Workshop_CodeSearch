@@ -100,7 +100,7 @@ local function DrawRevivalProgress_t5()
 	local scale = (w/1920 + 1)/2
 
 	local data = nzRevive.Players[id]
-	if data and data.RevivePlayer == ply then
+	if data and data.RevivePlayer == ply and ply ~= reviving then
 		local revivescale = math.Clamp((CurTime() - data.ReviveTime) / revtime, 0, 1)
 
 		if data.DownTime then

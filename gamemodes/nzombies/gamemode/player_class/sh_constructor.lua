@@ -14,19 +14,60 @@ function CMoveData:RemoveKeys( keys )
 end
 
 -- Stops players from moving if downed
-hook.Add( "SetupMove", "nzFreezePlayersDowned", function( ply, mv, cmd )
+hook.Add("SetupMove", "nzFreezePlayersDowned", function( ply, mv, cmd )
 	if !ply:GetNotDowned() then
 		mv:SetMaxClientSpeed(downedspeed)
 	end
-end )
+end)
 
+local lockedPlayers = {}
 hook.Add("StartCommand", "nzPlayerDownFake", function(ply, cmd)
 	if !ply:GetNotDowned() then
 		cmd:RemoveKey(IN_SPEED)
 		cmd:RemoveKey(IN_JUMP)
 		cmd:SetButtons(bit.bor(cmd:GetButtons(), IN_DUCK))
 	end
+
+	if nzRound:InState(ROUND_GO) then
+		if !ply:Alive() then
+			cmd:RemoveKey(IN_DUCK)
+		end
+		cmd:RemoveKey(IN_ATTACK)
+		cmd:RemoveKey(IN_ATTACK2)
+		cmd:ClearMovement()
+	end
+
+	if SERVER and ply:Alive() and ply:GetNotDowned() then
+		if cmd:IsForced() then
+			if !lockedPlayers[ply] then
+				lockedPlayers[ply] = CurTime()
+			end
+
+			if lockedPlayers[ply] and lockedPlayers[ply] + 0.25 < CurTime() and ply:GetTargetPriority() > 0 then
+				ply:SetTargetPriority(TARGET_PRIORITY_NONE)
+				ply:GodEnable()
+			end
+		elseif lockedPlayers[ply] then
+			if ply:HasGodMode() then
+				print('[NZ] Player '..ply:Nick()..' stopped sending CMoveData for '..math.Round(CurTime() - lockedPlayers[ply], 2)..' seconds and was granted notarget')
+				ply:SetTargetPriority(TARGET_PRIORITY_PLAYER)
+				ply:GodDisable()
+			end
+
+			lockedPlayers[ply] = nil
+		end
+	end
 end)
+
+if CLIENT then
+	hook.Add("InputMouseApply", "nzPlayerDownFake", function(cmd)
+		if nzRound:InState(ROUND_GO) then
+			cmd:SetMouseX(0)
+			cmd:SetMouseY(0)
+			return true
+		end
+	end)
+end
 
 hook.Add("PlayerSwitchWeapon", "nzPlayerWeaponSwap", function(ply, oldWep, newWep)
 	if not IsValid(ply) or not IsValid(newWep) then return end
@@ -123,8 +164,14 @@ end)
 hook.Add("ScalePlayerDamage", "nzFriendlyFire", function(ply, hitgroup, dmginfo)
 	local attacker = dmginfo:GetAttacker()
 	if IsValid(attacker) and attacker:IsPlayer() then
+		dmginfo:SetDamage(0)
 		dmginfo:ScaleDamage(0)
 		return true
+	end
+	if nzRound:InState(ROUND_GO) then
+		dmginfo:SetDamage(0)
+		dmginfo:ScaleDamage(0)
+		return false
 	end
 end)
 

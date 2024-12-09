@@ -8,9 +8,18 @@ function nzRound:Waiting()
 end
 
 function nzRound:Init()
-	timer.Simple( 5, function() self:SetupGame() self:Prepare() end )
+	local starttime = CurTime() + 5
+	hook.Add("Think", "nzRoundGameInit", function()
+		if CurTime() > starttime then
+			self:SetupGame()
+			self:Prepare()
+			hook.Remove("Think", "nzRoundGameInit")
+		end
+	end)
+
+	self:SetVictory( false )
 	self:SetState( ROUND_INIT )
-	self:SetEndTime( CurTime() + 5 )
+	self:SetEndTime( starttime )
 	--PrintMessage( HUD_PRINTTALK, "5 seconds till start time." )
 	hook.Call( "OnRoundInit", nzRound )
 end
@@ -23,7 +32,7 @@ function nzRound:Prepare( time )
 		local data = self:GetSpecialRoundData()
 		if data and data.endfunc then data.endfunc() end
 	end
-	
+
 	-- Update special round type every round, before special state is set
 	local roundtype = nzMapping.Settings.specialroundtype
 	self:SetSpecialRoundType(roundtype)
@@ -37,7 +46,6 @@ function nzRound:Prepare( time )
 	--[[if self:GetNumber() < 666 then
 	end]]
 
-	
 	-- Round Counter is in 16 bit, so it can only display up to 32767 before it starts back at 0.
 	-- Depending on the hud of the config, it'll actually display 0 or it'll stay at 32767 before starting back at 1.
 	self:IncrementNumber()
@@ -113,7 +121,6 @@ function nzRound:Prepare( time )
 		self:ResetZombiesRemaining()
 		self:SetZombiesKilled( 0 )
 	end
-
 
 	--Notify
 	--PrintMessage( HUD_PRINTTALK, "ROUND: " .. self:GetNumber() .. " preparing" )
@@ -319,10 +326,14 @@ function nzRound:Think()
 	if self.Frozen then return end
 	hook.Call( "OnRoundThink", self )
 	--If all players are dead, then end the game.
+
 	if #player.GetAllPlayingAndAlive() < 1 then
-		self:End()
-		timer.Remove( "NZRoundThink" )
-		return -- bail
+		local b_canend = hook.Run("CanEndGame", self)
+		if b_canend == nil or b_canend then
+			self:End()
+			timer.Remove( "NZRoundThink" )
+			return -- bail
+		end
 	end
 
 	--If we've killed all the spawned zombies, then progress to the next level.
@@ -364,6 +375,7 @@ function nzRound:ResetGame()
 	self:SetNumber( 0 )
 	self:SetZombiesKilled( 0 )
 	self:SetZombiesMax( 0 )
+	self:SetVictory( false )
 
 	--Remove all enemies
 	for k,v in pairs( nzConfig.ValidEnemies ) do
@@ -385,10 +397,6 @@ function nzRound:ResetGame()
 		v:SetBrutusLocked(false)
 	end
 
-	for k,v in pairs(ents.FindByClass("ammo_box")) do
-		v:SetPrice(4500)
-	end
-
 	for k,v in pairs(ents.FindByClass("stinky_lever")) do
 		v:Setohfuck(false)
 	end
@@ -402,6 +410,9 @@ function nzRound:ResetGame()
 			ply:UnReady() --Reset all player ready states
 		end
 
+		if ply:GetNotDowned() then
+			ply:DownPlayer()
+		end
 		ply:KillDownedPlayer(true) --Reset all downed players' downed status
 		ply.SoloRevive = nil -- Reset Solo Revive counter
 		ply:SetNW2Int("nz.SoloReviveCount", #player.GetAll() <= 1 and (nzMapping.Settings.solorevive or 3) or 0)
@@ -410,6 +421,8 @@ function nzRound:ResetGame()
 			ply:SetPlaying(false) --Resets all active palyers playing state
 		end
 
+		ply:SetUsingSpecialWeapon(false)
+		ply:SetHealth(ply:GetMaxHealth())
 		ply:SetPreventPerkLoss(false)
 		ply:RemovePerks(true) --Remove all players perks
 		ply:RemoveUpgrades() --Remove all players perk upgrades
@@ -417,6 +430,7 @@ function nzRound:ResetGame()
 		ply.OldWeapons = nil --Remove stored weapons
 		ply.OldUpgrades = nil --Remove stored perks
 		ply.OldPerks = nil --Remove stored perk upgrades
+		ply.lasthit = 0
 
 		ply:SetPoints(0) --Reset all player points
 		ply:SetTotalRevives(0) --Reset all player total revive
@@ -456,149 +470,184 @@ function nzRound:ResetGame()
 	end
 end
 
-function nzRound:End(message, time, noautocam, camstart, camend)
-	if !message then message = "You got overwhelmed after " .. self:GetNumber() - 1 .. " rounds!" end
-	local time = time or 10
-	
-	if not noautocam then
-		net.Start("nzMajorEEEndScreen")
-			net.WriteBool(false)
-			net.WriteBool(true)
-			net.WriteString(message)
-			net.WriteFloat(time)
-			if camstart and camend then
-				net.WriteBool(true)
-				net.WriteVector(camstart)
-				net.WriteVector(camend)
-			else
-				net.WriteBool(false)
-			end
-		net.Broadcast()
+function nzRound:GameOver(message, time, noautocam, camstart, camend, ourtype, keepplaying)
+	local gameovertext = nzMapping.Settings.gameovertext or "Game Over"
+	local survivedtext = nzMapping.Settings.survivedtext or "You Survived % Rounds"
+	survivedtext = string.Replace(survivedtext, "%", self:GetNumber() - 1)
+
+	if ourtype then
+		if ourtype == "win" then
+			gameovertext = nzMapping.Settings.gamewintext or "Game Over"
+			survivedtext = nzMapping.Settings.escapedtext or "You Escaped after % Rounds"
+			survivedtext = string.Replace(survivedtext, "%", self:GetNumber())
+		end
+		if ourtype == "inf" then
+			local inftime = string.FormattedTime(CurTime() - self.InfinityStart)
+			local inftimestr = string.format("%02i:%02i:%02i", inftime.h, inftime.m, inftime.s)
+			survivedtext = nzMapping.Settings.infinitytext or "You Survived for %"
+			survivedtext = string.Replace(survivedtext, "%", inftimestr)
+		end
 	end
-	--Main Behaviour
+
+	if message and isstring(message) and message ~= "" then
+		survivedtext = message
+	end
+
+	net.Start("nz_game_end_notif")
+		net.WriteString(tostring(gameovertext))
+		net.WriteString(tostring(survivedtext))
+	net.Broadcast()
+
+	if keepplaying then return end
+
+	local mapcamtime = nzMapping.Settings.gocamerawait
+	local mapcamstart = nzMapping.Settings.gocamerastart
+	local mapcamend = nzMapping.Settings.gocameraend
+
+	if not noautocam and (!mapcamstart or table.IsEmpty(mapcamstart) or (camstart and camend)) then
+		local poses = {}
+		local zposes = {}
+		for k, v in pairs(ents.FindByClass("player_spawns")) do
+			poses[#poses + 1] = v:GetPos()
+		end
+		for k, v in pairs(ents.FindByClass("nz_spawn_zombie_normal")) do
+			zposes[#zposes + 1] = v:GetPos()
+		end
+
+		local sum = Vector(0,0,0)
+		for _, v3 in pairs(poses) do
+			sum = sum + v3
+		end
+		local finalpos = (sum / #poses)
+
+		local zsum = Vector(0,0,0)
+		for _, v3 in pairs(zposes) do
+			zsum = zsum + v3
+		end
+		local endpos = (zsum / #zposes)
+
+		camstart = camstart or (finalpos + vector_up*72)
+		camend = camend or (endpos + vector_up*72)
+
+		timer.Simple(mapcamtime, function()
+			for _, ply in pairs(player.GetAll()) do
+				ply:ScreenFade(SCREENFADE.IN, color_black, 2, engine.TickInterval())
+			end
+
+			nzEE.Cam:QueueView(time - mapcamtime, camstart, camend, nil, true, nil)
+			nzEE.Cam:Begin()
+		end)
+	elseif mapcamstart and mapcamend and mapcamtime then
+		timer.Simple(mapcamtime, function()
+			for _, ply in pairs(player.GetAll()) do
+				ply:ScreenFade(SCREENFADE.IN, color_black, 2, engine.TickInterval())
+			end
+
+			local ourtime = (time - mapcamtime)*(1/#mapcamstart)
+			for id, pos in pairs(mapcamstart) do
+				nzEE.Cam:QueueView(ourtime, pos, mapcamend[id], nil, true, nil)
+			end
+
+			nzEE.Cam:Begin()
+		end)
+	end
+
+	-- Set round state to Game Over
 	self:SetState( ROUND_GO )
 
-	--Notify
-	PrintMessage( HUD_PRINTTALK, "GAME OVER!" )
-	PrintMessage( HUD_PRINTTALK, "Restarting in 10 seconds!" )
-	if self:GetNumber() == -1 then
-		if self.InfinityStart then
-			local time = string.FormattedTime(CurTime() - self.InfinityStart)
-			local timestr = string.format("%02i:%02i:%02i", time.h, time.m, time.s)
-			net.Start("nzMajorEEEndScreen")
-				net.WriteBool(false)
-				net.WriteBool(false)
-				net.WriteString("You survived for "..timestr.." in Round Infinity")
-				net.WriteFloat(10)
-				net.WriteBool(false)
-			net.Broadcast()
-		end
-		nzNotifications:PlaySound("nz/round/game_over_-1.mp3", 21)
-	elseif nzMapping.OfficialConfig then
-		nzNotifications:PlaySound("nz/round/game_over_5.mp3", 21)
-	else
-		--nzNotifications:PlaySound("nz/round/game_over_4.mp3", 21)
-		nzSounds:Play("GameEnd")
-	end
-	
-	timer.Simple(time, function()
-		self:ResetGame()
-	end)
+	nzPowerUps:CleanUp()
 
-	hook.Call( "OnRoundEnd", nzRound )
-end
-
-function nzRound:Win(message, keepplaying, time, noautocam, camstart, camend)
-	if !message then message = "You survived after " .. self:GetNumber() .. " rounds!" end
-	local time = time or 10
-	
-	if not noautocam then
-		net.Start("nzMajorEEEndScreen")
-			net.WriteBool(false)
-			net.WriteBool(true)
-			net.WriteString(message)
-			net.WriteFloat(time)
-			if camstart and camend then
-				net.WriteBool(true)
-				net.WriteVector(camstart)
-				net.WriteVector(camend)
-			else
-				net.WriteBool(false)
-			end
-		net.Broadcast()
-	end
-	
-	-- Set round state to Game Over
-	if !keepplaying then
-		nzRound:SetState( ROUND_GO )
-		--Notify with chat message
-		PrintMessage( HUD_PRINTTALK, "GAME OVER!" )
-		PrintMessage( HUD_PRINTTALK, "Restarting in 10 seconds!" )
-		
-		if self.OverrideEndSlomo then
-			game.SetTimeScale(0.25)
-			timer.Simple(2, function() game.SetTimeScale(1) end)
-		end
-		
-		timer.Simple(time, function()
-			nzRound:ResetGame()
-		end)
-		
-		hook.Call( "OnRoundEnd", nzRound )
-	else
-		for k,v in pairs(player.GetAllPlaying()) do
-			v:SetTargetPriority(TARGET_PRIORITY_NONE)
-		end
-		if self.OverrideEndSlomo then
-			game.SetTimeScale(0.25)
-			timer.Simple(2, function() game.SetTimeScale(1) end)
-		end
-		timer.Simple(time, function()
-			for k,v in pairs(player.GetAllPlaying()) do
-				v:SetTargetPriority(TARGET_PRIORITY_PLAYER)
-				--v:GivePermaPerks()
-			end
-		end)
-	end
-
-end
-
-function nzRound:Lose(message, time, noautocam, camstart, camend)
-	if !message then message = "You got overwhelmed after " .. self:GetNumber() .. " rounds!" end
-	local time = time or 10
-	
-	if not noautocam then
-		net.Start("nzMajorEEEndScreen")
-			net.WriteBool(false)
-			net.WriteBool(true)
-			net.WriteString(message)
-			net.WriteFloat(time)
-			if camstart and camend then
-				net.WriteBool(true)
-				net.WriteVector(camstart)
-				net.WriteVector(camend)
-			else
-				net.WriteBool(false)
-			end
-		net.Broadcast()
-	end
-	
-	-- Set round state to Game Over
-	nzRound:SetState( ROUND_GO )
-	--Notify with chat message
-	PrintMessage( HUD_PRINTTALK, "GAME OVER!" )
-	PrintMessage( HUD_PRINTTALK, "Restarting in 10 seconds!" )
-	
 	if self.OverrideEndSlomo then
 		game.SetTimeScale(0.25)
-		timer.Simple(2, function() game.SetTimeScale(1) end)
+		timer.Simple(2, function()
+			game.SetTimeScale(1)
+		end)
 	end
-	
+
+	if !ourtype or ourtype ~= "win" then
+		for _, ply in pairs(player.GetAllPlaying()) do
+			ply:Give("tfa_zomdeath")
+			ply:SetHealth(1)
+			ply.lasthit = math.huge
+		end
+	end
+
+	timer.Simple(nzMapping.Settings.gocamerawait, function()
+		for _, ply in pairs(player.GetAllPlaying()) do
+			if ply:GetNotDowned() then
+				ply:DownPlayer()
+			end
+			ply:KillDownedPlayer(true) --Reset all downed players' downed status
+			ply.SoloRevive = nil -- Reset Solo Revive counter
+
+			ply:SetUsingSpecialWeapon(false)
+			ply:SetHealth(ply:GetMaxHealth())
+			ply:SetPreventPerkLoss(false)
+			ply:RemovePerks(true) --Remove all players perks
+			ply:RemoveUpgrades() --Remove all players perk upgrades
+
+			ply.OldWeapons = nil --Remove stored weapons
+			ply.OldUpgrades = nil --Remove stored perks
+			ply.OldPerks = nil --Remove stored perk upgrades
+			ply.lasthit = 0
+		end
+	end)
+
 	timer.Simple(time, function()
 		nzRound:ResetGame()
 	end)
 
 	hook.Call( "OnRoundEnd", nzRound )
+end
+
+function nzRound:End(message, time, noautocam, camstart, camend)
+	local time = time or nzRound:GameOverDuration()
+
+	if self:GetNumber() == -1 then
+		self:GameOver(message, time, noautocam, camstart, camend, self.InfinityStart and "inf" or nil)
+		nzSounds:Play("GameEnd")
+	elseif nzMapping.OfficialConfig then
+		self:GameOver(message, time, noautocam, camstart, camend)
+		nzSounds:Play("GameEnd")
+	else
+		self:GameOver(message, time, noautocam, camstart, camend)
+		nzSounds:Play("GameEnd")
+	end
+end
+
+function nzRound:Win(message, keepplaying, time, noautocam, camstart, camend)
+	self:SetVictory(true)
+
+	local time = time or self:GameOverDuration()
+	self:GameOver(message, time, noautocam, camstart, camend, "win", keepplaying)
+	nzSounds:Play("GameEnd")
+
+	hook.Call("OnRoundWin", nzRound, !self:InState(ROUND_GO)) //bool for if the game kept going or not
+
+	if !keepplaying then
+		timer.Remove("NZRoundThink")
+	else
+		timer.Simple(0, function()
+			local currentRound = self:GetNumber()
+			self:SetNumber(currentRound)  -- Set the round to the current number to end it
+			nzPowerUps:Nuke(nil, true, true, true)  -- Nuke kills all zombies, no points, no position delay
+
+			local nextRound = currentRound + 1
+			if nzMapping.Settings.timedgame ~= 1 then
+				local specialround = math.random(nzMapping.Settings.specialroundmin or 5, nzMapping.Settings.specialroundmax or 7)
+				self:SetNextSpecialRound(nextRound + specialround)
+			end
+			self:Prepare()
+		end)
+	end
+end
+
+function nzRound:Lose(message, time, noautocam, camstart, camend)
+	local time = time or self:GameOverDuration()
+	self:GameOver(message, time, noautocam, camstart, camend)
+
+	nzSounds:Play("GameEnd")
+	timer.Remove("NZRoundThink")
 end
 
 function nzRound:Create(on)
@@ -643,7 +692,7 @@ function nzRound:Create(on)
 		for k,v in pairs(ents.FindByClass("perk_machine")) do
 			v:SetLooseChange(true)
 		end
-		
+
 		for k,v in pairs(ents.GetAll()) do
 			if v.NZOnlyVisibleInCreative then -- This is set in each entity's file
 				v:SetNoDraw(true) -- Yes this improves FPS by ~50% over a client-side convar and round state check
@@ -655,7 +704,6 @@ function nzRound:Create(on)
 end
 
 function nzRound:SetupGame()
-
 	self:SetNumber( 0 )
 
 	-- Store a session of all our players
@@ -666,6 +714,7 @@ function nzRound:SetupGame()
 			ply:SetPlaying( true )
 		end
 
+		ply:SetUsingSpecialWeapon(false)
 		ply:SetPreventPerkLoss(false)
 		ply:RemovePerks(true) --Remove all players perks
 		ply:RemoveUpgrades() --Remove all players perk upgrades

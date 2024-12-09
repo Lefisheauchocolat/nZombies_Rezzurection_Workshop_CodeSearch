@@ -299,11 +299,34 @@ end
 function ENT:OnSpawn(animation, grav, dirt)
 	animation = animation or self:SelectSpawnSequence()
 	grav = grav
+	dirt = dirt
 
 	local stype
 
 	if IsValid(self.SpawnIndex) then
 		stype = self.SpawnIndex:GetSpawnType()
+	end
+
+	if dirt then
+		local SpawnMatSound = {
+			[MAT_DIRT] = "nz_moo/zombies/spawn/dirt/pfx_zm_spawn_dirt_0"..math.random(0,1)..".mp3",
+			[MAT_SNOW] = "nz_moo/zombies/spawn/snow/pfx_zm_spawn_snow_0"..math.random(0,1)..".mp3",
+			[MAT_SLOSH] = "nz_moo/zombies/spawn/mud/pfx_zm_spawn_mud_00.mp3",
+			[0] = "nz_moo/zombies/spawn/default/pfx_zm_spawn_default_00.mp3",
+		}
+		SpawnMatSound[MAT_GRASS] = SpawnMatSound[MAT_DIRT]
+		SpawnMatSound[MAT_SAND] = SpawnMatSound[MAT_DIRT]
+
+		local norm = (self:GetPos()):GetNormalized()
+		local tr = util.QuickTrace(self:GetPos(), norm*10, self)
+
+		if tr.Hit then
+			local finalsound = SpawnMatSound[tr.MatType] or SpawnMatSound[0]
+			self:EmitSound(finalsound)
+		end
+
+		ParticleEffect("bo3_zombie_spawn",self:GetPos()+Vector(0,0,1),self:GetAngles(),self)
+		self:EmitSound("nz_moo/zombies/spawn/_generic/dirt/dirt_0"..math.random(0,2)..".mp3",100,math.random(95,105))
 	end
 
 	if IsValid(self.SpawnIndex) then

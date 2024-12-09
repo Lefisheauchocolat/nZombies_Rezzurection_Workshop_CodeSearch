@@ -482,22 +482,12 @@ hook.Add("StartCommand", "nzslidespeed", function(ply, cmd)
 		local time_remain_frac = (ply:GetSlidingTime() - CurTime()) / (slidetime*ply:GetSlidingStamina())
 
 		local blackops3 = nz_bo3slide:GetBool() or nzMapping.Settings.slidejump
-		if !blackops3 or (blackops3 and time_remain_frac > 0.8) then
+		if !blackops3 then
 			cmd:RemoveKey(IN_JUMP)
-		elseif ply:KeyPressed(IN_JUMP) then
-			if IsFirstTimePredicted() then
-				ply:EmitSound("bhop.mp3", 75, math.random(97,103), 1, CHAN_WEAPON)
-			end
 		end
 		cmd:RemoveKey(IN_SPEED)
 		cmd:ClearMovement()
 
-		local slidetime = math.max(0.1, nzMapping.Settings.slideduration) + ((bananad and ply:GetNW2Int("nz.BananaCount", 0) > 0) and 0.15 or 0)
-		local time_remain_frac = (ply:GetSlidingTime() - CurTime()) / (slidetime*ply:GetSlidingStamina())
-
-		if blackops3 and time_remain_frac > 0.8 then
-			cmd:RemoveKey(IN_JUMP)
-		end
 		if time_remain_frac > 0.2*ply:GetSlidingStamina() then
 			cmd:SetButtons(bit.bor(cmd:GetButtons(), IN_DUCK))
 		end

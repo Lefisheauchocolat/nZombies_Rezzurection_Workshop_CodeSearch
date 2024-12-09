@@ -205,7 +205,7 @@ if SERVER then
 	end
 
 	function nzPowerUps:SelectAntiPowerup(powerups, pos)
-		for k, v in pairs(powerups) do
+		for k, v in pairs(self.Data) do
 			if v.anticondition and !v.anticondition(k, pos) then
 				powerups[k] = nil
 				continue
@@ -2171,7 +2171,7 @@ nzPowerUps:NewPowerUp("fullarmor", {
 		net.Broadcast()
 
 		for k, v in pairs(player.GetAll()) do
-			local bonus = math.max(200, v:Armor())
+			local bonus = math.max(v:GetMaxArmor(), v:Armor())
 			v:SetArmor(bonus)
 			v:EmitSound("nzr/2023/buildables/zm_common.all.sabl.1471.wav", SNDLVL_GUNFIRE)
 		end

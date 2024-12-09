@@ -6,7 +6,7 @@
     "menusystem"	"1"
     "maps"	"^nz_"
 
-    "author_name"   "Alig96, Zet0r, Lolle, GhostlyMoo, FlamingFox, Laby"
+    "author_name"   "Alig96, Zet0r, Lolle, GhostlyMoo, FlamingFox, Laby, Wavymelon"
     "author_email"  ""
 
     "icon"  ""

@@ -85,7 +85,6 @@ ENT.SpeedBasedSequences = true
 ENT.IsMooZombie = true
 ENT.IsMooSpecial = true
 ENT.IsMooBossZombie = true
-ENT.IsMiniBoss = true
 
 ENT.AttackRange = 100
 ENT.DamageRange = 110
@@ -500,8 +499,8 @@ function ENT:StatsInitialize()
 			self:SetMaxHealth(7500)
 		else
 			if nzRound:InState( ROUND_PROG ) then
-				self:SetHealth(math.Clamp(nzRound:GetNumber() * 5000 + (500 * count), 1000, 150000 * count))
-				self:SetMaxHealth(math.Clamp(nzRound:GetNumber() * 5000 + (500 * count), 1000, 150000 * count))
+				self:SetHealth(math.Clamp(nzRound:GetNumber() * 1250 + (150 * count), 1000, 150000 * count))
+				self:SetMaxHealth(math.Clamp(nzRound:GetNumber() * 1250 + (150 * count), 1000, 150000 * count))
 			else
 				self:SetHealth(7500)
 				self:SetMaxHealth(7500)	
@@ -872,8 +871,9 @@ function ENT:CustomAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 		if IsValid(target) then
 			self.ZapShot = ents.Create("nz_proj_mangler_shot_bo3")
 			self.ZapShot:SetPos(rarmfx_tag)
+			self.ZapShot:SetAngles((target:GetPos() - self:GetPos()):Angle())
 			self.ZapShot:Spawn()
-			self.ZapShot:Launch(((target:EyePos() - Vector(0,0,7) + target:GetVelocity() * math.Clamp(target:GetVelocity():Length2D(),0,0.5)) - self.ZapShot:GetPos()):GetNormalized())
+			self.ZapShot:SetVictim(target)
 		end
 
 		self.Enraged = false

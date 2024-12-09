@@ -282,6 +282,32 @@ function nzRound:AddBossType(id, class, funcs)
 	end
 end
 
+nzRound:AddBossType("Abomination(BO6)", "nz_zombie_boss_abom_t10", {
+	specialspawn = false,
+	health = 500,
+	scale = 1,
+	dmgmul = 1,
+	amountatonce = 1,
+	initalrnd = 12,
+	intermission = 4,
+	perplayer = 1,
+	maxperrnd = 2,
+	initfunc = function()
+	end,
+	spawnfunc = function(self)
+		--[[local data = nzRound:GetBossData(self.NZBossType)
+		local count = #player.GetAllPlaying()
+
+		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))]]
+	end,
+	deathfunc = function(self, killer, dmginfo, hitgroup)
+		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+			attacker:GivePoints(150) -- Give killer 500 points if not downed
+		end
+	end,
+})
+
 nzRound:AddBossType("Abomination", "nz_zombie_boss_abom", {
 	specialspawn = false,
 	health = 500,
@@ -495,13 +521,113 @@ nzRound:AddBossType("The Director", "nz_zombie_boss_director", {
 		end
 	end,
 })
-nzRound:AddBossType("Margwa", "nz_zombie_boss_margwa", {
+nzRound:AddBossType("Margwa(All Elementals)", "nz_zombie_boss_margwa", {
+	specialspawn = false,
+	health = 500,
+	scale = 1,
+	dmgmul = 1,
+	amountatonce = 2,
+	initalrnd = 12,
+	intermission = 4,
+	perplayer = 1,
+	maxperrnd = 3,
+	initfunc = function()
+	end,
+	spawnfunc = function(self)
+		--[[local data = nzRound:GetBossData(self.NZBossType)
+		local count = #player.GetAllPlaying()
+
+		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))]]
+	end,
+	deathfunc = function(self, killer, dmginfo, hitgroup)
+		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+			attacker:GivePoints(150) -- Give killer 500 points if not downed
+		end
+	end,
+})
+nzRound:AddBossType("Margwa(Shadows of Evil)", "nz_zombie_boss_margwa_zod", {
 	specialspawn = false,
 	health = 500,
 	scale = 1,
 	dmgmul = 1,
 	amountatonce = 2,
 	initalrnd = 8,
+	intermission = 4,
+	perplayer = 1,
+	maxperrnd = 3,
+	initfunc = function()
+	end,
+	spawnfunc = function(self)
+		--[[local data = nzRound:GetBossData(self.NZBossType)
+		local count = #player.GetAllPlaying()
+
+		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))]]
+	end,
+	deathfunc = function(self, killer, dmginfo, hitgroup)
+		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+			attacker:GivePoints(150) -- Give killer 500 points if not downed
+		end
+	end,
+})
+nzRound:AddBossType("Margwa(Revelations)", "nz_zombie_boss_margwa_genesis", {
+	specialspawn = false,
+	health = 500,
+	scale = 1,
+	dmgmul = 1,
+	amountatonce = 2,
+	initalrnd = 8,
+	intermission = 4,
+	perplayer = 1,
+	maxperrnd = 3,
+	initfunc = function()
+	end,
+	spawnfunc = function(self)
+		--[[local data = nzRound:GetBossData(self.NZBossType)
+		local count = #player.GetAllPlaying()
+
+		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))]]
+	end,
+	deathfunc = function(self, killer, dmginfo, hitgroup)
+		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+			attacker:GivePoints(150) -- Give killer 500 points if not downed
+		end
+	end,
+})
+nzRound:AddBossType("Margwa(Fire)", "nz_zombie_boss_margwa_fire", {
+	specialspawn = false,
+	health = 500,
+	scale = 1,
+	dmgmul = 1,
+	amountatonce = 2,
+	initalrnd = 12,
+	intermission = 4,
+	perplayer = 1,
+	maxperrnd = 3,
+	initfunc = function()
+	end,
+	spawnfunc = function(self)
+		--[[local data = nzRound:GetBossData(self.NZBossType)
+		local count = #player.GetAllPlaying()
+
+		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))]]
+	end,
+	deathfunc = function(self, killer, dmginfo, hitgroup)
+		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+			attacker:GivePoints(150) -- Give killer 500 points if not downed
+		end
+	end,
+})
+nzRound:AddBossType("Margwa(Shadow)", "nz_zombie_boss_margwa_shadow", {
+	specialspawn = false,
+	health = 500,
+	scale = 1,
+	dmgmul = 1,
+	amountatonce = 2,
+	initalrnd = 12,
 	intermission = 4,
 	perplayer = 1,
 	maxperrnd = 3,
@@ -1446,7 +1572,6 @@ nzRound:AddBossType("Boomer", "nz_zombie_boss_boomer", {
 		end
 	end,
 })
---Currently not in moo's dev build
 nzRound:AddBossType("Terminator", "nz_zombie_boss_arnold", {
 	specialspawn = false,
 	health = 20000,

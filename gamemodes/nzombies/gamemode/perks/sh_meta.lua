@@ -45,7 +45,7 @@ if SERVER then
 	end
 
 	local exceptionperks = {
-		["whoswho"] = true,
+		//["whoswho"] = true,
 	}
 
 	function playerMeta:RemovePerk(id, forced)
@@ -145,7 +145,9 @@ if SERVER then
 		if self.PreventPerkLoss then
 			if nzPerks.PlayerUpgrades[self] then
 				for k, v in pairs(nzPerks.PlayerUpgrades[self]) do
-					self:RemoveUpgrade(k)
+					if exceptionperks[k] then
+						self:RemoveUpgrade(k)
+					end
 				end
 			end
 		else

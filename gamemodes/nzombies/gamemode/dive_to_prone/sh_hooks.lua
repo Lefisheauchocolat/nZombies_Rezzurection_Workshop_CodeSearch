@@ -1,5 +1,3 @@
-local diving_launchmult = CreateConVar("sv_dive_to_prone_launchmult", 1, {FCVAR_REPLICATED, FCVAR_ARCHIVE})
-
 TFA.AddSound ("NZ.D2P.Launch", CHAN_STATIC, 1, SNDLVL_NORM, 100, "player/dive_to_prone/foley/fly_launch_00.wav",")")
 TFA.AddSound ("NZ.D2P.Collide", CHAN_STATIC, 1, SNDLVL_NORM, 100, "player/dive_to_prone/collide/collide_00.wav",")")
 TFA.AddSound ("NZ.D2P.Slide", CHAN_STATIC, 1, SNDLVL_IDLE, 100, "player/dive_to_prone/slide/concrete/concrete_slide_stop.wav",")")
@@ -23,11 +21,11 @@ landing_sound[MAT_GRATE] = landing_sound[MAT_METAL]
 local meta = FindMetaTable("Player")
 
 function meta:GetDiving()
-	return self:GetNW2Bool("Diving", false)
+	return self:GetNWBool("Diving", false)
 end
 
 function meta:SetDiving(bool)
-	return self:SetNW2Bool("Diving", bool)
+	return self:SetNWBool("Diving", bool)
 end
 
 function meta:GetDivingReset()
@@ -143,7 +141,7 @@ hook.Add("OnPlayerHitGround", "dive_to_prone.land", function(ply, inWater, onFlo
 	local landingtime = ply:GetLandingTime()
 	local CT = CurTime()
 
-	if IsFirstTimePredicted() and (game.SinglePlayer() or CLIENT) and diving and onground and landingtime < CT then
+	if IsFirstTimePredicted() and diving and onground and landingtime < CT then
 		local direction = math.random(2) == 1 and -1 or 1
 		local mult = math.Clamp(math.floor(speed/400), 1, 3)
 		if ply:HasPerk('cosmo') then
@@ -251,7 +249,7 @@ hook.Add("SetupMove", "dive_to_prone", function(ply, mv, cmd)
 			ply:SetDiving(true)
 			ply:SetUnDuckSpeed(0.4)
 			ply:SetGroundEntity(nil)
-			mv:SetVelocity((vel_fwd * runspeed + up) * diving_launchmult:GetInt())
+			mv:SetVelocity((vel_fwd * runspeed) * nzMapping.Settings.divingspeed + Vector(0, 0, nzMapping.Settings.divingheight))
 
 			if cosmo then
 				ply:SetGravity(0.37)
@@ -265,7 +263,7 @@ hook.Add("SetupMove", "dive_to_prone", function(ply, mv, cmd)
 	onground = ply:OnGround()
 
 	if diving and onground and landingtime < CT then
-		ply:SetLandingTime(CT + 0.2)
+		ply:SetLandingTime(CT + (nzMapping.Settings.divingwait or 0.2))
 		ply:SetDiving(false)
 
 		if IsFirstTimePredicted() and (game.SinglePlayer() or CLIENT) then
@@ -345,6 +343,20 @@ hook.Add("StartCommand", "dive_to_prone.command", function(ply, cmd)
 		cmd:SetButtons(bit.bor(cmd:GetButtons(), IN_DUCK))
 	end
 end)
+
+if SERVER then
+	hook.Add("OnEntityWaterLevelChanged", "dive_to_prone.fix", function(ply, old, new)
+		if not IsValid(ply) or not ply:IsPlayer() then return end
+
+		local candiving = nzMapping.Settings.movement
+		if candiving == nil or (candiving ~= 2 and candiving < 3) then return end
+
+		if ply:GetDiving() and new > 2 then
+			ply:SetLandingTime(CurTime())
+			ply:SetDiving(false)
+		end
+	end)
+end
 
 if CLIENT then
 	hook.Add("HUDWeaponPickedUp", "dive_to_prone.hud", function(weapon)

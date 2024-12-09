@@ -210,7 +210,63 @@ function ENT:ResetPlanks(nosoundoverride)
 	end
 end
 
-function ENT:Use( activator, caller ) end
+function ENT:Use(ply, caller)
+	if not self:GetHasPlanks() or self:GetNumPlanks() >= 6 then return end
+	if self.NextPlank and self.NextPlank > CurTime() then return end
+
+	if IsValid(ply) and ply:IsPlayer() then
+		if not ply:Alive() then return end
+		if ply.GetUsingSpecialWeapon and ply:GetUsingSpecialWeapon() then return end
+
+		local wep = ply:GetActiveWeapon()
+		if IsValid(wep) and wep:IsSpecial() then return end
+
+		local isamish = ply:HasUpgrade("amish")
+		local oncrack = ply:HasPerk("speed")
+		local time = oncrack and 0.5 or 1
+
+		if isamish and oncrack then
+			time = 0.4
+		elseif isamish then
+			time = 0.75
+		end
+
+		local plank = self:GetTornPlank()
+		if IsValid(plank) then
+			if ply:HasPerk("amish") then
+				plank.Enhanced = true
+				if self:GetBoardType() == 1 then
+					plank:SetBodygroup(1, 1)
+				end
+			else
+				plank.Enhanced = false
+				if self:GetBoardType() == 1 then
+					plank:SetBodygroup(1, 0)
+				end
+			end
+
+			self:AddPlank(plank, ply)
+
+			timer.Simple(time, function()
+				if not IsValid(ply) then return end
+				ply:GivePoints(ply:HasPerk("amish") and (math.random(1,5) * 10) or 10, false, true)
+			end)
+
+			self.NextPlank = CurTime() + time
+		end
+	else
+		local plank = self:GetTornPlank()
+		if IsValid(plank) then
+			plank.Enhanced = false
+			if self:GetBoardType() == 1 then
+				plank:SetBodygroup(1, 0)
+			end
+
+			self:AddPlank(plank)
+			self.NextPlank = CurTime() + 1
+		end
+	end
+end
 
 function ENT:GetPlankPositionAvailable(plank)
 
@@ -447,53 +503,9 @@ else
 
 	function ENT:Think()
 		if self:GetHasPlanks() and self:GetNumPlanks() < 6 then
-			local pos = self:GetPos()
 			local p = nextPlayer()
-			if IsValid(p) then
-				local isamish = p:HasUpgrade("amish")
-				local oncrack = p:HasPerk("speed")
-				local time = p:HasPerk("speed") and 0.5 or 1
-				local fuck = p:KeyDown(IN_USE)
-
-				if isamish and oncrack then
-					time = 0.4
-				elseif isamish then
-					time = 0.75
-				end
-
-				local wep = p:GetActiveWeapon()
-				if IsValid(wep) and wep:IsSpecial() then
-					fuck = false
-				end
-
-				if (isamish or fuck) and p:GetPos():DistToSqr(pos) < (isamish and 5000 or 2500) then
-					if self.NextPlank and self.NextPlank < CurTime() then
-						local plank = self:GetTornPlank()
-						if IsValid(plank) then
-							if !IsValid(p) then return end
-							if p:HasPerk("amish") then
-								plank.Enhanced = true
-								if self:GetBoardType() == 1 then
-									plank:SetBodygroup(1,1)
-								end
-							else
-								plank.Enhanced = false
-								if self:GetBoardType() == 1 then
-									plank:SetBodygroup(1,0)
-								end
-							end
-
-							self:AddPlank(plank, p)
-
-							timer.Simple(time, function()
-								if not IsValid(p) then return end
-								p:GivePoints(p:HasPerk("amish") and (math.random(1,5) * 10) or 10, false, true)
-							end)
-
-							self.NextPlank = CurTime() + time
-						end
-					end
-				end
+			if IsValid(p) and p:HasUpgrade("amish") and self.NextPlank < CurTime() and p:Alive() and p:GetPos():DistToSqr(self:GetPos()) < 5000 then
+				self:Use(p, p, USE_ON, 1)
 			end
 		end
 

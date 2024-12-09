@@ -743,10 +743,10 @@ if SERVER then
 	end
 
 	-- This hook only works server-side
-	hook.Add("WeaponEquip", "nzSetSpecialWeapons", function(wep)
+	hook.Add("WeaponEquip", "nzSetSpecialWeapons", function(wep, ply)
 		if not wep:IsSpecial() then return end
-		-- 0 second timer for the next tick where wep's owner is valid
-		timer.Simple(0, function()
+		timer.Simple(engine.TickInterval()*2, function()
+			if not IsValid(wep) then return end
 			local ply = wep:GetOwner()
 			if not IsValid(ply) then return end
 			ply:AddSpecialWeapon(wep)
@@ -756,7 +756,7 @@ if SERVER then
 	hook.Add("PlayerCanPickupWeapon", "nzSpecialWeaponReplacer", function(ply, wep)
 		if not IsValid(ply) or not IsValid(wep) or not wep:IsSpecial() then return end
 		local oldwep = ply:GetSpecialWeaponFromCategory(wep:GetSpecialCategory())
-		if IsValid(oldwep) then
+		if IsValid(oldwep) and (!oldwep.ShieldEnabled or (oldwep.ShieldEnabled and !wep.ShieldEnabled)) then
 			ply:StripWeapon(oldwep:GetClass())
 		end
 	end)

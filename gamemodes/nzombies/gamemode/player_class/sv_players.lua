@@ -27,28 +27,6 @@ hook.Add("EntityRemoved", "nzPlayerLeft", function(ply)
 	end
 end)
 
-local load_queue = {}
-
-hook.Add("PlayerInitialSpawn", "nzPlayerInitialSpawn", function(ply, trans)
-	load_queue[ply] = true
-end)
-
-hook.Add("SetupMove", "nzPlayerInitialSpawn", function( ply, _, cmd )
-	if load_queue[ply] and not cmd:IsForced() then
-		if isnumber(load_queue[ply]) and load_queue[ply] < CurTime() then //first send mapdata, then sync modules
-			//print(CurTime())
-			print('Sent module sync to '..ply:Nick())
-			load_queue[ply] = nil
-			nzPlayers:FullSync(ply)
-		elseif not isnumber(load_queue[ply]) then
-			//print(CurTime())
-			print('Sent map data to '..ply:Nick())
-			nzMapping:SendMapData(ply)
-			load_queue[ply] = CurTime() + (ply:Ping()*0.01) + engine.TickInterval()
-		end
-	end
-end)
-
 hook.Add("GetFallDamage", "nzFallDamage", function(ply, speed)
 	if not IsValid(ply) then return end
 	if ply:HasPerk("phd") then
@@ -59,6 +37,10 @@ end)
 
 hook.Add("PlayerShouldTakeDamage", "nzPlayerIgnoreDamage", function(ply, ent)
 	if not ply:GetNotDowned() then
+		return false
+	end
+
+	if nzRound:InState(ROUND_GO) then
 		return false
 	end
 
@@ -83,14 +65,15 @@ hook.Add("PlayerShouldTakeDamage", "nzPlayerIgnoreDamage", function(ply, ent)
 
 		timer.Simple(0, function()
 			if not IsValid(ply) then return end //fuck yuo :)
+
 			local fx = EffectData()
 			fx:SetOrigin(ply:GetPos())
 			fx:SetEntity(ply)
 			util.Effect("nz_spidernade_explosion", fx)
-
-			local nade = GetNZAmmoID("grenade")
-			ply:SetAmmo(ply:GetAmmoCount(nade) - 1, nade)
 		end)
+
+		local nade = GetNZAmmoID("grenade")
+		ply:SetAmmo(ply:GetAmmoCount(nade) - 1, nade)
 
 		return false
 	end
@@ -196,7 +179,7 @@ hook.Add("EntityTakeDamage", "nzPlayerTakeDamage", function(ply, dmginfo)
 		local pos = ply:GetPos()
 		local spawns = {}
 
-		if IsValid(available[1]) then
+		if IsValid(available[1]) and !nzMapping.Settings.specialsuseplayers then
 			for k, v in ipairs(available) do
 				if v.link == nil or nzDoors:IsLinkOpened(v.link) then
 					if v:IsSuitable() then
@@ -229,11 +212,11 @@ hook.Add("EntityTakeDamage", "nzPlayerTakeDamage", function(ply, dmginfo)
 		ply:SetPos(pos)
 	end
 
-	if bit.band(dmginfo:GetDamageType(), bit.bor(DMG_VEHICLE, DMG_RADIATION, DMG_POISON, DMG_SHOCK)) ~= 0 and ply:HasPerk("mask") then
+	if bit.band(dmginfo:GetDamageType(), bit.bor(DMG_VEHICLE, DMG_POISON, DMG_SHOCK)) ~= 0 and ply:HasPerk("mask") then
 		dmginfo:ScaleDamage(0.15)
 	end
 
-	if dmginfo:IsDamageType(DMG_NERVEGAS) and ply:HasPerk("mask") then
+	if bit.band(dmginfo:GetDamageType(), bit.bor(DMG_NERVEGAS, DMG_RADIATION)) ~= 0 and ply:HasPerk("mask") then
 		dmginfo:ScaleDamage(0)
 	end
 
@@ -344,7 +327,7 @@ hook.Add("PlayerDowned", "nzPlayerDown", function(ply)
 			util.Effect("HelicopterMegaBomb", fx)
 			util.Effect("Explosion", fx)
 
-			util.ScreenShake(pos, 10, 5, 1.5, 600)
+			util.ScreenShake(pos, 5, 5, 1.5, 600)
 
 			if ply:IsOnGround() then
 				util.Decal("Scorch", pos - vector_up, pos + vector_up)
@@ -382,6 +365,21 @@ hook.Add("PlayerPostThink", "nzStatsRestePlayer", function(ply)
 			ply:SetNW2Int("nz.CherryCount", 0)
 		end
 	end
+
+	local barricade = ply.UsedBarricade
+	if barricade then
+		if IsValid(barricade) and barricade.GetHasPlanks and barricade:GetNumPlanks() < 6 then
+			if !barricade.NextPlank or barricade.NextPlank < CurTime() then
+				if barricade:GetPos():DistToSqr(ply:GetPos()) > 2500 then
+					ply.UsedBarricade = nil
+				else
+					barricade:Use(ply, ply, USE_ON, 1)
+				end
+			end
+		else
+			ply.UsedBarricade = nil
+		end
+	end
 end)
 
 hook.Add("OnEntityCreated", "nodmglolfucku", function(ent)
@@ -404,3 +402,47 @@ hook.Add("WeaponEquip", "nzWeaponPickupString", function(wep, ply)
 		end)
 	end
 end)
+
+hook.Add("KeyPress", "nzBarricadeRebuild", function(ply, key)
+	if key ~= IN_USE then return end
+	if ply.UsedBarricade then return end
+
+	local barricades = {}
+	for k, v in pairs(ents.FindInSphere(ply:GetPos(), 50)) do
+		if v:GetClass() == "breakable_entry" and v:GetHasPlanks() and v:GetNumPlanks() < 6 then
+			barricades[#barricades + 1] = v
+		end
+	end
+
+	local sortedcades = {}
+	for i=1, #barricades do
+		local ent = barricades[i]
+		if not IsValid(ent) then continue end
+		sortedcades[i] = ent:GetPos():DistToSqr(ply:GetPos())
+	end
+
+	for k, dist in SortedPairsByValue(sortedcades) do
+		local ent = barricades[k]
+		if not IsValid(ent) then continue end
+
+		ply.UsedBarricade = ent
+		break
+	end
+end)
+
+hook.Add("KeyRelease", "nzBarricadeRebuild", function(ply, key)
+	if key ~= IN_USE then return end
+	if ply.UsedBarricade then
+		ply.UsedBarricade = nil
+	end
+end)
+
+local PLAYER = FindMetaTable("Entity")
+if PLAYER then
+	local oldignite = PLAYER.Ignite
+	function PLAYER:Ignite(...)
+		if not self:IsPlayer() then return oldignite(self, ...) end
+		if self:HasPerk("fire") then return end
+		return oldignite(self, ...)
+	end
+end

@@ -17,6 +17,7 @@ function plymeta:StopSprint(released)
 	else
 		self:SetRunSpeed(self:GetWalkSpeed())
 		self:SetSprinting(false)
+		self:ConCommand("-speed")
 	end
 
 	hook.Run("OnStopSprint", self)
