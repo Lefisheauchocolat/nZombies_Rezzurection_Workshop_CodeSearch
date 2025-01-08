@@ -4,6 +4,7 @@ ENT.Base = "nz_zombiebase_moo"
 ENT.Type = "nextbot"
 ENT.Category = "Brainz"
 ENT.Author = "Laby"
+ENT.PrintName = "Xenomorph"
 ENT.Spawnable = true
 
 if CLIENT then return end -- Client doesn't really need anything beyond the basics

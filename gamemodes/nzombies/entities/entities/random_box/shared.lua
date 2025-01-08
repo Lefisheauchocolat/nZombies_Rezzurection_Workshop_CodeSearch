@@ -17,6 +17,9 @@ function ENT:SetupDataTables()
 
 	self:NetworkVar("Float", 0, "ActivateTime")
 
+	self:NetworkVar("String", 0, "IdleParticle")
+	self:NetworkVar("String", 1, "IdleSound")
+
 	self:NetworkVarNotify("Open", self.OnOpenChanged)
 end
 
@@ -58,72 +61,103 @@ function ENT:Initialize()
 	local nzmapsettings = nzMapping.Settings.boxtype
 	local result
 
-	local boxmdl = {
-		["UGX Coffin"] = function() 
-			box = "models/wavy_ports/ugx/ugx_coffin_box.mdl"
-			return box
-		end,
-		["Black Ops 3"] = function() 
-			box = "models/moo/_codz_ports_props/t7/_sumpf/p7_zm_shi_magic_box/moo_codz_p7_zm_magic_box.mdl"
-			return box
-		end,
-		["Black Ops 3(Quiet Cosmos)"] = function() 
-			box = "models/moo/_codz_ports_props/t7/_sumpf/p7_zm_shi_magic_box/moo_codz_p7_zm_magic_box.mdl"
-			return box
-		end,
-		["Mob of the Dead"] = function() 
-			box = "models/moo/_codz_ports_props/t6/alcatraz/p6_anim_zm_al_magic_box/moo_codz_t6_al_magic_box.mdl"
-			return box
-		end,
-		["Leviathan"] = function() 
-			box = "models/moo/_codz_ports_props/t7/zm_leviathan/futureistic_mysterybox/moo_codz_p7_futureistic_mysterybox.mdl"
-			return box
-		end,
-		["Verruckt"] = function() 
-			box = "models/nzr/2022/magicbox/bo2/magic_box.mdl"
-			return box
-		end,
-		["Nacht Der Untoten"] = function() 
-			box = "models/nzr/2022/magicbox/bo2/magic_box.mdl"
-			return box
-		end,
-		["Cold War"] = function() 
-			box = "models/moo/_codz_ports_props/s4/zm/zod/s4_zm_magic_box/moo_codz_s4_zm_magic_box.mdl"
-			return box
-		end,
-		["Original"] = function() 
-			box = "models/nzr/2022/magicbox/bo2/magic_box.mdl"
-			return box
-		end,
+	self.BoxSelection = nzmapsettings
+	self.BoxModel = {
+		["UGX Coffin"] = {
+			MDL = "models/wavy_ports/ugx/ugx_coffin_box.mdl",
+			SKIN = 0,
+			ANGLE = self:GetAngles(),
+			WEAPONPOS = self:GetPos() + self:GetUp()*42,
+			WEAPONPANG = self:GetAngles(),
+			AURA = nil,
+		},
+		["Present Box"] = {
+			MDL = "models/wavy_ports/ugx/present_box.mdl",
+			SKIN = 0,
+			ANGLE = self:GetAngles(),
+			WEAPONPOS = self:GetPos() + self:GetUp()*15,
+			WEAPONPANG = self:GetAngles(),
+			AURA = nil,
+		},
+		["Black Ops 3"] = {
+			MDL = "models/moo/_codz_ports_props/t7/_sumpf/p7_zm_shi_magic_box/moo_codz_p7_zm_magic_box.mdl",
+			SKIN = 0,
+			ANGLE = self:GetAngles() + Angle(0,90,0),
+			WEAPONPOS = self:GetPos() + self:GetUp()*6,
+			WEAPONPANG = self:GetAngles() - Angle(0,90,0),
+			AURA = nil,
+		},
+		["Black Ops 3(Quiet Cosmos)"] = {
+			MDL = "models/moo/_codz_ports_props/t7/_sumpf/p7_zm_shi_magic_box/moo_codz_p7_zm_magic_box.mdl",
+			SKIN = 1,
+			ANGLE = self:GetAngles() + Angle(0,90,0),
+			WEAPONPOS = self:GetPos() + self:GetUp()*6,
+			WEAPONPANG = self:GetAngles() - Angle(0,90,0),
+			AURA = nil,
+		},
+		["Mob of the Dead"] = {
+			MDL = "models/moo/_codz_ports_props/t6/alcatraz/p6_anim_zm_al_magic_box/moo_codz_t6_al_magic_box.mdl",
+			SKIN = 0,
+			ANGLE = self:GetAngles(),
+			WEAPONPOS = self:GetPos() + self:GetUp()*14,
+			WEAPONPANG = self:GetAngles(),
+			AURA = "mob_box_aura",
+			SND = "nz_moo/mysterybox/alcatraz/hellbox_loop_high.wav",
+		},
+		["Leviathan"] = {
+			MDL = "models/moo/_codz_ports_props/t7/zm_leviathan/futureistic_mysterybox/moo_codz_p7_futureistic_mysterybox.mdl",
+			SKIN = 0,
+			ANGLE = self:GetAngles(),
+			WEAPONPOS = self:GetPos() + self:GetUp()*6,
+			WEAPONPANG = self:GetAngles(),
+			AURA = nil,
+		},
+		["Verruckt"] = {
+			MDL = "models/nzr/2022/magicbox/bo2/magic_box.mdl",
+			SKIN = 0,
+			ANGLE = self:GetAngles(),
+			WEAPONPOS = self:GetPos() + self:GetUp()*6,
+			WEAPONPANG = self:GetAngles(),
+			AURA = nil,
+		},
+		["Nacht Der Untoten"] = {
+			MDL = "models/nzr/2022/magicbox/bo2/magic_box.mdl",
+			SKIN = 0,
+			ANGLE = self:GetAngles(),
+			WEAPONPOS = self:GetPos() + self:GetUp()*6,
+			WEAPONPANG = self:GetAngles(),
+			AURA = nil,
+		},
+		["Cold War"] = {
+			MDL = "models/moo/_codz_ports_props/s4/zm/zod/s4_zm_magic_box/moo_codz_s4_zm_magic_box.mdl",
+			SKIN = 0,
+			ANGLE = self:GetAngles(),
+			WEAPONPOS = self:GetPos() + self:GetUp()*6,
+			WEAPONPANG = self:GetAngles(),
+			AURA = nil,
+		},
+		["Original"] = {
+			MDL = "models/nzr/2022/magicbox/bo2/magic_box.mdl",
+			SKIN = 0,
+			ANGLE = self:GetAngles(),
+			WEAPONPOS = self:GetPos() + self:GetUp()*6,
+			WEAPONPANG = self:GetAngles(),
+			AURA = nil,
+		},
 	}
 
-	if isstring(nzmapsettings) then
-		result = boxmdl[nzmapsettings](box)
-	end
 
-	if isstring(result) then
-		box = result
-	end
+	local selection = self.BoxModel[nzmapsettings]
+	self:SetModel(selection.MDL)
+	self:SetSkin(selection.SKIN)
+	self:SetAngles(selection.ANGLE)
 
-	self:SetModel(box)
-
-	if (nzMapping.Settings.boxtype == "Black Ops 3") or (nzMapping.Settings.boxtype) == "Black Ops 3(Quiet Cosmos)" then
-		self:SetAngles( self:GetAngles() + Angle(0,90,0))
-	end
+	if selection.AURA ~= nil then self:SetIdleParticle(selection.AURA) end
+	if selection.SND ~= nil then self:SetIdleSound(selection.SND) end
 
 	local seq = self:LookupSequence("arrive")
 	self:ResetSequence(seq)
 	
-	if (nzMapping.Settings.boxtype == "Mob of the Dead") then
-		ParticleEffectAttach("hellbox_plat_sidefire",PATTACH_POINT_FOLLOW,self,2)
-		ParticleEffectAttach("hellbox_plat_sidefire",PATTACH_POINT_FOLLOW,self,3)
-		ParticleEffectAttach("hellbox_plat_sidefire",PATTACH_POINT_FOLLOW,self,4)
-	end
-
-	if (nzMapping.Settings.boxtype) == "Black Ops 3(Quiet Cosmos)" then
-		self:SetSkin(1)
-	end
-
 	if CLIENT then
 		self:CreateBeam()
 	end
@@ -188,18 +222,12 @@ end
 
 function ENT:SpawnWeapon(activator, class)
 	local wep = ents.Create("random_box_windup")
-	local angles = self:GetAngles()
-	local pos = self:GetPos() + self:GetUp()*6
 
-	if (nzMapping.Settings.boxtype == "Mob of the Dead") then
-		pos = self:GetPos() + self:GetUp()*14
-	elseif (nzMapping.Settings.boxtype == "Black Ops 3") or (nzMapping.Settings.boxtype) == "Black Ops 3(Quiet Cosmos)" then
-		angles = self:GetAngles() - Angle(0,90,0)
-	end
-	
-	if (nzMapping.Settings.boxtype == "UGX Coffin") then
-		pos = self:GetPos() + self:GetUp()*42
-	end
+	local nzmapsettings = nzMapping.Settings.boxtype
+	local selection 	= self.BoxModel[nzmapsettings]
+
+	local angles 	= selection.WEAPONPANG
+	local pos 		= selection.WEAPONPOS
 
 	wep:SetAngles(angles)
 	wep:SetPos(pos)
@@ -262,10 +290,7 @@ function ENT:Think()
 		if IsValid(self.SpawnPoint) and !self.SpawnPointAnim then
 			self.SpawnPointAnim = true
 			if (nzMapping.Settings.boxtype == "UGX Coffin") then
-			ParticleEffect("doom_hellunit_spawn_medium",self:GetPos(),self:GetAngles(),self)
-			end
-			if self.SpawnPoint:LookupSequence("arrive") > 0 then
-				self.SpawnPoint:ResetSequence("arrive")
+				ParticleEffect("doom_hellunit_spawn_medium",self:GetPos(),self:GetAngles(),self)
 			end
 		end
 
@@ -334,6 +359,8 @@ end
 function ENT:OnRemove()
 	self:RemoveBeam()
 
+	if isstring(self:GetIdleSound()) then self:StopSound(self:GetIdleSound()) end
+
 	if CLIENT then
 		if IsValid(self.Light) then
 			self.Light:Remove()
@@ -354,6 +381,17 @@ else
 
 		if self:GetOpen() and ((nzMapping.Settings.boxtype == "Black Ops 3") or (nzMapping.Settings.boxtype == "Mob of the Dead") or (nzMapping.Settings.boxtype == "Leviathan") or (nzMapping.Settings.boxtype == "Black Ops 3(Quiet Cosmos)") or (nzMapping.Settings.boxtype == "Cold War")) then
 			self:DrawBoxOpenFill() -- You can override the effect here
+		end
+
+		-- Aura Particle and Idle Sound
+		if IsValid(self) then
+			if isstring(self:GetIdleSound()) and (!self.Play_SFX or !IsValid(self.Play_SFX)) then
+				self.Play_SFX = self:GetIdleSound()
+				self:EmitSound(self.Play_SFX, 80, 100, 1, 3)
+			end
+			if isstring(self:GetIdleParticle()) and (!self.Draw_FX or !self.Draw_FX:IsValid()) then
+				self.Draw_FX = CreateParticleSystem(self, self:GetIdleParticle(), 4, 2)
+			end
 		end
 	end
 

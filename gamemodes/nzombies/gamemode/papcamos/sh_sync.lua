@@ -191,11 +191,16 @@ if CLIENT then
 		}
 
 		local bannedflagval = {
-			[2097152] = true,
-			[256] = true,
-			[128] = true,
-			[64] = true,
-			[4] = true,
+			[2097152] = true, //$translucent
+			[256] = true, //$alphatest
+			[128] = true, //$additive
+			[64] = true, //$selfillum
+			[4] = true, //$no_draw
+		}
+
+		local bannedshader = {
+			["UnlitGeneric"] = true,
+			["UnlitTwoTexture"] = true,
 		}
 
 		for k, v in pairs(mat:GetKeyValues()) do
@@ -212,7 +217,7 @@ if CLIENT then
 			end*/
 		end
 
-		if mat:GetShader() == "UnlitGeneric" then
+		if bannedshader[mat:GetShader()] then
 			return false
 		end
 

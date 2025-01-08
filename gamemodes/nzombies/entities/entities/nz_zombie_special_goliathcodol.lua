@@ -608,6 +608,10 @@ function ENT:AI()
 	end
 end
 
+function ENT:OnNuke() 
+	self:DoSpecialAnimation("nz_base_goliath_stumble_stationary")
+end
+
 function ENT:OnInjured(dmginfo)
 	if !self:Alive() then return end
 
@@ -658,7 +662,7 @@ function ENT:CustomAnimEvent(a,b,c,d,e)
 	        if not v:IsWorld() and v:IsSolid() then
 	            v:SetVelocity(((v:GetPos() - self:GetPos()):GetNormalized()*150) + v:GetUp()*200)
 	            
-	            if v:IsValidZombie() then
+	            if v:IsValidZombie() and !v.IsMooSpecial then
 	                if v == self then continue end
 	                if v:EntIndex() == self:EntIndex() then continue end
 	                if v:Health() <= 0 then continue end

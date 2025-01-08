@@ -32,6 +32,8 @@ nzTools:CreateTool("elec", {
 	interface = function(frame, data)
 		local valz = {}
 		valz["PowerSwitchModel"] = data.model
+		valz["ActivationType"] = data.activetype
+		valz["DmgType"] = data.dmgtype
 		valz["Row1"] = data.limited
 		valz["Row2"] = data.aoe
 		valz["Row3"] = data.requireall
@@ -44,6 +46,8 @@ nzTools:CreateTool("elec", {
 
 		function DProperties.CompileData()
 			data.model = tonumber(valz["PowerSwitchModel"])
+			data.activetype = tonumber(valz["ActivationType"]) 
+		 	data.dmgtype = tonumber(valz["DmgType"])
 			data.limited = tobool(valz["Row1"])
 			data.aoe = tostring(valz["Row2"])
 			data.requireall = tobool(valz["Row3"])
@@ -64,7 +68,23 @@ nzTools:CreateTool("elec", {
         PowerSwitchModel:AddChoice("Classic Switch Short(BO1)",3)
         PowerSwitchModel:AddChoice("Circuit Breaker(WWII)",4)
         PowerSwitchModel:AddChoice("Electric Panel(IW)",5)
+        PowerSwitchModel:AddChoice("Shock Box(BO2)",6)
 		PowerSwitchModel.DataChanged = function( _, val ) valz["PowerSwitchModel"] = val DProperties.UpdateData(DProperties.CompileData()) end
+
+		local ActiveType = DProperties:CreateRow( "Extra", "Activation Type" )
+		ActiveType:Setup( "Combo" )
+		ActiveType:AddChoice("On Use", 0)
+        ActiveType:AddChoice("On Damage", 1)
+		ActiveType.DataChanged = function( _, val ) valz["ActivationType"] = val DProperties.UpdateData(DProperties.CompileData()) end
+
+		local DmgType = DProperties:CreateRow( "Extra", "Damage Type" )
+		DmgType:Setup( "Combo" )
+		DmgType:AddChoice("Melee Damage", 1)
+		DmgType:AddChoice("Explosive Damage", 2)
+		DmgType:AddChoice("Fire Damage", 3)
+		DmgType:AddChoice("Bullet Damage", 4)
+		DmgType:AddChoice("Shock Damage", 5)
+		DmgType.DataChanged = function( _, val ) valz["DmgType"] = val DProperties.UpdateData(DProperties.CompileData()) end
 
 		local Row1 = DProperties:CreateRow("Power Switch", "Limit Area of Effect?")
 		Row1:Setup("Boolean")
@@ -110,5 +130,7 @@ nzTools:CreateTool("elec", {
 		requireall = false,
 		reset = false,
 		resettime = 3,
+		activetype = 0,
+		dmgtype = 1,
 	}
 })

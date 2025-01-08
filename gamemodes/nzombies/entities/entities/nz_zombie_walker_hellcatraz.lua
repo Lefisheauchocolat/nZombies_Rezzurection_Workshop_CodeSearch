@@ -11,6 +11,8 @@ if CLIENT then
 	ENT.EyeColorTable = {
 		[0] = Material("models/moo/codz/t6_zombies/hellcatraz/mtl_c_zom_zombie_barbwire_head_unlit.vmt"),
 		[1] = Material("models/moo/codz/t6_zombies/hellcatraz/mtl_c_zom_zombie_mask_head_unlit.vmt"),
+		[2] = Material("models/moo/codz/t6_zombies/hellcatraz/mtl_c_zom_zombie_hellcatraz_head_unlit.vmt"),
+		[3] = Material("models/moo/codz/t6_zombies/hellcatraz/mtl_c_zom_zombie_slackjaw_head_unlit.vmt"),
 	}
 	return 
 end -- Client doesn't really need anything beyond the basics
@@ -20,8 +22,14 @@ ENT.IsMooZombie = true
 ENT.RedEyes = true
 
 ENT.Models = {
-	{Model = "models/moo/_codz_ports/t6/hellcatraz/moo_codz_t6_hellcatraz_guard.mdl", Skin = 0, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/t6/hellcatraz/moo_codz_t6_hellcatraz_inmate.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t6/hellcatraz/moo_codz_t6_hellcatraz_guard_barbwire.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t6/hellcatraz/moo_codz_t6_hellcatraz_guard_hellcatraz.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t6/hellcatraz/moo_codz_t6_hellcatraz_guard_mask.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t6/hellcatraz/moo_codz_t6_hellcatraz_guard_slackjaw.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t6/hellcatraz/moo_codz_t6_hellcatraz_inmate_barbwire.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t6/hellcatraz/moo_codz_t6_hellcatraz_inmate_hellcatraz.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t6/hellcatraz/moo_codz_t6_hellcatraz_inmate_mask.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t6/hellcatraz/moo_codz_t6_hellcatraz_inmate_slackjaw.mdl", Skin = 0, Bodygroups = {0,0}},
 }
 
 local spawnslow = {"nz_spawn_ground_v1", "nz_spawn_ground_ad_v2", "nz_spawn_ground_v2", "nz_spawn_ground_v2_altb"}
@@ -852,6 +860,7 @@ ENT.SequenceTables = {
 			SpawnSequence = {spawnsuperfast},
 			MovementSequence = {
 				--"nz_l4d_run_05",
+				"nz_hazmat_sprint_01",
 				"nz_pb_zombie_sprint_v7",
 				"nz_pb_zombie_sprint_v9",
 				"nz_supersprint_ad1",
@@ -943,6 +952,7 @@ ENT.SequenceTables = {
 			SpawnSequence = {spawnsuperfast},
 			MovementSequence = {
 				--"nz_l4d_run_05",
+				"nz_hazmat_sprint_01",
 				"nz_pb_zombie_sprint_v7",
 				"nz_pb_zombie_sprint_v9",
 				"nz_supersprint_au1",
@@ -1186,10 +1196,6 @@ function ENT:StatsInitialize()
 	end
 end
 
-function ENT:SpecialInit()
-	if CLIENT then
-	end
-end
 function ENT:OnSpawn(animation, grav, dirt)
 	animation = animation or self:SelectSpawnSequence()
 	grav = grav
@@ -1213,7 +1219,7 @@ function ENT:OnSpawn(animation, grav, dirt)
 			self:EmitSound(finalsound)
 		end
 
-		ParticleEffect("bo3_zombie_spawn",self:GetPos()+Vector(0,0,1),self:GetAngles(),self)
+		ParticleEffect("zmb_zombie_spawn_dirt",self:GetPos()+Vector(0,0,1),self:GetAngles(),self)
 		self:EmitSound("nz_moo/zombies/spawn/_generic/dirt/dirt_0"..math.random(0,2)..".mp3",100,math.random(95,105))
 	end
 
@@ -1221,7 +1227,7 @@ function ENT:OnSpawn(animation, grav, dirt)
 		self:SolidMaskDuringEvent(MASK_PLAYERSOLID)
 		self:SetSpecialAnimation(true)
 		self:SetIsBusy(true)
-
+		
 		self:PlaySequenceAndMove(animation, {gravity = grav})
 
 		self:SetSpecialAnimation(false)

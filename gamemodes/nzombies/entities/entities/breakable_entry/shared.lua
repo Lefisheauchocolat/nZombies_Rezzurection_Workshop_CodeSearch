@@ -414,6 +414,7 @@ hook.Add("ShouldCollide", "zCollisionHook", function(ent1, ent2)
 	if IsValid(ent1) and (ent1:GetClass() == "invis_wall"
 						or ent1:GetClass() == "wall_block"
 						or ent1:GetClass() == "invis_wall_zombie"
+						or ent1:GetClass() == "zombie_wall_block"
 						or ent1.Base == "wall_block") and !ent2:IsPlayer() and ent2.Type != "nextbot" then return false end
 
 -- 	-- Barricade glitch fixed by Ethorbit:

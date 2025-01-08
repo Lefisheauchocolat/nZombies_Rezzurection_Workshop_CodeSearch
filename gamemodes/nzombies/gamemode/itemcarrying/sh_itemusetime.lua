@@ -84,7 +84,10 @@ if SERVER then
 		if time then
 			self.TimedUseEntity = ent
 			self.TimedUseComplete = CurTime() + time
-			
+			if !self:GetNW2Bool("nzInteracting", false) then
+				self:SetNW2Bool("nzInteracting", true)
+			end
+
 			net.Start("nzTimedUse")
 				net.WriteBool(true)
 				net.WriteFloat(time)
@@ -99,6 +102,9 @@ if SERVER then
 		ent:StopTimedUse(self, self, USE_OFF, 0)
 		self.TimedUseEntity = nil
 		self.TimedUseEntity = nil
+		if self:GetNW2Bool("nzInteracting", false) then
+			self:SetNW2Bool("nzInteracting", false)
+		end
 		
 		net.Start("nzTimedUse")
 			net.WriteBool(false)
@@ -112,6 +118,9 @@ if SERVER then
 		ent:FinishTimedUse(self, self, USE_ON, 0) -- Imitate ENTITY:Use arguments
 		self.TimedUseEntity = nil
 		self.TimedUseComplete = nil
+		if self:GetNW2Bool("nzInteracting", false) then
+			self:SetNW2Bool("nzInteracting", false)
+		end
 		
 		net.Start("nzTimedUse")
 			net.WriteBool(false)

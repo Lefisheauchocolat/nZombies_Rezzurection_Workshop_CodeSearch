@@ -325,7 +325,7 @@ function ENT:OnSpawn(animation, grav, dirt)
 			self:EmitSound(finalsound)
 		end
 
-		ParticleEffect("bo3_zombie_spawn",self:GetPos()+Vector(0,0,1),self:GetAngles(),self)
+		ParticleEffect("zmb_zombie_spawn_dirt",self:GetPos()+Vector(0,0,1),self:GetAngles(),self)
 		self:EmitSound("nz_moo/zombies/spawn/_generic/dirt/dirt_0"..math.random(0,2)..".mp3",100,math.random(95,105))
 	end
 
@@ -358,7 +358,9 @@ function ENT:OnSpawn(animation, grav, dirt)
 end
 
 function ENT:DogExplode()
-	if self.Exploded then self:Remove() return end
+	if self.Exploded then return end
+
+    self:Explode(75)
 
 	self.Exploded = true -- Prevent a possible infinite loop that causes crashes.
 
@@ -367,11 +369,9 @@ function ENT:DogExplode()
 	firepit:SetAngles(Angle(0,0,0))
     firepit:Spawn()
 
-    self:Explode( math.random( 25, 50 ))
-
-	if IsValid(self) then
+	--[[if IsValid(self) then
 		self:Remove()
-	end
+	end]]
 end
 
 function ENT:PerformDeath(dmginfo)
@@ -383,7 +383,7 @@ function ENT:PerformDeath(dmginfo)
 	if !self:GetSpecialAnimation() then
 		self:DoDeathAnimation(self.DeathSequences[math.random(#self.DeathSequences)], true)
 	else
-		self:DogExplode()
+		self:Remove(dmginfo)
 	end
 end
 
@@ -432,12 +432,12 @@ function ENT:CustomAnimEvent(a,b,c,d,e)
 		self:EmitSound(self.SpawnExploSounds[math.random(#self.SpawnExploSounds)], 511, math.random(85, 105))
 	end
 	if e == "dog_explode" then
-		self:DogExplode()
+		--self:DogExplode()
 	end
 end
 
 function ENT:OnRemove()
-	if self.NoRagdoll and !self.Exploded then
+	if !self.Exploded then
 		self:DogExplode()
 	end
 	self:StopSound("nz_moo/zombies/vox/_devildog/_t10/xsound_1b53c53a4a04f38.wav")

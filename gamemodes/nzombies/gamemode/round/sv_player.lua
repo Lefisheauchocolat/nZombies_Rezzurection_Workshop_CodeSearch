@@ -84,37 +84,33 @@ function plyMeta:DropOut()
 end
 
 function plyMeta:ReSpawn()
-	
 	--Setup a player
 	player_manager.SetPlayerClass( self, "player_ingame" )
 	if not self:Alive() then
 		self:Spawn()
 		if nzMapping.Settings.hp  then
-		self:SetHealth( nzMapping.Settings.hp )
-		self:SetMaxHealth( nzMapping.Settings.hp )
+			self:SetHealth( nzMapping.Settings.hp )
+			self:SetMaxHealth( nzMapping.Settings.hp )
 		else
-		self:SetHealth( 100 )
-		self:SetMaxHealth( 100 )
+			self:SetHealth( 100 )
+			self:SetMaxHealth( 100 )
 		end
 		self:SetTeam( TEAM_PLAYERS )
 	end
-
 end
 
 function plyMeta:GiveCreativeMode()
-
-	player_manager.SetPlayerClass( self, "player_create" )
+	player_manager.SetPlayerClass(self, "player_create")
 	if not self:Alive() then
 		self:Spawn()
 	end
 
+	self:ScreenFade(SCREENFADE.IN, color_black, 1, engine.TickInterval())
 end
 
 function plyMeta:RemoveCreativeMode()
-
-	player_manager.SetPlayerClass( self, "player_ingame" ) -- Defaults to ingame
+	player_manager.SetPlayerClass(self, "player_ingame")
 	self:SetSpectator()
-
 end
 
 function plyMeta:ToggleCreativeMode()

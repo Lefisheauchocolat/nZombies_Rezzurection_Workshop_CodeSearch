@@ -123,8 +123,6 @@ if SERVER then
 		end,
 		loadfunc = function(data)
 			for k,v in pairs(data) do
-				print(v[2])
-				PrintTable(v[2])
 				nzMapping:InfilPos(v[1], v[2])
 			end
 		end,

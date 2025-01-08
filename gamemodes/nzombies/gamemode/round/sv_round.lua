@@ -8,17 +8,25 @@ function nzRound:Waiting()
 end
 
 function nzRound:Init()
-	local starttime = CurTime() + 5
+	local starttime = CurTime() + (nzSettings:GetSimpleSetting("Lobby_Enabled", true) and engine.TickInterval() or 5)
+
 	hook.Add("Think", "nzRoundGameInit", function()
 		if CurTime() > starttime then
 			self:SetupGame()
 			self:Prepare()
+			//timer.Simple(0, function()
+				for _, ply in ipairs(player.GetAllPlaying()) do
+					ply:ScreenFade(SCREENFADE.IN, color_black, 2, engine.TickInterval())
+					ply:SetNW2Float("FirstSpawnedTime", CurTime())
+				end
+			//end)
 			hook.Remove("Think", "nzRoundGameInit")
 		end
 	end)
 
 	self:SetVictory( false )
 	self:SetState( ROUND_INIT )
+
 	self:SetEndTime( starttime )
 	--PrintMessage( HUD_PRINTTALK, "5 seconds till start time." )
 	hook.Call( "OnRoundInit", nzRound )
@@ -413,19 +421,22 @@ function nzRound:ResetGame()
 		if ply:GetNotDowned() then
 			ply:DownPlayer()
 		end
+
 		ply:KillDownedPlayer(true) --Reset all downed players' downed status
 		ply.SoloRevive = nil -- Reset Solo Revive counter
 		ply:SetNW2Int("nz.SoloReviveCount", #player.GetAll() <= 1 and (nzMapping.Settings.solorevive or 3) or 0)
 
-		if ply:IsPlaying() then
-			ply:SetPlaying(false) --Resets all active palyers playing state
+		if ply.GetUsingSpecialWeapon then
+			ply:SetUsingSpecialWeapon(false)
 		end
-
-		ply:SetUsingSpecialWeapon(false)
 		ply:SetHealth(ply:GetMaxHealth())
 		ply:SetPreventPerkLoss(false)
 		ply:RemovePerks(true) --Remove all players perks
 		ply:RemoveUpgrades() --Remove all players perk upgrades
+
+		if ply:IsPlaying() then
+			ply:SetPlaying(false) --Resets all active palyers playing state
+		end
 
 		ply.OldWeapons = nil --Remove stored weapons
 		ply.OldUpgrades = nil --Remove stored perks
@@ -470,10 +481,12 @@ function nzRound:ResetGame()
 	end
 end
 
+local cvar_classictext = GetConVar("nz_rounds_survived_classic")
+
 function nzRound:GameOver(message, time, noautocam, camstart, camend, ourtype, keepplaying)
 	local gameovertext = nzMapping.Settings.gameovertext or "Game Over"
 	local survivedtext = nzMapping.Settings.survivedtext or "You Survived % Rounds"
-	survivedtext = string.Replace(survivedtext, "%", self:GetNumber() - 1)
+	survivedtext = string.Replace(survivedtext, "%", self:GetNumber() - (1 - math.Round(cvar_classictext:GetInt())))
 
 	if ourtype then
 		if ourtype == "win" then
@@ -577,10 +590,13 @@ function nzRound:GameOver(message, time, noautocam, camstart, camend, ourtype, k
 			if ply:GetNotDowned() then
 				ply:DownPlayer()
 			end
+
 			ply:KillDownedPlayer(true) --Reset all downed players' downed status
 			ply.SoloRevive = nil -- Reset Solo Revive counter
 
-			ply:SetUsingSpecialWeapon(false)
+			if ply.GetUsingSpecialWeapon then
+				ply:SetUsingSpecialWeapon(false)
+			end
 			ply:SetHealth(ply:GetMaxHealth())
 			ply:SetPreventPerkLoss(false)
 			ply:RemovePerks(true) --Remove all players perks
@@ -711,7 +727,7 @@ function nzRound:SetupGame()
 		if not IsValid(ply) then continue end
 
 		if ply:IsReady() then
-			ply:SetPlaying( true )
+			ply:SetPlaying(true)
 		end
 
 		ply:SetUsingSpecialWeapon(false)
@@ -733,7 +749,41 @@ function nzRound:SetupGame()
 
 	nzMapping:CleanUpMap()
 	nzDoors:LockAllDoors()
+	
+		--master spawner failsafe
+	local normalMaster = false
+		for k, v in ipairs( ents.FindByClass( "nz_spawn_zombie_normal" ) ) do
+            	if v:GetMasterSpawn() then
+                	normalMaster = true
+					break
+            	end        	
+			end
 
+		if not normalMaster then
+		    	for k, v in ipairs( ents.FindByClass( "nz_spawn_zombie_normal" ) ) do
+					v:SetMasterSpawn(true)
+					break
+    	end
+		PrintMessage( HUD_PRINTTALK, "You need to place a normal master spawner. Skill issue." )
+		end
+	--special spawner check
+	local specialMaster = false
+		for k, v in ipairs( ents.FindByClass( "nz_spawn_zombie_special" ) ) do
+            	if v:GetMasterSpawn() then
+                	specialMaster = true
+					break
+            	end        	
+			end
+
+		if not specialMaster then
+		    	for k, v in ipairs( ents.FindByClass( "nz_spawn_zombie_special" ) ) do
+					v:SetMasterSpawn(true)
+					break
+    	end
+		PrintMessage( HUD_PRINTTALK, "You need to place a special master spawner. Skill issue." )
+		end
+		
+		
 	nzNav.Functions.NavLockApply() -- Apply the Nav Locks that exist. Just don't do "nav_save" while playing... If you do this I want you to know personally that you're an idiot.
 
 	-- Open all doors with no price and electricity requirement
@@ -791,7 +841,6 @@ function nzRound:SetupGame()
 	end
 
 	hook.Call( "OnGameBegin", nzRound )
-
 end
 
 function nzRound:Freeze(bool)

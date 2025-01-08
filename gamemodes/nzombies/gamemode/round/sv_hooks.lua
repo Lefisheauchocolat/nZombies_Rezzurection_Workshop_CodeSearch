@@ -3,7 +3,7 @@ function nzRound:OnPlayerReady( ply )
 	self:SendReadyState( ply, true )
 
 	--Start Round if we have enough players
-	if self:InState( ROUND_WAITING ) and #player.GetAllReady() > #player.GetAllNonSpecs() / 3 then
+	if !nzSettings:GetSimpleSetting("Lobby_Enabled", true) and self:InState( ROUND_WAITING ) and #player.GetAllReady() > #player.GetAllNonSpecs() / 3 then
 		self:Init()
 	end
 

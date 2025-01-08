@@ -96,6 +96,7 @@ local ghosttraceentities = {
 	["invis_wall_zombie"] = true,
 	["invis_damage_wall"] = true,
 	["player"] = true,
+	["zombie_wall_block"] = true,
 }
 
 function GM:EntityFireBullets(ent, data)

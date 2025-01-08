@@ -292,6 +292,66 @@ sound.Add({
 	sound = 			"perks/complex/cap.mp3"
 })
 
+--Now i KNOW its not a PERK but why create an entire new autorun for it?
+-- Armor Plate
+
+sound.Add({
+	name = 			"Latte_Armor.Open",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	pitch = 		{90,110},
+	sound = 			{ "plate/open.wav", "plate/open2.wav", "plate/open3.wav", "plate/open4.wav", "plate/open5.wav" }   
+})
+
+sound.Add({
+	name = 			"Latte_Armor.Insert",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	pitch = 		{90,110},
+	sound = 			{ "plate/insert.wav", "plate/insert2.wav", "plate/insert3.wav", "plate/insert4.wav", "plate/insert5.wav", "plate/insert6.wav"  }   
+})
+
+-- Bo1 Radio
+
+sound.Add({
+	name = 			"Latte_Radio.On",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			"bo1_radio/fly_radio_on.wav"
+})
+
+sound.Add({
+	name = 			"Latte_Radio.Off",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			"bo1_radio/fly_radio_off.wav"
+})
+
+-- BO1 RCXD Controller
+
+sound.Add({
+	name = 			"Latte_RCXD.Extend",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			"bo1_rcxd/controller/fly_antenna_extend.wav"
+})
+
+-- MW2 Laptop Control Unit Thing
+
+sound.Add({
+	name = 			"Latte_CU.Open",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			"mw2_laptop/pullout.wav"
+})
+
+sound.Add({
+	name = 			"Latte_CU.Close",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			"mw2_laptop/putaway.wav"
+})
+
 if nzombies then
     hook.Add("InitPostEntity", "latte_perks", function()
 	nzSpecialWeapons:AddDisplay("tfa_perk_can", false, function(wep)
@@ -327,7 +387,17 @@ if nzombies then
 	nzSpecialWeapons:AddDisplay("tfa_t7c_bottle", false, function(wep)
             return SERVER and (wep.nzDeployTime + (wep:GetOwner():HasUpgrade("speed") and 1.8 or 3.2)) < CurTime()
         end)
+	-- nzSpecialWeapons:AddDisplay("bo6_armor_tier2", false, function(wep)
+    --         return SERVER and (wep.nzDeployTime + (wep:GetOwner():HasUpgrade("speed") and 0.6 or 1)) < CurTime()
+    --     end)
+	-- nzSpecialWeapons:AddDisplay("bo6_armor_tier3", false, function(wep)
+    --         return SERVER and (wep.nzDeployTime + (wep:GetOwner():HasUpgrade("speed") and 0.6 or 1)) < CurTime()
+    --     end)
+    -- nzSpecialWeapons:AddDisplay("bo6_armorplate_use", false, function(wep)
+    --         return SERVER and (wep.nzDeployTime + (wep:GetOwner():HasUpgrade("speed") and 0.6 or 1)) < CurTime()
+    --     end)
     end)
+
 
     hook.Add("PostGamemodeLoaded", "latte_perk_materials", function()
         nzPerks:RegisterBottle("tfa_perk_can", "ColdWarPerkCan", {

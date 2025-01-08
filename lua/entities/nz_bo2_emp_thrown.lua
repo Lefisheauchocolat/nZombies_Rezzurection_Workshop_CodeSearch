@@ -169,7 +169,11 @@ function ENT:Explode()
 		end
 		
 		if IsValid(v) and v:IsValidZombie() and v.IsMooZombie and v:Health() > 0 then
-			v:PerformStun( math.Rand(5,7) )
+			v:PerformStun( math.Rand(6,8) )
+		end
+		
+		if IsValid(v) and (v.NZBossType or v.IsMooBossZombie) and v:Health() > 0 then
+			v:PerformStun( math.Rand(4,6) )
 		end
 		
 		--[[if v:GetClass() == "perk_machine" then

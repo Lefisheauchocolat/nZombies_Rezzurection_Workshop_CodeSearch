@@ -21,6 +21,10 @@ function ENT:Initialize()
 			platform = "models/wavy_ports/ugx/ugx_coffin_teddy_platform.mdl"
 			return platform
 		end,
+		["Present Box"] = function() 
+			platform = "models/wavy_ports/ugx/present_platform.mdl"
+			return platform
+		end,
 		["Cold War"] = function() 
 			platform = "models/moo/_codz_ports_props/s4/zm/zod/s4_magic_box_pile/moo_codz_s4_magic_box_pile.mdl"
 			return platform
@@ -69,7 +73,9 @@ function ENT:Initialize()
 	self:SetCollisionGroup(COLLISION_GROUP_WORLD)
 	self:SetMoveType(MOVETYPE_NONE)
 	self:SetSolid(SOLID_VPHYSICS)
-	
+
+	self.BoxLeft = false
+
 	if CLIENT then return end
 	self:SetTrigger(true)
 end
@@ -98,6 +104,18 @@ function ENT:Think()
 			local phys = box:GetPhysicsObject()
 			if phys:IsValid() then
 				phys:EnableMotion(false)
+			end
+		end
+
+		if !IsValid(self.Box) then
+			if self:LookupSequence("leave") > 0 and !self.BoxLeft then
+				self.BoxLeft = true
+				self:ResetSequence("leave")
+			end
+		else
+			if self:LookupSequence("arrive") > 0 then
+				self.BoxLeft = false
+				self:ResetSequence("arrive")
 			end
 		end
 	end

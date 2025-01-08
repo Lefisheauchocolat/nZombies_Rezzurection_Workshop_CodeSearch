@@ -161,6 +161,8 @@ function ENT:Think()
 end
 
 function ENT:Use(activator, caller)
+	if activator.NextUse and activator.NextUse > CurTime() then return end
+
 	if self:IsOn() and !self.GoIdle then -- Only after fully arriving
 		if nzMapping.Settings.cwfizz then
 			local fizzround = nzMapping.Settings.cwfizzround
@@ -232,10 +234,13 @@ function ENT:Use(activator, caller)
 						self:SetCycle(0)
 						self:ResetSequence(id)
 					end
+
+					activator.NextUse = CurTime() + 0.25
 					return true
 				end)
 			end
 		elseif !self.Bottle:GetWinding() and !self:GetIsTeddy() and (activator == self:GetUser() or self:GetSharing()) then
+			activator.NextUse = CurTime() + 0.25
 			if #activator:GetPerks() >= activator:GetMaxPerks() then
 				activator:PrintMessage(HUD_PRINTTALK, "[NZ] You have outsmarted the system.")
 			end

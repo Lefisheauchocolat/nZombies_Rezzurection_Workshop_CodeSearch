@@ -104,7 +104,7 @@ ENT.TypeOfInfil = {
                 crewmin = 6,
             },
         },
-        animdelay = 0.21,
+        animdelay = 0.0,
         delaystep = 17.5,
         offset = Vector(0,0,0),
         angle = Angle(0,180,0),
@@ -185,7 +185,7 @@ ENT.TypeOfInfil = {
                 path = "bo6/heli/sas1_veh1_ext_ster_pan.wav",
             },
         },
-        animdelay = 0.15,
+        animdelay = 0.0,
         delaystep = 15,
         offset = Vector(0,0,4),
         angle = Angle(0,180,0),
@@ -341,17 +341,20 @@ if SERVER then
             modelply = ply
         end
 
-        local m = ents.Create("prop_dynamic")
-        m:SetModel(model)
+        local m = ents.Create("bo6_animated")
         m:SetPos(self:GetPos())
         m:SetAngles(self:GetAngles())
         m:Spawn()
+        m:SetModel(model)
         m:ResetSequence(sequence)
         m.Player = ply
         self:DeleteOnRemove(m)
     
         local b = ents.Create("base_anim")
         b:SetModel(modelply)
+        if IsValid(ply) and ply:IsPlayer() then
+            nzFuncs:TransformModelData(ply, b)
+        end
         b:SetPos(self:GetPos())
         b:AddEffects(1)
         b:SetParent(m)
@@ -369,7 +372,7 @@ if SERVER then
             time1 = select(2, m:LookupSequence(sequence))
         end
 
-        timer.Simple(1, function()
+        timer.Simple(0.9, function()
             if !IsValid(b) or !IsValid(ply) then return end
 
             net.Start("nZR.InfilCrewCam")

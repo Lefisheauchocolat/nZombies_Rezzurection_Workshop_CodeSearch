@@ -3,7 +3,7 @@ local clientModel = nil
 local lastAngles = Angle(0, 0, 0)
 
 local offsetTab = {
-    ["default"] = Vector(-16, 0, 0),
+    ["default"] = Vector(-32, 0, 0),
     ["bo3_crawl_idle"] = Vector(-2, 4, 0),
     ["bo3_crawl_back"] = Vector(-4, 4, 0),
     ["bo3_crawl_forward"] = Vector(-4, 4, 0),
@@ -13,7 +13,6 @@ local hideBones = {"ValveBiped.Bip01_L_Upperarm", "ValveBiped.Bip01_R_Upperarm",
 local function HideBoneRecursive(ent, boneID, rotate)
     if not IsValid(ent) or boneID < 1 then return end
 
-    print(boneID)
     ent:ManipulateBoneScale(boneID, Vector(0, 0, 0))
     if rotate then
         ent:ManipulateBoneAngles(boneID, Angle(0, 270, 0))
@@ -34,10 +33,9 @@ local function UpdateClientModel(ply)
 
         local clientModel = ply.clientModel
         local targetAngles = Angle(0, ply:GetAngles().y, 0)
-        lastAngles = LerpAngle(FrameTime() * 5, lastAngles, targetAngles)
 
         clientModel:SetPos(ply:GetPos())
-        clientModel:SetAngles(lastAngles)
+        clientModel:SetAngles(targetAngles)
         clientModel:SetupBones()
         clientModel:SetCycle(ply:GetCycle())
         clientModel:SetSequence(ply:GetSequence())
@@ -45,10 +43,10 @@ local function UpdateClientModel(ply)
         local animName = ply:GetSequenceName(ply:GetSequence())
         local off = offsetTab[animName]
         if isvector(off) then
-            clientModel:SetPos(ply:GetPos() + lastAngles:Forward() * off.x + lastAngles:Right() * off.y + lastAngles:Up() * off.z)
+            clientModel:SetPos(ply:GetPos() + targetAngles:Forward() * off.x + targetAngles:Right() * off.y + targetAngles:Up() * off.z)
         else
             off = offsetTab["default"]
-            clientModel:SetPos(ply:GetPos() + lastAngles:Forward() * off.x + lastAngles:Right() * off.y + lastAngles:Up() * off.z)
+            clientModel:SetPos(ply:GetPos() + targetAngles:Forward() * off.x + targetAngles:Right() * off.y + targetAngles:Up() * off.z)
         end
         clientModel:DrawModel()
         

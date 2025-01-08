@@ -151,6 +151,13 @@ local walksounds = {
 	Sound("nz_moo/zombies/vox/_thrasher/vox/ambient/ambient_08.mp3"),
 }
 
+local runsounds = {
+	Sound("nz_moo/zombies/vox/_thrasher/vox/roar/roar_00.mp3"),
+	Sound("nz_moo/zombies/vox/_thrasher/vox/roar/roar_01.mp3"),
+	Sound("nz_moo/zombies/vox/_thrasher/vox/roar/roar_02.mp3"),
+	Sound("nz_moo/zombies/vox/_thrasher/vox/roar/roar_03.mp3"),
+}
+
 ENT.IdleSequence = "nz_thrasher_idle"
 
 ENT.SequenceTables = {
@@ -166,7 +173,7 @@ ENT.SequenceTables = {
 			PassiveSounds = {walksounds},
 		},
 	}},
-	{Threshold = 75, Sequences = {
+	{Threshold = 71, Sequences = {
 		{
 			SpawnSequence = {spawn},
 			MovementSequence = {
@@ -175,7 +182,7 @@ ENT.SequenceTables = {
 			},
 			AttackSequences = {AttackSequences},
 			JumpSequences = {JumpSequences},
-			PassiveSounds = {walksounds},
+			PassiveSounds = {runsounds},
 		},
 	}}
 }
@@ -209,6 +216,13 @@ ENT.AttackSounds = {
 	Sound("nz_moo/zombies/vox/_thrasher/vox/attack/attack_01.mp3"),
 	Sound("nz_moo/zombies/vox/_thrasher/vox/attack/attack_02.mp3"),
 	Sound("nz_moo/zombies/vox/_thrasher/vox/attack/attack_03.mp3"),
+}
+
+ENT.EnrageSounds = {
+	Sound("nz_moo/zombies/vox/_thrasher/vox/enrage/enrage_00.mp3"),
+	Sound("nz_moo/zombies/vox/_thrasher/vox/enrage/enrage_01.mp3"),
+	Sound("nz_moo/zombies/vox/_thrasher/vox/enrage/enrage_02.mp3"),
+	Sound("nz_moo/zombies/vox/_thrasher/vox/enrage/enrage_03.mp3"),
 }
 
 ENT.PainSounds = {
@@ -368,7 +382,7 @@ function ENT:AI()
 		self.Enraged = true
 		self:SetIsEnraged(true)
 
-		self:EmitSound("enemies/bosses/thrasher/vox/spawn_0"..math.random(1,2)..".ogg",677)
+		self:EmitSound("nz_moo/zombies/vox/_thrasher/vox/spawn/spawn_0"..math.random(0,2)..".mp3",677)
 		self:EmitSound("nz_moo/zombies/vox/_thrasher/enrage_imp_00.mp3",577)
 		ParticleEffect("bo3_astronaut_pulse",self:LocalToWorld(Vector(0,0,60)),Angle(0,0,0),nil)	
 		
@@ -756,8 +770,7 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 		ParticleEffect("bo3_zombie_spawn",self:GetPos()+Vector(0,0,1),Angle(0,0,0),nil)
 
 		self:EmitSound("nz_moo/zombies/vox/_thrasher/teleport_in/tele_hand_up.mp3", 100, math.random(95,105))
-		self:EmitSound("enemies/bosses/thrasher/teleport_in_01.ogg",511)
-		self:EmitSound("enemies/bosses/thrasher/dst_rock_quake_0"..math.random(1,5)..".ogg",511)
+		self:EmitSound("nz_moo/zombies/vox/_thrasher/dst_rock_quake/dst_rock_quake_0"..math.random(5)..".mp3",511)
 		for i=1,1 do
 			ParticleEffect("bo3_panzer_landing",self:LocalToWorld(Vector(20+(i*2),20,0)),Angle(0,0,0),nil)
 		end

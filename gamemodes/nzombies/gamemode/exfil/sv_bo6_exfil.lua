@@ -3,7 +3,6 @@
 util.AddNetworkString("nZr.ExfilTimer")
 util.AddNetworkString("nZr.ExfilCutscene")
 util.AddNetworkString("nZr.ExfilPosition")
-util.AddNetworkString("nZr.ExfilVoice")
 util.AddNetworkString("nZr.ExfilMessage")
 
 nZr_Exfil_Map_Positions = nZr_Exfil_Map_Positions or {}
@@ -29,7 +28,7 @@ nZr_Exfil_Landing = false
 nZr_Exfil_RadioActive = true
 
 nZr_Exfil_Setting_ClearRadius = 800
-nZr_Exfil_Setting_LoadRadius = 128
+nZr_Exfil_Setting_LoadRadius = 160
 
 local function nZr_CalculateZombies()
     local MIN_ZOMBIES = 16
@@ -54,12 +53,21 @@ end
 
 local function nZr_ChangeGameOverDelay()
     local def = nzMapping.Settings.gocamerawait
-    nzMapping.Settings.gocamerawait = 1
-    BroadcastLua([[nzMapping.Settings.gocamerawait = ]]..1)
+    nzMapping.Settings.gocamerawait = 5
+    BroadcastLua([[nzMapping.Settings.gocamerawait = ]]..5)
     timer.Simple(1, function()
         nzMapping.Settings.gocamerawait = def
         BroadcastLua([[nzMapping.Settings.gocamerawait = ]]..def)
     end)
+end
+
+local ktab = {"bo6_choppergunner", "bo6_rcxd", "bo6_hellstorm", "bo6_sentry"}
+function nZr_Exfil_RemoveKillstreaks()
+    for _, ent in pairs(ents.FindByClass("bo6_*")) do
+        if table.HasValue(ktab, ent:GetClass()) then
+            ent:Remove()
+        end
+    end
 end
 
 function nZr_Exfil_Message(type)
@@ -100,6 +108,11 @@ function nZr_Exfil_StartRandom()
     nzRound:SetZombiesMax(0)
     timer.Simple(4, function()
         if #player.GetAllPlayingAndAlive() == 0 then return end
+        for k,v in pairs(ents.GetAll()) do
+            if v:IsNextBot() and isfunction(v.TakeDamage) then
+                v:TakeDamage(math.huge)
+            end
+        end
         local zmax = nZr_CalculateZombies()
         nzRound:SetZombiesMax(zmax)
         nzRound:SetZombiesToSpawn(nzRound:GetZombiesMax())
@@ -125,6 +138,7 @@ function nZr_Exfil_Start(pos, ang)
         end)
     end
 
+    hook.Call("OnExfilStart", nil)
     nZr_Exfil_ShowPosition(true, pos, 2)
     nZr_Exfil_ShowTimer(nzSettings:GetSimpleSetting("ExfilTime", 90), 1, nZr_Exfil_Enemies)
     nZr_Exfil_CreateCountdown()
@@ -146,37 +160,50 @@ function nZr_Exfil_Start(pos, ang)
         heli:SetBodygroup(3,1)
         heli:ResetSequence("spawn")
         nZr_Exfil_Heli = heli
-        nZr_Exfil_VoiceOver("Exfil_Clearing")
-    end)
-    timer.Create("BO6_Exfil_Faster", nzSettings:GetSimpleSetting("ExfilTime", 90)-30, 1, function()
-        nZr_Exfil_VoiceOver("Exfil_Faster")
-        timer.Simple(20, function()
-            if IsValid(nZr_Exfil_Heli) and (nZr_Exfil_Enemies < 5 and nZr_Exfil_Enemies > 0) and !IsValid(ents.FindByClass("*_boss_*")[1]) then
-                nZr_Exfil_Enemies = 0
-                nzPowerUps:Nuke(nil, nil, nil, true)
+        nzDialog:PlayCustomDialog(nzSettings:GetSimpleSetting("ExfilPilotType", "raptor").."Exfil_Arrive")
+        timer.Simple(7, function()
+            if IsValid(nZr_Exfil_Heli) and nZr_Exfil_Enemies > 0 then
+                nzDialog:PlayCustomDialog(nzSettings:GetSimpleSetting("ExfilPilotType", "raptor").."Exfil_Clear")
             end
         end)
     end)
+    timer.Create("BO6_Exfil_Faster", nzSettings:GetSimpleSetting("ExfilTime", 90)-30, 1, function()
+        nzDialog:PlayCustomDialog(nzSettings:GetSimpleSetting("ExfilPilotType", "raptor").."Exfil_30sec")
+        timer.Create("BO6_Exfil_Faster", 15, 1, function()
+            nzDialog:PlayCustomDialog(nzSettings:GetSimpleSetting("ExfilPilotType", "raptor").."Exfil_15sec")
+            timer.Simple(5, function()
+                if IsValid(nZr_Exfil_Heli) and (nZr_Exfil_Enemies < 5 and nZr_Exfil_Enemies > 0) and !IsValid(ents.FindByClass("*_boss_*")[1]) then
+                    nZr_Exfil_Enemies = 0
+                    nzPowerUps:Nuke(nil, nil, nil, true)
+                end
+            end)
+        end)
+    end)
     timer.Simple(4, function()
-        nZr_Exfil_VoiceOver("Exfil_Arriving")
+        nzDialog:PlayCustomDialog(nzSettings:GetSimpleSetting("ExfilPilotType", "raptor").."Exfil_Start")
     end)
 end
 
 function nZr_Exfil_Stop(is_success)
+    hook.Call("OnExfilScene", nil, is_success)
     if is_success then
         nZr_Exfil_Cutscene(true, nZr_Exfil_Position, nZr_Exfil_Angles)
-        timer.Simple(15, function()
+        timer.Simple(13, function()
             nZr_Exfil_RadioActive = true
             nZr_ChangeGameOverDelay()
-            nzRound:Win(nil, nil, nzMapping.Settings.gameovertime+1)
+            nzRound:Win(nil, nil, nzMapping.Settings.gameovertime+5)
             timer.Remove("NZRoundThink")
             nzRound:Freeze(false)
         end)
     else
-        timer.Simple(12.5, function()
+        local time = 10.5
+        if nzSettings:GetSimpleSetting("ExfilLiberty", false) then
+            time = 13
+        end
+        timer.Simple(time, function()
             nZr_Exfil_RadioActive = true
             nZr_ChangeGameOverDelay()
-            nzRound:Lose()
+            nzRound:Lose(nil, nzMapping.Settings.gameovertime+5)
             timer.Remove("NZRoundThink")
             nzRound:Freeze(false)
         end)
@@ -221,12 +248,6 @@ function nZr_Exfil_ShowPosition(state, pos, type)
     net.Broadcast()
 end
 
-function nZr_Exfil_VoiceOver(voiceover)
-    net.Start("nZr.ExfilVoice")
-    net.WriteString(voiceover)
-    net.Broadcast()
-end
-
 function nZr_Exfil_ShowTimer(time, state, enemies, ply, disable)
     disable = disable or false
     net.Start("nZr.ExfilTimer")
@@ -264,10 +285,8 @@ hook.Add("Think", "nZr_Exfil_Think", function()
         if nZr_Exfil_Landing then
             if IsValid(nZr_Exfil_Heli) and nZr_Exfil_Heli.loading and ply:Alive() and ply:GetPos():DistToSqr(nZr_Exfil_Position) < nZr_Exfil_Setting_LoadRadius^2 then
                 nZr_Exfil_Stop(true)
-            elseif ply:Alive() and ply:GetPos():DistToSqr(nZr_Exfil_Position) < nZr_Exfil_Setting_ClearRadius^2 then
-                nZr_Exfil_ShowTimer(timer.TimeLeft("BO6_Exfil_Timer"), 3, nZr_Exfil_Enemies, ply)
             else
-                nZr_Exfil_ShowTimer(timer.TimeLeft("BO6_Exfil_Timer"), 1, nZr_Exfil_Enemies, ply)
+                nZr_Exfil_ShowTimer(timer.TimeLeft("BO6_Exfil_Timer"), 3, nZr_Exfil_Enemies, ply)
             end
         else
             if ply:Alive() and ply:GetPos():DistToSqr(nZr_Exfil_Position) < nZr_Exfil_Setting_ClearRadius^2 then
@@ -291,19 +310,21 @@ hook.Add("Think", "nZr_Exfil_Think", function()
     end
 
     if IsValid(nZr_Exfil_Heli) then
-        if nZr_Exfil_Heli:GetCycle() > 0.201 then
+        if nZr_Exfil_Heli:GetCycle() > 0.2 and not nZr_Exfil_Heli.downing then
             nZr_Exfil_Heli:SetCycle(0.2)
         end
         if nZr_Exfil_Landing and nZr_Exfil_Heli:GetCycle() >= 0.2 and not nZr_Exfil_Heli.downing then
             nZr_Exfil_Heli.downing = true
-            nZr_Exfil_VoiceOver("Exfil_GetIn")
+            nZr_Exfil_Heli:ResetSequence("landing")
+            nZr_Exfil_Heli:SetCycle(0.2)
+            nzDialog:PlayCustomDialog(nzSettings:GetSimpleSetting("ExfilPilotType", "raptor").."Exfil_GetIn")
             timer.Remove("BO6_Exfil_Faster")
-            for i=1,100 do
+            for i=1,150 do
                 timer.Simple(0.05*i, function()
                     if !IsValid(nZr_Exfil_Heli) then return end
 
-                    nZr_Exfil_Heli:SetPos(nZr_Exfil_Heli:GetPos()-Vector(0,0,1))
-                    if i == 100 then
+                    nZr_Exfil_Heli:SetPos(nZr_Exfil_Heli:GetPos()-Vector(0,0,2.6))
+                    if i == 120 then
                         nZr_Exfil_Heli.loading = true
                     end
                 end)
@@ -322,13 +343,13 @@ hook.Add("OnGameBegin", "nZr_Exfil_LoadPos", nZr_UpdatePositions)
 hook.Add("OnRoundStart", "nZr_ExfilRadio", function(rnd)
     local rad = ents.FindByClass("bo6_exfil_radio")[1]
     if nzSettings:GetSimpleSetting("ExfilEnabled", true) and (nzRound:GetNumber() >= nzSettings:GetSimpleSetting("ExfilFirstRound", 11) and (nzRound:GetNumber()-nzSettings:GetSimpleSetting("ExfilFirstRound", 11)) % nzSettings:GetSimpleSetting("ExfilEveryRound", 5) == 0) and IsValid(rad) then
-        nZr_Exfil_VoiceOver("Exfil_Available")
+        nzDialog:PlayCustomDialog(nzSettings:GetSimpleSetting("ExfilPilotType", "raptor").."Exfil_Available")
     end
 end)
 
 hook.Add("OnRoundPreparation", "nZr_ExfilRadio", function(rnd)
     local rad = ents.FindByClass("bo6_exfil_radio")[1]
     if nzSettings:GetSimpleSetting("ExfilEnabled", true) and (nzRound:GetNumber() >= nzSettings:GetSimpleSetting("ExfilFirstRound", 11) and (nzRound:GetNumber()-nzSettings:GetSimpleSetting("ExfilFirstRound", 11)) % nzSettings:GetSimpleSetting("ExfilEveryRound", 5) == 1) and IsValid(rad) then
-        nZr_Exfil_VoiceOver("Exfil_Unavailable")
+        nzDialog:PlayCustomDialog(nzSettings:GetSimpleSetting("ExfilPilotType", "raptor").."Exfil_Unavailable")
     end
 end)

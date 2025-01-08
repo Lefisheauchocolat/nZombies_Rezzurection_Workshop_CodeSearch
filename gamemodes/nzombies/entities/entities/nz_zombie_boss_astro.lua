@@ -176,7 +176,7 @@ ENT.AstronautNames = {
 	"AwesomePieMan","Ege115","RedSpace200","StevieWonder08","FearXReaper666","FlamingFox5","Ghostlycreep434","HarryDivorceCount21",
 	"JBird632","APlatypus","Bloxotrot","shippuden1592","25 Cent","tom_bmx","HitmanVere","MakeCents","ZK","Anthony","GooB","ZCTxCHAOSx",
 	"Ping998","MJPWGaming","MidgetBlaster","Michelle Raymond","RichGaming","Zet0r","Alig96","E-Girl","Dan's Red Corvette","#1 Die Rise Hater",
-	"Saving Private Racist","DiedRise","LoonicityHOUND","Hidden","TheDoorMatt655","Ruko","Ethorbit","Sergeant Four Twenty","OceanFruit","Lolle",
+	"Saving Private Racist","DiedRise","LoonicityHOUND","Hidden","TheDoorMatt655","Ruko","Filth","Sergeant Four Twenty","OceanFruit","Lolle",
 	"Chtidino","S.Cawthon","T.Fox","Owilliam","Bring on the BBQ!","GEX","Gordon Freeman","Doctor HAX","DasBoSchitt","kitty0706","ThatBluntoBoi",
 	"Malevolent Backshots","Noah Gay","TheRelaxingEnd","JIMBOTHY","Cruppz","PenileExploder44","Magnussy","Octogonal Robber","Megumongoloid",
 	"Fucker","J.Zielinski","J.Blundell","robothegod","Homer Simpson","Peter Griffin","Prick","DathiDNogla","BEEEEEAAAANSS!!!","Jerry","Ziggy","Duke","fortnitelover92",

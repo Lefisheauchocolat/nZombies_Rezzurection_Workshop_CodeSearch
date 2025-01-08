@@ -620,12 +620,6 @@ nzPowerUps:NewPowerUp("dp", {
 	announcement = true,
 	loopsound = "nz_moo/powerups/doublepoints_loop_zhd.wav",
 	stopsound = "nz_moo/powerups/doublepoints_end.mp3",
-	icon_t5 = Material("nz_moo/icons/bo1/classic_clean_powerup_double.png", "unlitgeneric"),
-	icon_t6 = Material("nz_moo/icons/bo2/charred_powerup_2x.png", "unlitgeneric"),
-	icon_t7 = Material("nz_moo/icons/t7/specialty_giant_2x_zombies.png", "unlitgeneric"),
-	icon_t7zod = Material("nz_moo/icons/t7_zod/specialty_2x_zombies.png", "unlitgeneric"),
-	icon_t8 = Material("nz_moo/icons/bo4/t8_hud_robit_powerup_2x.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/robit_cw_powerup_double_points.png", "unlitgeneric"),
 	func = function(id, ply)
 	end,
 	antifunc = (function(id, ply)
@@ -653,12 +647,6 @@ nzPowerUps:NewPowerUp("maxammo", {
 	duration = 0,
 	antiduration = 0,
 	natural = true,
-	icon_t5 = Material("vgui/bo1_max.png", "unlitgeneric"),
-	icon_t6 = Material("vgui/bo2_max.png", "unlitgeneric"),
-	icon_t7 = Material("vgui/bo3_max.png", "unlitgeneric"),
-	icon_t7zod = Material("vgui/bo3_max.png", "unlitgeneric"),
-	icon_t8 = Material("vgui/bo4_maxammo.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/robit_cw_powerup_max_ammo.png", "unlitgeneric"),
 	func = (function(id, ply)
 		nzSounds:Play("MaxAmmo")
 		
@@ -716,12 +704,6 @@ nzPowerUps:NewPowerUp("insta", {
 	announcement = true,
 	loopsound = "nz_moo/powerups/instakill_loop_zhd.wav",
 	stopsound = "nz_moo/powerups/instakill_end.mp3",
-	icon_t5 = Material("nz_moo/icons/bo1/classic_clean_powerup_instakill_alt.png", "unlitgeneric"),
-	icon_t6 = Material("nz_moo/icons/bo2/charred_powerup_instakill.png", "unlitgeneric"),
-	icon_t7 = Material("nz_moo/icons/t7/specialty_giant_killjoy_zombies.png", "unlitgeneric"),
-	icon_t7zod = Material("nz_moo/icons/t7_zod/specialty_instakill_zombies.png", "unlitgeneric"),
-	icon_t8 = Material("nz_moo/icons/bo4/t8_hud_robit_powerup_instakill.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/robit_cw_powerup_instakill.png", "unlitgeneric"),
 	func = function(id, ply)
 	end,
 	antifunc = (function(id, ply)
@@ -763,12 +745,6 @@ nzPowerUps:NewPowerUp("nuke", {
 	natural = true,
 	announcement = true,
 	noflashing = true,
-	icon_t5 = Material("vgui/bo1_nuke.png", "unlitgeneric"),
-	icon_t6 = Material("vgui/bo2_nuke.png", "unlitgeneric"),
-	icon_t7 = Material("vgui/bo3_nuke.png", "unlitgeneric"),
-	icon_t7zod = Material("vgui/bo3_nuke.png", "unlitgeneric"),
-	icon_t8 = Material("vgui/bo4_nuke.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/robit_cw_powerup_nuke.png", "unlitgeneric"),
 	func = (function(id, ply)
 		net.Start("nzPowerUps.PickupHud")
 			net.WriteString("Ka-Boom!")
@@ -824,12 +800,6 @@ nzPowerUps:NewPowerUp("firesale", {
 	announcement = true,
 	loopsound = "nz_moo/powerups/mus_chap205_19.wav", -- This makes the Firesale Jingle 2d. Its also a good way to prank Youtubers by giving them a Copyright Claim! Now thats what I call goofy.
 	stopsound = "nz_moo/powerups/doublepoints_end.mp3",
-	icon_t5 = Material("nz_moo/icons/bo1/classic_clean_powerup_sale_alt.png", "unlitgeneric"),
-	icon_t6 = Material("nz_moo/icons/bo2/charred_powerup_sale.png", "unlitgeneric"),
-	icon_t7 = Material("nz_moo/icons/t7/specialty_giant_firesale_zombies.png", "unlitgeneric"),
-	icon_t7zod = Material("nz_moo/icons/t7_zod/specialty_firesale_zombies.png", "unlitgeneric"),
-	icon_t8 = Material("nz_moo/icons/bo4/t8_hud_robit_powerup_firesale.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/robit_cw_powerup_firesale.png", "unlitgeneric"),
 	condition = function(id, pos)
 		return nzPowerUps:GetBoxMoved()
 	end,
@@ -899,12 +869,6 @@ nzPowerUps:NewPowerUp("carpenter", {
 	noflashing = true,
 	loopsound = "nz_moo/powerups/carpenter_loop_classic.wav",
 	stopsound = "nz_moo/powerups/carpenter_end_classic.mp3",
-	icon_t5 = Material("vgui/bo1_carpenter.png", "unlitgeneric"),
-	icon_t6 = Material("vgui/bo2_carpenter.png", "unlitgeneric"),
-	icon_t7 = Material("vgui/bo3_carpenter.png", "unlitgeneric"),
-	icon_t7zod = Material("vgui/bo3_carpenter.png", "unlitgeneric"),
-	icon_t8 = Material("vgui/bo4_carpenter.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/robit_cw_powerup_carpenter.png", "unlitgeneric"),
 	condition = function(id, pos)
 		local barricades = ents.FindByClass("breakable_entry")
 		if #barricades >= 4 then
@@ -999,12 +963,6 @@ nzPowerUps:NewPowerUp("zombieblood", {
 	announcement = true,
 	loopsound = "nz_moo/powerups/zombieblood_loop.wav",
 	stopsound = "nz_moo/powerups/zombieblood_stop.mp3",
-	icon_t5 = Material("nz_moo/icons/bo1/classic_clean_powerup_blood_alt_alt.png", "unlitgeneric"),
-	icon_t6 = Material("nz_moo/icons/bo2/charred_powerup_blood_alt_alt.png", "unlitgeneric"),
-	icon_t7 = Material("nz_moo/icons/t7/specialty_giant_blood_zombies.png", "unlitgeneric"),
-	icon_t7zod = Material("nz_moo/icons/t7/specialty_giant_blood_zombies.png", "unlitgeneric"),
-	icon_t8 = Material("nz_moo/icons/bo4/t8_hud_robit_powerup_blood.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/cw_blood.png", "unlitgeneric"),
 	condition = function(id, pos)
 		return #player.GetAllPlaying() > 1
 	end,
@@ -1079,12 +1037,6 @@ nzPowerUps:NewPowerUp("deathmachine", {
 	antiduration = 15,
 	natural = true,
 	announcement = true,
-	icon_t5 = Material("nz_moo/icons/bo1/classic_clean_powerup_deathmachine.png", "unlitgeneric"),
-	icon_t6 = Material("nz_moo/icons/bo2/charred_powerup_deathmachine.png", "unlitgeneric"),
-	icon_t7 = Material("nz_moo/icons/t7/t7_hud_zm_powerup_giant_deathmachine.png", "unlitgeneric"),
-	icon_t7zod = Material("nz_moo/icons/t7/t7_hud_zm_powerup_deathmachine.png", "unlitgeneric"),
-	icon_t8 = Material("nz_moo/icons/bo4/t8_hud_robit_powerup_death_machine.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/cw_death.png", "unlitgeneric"),
 	func = (function(id, ply)
 		local ourfucker = "deathmachine_swapper"..ply:EntIndex()
 		timer.Create(ourfucker, 0, 0, function()
@@ -1188,12 +1140,6 @@ nzPowerUps:NewPowerUp("bloodmoney", {
 	chance = 0,
 	duration = 0,
 	natural = false,
-	icon_t5 = Material("vgui/bo1_bonus.png", "unlitgeneric"),
-	icon_t6 = Material("vgui/bo2_bonus.png", "unlitgeneric"),
-	icon_t7 = Material("vgui/bo3_bonus.png", "unlitgeneric"),
-	icon_t7zod = Material("vgui/bo3_bonus.png", "unlitgeneric"),
-	icon_t8 = Material("vgui/bo4_bonus.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/robit_cw_powerup_bonus_points.png", "unlitgeneric"),
 	announcement = true,
 	condition = function(id, pos)
 		return false //never spawn naturally
@@ -1217,12 +1163,6 @@ nzPowerUps:NewPowerUp("bonuspoints", {
 	antiduration = 0,
 	natural = true,
 	announcement = true,
-	icon_t5 = Material("vgui/bo1_bonus.png", "unlitgeneric"),
-	icon_t6 = Material("vgui/bo2_bonus.png", "unlitgeneric"),
-	icon_t7 = Material("vgui/bo3_bonus.png", "unlitgeneric"),
-	icon_t7zod = Material("vgui/bo3_bonus.png", "unlitgeneric"),
-	icon_t8 = Material("vgui/bo4_bonus.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/robit_cw_powerup_bonus_points.png", "unlitgeneric"),
 	func = (function(id, ply)
 		local BONUS = (math.random(25,150) * 10) -- Everyone should get the same amount.
 		for k, v in pairs(player.GetAllPlaying()) do
@@ -1259,12 +1199,6 @@ nzPowerUps:NewPowerUp("bottleslot", {
 	antiduration = 0,
 	natural = false,
 	announcement = true,
-	icon_t5 = Material("vgui/bo1_brokenbottle.png", "unlitgeneric"),
-	icon_t6 = Material("vgui/bo2_broken_bottle.png", "unlitgeneric"),
-	icon_t7 = Material("vgui/bo3_brokenperk.png", "unlitgeneric"),
-	icon_t7zod = Material("vgui/bo3_brokenperk.png", "unlitgeneric"),
-	icon_t8 = Material("vgui/bo4_perk.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/cw_brokenbottle.png", "unlitgeneric"),
 	condition = function(id, pos)
 		return GetConVar("nz_difficulty_perks_max"):GetInt() < 8
 	end,
@@ -1311,12 +1245,6 @@ nzPowerUps:NewPowerUp("bottle", {
 	antiduration = 0,
 	natural = false,
 	announcement = true,
-	icon_t5 = Material("vgui/bo1_perk.png", "unlitgeneric"),
-	icon_t6 = Material("vgui/bo2_bottle.png", "unlitgeneric"),
-	icon_t7 = Material("vgui/bo3_perk.png", "unlitgeneric"),
-	icon_t7zod = Material("vgui/bo3_perk.png", "unlitgeneric"),
-	icon_t8 = Material("vgui/bo4_perk.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/robit_cw_powerup_random_perk_can.png", "unlitgeneric"),
 	func = (function(id, ply)
 		net.Start("nzPowerUps.PickupHud")
 			net.WriteString("Free Perk!")
@@ -1362,12 +1290,6 @@ nzPowerUps:NewPowerUp("emptybottle", {
 	antiduration = 0,
 	natural = false,
 	announcement = true,
-	icon_t5 = Material("vgui/bo1_perk.png", "unlitgeneric"),
-	icon_t6 = Material("vgui/bo2_bottle.png", "unlitgeneric"),
-	icon_t7 = Material("vgui/bo3_perk.png", "unlitgeneric"),
-	icon_t7zod = Material("vgui/bo3_perk.png", "unlitgeneric"),
-	icon_t8 = Material("vgui/bo4_perk.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/robit_cw_powerup_random_perk_can.png", "unlitgeneric"),
 	func = (function(id, ply)
 		net.Start("nzPowerUps.PickupHud")
 			net.WriteString("Perk Slot!")
@@ -1414,12 +1336,6 @@ nzPowerUps:NewPowerUp("bonfiresale", {
 	announcement = true,
 	loopsound = "nz_moo/powerups/omnov001l_1_l_stereo.wav",
 	stopsound = "nz_moo/powerups/doublepoints_end.mp3",
-	icon_t5 = Material("nz_moo/icons/bo1/classic_clean_powerup_bonfire.png", "unlitgeneric"),
-	icon_t6 = Material("nz_moo/icons/bo2/charred_powerup_bonfire.png", "unlitgeneric"),
-	icon_t7 = Material("nz_moo/icons/t7/powerup_bon_fire.png", "unlitgeneric"),
-	icon_t7zod = Material("nz_moo/icons/t7/powerup_bon_fire.png", "unlitgeneric"),
-	icon_t8 = Material("nz_moo/icons/bo4/t8_hud_robit_powerup_bonfire.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/cw_bonfire.png", "unlitgeneric"),
 	func = (function(id, ply)
 	end),
 	anticondition = function(id, pos)
@@ -1479,12 +1395,6 @@ nzPowerUps:NewPowerUp("timewarp", {
 	announcement = true,
 	loopsound = "nz_moo/powerups/timewarp_loop.wav",
 	stopsound = "nz_moo/powerups/instakill_end.mp3",
-	icon_t5 = Material("vgui/classic_clean_powerup_slow.png", "unlitgeneric"),
-	icon_t6 = Material("vgui/charred_powerup_slow.png", "unlitgeneric"),
-	icon_t7 = Material("vgui/icon_timewarp.png", "unlitgeneric"),
-	icon_t7zod = Material("vgui/icon_timewarp.png", "unlitgeneric"),
-	icon_t8 = Material("nz_moo/icons/bo4/powerups/t8_hud_robit_powerup_time_warp.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/cw_time_alt.png", "unlitgeneric"),
 	condition = function(id, pos)
 		return nzMapping.Settings.poweruprestriction or nzRound:GetNumber() >= 9
 	end,
@@ -1546,12 +1456,6 @@ nzPowerUps:NewPowerUp("berzerk", {
 	announcement = true,
 	loopsound = "powerups/berzerk_loop.wav",
 	stopsound = "powerups/berzerk_end.wav",
-	icon_t5 = Material("vgui/t5_bzk.png", "unlitgeneric"),
-	icon_t6 = Material("vgui/t6_bzk.png", "unlitgeneric"),
-	icon_t7 = Material("vgui/bo3_bzk.png", "unlitgeneric"),
-	icon_t7zod = Material("vgui/t7_bzk.png", "unlitgeneric"),
-	icon_t8 = Material("nz_moo/icons/bo4/powerups/bo4_bzk.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/cw_bzk.png", "unlitgeneric"),
 	func = (function(id, ply)
 		local ourfucker = "berzerker_swapper"..ply:EntIndex()
 		timer.Create(ourfucker, 0, 0, function()
@@ -1631,12 +1535,6 @@ nzPowerUps:NewPowerUp("infinite", {
 	announcement = true,
 	loopsound = "powerups/infiniteammo_loop.wav",
 	stopsound = "powerups/infiniteammo_end.mp3",
-	icon_t5 = Material("vgui/bo1_infinite.png", "unlitgeneric"),
-	icon_t6 = Material("vgui/bo2_infinite.png", "unlitgeneric"),
-	icon_t7 = Material("vgui/bo3_infinite.png", "unlitgeneric"),
-	icon_t7zod = Material("vgui/bo3_infinite.png", "unlitgeneric"),
-	icon_t8 = Material("nz_moo/icons/bo4/t8_hud_robit_powerup_bottomless_clip.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/cw_infinite.png", "unlitgeneric"),
 	func = (function(id, ply)
 		local clipSizeCheckTimerName = "clipSizeCheckTimer"
 		local illegalspecials = {
@@ -1721,12 +1619,6 @@ nzPowerUps:NewPowerUp("random", {
 	addpitch = 50,
 	nopitchshift = 0,
 	natural = false,
-	icon_t5 = Material("vgui/bo1_mystery.png", "unlitgeneric"),
-	icon_t6 = Material("vgui/bo2_mystery.png", "unlitgeneric"),
-	icon_t7 = Material("vgui/bo3_mystery.png", "unlitgeneric"),
-	icon_t7zod = Material("vgui/bo3_mystery.png", "unlitgeneric"),
-	icon_t8 = Material("vgui/bo4_mystery.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/cw_mystery.png", "unlitgeneric"),
 	func = (function(id, ply)
 		local powerups = {
 			["maxammo"] = 3,
@@ -1772,12 +1664,6 @@ nzPowerUps:NewPowerUp("packapunch", {
 	nopitchshift = 0,
 	natural = false,
 	announcement = true,
-	icon_t5 = Material("vgui/bo1_pap.png", "unlitgeneric"),
-	icon_t6 = Material("vgui/bo2_pap.png", "unlitgeneric"),
-	icon_t7 = Material("vgui/bo3_pap.png", "unlitgeneric"),
-	icon_t7zod = Material("vgui/bo3_pap.png", "unlitgeneric"),
-	icon_t8 = Material("vgui/bo4_pap.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/cw_pap.png", "unlitgeneric"),
 	func = (function(id, ply)
 		local wep = ply:GetActiveWeapon()
 		if wep.NZSpecialCategory and !wep.OnPaP then
@@ -1870,12 +1756,6 @@ nzPowerUps:NewPowerUp("godmode", {
 	announcement = true,
 	loopsound = "powerups/lattegodmode_loop.wav",
 	stopsound = "powerups/godmode_end.mp3",
-	icon_t5 = Material("vgui/bo1_greyson.png", "unlitgeneric"),
-	icon_t6 = Material("vgui/bo2_greyson.png", "unlitgeneric"),
-	icon_t7 = Material("vgui/bo3_greyson.png", "unlitgeneric"),
-	icon_t7zod = Material("vgui/bo3_greyson.png", "unlitgeneric"),
-	icon_t8 = Material("vgui/bo4/bo4_greyson.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/cw_greyson.png", "unlitgeneric"),
 	condition = function(id, pos)
 		return #player.GetAllPlaying() > 1
 	end,
@@ -1925,12 +1805,6 @@ nzPowerUps:NewPowerUp("weapondrop", {
 	nopitchshift = 0,
 	natural = true,
 	announcement = true,
-	icon_t5 = Material("vgui/bo1_randomgun.png", "unlitgeneric"),
-	icon_t6 = Material("vgui/bo2_randomgun.png", "unlitgeneric"),
-	icon_t7 = Material("vgui/bo3_randomgun.png", "unlitgeneric"),
-	icon_t7zod = Material("vgui/bo3_randomgun.png", "unlitgeneric"),
-	icon_t8 = Material("vgui/bo4_randomgun.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/cw_randomguns.png", "unlitgeneric"),
 	pressuse = true,
 	spawnfunc = (function(id, ent)
 		if not IsValid(ent) then return end
@@ -2100,12 +1974,6 @@ nzPowerUps:NewPowerUp("quickfoot", {
 	announcement = true,
 	loopsound = "powerups/quick_loop.wav",
 	stopsound = "nz_moo/powerups/zombieblood_stop.mp3",
-	icon_t5 = Material("vgui/bo1_quick.png", "unlitgeneric"),
-	icon_t6 = Material("vgui/bo2_quick.png", "unlitgeneric"),
-	icon_t7 = Material("vgui/bo3_quick.png", "unlitgeneric"),
-	icon_t7zod = Material("vgui/bo3_quick.png", "unlitgeneric"),
-	icon_t8 = Material("nz_moo/icons/bo4/t8_hud_robit_powerup_fast_feet.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/cw_fast.png", "unlitgeneric"),
 	func = (function(id, ply)
 		ply:SetWalkSpeed(300)
 		ply:SetRunSpeed(600)
@@ -2158,12 +2026,6 @@ nzPowerUps:NewPowerUp("fullarmor", {
 	nopitchshift = 0,
 	natural = true,
 	announcement = true,
-	icon_t5 = Material("vgui/bo1_mystery.png", "unlitgeneric"),
-	icon_t6 = Material("vgui/bo2_mystery.png", "unlitgeneric"),
-	icon_t7 = Material("vgui/bo3_mystery.png", "unlitgeneric"),
-	icon_t7zod = Material("vgui/bo3_mystery.png", "unlitgeneric"),
-	icon_t8 = Material("vgui/bo4_mystery.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/cw_mystery.png", "unlitgeneric"),
 	func = (function(id, ply)
 		net.Start("nzPowerUps.PickupHud")
 			net.WriteString("Full Armor!")
@@ -2202,12 +2064,6 @@ nzPowerUps:NewPowerUp("random_gum", {
 	nopitchshift = 0,
 	natural = false,
 	announcement = true,
-	icon_t5 = Material("vgui/bo1_mystery.png", "unlitgeneric"),
-	icon_t6 = Material("vgui/bo2_mystery.png", "unlitgeneric"),
-	icon_t7 = Material("vgui/bo3_mystery.png", "unlitgeneric"),
-	icon_t7zod = Material("vgui/bo3_mystery.png", "unlitgeneric"),
-	icon_t8 = Material("vgui/bo4_mystery.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/cw_mystery.png", "unlitgeneric"),
 	pressuse = true,
 	spawnfunc = (function(id, ent)
 		if not IsValid(ent) then return end
@@ -2260,12 +2116,6 @@ nzPowerUps:NewPowerUp("restock", {
 	duration = 0,
 	antiduration = 0,
 	natural = false,
-	icon_t5 = Material("vgui/bo1_max.png", "unlitgeneric"),
-	icon_t6 = Material("vgui/bo2_max.png", "unlitgeneric"),
-	icon_t7 = Material("vgui/bo3_max.png", "unlitgeneric"),
-	icon_t7zod = Material("vgui/bo3_max.png", "unlitgeneric"),
-	icon_t8 = Material("vgui/bo4_maxammo.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/robit_cw_powerup_max_ammo.png", "unlitgeneric"),
 	func = (function(id, ply)
 		if not IsValid(ply) then return end
 
@@ -2313,12 +2163,6 @@ nzPowerUps:NewPowerUp("security", {
 	chance = 0,
 	duration = 30,
 	natural = false,
-	icon_t5 = Material("vgui/bo1_mystery.png", "unlitgeneric"),
-	icon_t6 = Material("vgui/bo2_mystery.png", "unlitgeneric"),
-	icon_t7 = Material("vgui/bo3_mystery.png", "unlitgeneric"),
-	icon_t7zod = Material("vgui/bo3_mystery.png", "unlitgeneric"),
-	icon_t8 = Material("vgui/bo4_mystery.png", "unlitgeneric"),
-	icon_t9 = Material("vgui/cw_mystery.png", "unlitgeneric"),
 	condition = function(id, position)
 		return nzElec:IsOn()
 	end,

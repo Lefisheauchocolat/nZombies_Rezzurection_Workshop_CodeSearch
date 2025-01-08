@@ -178,7 +178,7 @@ end
 function ENT:Think()
 
 	if SERVER then 
-		if IsValid(self.FogController) then
+		if IsValid(ents.FindByClass("env_fog_controller")) then
 			for k, v in pairs(ents.FindByClass("env_fog_controller")) do
 				v:SetKeyValue("farz", self:GetClipPlane())
 			end

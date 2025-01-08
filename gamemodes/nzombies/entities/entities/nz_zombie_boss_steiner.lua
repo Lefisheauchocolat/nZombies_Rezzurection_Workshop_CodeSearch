@@ -399,6 +399,9 @@ function ENT:PerformDeath(dmginfo)
 	local damagetype = dmginfo:GetDamageType()
 
 	self:PostDeath(dmginfo)
+	
+	ParticleEffect("hcea_flood_runner_death",self:GetPos(),self:GetAngles(),self)
+	self:EmitSound("nz_moo/zombies/vox/_quad/gas_cloud/cloud_0"..math.random(0,3)..".mp3")
 
 	if damagetype == DMG_REMOVENORAGDOLL then
 		self:Remove(dmginfo)
@@ -491,10 +494,10 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 	if e == "steiner_split_start" then
 	end
 	if e == "steiner_split_end" then
-		ParticleEffect("hcea_flood_runner_death",self:GetPos(),self:GetAngles(),self)
+		--[[ParticleEffect("hcea_flood_runner_death",self:GetPos(),self:GetAngles(),self)
 		self:EmitSound("nz_moo/zombies/vox/_quad/gas_cloud/cloud_0"..math.random(0,3)..".mp3")
 		self.RemoveMeTime = CurTime() + 0.5
-		self.RemoveMeNOW = true
+		self.RemoveMeNOW = true]]
 	end
 	if e == "steiner_bomb_charge" then
 	end

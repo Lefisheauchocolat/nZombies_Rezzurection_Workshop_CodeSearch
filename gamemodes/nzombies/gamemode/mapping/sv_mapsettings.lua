@@ -255,7 +255,6 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.antipowerupchance = data.antipowerupchance or 40
 	nzMapping.Settings.antipowerupstart = data.antipowerupstart or 2
 	nzMapping.Settings.antipowerupdelay = data.antipowerupdelay or 4
-
 	nzMapping.Settings.poweruproundbased = tobool(data.poweruproundbased)
 	nzMapping.Settings.maxpowerupdrops = data.maxpowerupdrops or 4
 	if data.poweruprounds then

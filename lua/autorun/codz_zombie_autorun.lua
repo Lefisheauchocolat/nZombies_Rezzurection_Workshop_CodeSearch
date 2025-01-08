@@ -1,9 +1,12 @@
 
--- Moo Particles
+-- Moo Particles(I puked particles all over the place)
 game.AddParticles("particles/moo_misc_fx.pcf")
 game.AddParticles("particles/loonicity_particles.pcf")
 game.AddParticles("particles/temp_fx.pcf")
 game.AddParticles("particles/tomb_pap_red.pcf")
+
+PrecacheParticleSystem("zmb_zombie_spawn_dirt")
+PrecacheParticleSystem("zmb_zombie_spawn_snow")
 
 PrecacheParticleSystem("zmb_mutated_electric_aura")
 PrecacheParticleSystem("zmb_mutated_electric_attack")

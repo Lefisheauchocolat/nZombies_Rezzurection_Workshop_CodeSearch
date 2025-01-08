@@ -2118,11 +2118,6 @@ function ENT:StatsInitialize()
 	end
 end
 
-function ENT:SpecialInit()
-	if CLIENT then
-	end
-end
-
 function ENT:OnSpawn(animation, grav, dirt)
 	animation = animation or self:SelectSpawnSequence()
 	grav = grav
@@ -2146,27 +2141,8 @@ function ENT:OnSpawn(animation, grav, dirt)
 			self:EmitSound(finalsound)
 		end
 
-		ParticleEffect("bo3_zombie_spawn",self:GetPos()+Vector(0,0,1),self:GetAngles(),self)
+		ParticleEffect("zmb_zombie_spawn_dirt",self:GetPos()+Vector(0,0,1),self:GetAngles(),self)
 		self:EmitSound("nz_moo/zombies/spawn/_generic/dirt/dirt_0"..math.random(0,2)..".mp3",100,math.random(95,105))
-	end
-
-	if IsValid(self.SpawnIndex) then
-		local stype = self.SpawnIndex:GetSpawnType()
-		if stype == 11 then
-			self:EmitSound("ambient/energy/weld"..math.random(2)..".wav",100,math.random(95,105))
-			self:EmitSound("nz_moo/zombies/gibs/head/_og/zombie_head_0"..math.random(0,2)..".mp3", 65, math.random(95,105))
-			self:EmitSound("nz_moo/zombies/gibs/gib_0"..math.random(0,3)..".mp3", 100, math.random(95,105))
-			if IsValid(self) then ParticleEffect("wwii_spawn_main", self:GetPos() + Vector(0,0,0), Angle(0,0,0), self) end
-			if IsValid(self) then ParticleEffect("wwii_spawn_embers", self:GetPos() + Vector(0,0,0), Angle(0,0,0), self) end
-			if IsValid(self) then ParticleEffect("wwii_spawn_blood", self:GetPos() + Vector(0,0,0), Angle(0,0,0), self) end
-			if IsValid(self) then ParticleEffect("wwii_spawn_elec", self:GetPos() + Vector(0,0,20), Angle(0,0,0), self) end
-		end
-	end
-
-	if IsValid(self.quack) then 
-	    local pos = self:GetBonePosition(self:LookupBone("j_mainroot"))
-	    self.quack:SetPos(pos - Vector(0,5,0))
-		self.quack:SetAngles(self:GetAngles() + Angle(90,0,0)) 
 	end
 
 	if animation then

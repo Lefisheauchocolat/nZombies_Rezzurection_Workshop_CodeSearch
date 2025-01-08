@@ -104,7 +104,7 @@ SWEP.SafetyPos = Vector(1, -2, -0.5)
 SWEP.SafetyAng = Vector(-20, 35, -25)
 
 --[NZombies]--
-SWEP.NZTacticalPaP = true
+--[[SWEP.NZTacticalPaP = true
 SWEP.Ispackapunched = false
 
 function SWEP:OnPaP()
@@ -112,13 +112,13 @@ self.Ispackapunched = true
 self.Primary_TFA.Damage = 3000
 self:ClearStatCache()
 return true
-end
+end]]
 
-function SWEP:NZSpecialHolster()
+--[[function SWEP:NZSpecialHolster()
 	self.nzThrowTime = nil
 	self.nzHolsterTime = nil
 	return true
-end
+end]]
 
 --[Tables]--
 SWEP.SequenceRateOverride = {
@@ -170,13 +170,9 @@ SWEP.StatCache_Blacklist = {
 DEFINE_BASECLASS( SWEP.Base )
 
 function SWEP:Equip(ply, ...)
-	if nzombies then
-		ply:SetAmmo(3, GetNZAmmoID("specialgrenade"))
+	if engine.ActiveGamemode() == "nzombies" and nzRound:InState(ROUND_CREATE) then
+		ply:SetAmmo(4, GetNZAmmoID("grenade"))
 	end
 
 	return BaseClass.Equip(self, ply, ...)
-end
-
-function SWEP:PreSpawnProjectile(ent)
-	ent:SetUpgraded(self.Ispackapunched)
 end

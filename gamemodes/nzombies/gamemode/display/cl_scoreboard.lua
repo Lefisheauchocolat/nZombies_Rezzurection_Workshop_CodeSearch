@@ -16,10 +16,12 @@ local color_alt = Color(0,30,40,240)
 local font = "nz.grenade"
 local textcol = Color(255,255,255)
 local textcol_highlight = Color(255,255,50)
+local _sp = game.SinglePlayer()
 
 local zmhud_icon_voiceon = Material("nz_moo/icons/voice_on.png", "unlitgeneric smooth")
 local zmhud_icon_voicedim = Material("nz_moo/icons/voice_on_dim.png", "unlitgeneric smooth")
 local zmhud_icon_voiceoff = Material("nz_moo/icons/voice_off.png", "unlitgeneric smooth")
+local zmhud_icon_host = Material("nz_moo/icons/ui_host.png", "unlitgeneric smooth")
 
 local matblur = Material("pp/blurscreen")
 local function barpaint(self,w,h)
@@ -101,6 +103,15 @@ local PLAYERLINE = {
 			v:SetTextColor(col)
 		end
 		self.Name:SetTextColor(col)
+
+		if !_sp and ply:IsListenServerHost() then
+			local host = self.Name:Add("DButton")
+			host:Dock(RIGHT)
+			host:SetMaterial(zmhud_icon_host)
+			host:SetText("")
+			host:SetSize(32, 32)
+			host.Paint = function() end
+		end
 
 		self:Think()
 	end,
@@ -237,6 +248,11 @@ function GM:ScoreboardHide()
 	if IsValid(scoreboard) and (!nzRound:InState(ROUND_GO) or nzRound:InState(ROUND_GO) and gameoverwait > CurTime()) then
 		scoreboard:Hide()
 	end
+end
+
+local PLAYER = FindMetaTable("Player")
+function PLAYER:IsScoreboardOpen()
+	return scoreboard and IsValid(scoreboard) and scoreboard:IsVisible() or false
 end
 
 hook.Add("OnRoundEnd", "nzu_Scoreboard_ShowOnGameOver", function()

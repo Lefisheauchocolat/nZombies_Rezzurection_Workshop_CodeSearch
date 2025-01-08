@@ -11,6 +11,7 @@ local gradientBG = Material("bo6/other/lobby_bg_simple.png")
 local logoMat = Material("bo6/other/logo.png")
 local markMat = Material("vgui/menu_lobby_ready.png", "mips")
 local crossMat = Material("vgui/menu_lobby_not_ready.png", "mips")
+local lightMat = Material("bo6/other/light.png", "mips")
 local musicchannel = nil
 local lobbypanel = nil
 local animtab = {"nz_idles_f_crossedfront", "nz_idles_m_armsback", "nz_idles_m_armsfront", "nz_idles_m_hipleft", "nz_idles_m_hipright", "nz_idles_m_hips"}
@@ -69,6 +70,83 @@ surface.CreateFont("BO6_Lobby14", {
     extended = true,
     size = He(14),
 })
+
+----------------------------------------
+
+local chatPanel = nil
+local richPanel = nil
+local messageSound = "buttons/lightswitch2.wav"
+
+local function CreateChatPanel(link)
+    if IsValid(chatPanel) then return end
+    chatPanel = vgui.Create("DFrame", link)
+    chatPanel:SetSize(We(480), He(240))
+    chatPanel:SetTitle("")
+    chatPanel:ShowCloseButton(false)
+    chatPanel:SetDraggable(true)
+    chatPanel:SetPos(ScrW() - chatPanel:GetWide() - We(10), ScrH() - chatPanel:GetTall() - He(10))
+    chatPanel:MakePopup()
+    chatPanel.Paint = function(self,w,h)
+        surface.SetDrawColor(0,0,0,150)
+        surface.DrawRect(0,0,w,h)
+        surface.SetDrawColor(125,125,125)
+        surface.DrawOutlinedRect(0,0,w,h,2)
+        draw.SimpleText("LOBBY CHAT", "BO6_Exfil24", We(5), He(15), color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+        draw.SimpleText("[Press TAB to hide chat]", "BO6_Exfil18", w-We(5), He(15), Color(200,200,200,200), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+	end
+
+    local richtext = vgui.Create("RichText", chatPanel)
+    richtext:Dock(FILL)
+    richPanel = richtext
+    function richtext:PerformLayout()
+        self:SetFontInternal("BO6_Lobby18")
+        self:SetBGColor(Color(25, 25, 25, 150))
+    end
+
+    local TextEntry = vgui.Create("DTextEntry", chatPanel)
+	TextEntry:Dock(BOTTOM)
+    TextEntry:SetPaintBackground(false)
+    TextEntry:SetTextColor(Color(255,255,255))
+    TextEntry:SetCursorColor(Color(200,200,200))
+	TextEntry.OnEnter = function(self)
+		RunConsoleCommand("say", self:GetValue())
+        self:SetText("")
+	end
+    TextEntry.PaintOver = function(self,w,h)
+        surface.SetDrawColor(200,200,200)
+        surface.DrawOutlinedRect(0,0,w,h,1)
+	end
+end
+
+hook.Add("ChatText", "nzrLobbyChat", function(index, name, text, type)
+	if type == "joinleave" and IsValid(richPanel) then
+        richPanel:InsertColorChange(200, 200, 200, 255)
+        richPanel:AppendText(text .. "\n")
+        surface.PlaySound(messageSound)
+	end
+end)
+
+hook.Add("OnPlayerChat", "nzrLobbyChat", function(player, strText, bTeamOnly, bPlayerIsDead)
+    if IsValid(richPanel) then
+        local col = player:GetPlayerColor():ToColor()
+        richPanel:InsertColorChange(col.r, col.g, col.b, 255)
+        richPanel:AppendText(player:Nick())
+        richPanel:InsertColorChange(255, 255, 255, 255)
+        richPanel:AppendText(": " .. strText .. "\n")
+        surface.PlaySound(messageSound)
+    end
+end)
+
+local buttondelay = 0
+hook.Add("Think", "nzrLobbyChat", function()
+    if !IsValid(chatPanel) or buttondelay > CurTime() then return end
+    if input.IsKeyDown(KEY_TAB) then
+        buttondelay = CurTime()+0.4
+        chatPanel:ToggleVisible()
+    end
+end)
+
+----------------------------------------
 
 function nzLobby:CanOpenLobby()
     local ply = LocalPlayer()
@@ -201,7 +279,7 @@ function nzLobby:CreatePlayerModels(frame)
         end
 
         frame.PaintOver = function(self)
-            if #pmmodels ~= totalPlayers then
+            if #pmmodels ~= math.min(#player.GetAll(), 5) then
                 nzLobby:CreatePlayerModels(self)
             end
         end
@@ -271,6 +349,8 @@ local function open_lobby_menu()
             end)
             self.BlackScreenEnd = blk
         end
+
+        self:MoveToBack()
     end
     frame.OnRemove = function()
         timer.Simple(0.02, function()
@@ -283,7 +363,7 @@ local function open_lobby_menu()
     frame.Paint = function(self, w, h)
         local bgOption = showLobbyBG:GetInt()
         local lobbyBG_name = nzSettings:GetSimpleSetting("Lobby_Background", "bo6/other/lobby_bg.png")
-        local lobbyBG = Material(lobbyBG_name)
+        local lobbyBG = Material(lobbyBG_name, "smooth noclamp")
 
         if bgOption == 1 then
             surface.SetDrawColor(150, 150, 150, 255)
@@ -572,6 +652,8 @@ local function open_lobby_menu()
         end
     end
 
+    CreateChatPanel(frame)
+
     local blk = vgui.Create("DPanel", frame)
     blk:SetSize(ScrW(), ScrH())
     blk.Paint = function(self, w, h)
@@ -610,21 +692,44 @@ end)
 --PLAYERMODEL SELECTOR--
 
 function nzLobby:PlayerModelEditor(parent)
+    local function PlayPreviewAnimation( panel )
+        if ( !panel or !IsValid( panel.Entity ) ) then return end
+
+        local anims = list.Get( "PlayerOptionsAnimations" )
+        local anim = table.Random(animtab).."_loop"
+        local iSeq = panel.Entity:LookupSequence( anim )
+        if ( iSeq > 0 ) then panel.Entity:ResetSequence( iSeq ) end
+    end
+
     local window = vgui.Create("DFrame", parent)
     window:SetWidth(960)
     window:SetHeight(700)
-    window:SetTitle("Player Model")
+    window:SetTitle("")
     window.Paint = function(self,w,h)
-        draw.RoundedBox(8, 0, 0, w, h, Color(0,0,100,200))
+        draw.RoundedBox(8, 0, 0, w, h, Color(25,25,25,240))
+        draw.SimpleText("PLAYERMODEL SELECTOR", "BO6_Exfil26", 5, 2, color_white)
+        
+        surface.SetDrawColor(255,255,255)
+        surface.DrawRect(0, 30, w, 2)
     end
     window.OnRemove = function()
         net.Start("nZR.LobbySkin")
         net.SendToServer()
     end
 
+    local light = window:Add( "DPanel" )
+    light:SetPos(0,0)
+    light:SetSize(530,700)
+    light.Paint = function(self,w,h)
+        surface.SetDrawColor(255,255,255,100)
+        surface.SetMaterial(lightMat)
+        surface.DrawTexturedRect(0, 0, w, h)
+    end
+
     local mdl = window:Add( "DModelPanel" )
-    mdl:Dock( FILL )
-    mdl:SetFOV( 36 )
+    mdl:Dock( LEFT )
+    mdl:SetSize(530,0)
+    mdl:SetFOV( 35 )
     mdl:SetCamPos( Vector( 0, 0, 0 ) )
     mdl:SetDirectionalLight( BOX_RIGHT, Color( 255, 160, 80, 255 ) )
     mdl:SetDirectionalLight( BOX_LEFT, Color( 80, 160, 255, 255 ) )
@@ -632,14 +737,16 @@ function nzLobby:PlayerModelEditor(parent)
     mdl:SetAnimated( true )
     mdl.Angles = Angle( 0, 0, 0 )
     mdl:SetLookAt( Vector( -100, 0, -22 ) )
+    PlayPreviewAnimation( mdl )
 
     local sheet = window:Add( "DPropertySheet" )
-    sheet:Dock( RIGHT )
-    sheet:SetSize( 430, 0 )
+    sheet:SetSize(430, 660)
+    local ws, hs = sheet:GetSize()
+    sheet:SetPos(960-ws, 700-hs)
 
     local PanelSelect = sheet:Add( "DPanelSelect" )
     PanelSelect.Paint = function(self,w,h)
-        draw.RoundedBox(8, 0, 0, w, h, Color(0,0,0,200))
+        draw.RoundedBox(0, 0, 0, w, h, Color(75,75,75))
     end
 
     for name, model in SortedPairs( player_manager.AllValidModels() ) do
@@ -649,6 +756,15 @@ function nzLobby:PlayerModelEditor(parent)
         icon:SetSize( 64, 64 )
         icon:SetTooltip( name )
         icon.playermodel = name
+        icon.Paint = function(self,w,h)
+            surface.SetDrawColor(255,255,255,240)
+            surface.SetMaterial(lightMat)
+            surface.DrawTexturedRect(0, 0, w, h)
+        end
+        icon.PaintOver = function(self,w,h)
+            surface.SetDrawColor(255,255,255,50)
+            surface.DrawOutlinedRect(0, 0, w, h, 1)
+        end
 
         PanelSelect:AddPanel( icon, { cl_playermodel = name } )
 
@@ -658,10 +774,14 @@ function nzLobby:PlayerModelEditor(parent)
 
     local controls = window:Add( "DPanel" )
     controls:DockPadding( 8, 8, 8, 8 )
+    controls.Paint = function(self,w,h)
+        draw.RoundedBox(0, 0, 0, w, h, Color(75,75,75))
+    end
 
     local lbl = controls:Add( "DLabel" )
-    lbl:SetText( "Player color" )
-    lbl:SetTextColor( Color( 0, 0, 0, 255 ) )
+    lbl:SetText( "PLAYER COLOR" )
+    lbl:SetFont("BO6_Exfil18")
+    lbl:SetTextColor( Color( 255, 255, 255) )
     lbl:Dock( TOP )
 
     local plycol = controls:Add( "DColorMixer" )
@@ -671,8 +791,9 @@ function nzLobby:PlayerModelEditor(parent)
     plycol:SetSize( 200, 260 )
 
     local lbl = controls:Add( "DLabel" )
-    lbl:SetText( "Physgun color" )
-    lbl:SetTextColor( Color( 0, 0, 0, 255 ) )
+    lbl:SetText( "PHYSGUN COLOR" )
+    lbl:SetFont("BO6_Exfil18")
+    lbl:SetTextColor( Color( 255, 255, 255) )
     lbl:DockMargin( 0, 32, 0, 0 )
     lbl:Dock( TOP )
 
@@ -687,6 +808,9 @@ function nzLobby:PlayerModelEditor(parent)
 
     local bdcontrols = window:Add( "DPanel" )
     bdcontrols:DockPadding( 8, 8, 8, 8 )
+    bdcontrols.Paint = function(self,w,h)
+        draw.RoundedBox(0, 0, 0, w, h, Color(75,75,75))
+    end
 
     local bdcontrolspanel = bdcontrols:Add( "DPanelList" )
     bdcontrolspanel:EnableVerticalScrollbar( true )
@@ -705,23 +829,6 @@ function nzLobby:PlayerModelEditor(parent)
         end
 
         return string.Implode( " ", newname )
-    end
-
-    local function PlayPreviewAnimation( panel, playermodel )
-
-        if ( !panel or !IsValid( panel.Entity ) ) then return end
-
-        local anims = list.Get( "PlayerOptionsAnimations" )
-
-        local anim = "idle_all_01"
-        if ( anims[ playermodel ] ) then
-            anims = anims[ playermodel ]
-            anim = anims[ math.random( 1, #anims ) ]
-        end
-
-        local iSeq = panel.Entity:LookupSequence( anim )
-        if ( iSeq > 0 ) then panel.Entity:ResetSequence( iSeq ) end
-
     end
 
     -- Updating
@@ -753,8 +860,8 @@ function nzLobby:PlayerModelEditor(parent)
         if ( nskins > 0 ) then
             local skins = vgui.Create( "DNumSlider" )
             skins:Dock( TOP )
-            skins:SetText( "Skin" )
-            skins:SetDark( true )
+            skins:SetText( "SKIN" )
+            skins:SetDark(false)
             skins:SetTall( 50 )
             skins:SetDecimals( 0 )
             skins:SetMax( nskins )
@@ -775,8 +882,8 @@ function nzLobby:PlayerModelEditor(parent)
 
             local bgroup = vgui.Create( "DNumSlider" )
             bgroup:Dock( TOP )
-            bgroup:SetText( MakeNiceName( mdl.Entity:GetBodygroupName( k ) ) )
-            bgroup:SetDark( true )
+            bgroup:SetText( string.upper(MakeNiceName( mdl.Entity:GetBodygroupName( k ) )) )
+            bgroup:SetDark( false )
             bgroup:SetTall( 50 )
             bgroup:SetDecimals( 0 )
             bgroup.type = "bgroup"
@@ -794,7 +901,6 @@ function nzLobby:PlayerModelEditor(parent)
     end
 
     local function UpdateFromConvars()
-
         local model = LocalPlayer():GetInfo( "cl_playermodel" )
         local modelname = player_manager.TranslatePlayerModel( model )
         util.PrecacheModel( modelname )
@@ -805,9 +911,15 @@ function nzLobby:PlayerModelEditor(parent)
         plycol:SetVector( Vector( GetConVarString( "cl_playercolor" ) ) )
         wepcol:SetVector( Vector( GetConVarString( "cl_weaponcolor" ) ) )
 
-        PlayPreviewAnimation( mdl, model )
+        PlayPreviewAnimation( mdl )
         RebuildBodygroupTab()
 
+        if mdl.Created then
+            window:Remove()
+            nzLobby:PlayerModelEditor(parent)
+        else
+            mdl.Created = true
+        end
     end
 
     local function UpdateFromControls()
@@ -853,12 +965,45 @@ function nzLobby:PlayerModelEditor(parent)
         end
 
         Entity:SetAngles( self.Angles )
+        if Entity:GetCycle() == 1 then
+            Entity:SetCycle(0)
+        end
+    end
+
+    function sheet:Paint(w, h)
+        -- Set a dark background for the entire sheet
+        surface.SetDrawColor(50, 50, 50, 255) -- Dark gray
+        surface.DrawRect(0, 0, w, h)
+    end
+    local items = sheet:GetItems()
+    for k, tab in pairs(items) do
+        local t = tab.Tab
+        if IsValid(t) then
+            t:SetTextColor(Color(0,0,0,0))
+            function t:Paint(w, h)
+                if self:IsActive() then
+                    surface.SetDrawColor(75, 75, 75)
+                else
+                    surface.SetDrawColor(25, 25, 25)
+                end
+                surface.DrawRect(0, 0, w, 20)
+                if k != #items then
+                    surface.SetDrawColor(255, 255, 255)
+                    surface.DrawRect(w-2, 0, 2, 20)
+                end
+                if k != 1 then
+                    surface.SetDrawColor(255, 255, 255)
+                    surface.DrawRect(0, 0, 2, 20)
+                end
+                
+                draw.SimpleText(self:GetText(), "BO6_Exfil12", 28, 10, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+            end
+        end
     end
     
-    gui.EnableScreenClicker(true)
-    
     window:MakePopup()
-    window:Center()  
+    window:Center()
+    gui.EnableScreenClicker(true)  
 end
 
 concommand.Add("hari_lobby_close", function()

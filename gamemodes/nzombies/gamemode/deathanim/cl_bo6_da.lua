@@ -47,12 +47,17 @@ local function CreateTimedScene(modelsTable, effectsTable, sceneDuration, onFini
 
     hook.Add("CalcView", "TimedSceneCameraView", function(player, origin, angles, fov)
         local view = {}
+        local cfov = 90
         local ent = spawnedModels["player"]
         if IsValid(ent) then
+            local an = ent:GetSequenceName(ent:GetSequence())
+            if an == "mwz_da_human_mangler_t10" then
+                cfov = 70
+            end
             local att = ent:GetAttachment(ent:LookupAttachment("eyes"))
             view.origin = att.Pos
             view.angles = att.Ang
-            view.fov = 90
+            view.fov = cfov
             view.znear = 1
             return view
         end
@@ -76,7 +81,6 @@ local function CreateTimedScene(modelsTable, effectsTable, sceneDuration, onFini
             if IsValid(ent) then
                 if type == "sound" then
                     local anim = zent:GetSequenceName(zent:GetSequence())
-                    print(anim)
                     if anim == "death_zombie_solo_1" then
                         surface.PlaySound("bo6/da/solo/solo_1.mp3")
                     elseif anim == "death_zombie_solo_2" then
@@ -93,6 +97,8 @@ local function CreateTimedScene(modelsTable, effectsTable, sceneDuration, onFini
                         surface.PlaySound("bo6/da/duo/duo_4.mp3")
                     elseif anim == "death_zombie_duo_51" then
                         surface.PlaySound("bo6/da/duo/duo_5.mp3")
+                    elseif anim == "mwz_da_zombie_mangler_t10" then
+                        surface.PlaySound("bo6/da/other/mangler.mp3")
                     end
                 elseif type == "new_rforearm_gib" then
                     ParticleEffectAttach("ins_blood_dismember_limb", PATTACH_POINT_FOLLOW, ent, 6)
@@ -242,12 +248,12 @@ local function CreateTimedScene(modelsTable, effectsTable, sceneDuration, onFini
                     LocalPlayer():ScreenFade(SCREENFADE.IN, Color(150,0,0,100), 0.5, 0) 
                     playRandomSound("bo6/da/bite")
                 elseif type == "slash_spine_blood" then
-                    for i=1,50 do
+                    for i=1,100 do
                         timer.Simple(i/20, function()
                             if !IsValid(ent) then return end
                             local ef = EffectData()
-                            local pos = ent:GetBonePosition(ent:LookupBone("ValveBiped.Bip01_Spine2"))
-                            ef:SetOrigin(pos)
+                            local pos, ang = ent:GetBonePosition(ent:LookupBone("ValveBiped.Bip01_Spine2"))
+                            ef:SetOrigin(pos-ang:Right()*8)
                             util.Effect("BloodImpact", ef)
                             decalBlood(pos, 20)
                         end)
@@ -269,12 +275,10 @@ local function CreateTimedScene(modelsTable, effectsTable, sceneDuration, onFini
                     ParticleEffectAttach("zmb_disciple_hand_blast", PATTACH_POINT_FOLLOW, zent, 11)
                     surface.PlaySound("nz_moo/zombies/vox/_sonoforda/buff/buff_wisp_00.mp3")
                 elseif type == "mangler_ready" then
-                    ParticleEffectAttach("bo3_mangler_charge", PATTACH_POINT_FOLLOW, zent, 13)
-                    surface.PlaySound("nz_moo/zombies/vox/_raz/_t9/mangler/raz_charge_oneshot.mp3")
+                    ParticleEffectAttach("hcea_hunter_ab_charge", PATTACH_POINT_FOLLOW, zent, 13)
                 elseif type == "mangler_shot" then
                     zent:StopParticles()
-                    ParticleEffectAttach("bo3_mangler_blast", PATTACH_POINT_FOLLOW, zent, 13)
-                    surface.PlaySound("nz_moo/zombies/vox/_raz/mangler/shot/fire_0"..math.random(0,3)..".mp3")
+                    ParticleEffectAttach("hcea_hunter_ab_muzzle", PATTACH_POINT_FOLLOW, zent, 13)
                 elseif type == "dog_bark" then
                     playRandomSound("nz_moo/zombies/vox/_devildog/_t9/bark_v2")
                 elseif type == "dog_attack" then
@@ -351,6 +355,7 @@ local function DeathCutscene(anim, data, tabpos, zmodels)
             model:SetPos(ent:GetPos())
             model:AddEffects(1)
             model:SetParent(ent)
+            nzFuncs:TransformModelData(LocalPlayer(), model)
             model:ManipulateBoneScale(model:LookupBone("ValveBiped.Bip01_Head1"), Vector(0,0,0))
             table.insert(spawnedModels, model)
         end

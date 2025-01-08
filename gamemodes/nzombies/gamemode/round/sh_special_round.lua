@@ -94,6 +94,7 @@ nzRound:AddPAPType("Black Ops Cold War", 	"models/codmw2023/other/pack-a-punch.m
 nzRound:AddPAPType("World War II", 			"models/perks/SHperks/ww2.mdl", {})
 nzRound:AddPAPType("Classic", 				"models/wavy_ports/waw/packapunch_machine.mdl", {})
 nzRound:AddPAPType("Halloween", 			"models/wavy_ports/waw/packapunch_machine_halloween.mdl", {})
+nzRound:AddPAPType("Christmas", 			"models/wavy_ports/waw/packapunch_machine_xmas.mdl", {})
 nzRound:AddPAPType("Origins", 				"models/moo/_codz_ports_props/t6/zm/p6_zm_tm_packapunch/moo_codz_p6_zm_tm_packapunch.mdl", {}) 
 nzRound:AddPAPType("Origins Red", 			"models/moo/_codz_ports_props/t6/zm/p6_zm_tm_packapunch_red/moo_codz_p6_zm_tm_packapunch_red.mdl", {}) 
 
@@ -101,8 +102,7 @@ function nzRound:GetPackType(id)
 	if id == nil then 
 		return "models/moo/_codz_ports_props/t7/zm/p7_zm_vending_packapunch/moo_codz_p7_zm_vending_packapunch.mdl"
 	else
-		local check = nzRound.PAPSelectData[id].class
-		return check
+		return nzRound.PAPSelectData[id].class
 	end
 end
 -- [[ Pack-a-Punch Model ]] --
@@ -222,6 +222,7 @@ nzRound:AddBoxType("Nacht Der Untoten", 				"", {})
 nzRound:AddBoxType("Verruckt", 							"", {})
 nzRound:AddBoxType("UGX Coffin", 						"", {})
 nzRound:AddBoxType("Cold War",			 				"", {})
+nzRound:AddBoxType("Present Box",			 			"", {})
 
 nzRound.HudSelectData = nzRound.HudSelectData or {}
 function nzRound:AddHUDType(id, class)
@@ -279,7 +280,9 @@ nzRound:AddHUDType("Fallout", 					"fallout.png", {})
 nzRound:AddHUDType("Miku", 						"miku_hud.png", {}) 
 nzRound:AddHUDType("BSAA", 						"bsaa_hud.png", {}) 
 nzRound:AddHUDType("Deep Rock Galactic", 		"DRG_hud.png", {}) 
-nzRound:AddHUDType("Kell", 		"Kell_hud.png", {}) 
+nzRound:AddHUDType("Kell", 						"Kell_hud.png", {})
+nzRound:AddHUDType("Mob of the Dead (HD)", 		"simple_hud.png", {}) 
+nzRound:AddHUDType("Der Riese Declassified", 	"simple_hud.png", {}) 
 
 function nzRound:GetHUDType(id)
 	if id == nil then 
@@ -333,6 +336,7 @@ nzRound:AddZombieType("Deadbolt(Armored Heavy)", 	"nz_zombie_walker_jup_heavy", 
 nzRound:AddZombieType("Der Eisendrache", 			"nz_zombie_walker_eisendrache", {}) 
 nzRound:AddZombieType("Der Riese", 					"nz_zombie_walker_derriese", {}) 
 nzRound:AddZombieType("Der Riese(Enhanced)", 		"nz_zombie_walker_derriese_enhanced", {}) 
+nzRound:AddZombieType("Der Riese(WWII)", 			"nz_zombie_walker_derriese_wwii", {}) 
 nzRound:AddZombieType("Dead of the Night", 			"nz_zombie_walker_mansion", {}) 
 nzRound:AddZombieType("Die Machine", 				"nz_zombie_walker_diemachine", {}) 
 nzRound:AddZombieType("Die Rise", 					"nz_zombie_walker_dierise", {}) 
@@ -377,6 +381,7 @@ nzRound:AddZombieType("Origins", 					"nz_zombie_walker_origins", {})
 nzRound:AddZombieType("Origins(Classic)", 			"nz_zombie_walker_origins_classic", {}) 
 nzRound:AddZombieType("Outbreak", 					"nz_zombie_walker_outbreak", {}) 
 nzRound:AddZombieType("Police Zombies(IW)",			"nz_zombie_walker_park_cop", {})
+nzRound:AddZombieType("Poolday Zombies",			"nz_zombie_walker_poolday", {})
 nzRound:AddZombieType("Revelations", 				"nz_zombie_walker_genesis", {}) 
 nzRound:AddZombieType("Science Team", 				"nz_zombie_walker_kleiner", {})  
 nzRound:AddZombieType("Sentinel Zombies", 			"nz_zombie_walker_sentinel", {})
@@ -1080,6 +1085,28 @@ end) -- No round func or end func
 nzRound:AddSpecialRoundType("IW Clowns", {
 	specialTypes = {
 		["nz_zombie_special_clown"] = {chance = 100}
+	},
+	specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.5, 2) end, -- Dynamically change spawn speed depending on player count
+	specialCountMod = function() return math.Clamp(nzRound:GetNumber() * #player.GetAllPlaying(), 12, 96) end, -- Modify the count
+}, 	function(dog) -- We want to modify health
+		local round = nzRound:GetNumber()
+		if round == -1 then
+			dog:SetHealth(math.random(500,1000))
+		else
+			local hp = 100
+			for i = 1, nzRound:GetNumber() do 
+			hp = hp * 1.15
+			if hp > 1500 then
+				hp = 1500
+			end
+		end
+		dog:SetHealth(hp)
+	end
+end) -- No round func or end func
+
+nzRound:AddSpecialRoundType("Elf Bombers", {
+	specialTypes = {
+		["nz_zombie_special_elf_bomber"] = {chance = 100}
 	},
 	specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.5, 2) end, -- Dynamically change spawn speed depending on player count
 	specialCountMod = function() return math.Clamp(nzRound:GetNumber() * #player.GetAllPlaying(), 12, 96) end, -- Modify the count

@@ -463,31 +463,7 @@ ENT.SequenceTables = {
 		{
 			SpawnSequence = {spawnsuperfast},
 			MovementSequence = {
-				"nz_supersprint_ad1",
-				"nz_supersprint_ad2",
-				"nz_supersprint_ad3",
-				"nz_supersprint_ad4",
-				"nz_supersprint_ad5",
-				"nz_supersprint_ad6",
-				"nz_supersprint_ad7",
-				"nz_supersprint_ad8",
-				"nz_supersprint_ad9",
-				"nz_supersprint_ad10",
-				"nz_supersprint_ad11",
-				"nz_supersprint_ad12",
-				"nz_supersprint_ad13",
-
-				"nz_supersprint_au1",
-				"nz_supersprint_au2",
-				"nz_supersprint_au3",
-				"nz_supersprint_au4",
-				"nz_supersprint_au6",
-				"nz_supersprint_au8",
-				"nz_supersprint_au9",
-				"nz_supersprint_au12",
-				"nz_supersprint_au20",
-				"nz_supersprint_au21",
-				"nz_supersprint_au25",
+				"nz_hazmat_sprint_01",
 			},
 			LowgMovementSequence = {
 				"nz_supersprint_lowg",
@@ -741,7 +717,7 @@ function ENT:OnSpawn(animation, grav, dirt)
 			self:EmitSound(finalsound)
 		end
 
-		ParticleEffect("bo3_zombie_spawn",self:GetPos()+Vector(0,0,1),self:GetAngles(),self)
+		ParticleEffect("zmb_zombie_spawn_dirt",self:GetPos()+Vector(0,0,1),self:GetAngles(),self)
 		self:EmitSound("nz_moo/zombies/spawn/_generic/dirt/dirt_0"..math.random(0,2)..".mp3",100,math.random(95,105))
 	end
 

@@ -768,7 +768,9 @@ function ENT:PostTookDamage(dmginfo)
 				self:EmitSound(self.ArmorBreakSounds[math.random(#self.ArmorBreakSounds)], 95)	
 				attacker:EmitSound(self.ArmorBreakSounds[math.random(#self.ArmorBreakSounds)], SNDLVL_GUNFIRE)
 
-				attacker:GivePoints(90)
+				if attacker:IsPlayer() then
+					attacker:GivePoints(90)
+				end
 
 				self:ManipulateBoneScale(self:LookupBone("j_head_attach"), Vector(0.00001,0.00001,0.00001))
 				ParticleEffectAttach("npcarmor_break", PATTACH_POINT_FOLLOW, self, 10)
@@ -793,7 +795,9 @@ function ENT:PostTookDamage(dmginfo)
 				self:EmitSound(self.ArmorBreakSounds[math.random(#self.ArmorBreakSounds)], 95)	
 				attacker:EmitSound(self.ArmorBreakSounds[math.random(#self.ArmorBreakSounds)], SNDLVL_GUNFIRE)
 
-				attacker:GivePoints(90)
+				if attacker:IsPlayer() then
+					attacker:GivePoints(90)
+				end
 
 				self:ManipulateBoneScale(self:LookupBone("j_spine4_attach"), Vector(0.00001,0.00001,0.00001))
 				ParticleEffectAttach("npcarmor_break", PATTACH_POINT_FOLLOW, self, 9)

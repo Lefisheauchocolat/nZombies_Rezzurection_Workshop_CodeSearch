@@ -21,7 +21,7 @@ local function GetGumCost()
 
 	local cur_round = nzRound:GetNumber()
 	if !cur_round or cur_round < 0 then
-		return price_data[3].price
+		return price_data[3]
 	end
 
 	for num, rounds in pairs(rounds_prices) do

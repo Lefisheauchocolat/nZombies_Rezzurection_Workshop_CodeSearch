@@ -487,6 +487,8 @@ nzMapping:AddSaveModule("ElecSpawns", {
 				angle = v:GetAngles(),
 				tab = {
 					model = v:GetPowerSwitchModel(),
+					activetype = v:GetActivationType(),
+					dmgtype = v:GetDmgType(),
 					limited = v:GetLimited(),
 					aoe = v:GetAOE(),
 					requireall = v:GetRequireAll(),
@@ -543,6 +545,39 @@ nzMapping:AddSaveModule("BlockSpawns", {
 	end,
 	cleanents = {"wall_block"},
 })
+
+nzMapping:AddSaveModule("ZombieBlockSpawns", {
+	savefunc = function()
+		local zombie_block_spawns = {}
+		for _, v in pairs(ents.FindByClass("zombie_wall_block")) do
+			-- Convert the table to a flag string - if it even has any
+			local data = v:GetDoorData()
+			local flagstr
+			if data then
+				flagstr = ""
+				for k2, v2 in pairs(data) do
+					flagstr = flagstr .. k2 .."=" .. v2 .. ","
+				end
+				flagstr = string.Trim(flagstr, ",")
+			end
+
+			table.insert(zombie_block_spawns, {
+			pos = v:GetPos(),
+			angle = v:GetAngles(),
+			model = v:GetModel(),
+			flags = flagstr,
+			})
+		end
+		return zombie_block_spawns
+	end,
+	loadfunc = function(data)
+		for k,v in pairs(data) do
+			nzMapping:ZombieBlockSpawn(v.pos, v.angle, v.model, v.flags)
+		end
+	end,
+	cleanents = {"zombie_wall_block"},
+})
+
 
 nzMapping:AddSaveModule("RandomBoxSpawns", {
 	savefunc = function()

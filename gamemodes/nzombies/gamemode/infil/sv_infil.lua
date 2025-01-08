@@ -14,7 +14,7 @@ local function StartInfil()
         infil.TeamChoose = 2
         infil:Spawn()
     end
-    nzFuncs:FadeIn(1, 3)
+    nzFuncs:FadeIn(1, 1)
 end
 
 hook.Add("OnGameBegin", "nZR.StartInfil", function()

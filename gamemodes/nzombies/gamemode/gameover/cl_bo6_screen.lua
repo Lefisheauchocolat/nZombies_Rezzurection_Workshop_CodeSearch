@@ -58,16 +58,19 @@ timer.Simple(2, function()
     FindAndHidePanelWithFont()
 end)
 
-local function open_game_over(is_success)
+local function open_game_over(endtype)
     local round = nzRound:GetNumber()
     local gametype = "STANDARD"
     if nzMapping.Settings.timedgame == 1 then
         gametype = "TIMED"
     end
-    local text = "ELIMINATED"
+    local text = nzSettings:GetSimpleSetting("BO6_GO_LoseTitle", "ELIMINATED")
     local bg = gameoverBg
-    if is_success then
-        text = "SUCCESSFUL EXFIL"
+    if endtype == "win" then
+        text = nzSettings:GetSimpleSetting("BO6_GO_WinTitle", "SUCCESSFUL EXFIL")
+        bg = exfilBg
+    elseif endtype == "quest" then
+        text = "MAIN QUEST COMPLETED"
         bg = exfilBg
     end
 
@@ -116,7 +119,7 @@ local function open_game_over(is_success)
     local roundsSurvived = vgui.Create("DLabel", frame)
     roundsSurvived:SetSize(ScrW(), He(30))
     roundsSurvived:SetPos(0, He(230))
-    roundsSurvived:SetText("You Survived "..round.." Rounds")
+    roundsSurvived:SetText(string.format(nzSettings:GetSimpleSetting("BO6_GO_RoundText", "You Survived %s Rounds"), tostring(round)))
     roundsSurvived:SetFont("BO6_Exfil26")
     roundsSurvived:SetContentAlignment(5)
     roundsSurvived:SetTextColor(Color(255, 255, 255))
@@ -193,7 +196,7 @@ local function open_game_over(is_success)
         surface.SetMaterial(salvageIcon)
         surface.DrawTexturedRect(We(625), He(4), We(28), He(28))
         draw.SimpleText("SALVAGE", "BO6_Exfil24", We(680), He(5), color_white, TEXT_ALIGN_CENTER)
-        draw.SimpleText("0", "BO6_Exfil72", We(680), He(55), color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        draw.SimpleText(LocalPlayer():GetNWInt('Salvage', 0), "BO6_Exfil72", We(680), He(55), color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
 
     local Avatar = vgui.Create("AvatarImage", downPanel)
@@ -221,7 +224,7 @@ local function open_game_over(is_success)
 end
 
 net.Receive("nZr.ShowBO6GameOver", function()
-    local bool = net.ReadBool()
+    local str = net.ReadString()
 
     local storedFunction = hook.GetTable()["OnRoundEnd"]["nzu_Scoreboard_ShowOnGameOver"]
     hook.Remove("OnRoundEnd", "nzu_Scoreboard_ShowOnGameOver")
@@ -231,7 +234,7 @@ net.Receive("nZr.ShowBO6GameOver", function()
         LocalPlayer():ScreenFade(SCREENFADE.OUT, color_black, 1, 1)
     end)
     timer.Simple(nzMapping.Settings.gocamerawait-1, function()
-        open_game_over(bool)
+        open_game_over(str)
     end)
     timer.Simple(nzMapping.Settings.gocamerawait+0.01, function()
         FindAndHidePanelWithFont()

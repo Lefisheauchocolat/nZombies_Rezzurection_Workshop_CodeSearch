@@ -749,6 +749,62 @@ hook.Add("SetupMove", "nzPHDEffects", function(ply, mv, cmd)
 	end
 end)
 
+hook.Add("OnPlayerHitGround", "nzPlayerHitGround", function(ply, inWater, onFloater, speed)
+	if ply:HasPerk("phd") and (speed >= 400 or (ply.DivingGroundZ and ply:GetPos().z <= ply.DivingGroundZ)) then
+		ply.DivingGroundZ = nil
+		/*if speed < 400 and ply:GetDiving() and ply:GetNW2Float("nz.PHDDelay", 0) > CurTime() then
+			return
+		end*/
+
+		local mult = math.Clamp(math.floor(speed/400), 1, 3)
+
+		local maxpunch = 2*mult
+		ply:ViewPunch(Angle(3.5*mult, math.random(-maxpunch,maxpunch), math.random(-maxpunch,maxpunch)))
+
+		//only for our self (clientside in multiplayer)
+		if IsFirstTimePredicted() and (game.SinglePlayer() or CLIENT) then
+			local fx = EffectData()
+			fx:SetOrigin(ply:GetPos() + vector_up*4)
+			fx:SetAngles(angle_zero)
+			util.Effect("nz_phd_flop", fx)
+
+			ply:EmitSound("NZ.PHD.Wubz")
+			ply:EmitSound("NZ.PHD.Impact")
+
+			util.ScreenShake(ply:GetPos(), 10*mult, 5, math.max(1*mult, 1.2), 200*mult)
+		end
+
+		if SERVER then
+			/*if speed < 400 and ply:GetDiving() then
+				ply:SetNW2Float("nz.PHDDelay", CurTime() + 2)
+			end*/
+
+			//network to other clients in multiplayer
+			if !game.SinglePlayer() then
+				local filter = RecipientFilter()
+				filter:AddPAS(ply:GetPos())
+				filter:RemovePlayer(ply)
+
+				ply:EmitSound("NZ.PHD.Wubz", SNDLVL_GUNFIRE, math.random(97,103), 1, CHAN_USER_BASE, 0, 0, filter)
+				ply:EmitSound("NZ.PHD.Impact", SNDLVL_NORM, math.random(97,103), 1, CHAN_VOICE_BASE, 0, 0, filter)
+
+				filter:RemoveAllPlayers()
+				filter:AddPVS(ply:GetPos())
+				filter:RemovePlayer(ply)
+
+				local fx = EffectData()
+				fx:SetOrigin(ply:GetPos() + vector_up*4)
+				fx:SetAngles(angle_zero)
+				util.Effect("nz_phd_flop", fx, filter)
+
+				util.ScreenShake(ply:GetPos(), 10*mult, 5, math.max(1*mult, 1.2), 200*mult, true, filter)
+			end
+
+			util.BlastDamage(ply:GetActiveWeapon(), ply, ply:GetPos(), 150*mult, 4000*mult)
+		end
+	end
+end)
+
 hook.Add("EntityTakeDamage", "nzTortoiseBuildables", function(ent, dmginfo)
 	if ent.GetTrapClass and not ent.NZIgnoreTortoiseBuff then
 		local ply = ent:GetOwner()
@@ -873,12 +929,12 @@ hook.Add("TFA_Reload", "nzCherryEffects", function(wep)
 						ParticleEffectAttach("bo3_waffe_eyes", PATTACH_POINT_FOLLOW, v, 4)
 					end
 				end
-				
-				if v:IsValidZombie() and !v:GetSpecialAnimation() and !v.IsMooSpecial and !v:GetCrawler() and !(v.NZBossType or v.IsMooBossZombie) then
-					v:PerformStun( math.Clamp((dmg * scale) / 10, 1, 4) )
-				end
 
 				if SERVER then
+				
+					if v:IsValidZombie() and !v:GetSpecialAnimation() and !v.IsMooSpecial and !v:GetCrawler() and !(v.NZBossType or v.IsMooBossZombie) then
+						v:PerformStun( math.Rand(1,3) )
+					end
 					--[[if v.TempBehaveThread and v.SparkySequences then
 						ParticleEffectAttach("bo3_shield_electrify_zomb", PATTACH_ABSORIGIN_FOLLOW, v, 2)
 						if v.PlaySound and v.ElecSounds then
@@ -938,6 +994,7 @@ end)
 if CLIENT then
 	local zmhud_icon_headshot = Material("nz_moo/icons/hud_headshoticon.png", "smooth unlitgeneric")
 	local zmhud_icon_marker = Material("nz_moo/icons/marker.png", "smooth unlitgeneric")
+	local zmhud_overlay_stink = Material("nz_moo/overlay/i_vulture_hud_glow_stink.png", "smooth unlitgeneric")
 
 	local blur_mat = Material("pp/bokehblur")
 	local function MyDrawBokehDOF(fac)
@@ -1023,6 +1080,11 @@ if CLIENT then
 			MyDrawBokehDOF(math.Remap(THX_SOUND_FX, 0, 1, 0, 1.5))
 		end
 
+		if !ply:ShouldDrawHUD() then return end
+		if IsValid(ply:GetObserverTarget()) then
+			ply = ply:GetObserverTarget()
+		end
+
 		if ply:HasVultureStink() then
 			stinkfade = math.Approach(stinkfade, 1, FrameTime()*6)
 		end
@@ -1033,6 +1095,10 @@ if CLIENT then
 			vulture_tab["$pp_colour_colour"] = 1 + (0.1*stinkfade)
 
 			DrawColorModify(vulture_tab)
+
+			surface.SetDrawColor(ColorAlpha(color_white, 255*stinkfade))
+			surface.SetMaterial(zmhud_overlay_stink)
+			surface.DrawTexturedRect(0, 0, ScrW(), ScrH())
 
 			stinkfade = math.max(stinkfade - math.min(FrameTime()*4, engine.TickInterval()*5), 0)
 		end
@@ -1046,6 +1112,8 @@ if CLIENT then
 		local ply = LocalPlayer()
 		if not IsValid(ply) then return end
 
+		if !ply:ShouldDrawHUD() then return end
+		if !ply:ShouldDrawGunHUD() then return end
 		if IsValid(ply:GetObserverTarget()) then
 			ply = ply:GetObserverTarget()
 		end
@@ -1096,6 +1164,14 @@ if CLIENT then
 	local function DeathHalo()
 		local ply = LocalPlayer()
 		if not IsValid(ply) then return end
+
+		if !ply:ShouldDrawHUD() then return end
+		if !ply:ShouldDrawPerksHUD() then return end
+
+		if IsValid(ply:GetObserverTarget()) then
+			ply = ply:GetObserverTarget()
+		end
+
 		if not ply:HasPerk("death") then return end
 
 		local pos = ply:GetPos()

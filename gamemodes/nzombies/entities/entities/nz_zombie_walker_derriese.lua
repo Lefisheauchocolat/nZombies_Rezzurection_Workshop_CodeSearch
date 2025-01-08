@@ -246,32 +246,17 @@ local SprintJumpSequences = {
 	{seq = "nz_barricade_sprint_1"},
 	{seq = "nz_barricade_sprint_2"},
 }
+
 local walksounds = {
-	Sound("nz_moo/zombies/vox/_proto/amb/amb_00.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/amb/amb_01.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/amb/amb_02.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/amb/amb_03.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/amb/amb_04.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/amb/amb_05.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/amb/amb_06.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/amb/amb_07.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/amb/amb_08.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/amb/amb_09.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/amb/amb_10.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/amb/amb_11.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/amb/amb_12.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/amb/amb_13.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/amb/amb_14.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/amb/amb_15.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/amb/amb_16.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/amb/amb_17.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/amb/amb_18.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/amb/amb_19.mp3"),
-	Sound("nz_moo/zombies/vox/_proto/amb/amb_20.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/amb/amb_00.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/amb/amb_01.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/amb/amb_02.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/amb/amb_03.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/amb/amb_04.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/amb/amb_05.mp3"),
 }
 
 local runsounds = {
-	Sound("nz_moo/zombies/vox/_proto/sprint/sprint_07.mp3"),
 	Sound("nz_moo/zombies/vox/_classic/sprint/sprint_00.mp3"),
 	Sound("nz_moo/zombies/vox/_classic/sprint/sprint_01.mp3"),
 	Sound("nz_moo/zombies/vox/_classic/sprint/sprint_02.mp3"),
@@ -1077,12 +1062,12 @@ ENT.DeathSounds = {
 }
 
 ENT.ElecSounds = {
-	"nz_moo/zombies/vox/_classic/elec/elec_00.mp3",
-	"nz_moo/zombies/vox/_classic/elec/elec_01.mp3",
-	"nz_moo/zombies/vox/_classic/elec/elec_02.mp3",
-	"nz_moo/zombies/vox/_classic/elec/elec_03.mp3",
-	"nz_moo/zombies/vox/_classic/elec/elec_04.mp3",
-	"nz_moo/zombies/vox/_classic/elec/elec_05.mp3"
+	Sound("nz_moo/zombies/vox/_classic/elec/elec_00.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/elec/elec_01.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/elec/elec_02.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/elec/elec_03.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/elec/elec_04.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/elec/elec_05.mp3")
 }
 
 ENT.LaunchSounds = {
@@ -1100,51 +1085,51 @@ ENT.LaunchSounds = {
 }
 
 ENT.NukeDeathSounds = {
-	"nz_moo/zombies/vox/nuke_death/soul_00.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_01.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_02.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_03.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_04.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_05.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_06.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_07.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_08.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_09.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_10.mp3"
+	Sound("nz_moo/zombies/vox/nuke_death/soul_00.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_01.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_02.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_03.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_04.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_05.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_06.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_07.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_08.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_09.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_10.mp3")
 }
 
 ENT.AttackSounds = {
-	"nz_moo/zombies/vox/_proto/attack/attack_00.mp3",
-	"nz_moo/zombies/vox/_proto/attack/attack_01.mp3",
-	"nz_moo/zombies/vox/_proto/attack/attack_02.mp3",
-	"nz_moo/zombies/vox/_proto/attack/attack_03.mp3",
-	"nz_moo/zombies/vox/_proto/attack/attack_04.mp3",
-	"nz_moo/zombies/vox/_proto/attack/attack_05.mp3",
-	"nz_moo/zombies/vox/_proto/attack/attack_06.mp3",
-	"nz_moo/zombies/vox/_proto/attack/attack_07.mp3",
-	"nz_moo/zombies/vox/_proto/attack/attack_08.mp3",
-	"nz_moo/zombies/vox/_proto/attack/attack_09.mp3",
-	"nz_moo/zombies/vox/_proto/attack/attack_10.mp3",
-	"nz_moo/zombies/vox/_proto/attack/attack_11.mp3",
-	"nz_moo/zombies/vox/_proto/attack/attack_12.mp3",
-	"nz_moo/zombies/vox/_proto/attack/attack_13.mp3",
+	Sound("nz_moo/zombies/vox/_proto/attack/attack_00.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/attack/attack_01.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/attack/attack_02.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/attack/attack_03.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/attack/attack_04.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/attack/attack_05.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/attack/attack_06.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/attack/attack_07.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/attack/attack_08.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/attack/attack_09.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/attack/attack_10.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/attack/attack_11.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/attack/attack_12.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/attack/attack_13.mp3"),
 
-	"nz_moo/zombies/vox/_classic/attack/attack_00.mp3",
-	"nz_moo/zombies/vox/_classic/attack/attack_01.mp3",
-	"nz_moo/zombies/vox/_classic/attack/attack_02.mp3",
-	"nz_moo/zombies/vox/_classic/attack/attack_03.mp3",
-	"nz_moo/zombies/vox/_classic/attack/attack_04.mp3",
-	"nz_moo/zombies/vox/_classic/attack/attack_05.mp3",
-	"nz_moo/zombies/vox/_classic/attack/attack_06.mp3",
-	"nz_moo/zombies/vox/_classic/attack/attack_07.mp3",
-	"nz_moo/zombies/vox/_classic/attack/attack_08.mp3",
-	"nz_moo/zombies/vox/_classic/attack/attack_09.mp3",
-	"nz_moo/zombies/vox/_classic/attack/attack_10.mp3",
-	"nz_moo/zombies/vox/_classic/attack/attack_11.mp3",
-	"nz_moo/zombies/vox/_classic/attack/attack_12.mp3",
-	"nz_moo/zombies/vox/_classic/attack/attack_13.mp3",
-	"nz_moo/zombies/vox/_classic/attack/attack_14.mp3",
-	"nz_moo/zombies/vox/_classic/attack/attack_15.mp3",
+	Sound("nz_moo/zombies/vox/_classic/attack/attack_00.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/attack/attack_01.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/attack/attack_02.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/attack/attack_03.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/attack/attack_04.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/attack/attack_05.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/attack/attack_06.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/attack/attack_07.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/attack/attack_08.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/attack/attack_09.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/attack/attack_10.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/attack/attack_11.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/attack/attack_12.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/attack/attack_13.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/attack/attack_14.mp3"),
+	Sound("nz_moo/zombies/vox/_classic/attack/attack_15.mp3")
 }
 
 ENT.CustomWalkFootstepsSounds = {
@@ -1246,7 +1231,7 @@ function ENT:OnSpawn(animation, grav, dirt)
 			self:EmitSound(finalsound)
 		end
 
-		ParticleEffect("bo3_zombie_spawn",self:GetPos()+Vector(0,0,1),self:GetAngles(),self)
+		ParticleEffect("zmb_zombie_spawn_dirt",self:GetPos()+Vector(0,0,1),self:GetAngles(),self)
 		self:EmitSound("nz_moo/zombies/spawn/_generic/dirt/dirt_0"..math.random(0,2)..".mp3",100,math.random(95,105))
 	end
 
@@ -1254,7 +1239,7 @@ function ENT:OnSpawn(animation, grav, dirt)
 		self:SolidMaskDuringEvent(MASK_PLAYERSOLID)
 		self:SetSpecialAnimation(true)
 		self:SetIsBusy(true)
-
+		
 		self:PlaySequenceAndMove(animation, {gravity = grav})
 
 		self:SetSpecialAnimation(false)
@@ -1262,6 +1247,7 @@ function ENT:OnSpawn(animation, grav, dirt)
 		self:CollideWhenPossible()
 	end
 end
+
 function ENT:Sound()
 	if self.BehindSoundDistance > 0 -- We have enabled behind sounds
 		and IsValid(self.Target)

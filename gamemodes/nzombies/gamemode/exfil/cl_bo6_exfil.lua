@@ -45,6 +45,12 @@ surface.CreateFont("BO6_Exfil96", {
 	size = He(96),
 })
 
+surface.CreateFont("BO6_Exfil72", {
+    font = "KairosSansW06-CondMedium",
+	extended = true,
+	size = He(72),
+})
+
 surface.CreateFont("BO6_Exfil40", {
     font = "KairosSansW06-CondMedium",
 	extended = true,
@@ -82,6 +88,12 @@ surface.CreateFont("BO6_Exfil18", {
 	size = He(18),
 })
 
+surface.CreateFont("BO6_Exfil12", {
+    font = "Core Sans D 35 Regular",
+	extended = true,
+	size = He(12),
+})
+
 local function RemoveExfilHUD()
     hudActive = false
     timer.Remove("BO6HUDTimer")
@@ -99,23 +111,32 @@ local function StartExfilHUD(duration, stage)
     end)
 end
 
-hook.Add("HUDPaint", "DrawCustomHUD", function()
-    if not hudActive then return end
+local exfil_lastStage = 0
+local exfil_alpha = 0
+hook.Add("HUDPaint", "DrawExfilTaskHUD", function()
+    if not hudActive or !GetConVar("cl_drawhud"):GetBool() then exfil_lastStage = 0 return end
 
+    if exfil_lastStage != currentStage and ((exfil_lastStage == 0 and currentStage == 1) or currentStage == 3) then
+        exfil_lastStage = currentStage
+        exfil_alpha = 0
+    else
+        exfil_alpha = math.min(exfil_alpha+FrameTime()/0.01, 255)
+    end
+
+    local alp = exfil_alpha/255
     local x, y, width, height = We(50), He(200), We(300), He(150)
-
     local x, y = We(50), He(200)
     local maxWidth, maxHeight = We(300), He(150)
     local bgWidth, bgHeight = ScaleToAspect(1920, 1080, maxWidth, maxHeight)
 
-    surface.SetDrawColor(200, 190, 0, 175)
+    surface.SetDrawColor(200, 190, 0, 175*alp)
     surface.SetMaterial(exfilBg)
     surface.DrawTexturedRect(x, y, bgWidth, bgHeight)
 
     local iconMaxWidth, iconMaxHeight = We(40), He(40)
     local iconWidth, iconHeight = ScaleToAspect(64, 64, iconMaxWidth, iconMaxHeight)
 
-    surface.SetDrawColor(255, 125, 0, 255)
+    surface.SetDrawColor(255, 125, 0, 255*alp)
     surface.SetMaterial(taskIcon)
     surface.DrawTexturedRect(x - iconWidth / 2, y - iconHeight / 2, iconWidth, iconHeight)
 
@@ -128,20 +149,20 @@ hook.Add("HUDPaint", "DrawCustomHUD", function()
         objectiveText = "Enter Heli and Escape."
     end
 
-    draw.SimpleText(objectiveText, "BO6_Exfil24", x + We(10), y + He(10), Color(255, 255, 255, 255), TEXT_ALIGN_LEFT)
+    draw.SimpleText(objectiveText, "BO6_Exfil24", x + We(10), y + He(10), Color(255, 255, 255, 255*alp), TEXT_ALIGN_LEFT)
 
     if currentStage != 3 then
-        draw.SimpleText("Zombies Remaining:", "BO6_Exfil24", x + We(10), y + He(55), Color(255, 255, 255, 255), TEXT_ALIGN_LEFT)
-        draw.SimpleText(tostring(zombiesRemaining), "BO6_Exfil24", x + width - We(40), y + He(55), Color(255, 255, 255, 255), TEXT_ALIGN_RIGHT)
+        draw.SimpleText("Zombies Remaining:", "BO6_Exfil24", x + We(10), y + He(55), Color(255, 255, 255, 255*alp), TEXT_ALIGN_LEFT)
+        draw.SimpleText(tostring(zombiesRemaining), "BO6_Exfil24", x + width - We(40), y + He(55), Color(255, 255, 255, 255*alp), TEXT_ALIGN_RIGHT)
     end
 
     local timeBarX, timeBarY, timeBarW, timeBarH = We(55), He(310), We(290), He(30)
-    surface.SetDrawColor(255, 255, 255, 255)
+    surface.SetDrawColor(255, 255, 255, 255*alp)
     surface.SetMaterial(exfilBg2)
     surface.DrawTexturedRect(timeBarX, timeBarY, timeBarW, timeBarH)
 
-    draw.SimpleText("Time Remaining", "BO6_Exfil24", timeBarX + We(10), timeBarY + He(5), Color(255, 200, 0, 255), TEXT_ALIGN_LEFT)
-    draw.SimpleText(string.ToMinutesSeconds(timeRemaining), "BO6_Exfil24", timeBarX + timeBarW - We(10), timeBarY + He(5), Color(255, 200, 0, 255), TEXT_ALIGN_RIGHT)
+    draw.SimpleText("Time Remaining", "BO6_Exfil24", timeBarX + We(10), timeBarY + He(5), Color(255, 200, 0, 255*alp), TEXT_ALIGN_LEFT)
+    draw.SimpleText(string.ToMinutesSeconds(timeRemaining), "BO6_Exfil24", timeBarX + timeBarW - We(10), timeBarY + He(5), Color(255, 200, 0, 255*alp), TEXT_ALIGN_RIGHT)
 end)
 
 net.Receive("nZr.ExfilTimer", function()
@@ -186,144 +207,9 @@ hook.Add("Think", "BO6CheckPlayMusic", function()
 end)
 
 ----------------------------------------------------
--------------BO6 Character Replics Part------------
-----------------------------------------------------
-
-local subtitlesTab = {
-    ["missed1.mp3"] = "Hey, something came up, we can't come anymore. You'll have to wait a few.",
-    ["missed2.mp3"] = "Sorry guys, you missed your chance this time, you'll have to hold out for a lot longer.",
-    ["missed3.mp3"] = "You guts missed your window we're gonna have to wait for another one.",
-    ["missed4.mp3"] = "Looks like you missed your stop, we'll try to come around back as soon as we can.",
-
-    ["ready1.mp3"] = "We're ready to come pick you up, just tell us when.",
-    ["ready2.mp3"] = "We're ready on our end, let us know when.",
-    ["ready3.mp3"] = "Call us when you're ready, we're available to pick you up.",
-    ["ready4.mp3"] = "We're ready to come get you when you are.",
-
-    ["Arriving1.mp3"] = "I'll be there in about some minutes.",
-    ["Arriving2.mp3"] = "Hold tight, we'll be there shortly.",
-    ["Arriving3.mp3"] = "We're almost there, keep the area clear!",
-    ["Arriving4.mp3"] = "Eyes to the skies gentlemen, we'll be there soon.",
-    
-    ["Clear1.mp3"] = "Clear the extraction point, we can't get a clear landing!",
-    ["Clear2.mp3"] = "There's too many of them, we can't land like this.",
-    ["Clear3.mp3"] = "Clear the area! We can't get down!",
-    ["Clear4.mp3"] = "Clear the area out! We can't land like this.",
-    
-    ["Land1.mp3"] = "We're down, come on! Hurry up!",
-    ["Land2.mp3"] = "Hurry up, make it fast!",
-    ["Land3.mp3"] = "We can't hold on for long down here, hurry up!",
-    ["Land4.mp3"] = "Faster, come on hurry up we have to get out of here!",
-
-    ["hurry1.mp3"] = "Hurry up, we can't stay here long!",
-    ["hurry2.mp3"] = "Come on, there's no time to waste we cant stick around!",
-    ["hurry3.mp3"] = "Stop screwing around, hurry up!",
-    ["hurry4.mp3"] = "We don't have much time guys, come on!",
-    
-    ["Leave1.mp3"] = "Okay, looks like we've got everyone. Come on, we're getting out of here.",
-    ["Leave2.mp3"] = "Everyone on board and we're heading out.",
-    ["Leave3.mp3"] = "Looks like everyone's here, let's go.",
-    ["Leave4.mp3"] = "Ugh, that was close, don't ya'll think?",
-    
-    ["Loss1.mp3"] = "Shit! We didn't get anyone! Fucking hell...",
-    ["Loss2.mp3"] = "Dammit! We couldn't help them...",
-    ["Loss3.mp3"] = "Extraction failed, we couldn't get 'em.",
-    ["Loss4.mp3"] = "May your deaths not be in vain... Let's go...",
-
-    ["damage1.mp3"] = "Gah! These sons a bitches are tearin' right through this thing!",
-    ["damage2.mp3"] = "Get these dead sons a bitches off the helicopter!",
-    ["damage3.mp3"] = "They're tearin right through this thing!",
-    ["damage4.mp3"] = "Keep them off of me, they destroy this thing, we're all screwed!",
-
-    ["destruction1.mp3"] = "Augh, son of a bitch!",
-    ["destruction2.mp3"] = "Oh, God dammit!",
-    ["destruction3.mp3"] = "Agh! Shit they destroyed this thing!",
-    ["destruction4.mp3"] = "No! Grgaa-",
-}
-
-local activeDialog = {
-    name = "",
-    text = "",
-    icon = nil,
-    sound = nil,
-    endTime = 0
-}
-
-local voiceOvers = {
-    ["Exfil_Unavailable"] = {"missed1.mp3", "missed2.mp3", "missed3.mp3", "missed4.mp3"},
-    ["Exfil_Available"] = {"ready1.mp3", "ready2.mp3", "ready3.mp3", "ready4.mp3"},
-    ["Exfil_Arriving"] = {"Arriving1.mp3","Arriving2.mp3","Arriving3.mp3","Arriving4.mp3"},
-    ["Exfil_Clearing"] = {"Clear1.mp3","Clear2.mp3","Clear3.mp3","Clear4.mp3"},
-    ["Exfil_GetIn"] = {"Land1.mp3","Land2.mp3","Land3.mp3","Land4.mp3"},
-    ["Exfil_Faster"] = {"hurry1.mp3", "hurry2.mp3", "hurry3.mp3", "hurry4.mp3"},
-    ["Exfil_Success"] = {"Leave1.mp3","Leave2.mp3","Leave3.mp3","Leave4.mp3"},
-    ["Exfil_Fail"] = {"Loss1.mp3","Loss2.mp3","Loss3.mp3","Loss4.mp3"},
-    ["Exfil_Damage"] = {"damage1.mp3", "damage2.mp3", "damage3.mp3", "damage4.mp3"},
-    ["Exfil_Destroyed"] = {"destruction1.mp3", "destruction2.mp3", "destruction3.mp3", "destruction4.mp3"},
-}
-
-local function DisplayCharacterDialog(name, iconPath, soundPath)
-    local text = subtitlesTab[soundPath] or "???"
-    activeDialog.name = name
-    activeDialog.text = text
-    activeDialog.icon = Material(iconPath)
-    activeDialog.endTime = CurTime() + #text/12
-    if soundPath then
-        surface.PlaySound("bo6/exfil/vox/pilot/"..soundPath)
-    end
-end
-
-local function PlayDialog(voiceover)
-    local tab = voiceOvers[voiceover]
-    if istable(tab) and string.match(voiceover, "Exfil_") then
-        DisplayCharacterDialog("Raptor One", "bo6/exfil/pilot.png", table.Random(tab))
-    end
-end
-
-function nz_AddCustomDialog(name, path, dialog)
-    if voiceOvers[name] then
-        table.insert(voiceOvers[name], path)
-    else
-        voiceOvers[name] = {}
-        table.insert(voiceOvers[name], path)
-    end
-    subtitlesTab[path] = dialog
-end
-
-function nz_PlayCustomDialog(name, icon, voiceover)
-    local tab = voiceOvers[voiceover]
-    if istable(tab) then
-        DisplayCharacterDialog(name, icon, table.Random(tab))
-    end
-end
-
-hook.Add("HUDPaint", "BO6DrawCharacterDialog", function()
-    if CurTime() > activeDialog.endTime then return end
-    local screenW, screenH = ScrW(), ScrH()
-    local nameColor = Color(255, 255, 255)
-    local dialogX = screenW / 2
-    local dialogY = screenH / 1.3
-    local iconMaxWidth, iconMaxHeight = We(700 / 4), He(1076 / 4)
-    local iconWidth, iconHeight = ScaleToAspect(700, 1076, iconMaxWidth, iconMaxHeight)
-    local iconX = screenW - iconWidth - We(50)
-    local iconY = screenH / 2 - iconHeight / 2 - He(25)
-    if activeDialog.icon then
-        surface.SetDrawColor(255, 255, 255, 255)
-        surface.SetMaterial(activeDialog.icon)
-        surface.DrawTexturedRect(iconX, iconY, iconWidth, iconHeight)
-    end
-    draw.SimpleText(string.upper(activeDialog.name), "BO6_Exfil32", iconX + iconWidth / 2, iconY + iconHeight + He(10), nameColor, TEXT_ALIGN_CENTER)
-    local markupText = markup.Parse("<font=BO6_Exfil32_2><color=60,165,255>" .. activeDialog.name..": " .. "</color> " .. activeDialog.text .. "</font>")
-    markupText:Draw(dialogX, dialogY, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-end)
-
-net.Receive("nZr.ExfilVoice", function()
-    local voiceover = net.ReadString()
-    PlayDialog(voiceover)
-end)
-----------------------------------------------------
 -----------------BO6 Exfil Point Part---------------
 ----------------------------------------------------
+
 local exfilMat = exfilIcon2
 local exfilText = ""
 
@@ -457,6 +343,7 @@ local function CreateTimedScene(modelsTable, soundTable, sceneDuration, onFinish
     hook.Add("CalcView", "TimedSceneCameraView", function(player, origin, angles, fov)
         local view = {}
         local cam = spawnedModels["Camera"]
+        local cfov = 50
         if IsValid(cam) then
             local num = 1
             local addang = Angle(0,0,0)
@@ -471,11 +358,13 @@ local function CreateTimedScene(modelsTable, soundTable, sceneDuration, onFinish
                 addang = Angle(-10,0,0)
             elseif cam:GetSequenceName(cam:GetSequence()) == "exfil_cam_success_3" then
                 num = 2
+            elseif cam:GetSequenceName(cam:GetSequence()) == "exfil_cam_fail_liberty" then
+                cfov = 45
             end
             local att = cam:GetAttachment(num)
             view.origin = att.Pos
             view.angles = att.Ang+addang
-            view.fov = 50
+            view.fov = cfov
         
             return view
         end
@@ -489,8 +378,8 @@ local function CreateTimedScene(modelsTable, soundTable, sceneDuration, onFinish
                 local cycle = (timeElapsed / animData.duration) + animData.cycle
                 model:SetCycle(cycle % 1)
                 if name == "Heli" then
-                    model:ManipulateBoneAngles(25, model:GetManipulateBoneAngles(25)+Angle(0,2,0))
-                    model:ManipulateBoneAngles(40, model:GetManipulateBoneAngles(40)+Angle(0,0,-2))
+                    model:ManipulateBoneAngles(25, model:GetManipulateBoneAngles(25)+Angle(0,5,0))
+                    model:ManipulateBoneAngles(40, model:GetManipulateBoneAngles(40)+Angle(0,0,-5))
                 end
             else
                 table.RemoveByValue(modelAnimations, animData)
@@ -607,7 +496,9 @@ local function NewCallFailScene(main_heli_pos, main_heli_ang)
         },
         8.62,--2.96 --3.26 --2.4
         function()
-            print("Scene finished!")
+            if nzSettings:GetSimpleSetting("DeathAnim_Laugh", false) then
+                nzSounds:Play("Laugh")
+            end
         end
     )
     local h, ha = spawnedModels["Heli"], modelAnimations["Heli"]
@@ -621,13 +512,17 @@ local function NewCallFailScene(main_heli_pos, main_heli_ang)
     bonemerge(table.Random(zombieModels).Model, z1)
     bonemerge(table.Random(zombieModels).Model, z2)
     bonemerge(table.Random(zombieModels).Model, z3)
-    local bm = bonemerge("models/player/leet.mdl", p)
+    local mpath = "models/bo6zm_raptor1.mdl"
+    local str = nzSettings:GetSimpleSetting("ExfilPilotType", "raptor")
+    if str == "blanchard" then
+        mpath = "models/bo6zm_pilot.mdl"
+    elseif str == "none" then
+        mpath = nzSettings:GetSimpleSetting("ExfilCustomPilotModel", "models/player/riot.mdl")
+    end
+    local bm = bonemerge(mpath, p)
     bm:SetNoDraw(true)
 
     local wep = nil
-    timer.Simple(1, function()
-        surface.PlaySound("bo6/exfil/vox/pilot/damage"..math.random(1,4)..".mp3")
-    end)
     timer.Simple(3.85, function()
         muzzleflash(wep)
     end)
@@ -636,13 +531,11 @@ local function NewCallFailScene(main_heli_pos, main_heli_ang)
     end)
     timer.Simple(4.85, function()
         muzzleflash(wep)
+        nzDialog:PlayCustomDialog(nzSettings:GetSimpleSetting("ExfilPilotType", "raptor").."Exfil_Fail")
     end)
     for i=1,10 do
         timer.Simple(5.6+(i/25), function()
             ParticleEffectAttach("ins_blood_impact_headshot", PATTACH_POINT_FOLLOW, p, p:LookupAttachment("right_neck"))
-            if i == 10 then
-                surface.PlaySound("bo6/exfil/vox/pilot/destruction"..math.random(1,4)..".mp3")
-            end
         end)
     end
     hook.Add("Think", h, function()
@@ -690,9 +583,84 @@ local function NewCallFailScene(main_heli_pos, main_heli_ang)
         end)
     end)
     timer.Simple(8.5, function()
-        LocalPlayer():ScreenFade(SCREENFADE.OUT, color_black, 0.1, 3)
+        LocalPlayer():ScreenFade(SCREENFADE.OUT, color_black, 0.1, 5)
     end)
-    timer.Simple(11, function()
+    timer.Simple(13.5, function()
+        RunConsoleCommand("cl_drawhud", "1")
+    end)
+end
+
+local function NewCallFailLibertyScene(main_heli_pos, main_heli_ang)
+    CreateTimedScene(
+        {
+            {name = "Heli", model = "models/bo6/exfil/veh/new/heli.mdl", position = main_heli_pos, angle = main_heli_ang, animation = "exfil_fail_liberty"},
+            {name = "Mangler", model = "models/bo6/hari/da/mangler_t10.mdl", position = main_heli_pos, angle = main_heli_ang, animation = "exfil_fail_liberty_mangler"},
+            {name = "Zombie1", model = "models/bo6/exfil/zombie_anims.mdl", position = main_heli_pos, angle = main_heli_ang, animation = "exfil_fail_liberty_zombie1"},
+            {name = "Zombie2", model = "models/bo6/exfil/zombie_anims.mdl", position = main_heli_pos, angle = main_heli_ang, animation = "exfil_fail_liberty_zombie2"},
+            {name = "Zombie3", model = "models/bo6/exfil/zombie_anims.mdl", position = main_heli_pos, angle = main_heli_ang, animation = "exfil_fail_liberty_zombie3"},
+            {name = "Zombie4", model = "models/bo6/exfil/zombie_anims.mdl", position = main_heli_pos, angle = main_heli_ang, animation = "exfil_fail_liberty_zombie4"},
+            {name = "Camera", model = "models/bo6/exfil/cutscene_camera.mdl", position = main_heli_pos, angle = main_heli_ang, animation = "exfil_cam_fail_liberty"},
+        },
+        {
+            [0] = "bo6/exfil/effects/exfil_fail_liberty.mp3",
+        },
+        10.6,
+        function()
+            if nzSettings:GetSimpleSetting("DeathAnim_Laugh", false) then
+                nzSounds:Play("Laugh")
+            end
+        end
+    )
+    local h, ha = spawnedModels["Heli"], modelAnimations["Heli"]
+    local z0, z0a = spawnedModels["Mangler"], modelAnimations["Mangler"]
+    local z1, z1a = spawnedModels["Zombie1"], modelAnimations["Zombie1"]
+    local z2, z2a = spawnedModels["Zombie2"], modelAnimations["Zombie2"]
+    local z3, z3a = spawnedModels["Zombie3"], modelAnimations["Zombie3"]
+    local z4, z4a = spawnedModels["Zombie4"], modelAnimations["Zombie4"]
+    local c, ca = spawnedModels["Camera"], modelAnimations["Camera"]
+
+    bonemerge("models/bo6/exfil/veh/new/heli.mdl", h)
+    local mbm = bonemerge("models/bo6/hari/da/mangler_t10.mdl", z0)
+    bonemerge(table.Random(zombieModels).Model, z1)
+    bonemerge(table.Random(zombieModels).Model, z2)
+    bonemerge(table.Random(zombieModels).Model, z3)
+    local bm4 = bonemerge(table.Random(zombieModels).Model, z4)
+
+    timer.Simple(5, function()
+        bm4:SetNoDraw(true)
+    end)
+    timer.Simple(7.2, function()
+        ParticleEffectAttach("hcea_hunter_ab_charge", PATTACH_POINT_FOLLOW, mbm, 13)
+        nzDialog:PlayCustomDialog(nzSettings:GetSimpleSetting("ExfilPilotType", "raptor").."Exfil_Fail")
+    end)
+    timer.Simple(8.6, function()
+        mbm:StopParticles()
+        ParticleEffectAttach("hcea_hunter_ab_muzzle", PATTACH_POINT_FOLLOW, mbm, 13)
+    end)
+    timer.Simple(8.8, function()
+        ParticleEffectAttach("doi_splinter_explosion", PATTACH_POINT_FOLLOW, h, 1)
+    end)
+    timer.Simple(10.3, function()
+        ParticleEffect("doi_mortar_explosion", select(1,c:GetBonePosition(1))+c:GetRight()*150+c:GetForward()*64, Angle(-90,0,0))
+    end)
+    for i=1,40 do
+        timer.Simple((i/5), function()
+            local hpos = h:GetBonePosition(1)
+            local tr = util.TraceLine({
+                start = hpos,
+                endpos = hpos-Vector(0,0,500),
+                filter = LocalPlayer()
+            })
+
+            local effectdata = EffectData()
+            effectdata:SetOrigin(tr.HitPos)
+            util.Effect("bo6_heli_dust", effectdata)
+        end)
+    end
+    timer.Simple(10.5, function()
+        LocalPlayer():ScreenFade(SCREENFADE.OUT, color_black, 0.1, 5.5)
+    end)
+    timer.Simple(16, function()
         RunConsoleCommand("cl_drawhud", "1")
     end)
 end
@@ -714,7 +682,7 @@ local function NewCallSuccessScene(main_heli_pos, main_heli_ang)
         },
         11.83,--2.93 --3.2 --5.7
         function()
-            print("Scene finished!")
+            --print("Scene finished!")
         end
     )
     local h, ha = spawnedModels["Heli"], modelAnimations["Heli"]
@@ -733,25 +701,29 @@ local function NewCallSuccessScene(main_heli_pos, main_heli_ang)
 
     local tab = GetPlayerTable(4)
     if IsValid(tab[1]) then
-        bonemerge(tab[1]:GetModel(), p1)
+        local bm = bonemerge(tab[1]:GetModel(), p1)
+        nzFuncs:TransformModelData(tab[1], bm)
     else
         p1:SetNoDraw(true)
         wep:SetNoDraw(true)
     end
     if IsValid(tab[2]) then
-        bonemerge(tab[2]:GetModel(), p2)
+        local bm = bonemerge(tab[2]:GetModel(), p2)
+        nzFuncs:TransformModelData(tab[2], bm)
     else
         p2:SetNoDraw(true)
         wep2:SetNoDraw(true)
     end
     if IsValid(tab[3]) then
-        bonemerge(tab[3]:GetModel(), p3)
+        local bm = bonemerge(tab[3]:GetModel(), p3)
+        nzFuncs:TransformModelData(tab[3], bm)
     else
         p3:SetNoDraw(true)
         wep3:SetNoDraw(true)
     end
     if IsValid(tab[4]) then
-        bonemerge(tab[4]:GetModel(), p4)
+        local bm = bonemerge(tab[4]:GetModel(), p4)
+        nzFuncs:TransformModelData(tab[4], bm)
     else
         p4:SetNoDraw(true)
         wep4:SetNoDraw(true)
@@ -786,6 +758,12 @@ local function NewCallSuccessScene(main_heli_pos, main_heli_ang)
     for i=1,4 do
         timer.Simple(2.4+(i/10), function()
             muzzleflash(wep2)
+            if i == 1 then
+                local str = nzSettings:GetSimpleSetting("ExfilPilotType", "raptor")
+                if str == "blanchard" then
+                    nzDialog:PlayCustomDialog("blanchardExfil_SuccessPilot")
+                end
+            end
         end)
     end
     hook.Add("Think", h, function()
@@ -813,7 +791,7 @@ local function NewCallSuccessScene(main_heli_pos, main_heli_ang)
         newanim(p3, pa3, 3.2, "exfil_success_player2_3")
         newanim(p4, pa4, 3.2, "exfil_success_player2_4")
         timer.Simple(3.2, function()
-            surface.PlaySound("bo6/exfil/vox/pilot/Leave"..math.random(1,4)..".mp3")
+            nzDialog:PlayCustomDialog(nzSettings:GetSimpleSetting("ExfilPilotType", "raptor").."Exfil_Success")
             newanim(h, ha, 5.7, "exfil_success_3")
             newanim(c, ca, 5.7, "exfil_cam_success_3")
             newanim(z2, z2a, 5.7, "exfil_success_zombie3_2")
@@ -827,9 +805,9 @@ local function NewCallSuccessScene(main_heli_pos, main_heli_ang)
         end)
     end)
     timer.Simple(11, function()
-        LocalPlayer():ScreenFade(SCREENFADE.OUT, color_black, 0.1, 3)
+        LocalPlayer():ScreenFade(SCREENFADE.OUT, color_black, 0.1, 5)
     end)
-    timer.Simple(14, function()
+    timer.Simple(16, function()
         RunConsoleCommand("cl_drawhud", "1")
     end)
 end
@@ -846,8 +824,12 @@ net.Receive("nZr.ExfilCutscene", function()
         if bool then
             NewCallSuccessScene(main_heli_pos, main_heli_ang)
         else
-            main_heli_ang = main_heli_ang+Angle(0,180,0)
-            NewCallFailScene(main_heli_pos, main_heli_ang)
+            if nzSettings:GetSimpleSetting("ExfilLiberty", false) then
+                NewCallFailLibertyScene(main_heli_pos, main_heli_ang)
+            else
+                main_heli_ang = main_heli_ang+Angle(0,180,0)
+                NewCallFailScene(main_heli_pos, main_heli_ang)
+            end
         end
     end)
 end)

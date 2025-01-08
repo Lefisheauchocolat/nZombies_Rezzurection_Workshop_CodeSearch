@@ -115,6 +115,7 @@ local zmhud_icon_voicedim = Material("nz_moo/icons/voice_on_dim.png", "unlitgene
 local zmhud_icon_voiceoff = Material("nz_moo/icons/voice_off.png", "unlitgeneric smooth")
 local zmhud_icon_offscreen = Material("nz_moo/icons/offscreen_arrow.png", "unlitgeneric smooth")
 local zmhud_icon_zedcounter = Material("nz_moo/icons/ugx_talkballoon.png", "unlitgeneric smooth")
+local zmhud_player_teleporting = Material("effects/tp_eyefx/tpeye.vmt")
 
 local illegalspecials = {
 	["specialgrenade"] = true,
@@ -122,32 +123,6 @@ local illegalspecials = {
 	["knife"] = true,
 	["display"] = true,
 }
-
-local function StatesHud_cod5()
-	if cl_drawhud:GetBool() and !nzRound:InProgress() then
-		local text = ""
-		local font = "nz.main.waw"
-		if nz_mapfont:GetBool() then
-			font = "nz.main."..GetFontType(nzMapping.Settings.mainfont)
-		end
-
-		local w, h = ScrW(), ScrH()
-		local pscale = (w/1920 + 1) / 2
-
-		if nzRound:InState(ROUND_WAITING) then
-			text = "Waiting for players. Type /ready to ready up."
-			font = "nz.small.waw"
-			if nz_mapfont:GetBool() then
-				font = "nz.small."..GetFontType(nzMapping.Settings.smallfont)
-			end
-		elseif nzRound:InState(ROUND_CREATE) then
-			text = "Creative Mode"
-		end
-
-		local fontColor = !IsColor(nzMapping.Settings.textcolor) and color_red_200 or nzMapping.Settings.textcolor
-		draw.SimpleTextOutlined(text, font, w/2, 60*pscale, fontColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, color_black_100)
-	end
-end
 
 local PointsNotifications = {}
 local function PointsNotification(ply, amount, profit_id)
@@ -219,12 +194,13 @@ end
 
 //Equipment
 local function InventoryHUD_cod5()
-	if not cl_drawhud:GetBool() then return end
-	if not (nzRound:InProgress() or nzRound:InState(ROUND_CREATE)) then return end
-
 	local ply = LocalPlayer()
 	if not IsValid(ply) then return end
+
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawInventoryHUD() then return end
 	if ply:IsNZMenuOpen() then return end
+
 	if IsValid(ply:GetObserverTarget()) then
 		ply = ply:GetObserverTarget()
 	end
@@ -454,8 +430,16 @@ local function GetScoreHudByIndex(index)
 end
 
 local function ScoreHud_cod5()
-	if not cl_drawhud:GetBool() then return end
-	if not (nzRound:InProgress() or nzRound:InState(ROUND_CREATE)) then return end
+	local ply = LocalPlayer()
+	if not IsValid(ply) then return end
+
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawScoreHUD() then return end
+	if ply:IsNZMenuOpen() then return end
+
+	if IsValid(ply:GetObserverTarget()) then
+		ply = ply:GetObserverTarget()
+	end
 
 	local fontmain = "nz.pointsmain.waw"
 	local fontsmall = "nz.points.waw"
@@ -474,17 +458,11 @@ local function ScoreHud_cod5()
 		offset = 0*scale
 	end
 
-	local ply = LocalPlayer()
-	if IsValid(ply:GetObserverTarget()) then
-		ply = ply:GetObserverTarget()
-	end
-
 	local index = ply:EntIndex()
 	local pcolor = player.GetColorByIndex(index)
 	local blood = GetScoreHudByIndex(index)
 	if nz_useplayercolor:GetBool() then
-		local pvcol = ply:GetPlayerColor()
-		pcolor = Color(255*pvcol.x, 255*pvcol.y, 255*pvcol.z, 255)
+		pcolor = ply:GetPlayerColor():ToColor()
 	end
 
 	//points
@@ -561,8 +539,7 @@ local function ScoreHud_cod5()
 		local pcolor = player.GetColorByIndex(index)
 		local blood = GetScoreHudByIndex(index)
 		if nz_useplayercolor:GetBool() then
-			local pvcol = v:GetPlayerColor()
-			pcolor = Color(255*pvcol.x, 255*pvcol.y, 255*pvcol.z, 255)
+			pcolor = v:GetPlayerColor():ToColor()
 		end
 
 		if nz_showhealthmp:GetBool() then
@@ -588,6 +565,30 @@ local function ScoreHud_cod5()
 			surface.SetDrawColor(color_white)
 			surface.SetMaterial(pmpath)
 			surface.DrawTexturedRect(w - 60*scale, h - 250*scale - offset, 40*scale, 40*scale)
+
+			if v.GetTeleporterEntity and IsValid(v:GetTeleporterEntity()) then
+				surface.SetMaterial(zmhud_player_teleporting)
+				surface.DrawTexturedRect(w - 60*scale, h - 250 * scale - offset, 40*scale, 40*scale)
+			end
+
+			if v.IsOnFire and v:IsOnFire() or v:GetNW2Float("nzLastBurn", 0) + 1.5 > CurTime() then
+				surface.SetMaterial(zmhud_player_onfire)
+				surface.DrawTexturedRect(w - 60*scale, h - 250 * scale - offset, 40*scale, 40*scale)
+			end
+
+			if v:GetNW2Float("nzLastShock", 0) + 1.5 > CurTime() then
+				surface.SetMaterial(zmhud_player_shocked)
+				surface.DrawTexturedRect(w - 60*scale, h - 250 * scale - offset, 40*scale, 40*scale)
+			end
+
+			if v.HasVultureStink and v:HasVultureStink() then
+				surface.SetMaterial(zmhud_player_stink)
+				surface.DrawTexturedRect(w - 60*scale, h - 250 * scale - offset, 40*scale, 40*scale)
+
+				surface.SetMaterial(Material("color"))
+				surface.SetDrawColor(160, 255, 0, math.max(24 * math.abs(math.sin(CurTime())), 14))
+				surface.DrawTexturedRect(w - 60*scale, h - 250 * scale - offset, 40*scale, 40*scale)
+			end
 
 			surface.SetDrawColor(pcolor)
 			surface.DrawOutlinedRect(w - 60*scale, h - 250*scale - offset, 42*scale, 42*scale, 2)
@@ -767,16 +768,13 @@ hook.Add("ScoreboardHide", "nzCOD5HUD_scoretoggle", function()
 end)
 
 local function GunHud_cod5()
-	if not cl_drawhud:GetBool() then return end
-	if not (nzRound:InProgress() or nzRound:InState(ROUND_CREATE)) then return end
-
 	local ply = LocalPlayer()
 	if not IsValid(ply) then return end
-	if nzRound:InState(ROUND_GO) and not ply:Alive() then
-		return
-	end
 
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawGunHUD() then return end
 	if ply:IsNZMenuOpen() then return end
+
 	if IsValid(ply:GetObserverTarget()) then
 		ply = ply:GetObserverTarget()
 	end
@@ -1036,12 +1034,15 @@ local function GunHud_cod5()
 end
 
 local function PerksMMOHud_cod5()
-	if not cl_drawhud:GetBool() then return end
 	if not nz_showmmostats:GetBool() then return end
 
 	local ply = LocalPlayer()
 	if not IsValid(ply) then return end
+
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawPerksHUD() then return end
 	if ply:IsNZMenuOpen() then return end
+
 	if IsValid(ply:GetObserverTarget()) then
 		ply = ply:GetObserverTarget()
 	end
@@ -1104,9 +1105,13 @@ local function PerksMMOHud_cod5()
 end
 
 local function DeathHud_cod5()
-	if not cl_drawhud:GetBool() then return end
 	local ply = LocalPlayer()
 	if not IsValid(ply) then return end
+	if !ply:ShouldDrawHUD() then return end
+	if ply:IsNZMenuOpen() then return end
+	if IsValid(ply:GetObserverTarget()) then
+		ply = ply:GetObserverTarget()
+	end
 
 	local screen = ScreenScale(16)
 	local pscale = ScreenScale(128)
@@ -1215,9 +1220,13 @@ local powerup_data = {}
 local antipowerup_data = {}
 
 local function PowerUpsHud_cod5()
-	if not cl_drawhud:GetBool() then return end
 	local ply = LocalPlayer()
 	if not IsValid(ply) then return end
+
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawPowerupsHUD() then return end
+	if ply:IsNZMenuOpen() then return end
+
 	local spectating = false
 	if IsValid(ply:GetObserverTarget()) then
 		ply = ply:GetObserverTarget()
@@ -1423,11 +1432,13 @@ end
 
 local stinkfade = 0
 local function PerksHud_cod5()
-	if not cl_drawhud:GetBool() then return end
-	if not (nzRound:InProgress() or nzRound:InState(ROUND_CREATE)) then return end
-
 	local ply = LocalPlayer()
 	if not IsValid(ply) then return end
+
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawPerksHUD() then return end
+	if ply:IsNZMenuOpen() then return end
+
 	if IsValid(ply:GetObserverTarget()) then
 		ply = ply:GetObserverTarget()
 	end
@@ -1546,61 +1557,6 @@ local function PerksHud_cod5()
 	end
 end
 
-local function VultureVision_cod5()
-	local ply = LocalPlayer()
-	if IsValid(ply:GetObserverTarget()) then ply = ply:GetObserverTarget() end
-	if not ply:HasPerk("vulture") then return end
-	local scale = (ScrW()/1920 + 1)/2
-	local icon = nzDisplay.vultureHUDicons["wunderfizz_machine"] //? if unknown
-
-	for k, v in nzLevel.GetVultureArray() do
-		if not IsValid(v) then continue end
-		if v:GetNoDraw() then continue end
-
-		local data = v:WorldSpaceCenter():ToScreen()
-		if not data.visible then continue end
-
-		local dist = ply:GetPos():DistToSqr(v:GetPos())
-		if (dist > 1000000) then continue end //1000hu^2
-
-		local distfac = 1 - math.Clamp((dist - 1000000 + 160000)/160000, 0, 1) //fade of 400hu^2
-		local class = v:GetClass()
-		local ourcolor = ColorAlpha(color_white, 120*distfac)
-
-		if nzDisplay.vultureHUDicons[class] then
-			icon = nzDisplay.vultureHUDicons[class]
-		elseif v.GetPerkID then
-			local perk = v:GetPerkID()
-			if perk == "pap" then
-				icon = nzDisplay.vultureHUDicons["pap"]
-			else
-				icon = GetPerkIconMaterial(perk)
-			end
-		elseif nzPowerUps.EntityClasses[class] then
-			data = class == "drop_tombstone" and v:GetAttachment(1).Pos:ToScreen() or  v:GetPos():ToScreen()
-			if v.GetPowerUp then
-				icon = GetPowerupIconMaterial(v:GetPowerUp())
-			end
-			if v.GetAnti and v:GetAnti() then
-				ourcolor = ColorAlpha(color_red_255, 200*distfac)
-			else
-				if v.GetActivated and not v:GetActivated() then
-					continue
-				end
-				ourcolor = ColorAlpha(color_white, 200*distfac)
-			end
-		end
-
-		if not icon or icon:IsError() then
-			icon = zmhud_icon_missing
-		end
-
-		surface.SetMaterial(icon)
-		surface.SetDrawColor(ourcolor)
-		surface.DrawTexturedRect(data.x - 21*scale, data.y - 21*scale, 42*scale, 42*scale)
-	end
-end
-
 //This is a modified Classic nZ Round Counter... If you want a Counter thats styled after the classic era of Zombies, use this one.
 local round_white = 0
 local round_alpha = 255
@@ -1709,11 +1665,12 @@ local function GameBeginRound(round)
 end
 
 local function RoundHud_cod5()
-	if not cl_drawhud:GetBool() then return end
-	if not (nzRound:InProgress() or nzRound:InState(ROUND_GO) or nzRound:InState(ROUND_CREATE)) then return end
-	if nzRound:InState(ROUND_GO) and not LocalPlayer():Alive() then
-		return
-	end
+	local ply = LocalPlayer()
+	if not IsValid(ply) then return end
+
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawRoundHUD() then return end
+	if ply:IsNZMenuOpen() then return end
 
 	local w, h = ScrW(), ScrH()
 	local scale = (ScrW()/1920 + 1)/2
@@ -1890,12 +1847,19 @@ local function ResetRound_cod5()
 end
 
 local function PlayerHealthHUD_cod5()
-	if not cl_drawhud:GetBool() then return end
 	if not nz_showhealth:GetBool() then return end
 
 	local ply = LocalPlayer()
 	if not IsValid(ply) then return end
-	if IsValid(ply:GetObserverTarget()) then ply = ply:GetObserverTarget() end
+
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawScoreHUD() then return end
+	if ply:IsNZMenuOpen() then return end
+
+	if IsValid(ply:GetObserverTarget()) then
+		ply = ply:GetObserverTarget()
+	end
+
 	if not (nzRound:InProgress() or nzRound:InState(ROUND_CREATE)) then return end
 
 	local w, h = ScrW(), ScrH()
@@ -2004,14 +1968,20 @@ local function PlayerStaminaHUD_cod5()
 end
 
 local function ZedCounterHUD_cod5()
-	if not cl_drawhud:GetBool() then return end
 	if not nz_showzcounter:GetBool() then return end
-	if not (nzRound:InProgress() or nzRound:InState(ROUND_CREATE)) then return end
 
 	local ply = LocalPlayer()
+	if not IsValid(ply) then return end
+
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawScoreHUD() then return end
+	if ply:IsNZMenuOpen() then return end
+
 	if IsValid(ply:GetObserverTarget()) then
 		ply = ply:GetObserverTarget()
 	end
+
+	if not (nzRound:InProgress() or nzRound:InState(ROUND_CREATE)) then return end
 
 	local w, h = ScrW(), ScrH()
 	local scale = (w/1920 + 1) / 2
@@ -2040,13 +2010,11 @@ end
 -- Hooks
 hook.Add("HUDPaint", "nzHUDswapping_cod5", function()
 	if nzMapping.Settings.hudtype == "World at War" then
-		hook.Add("HUDPaint", "roundHUD", StatesHud_cod5 )
 		hook.Add("HUDPaint", "PlayerHealthBarHUD", PlayerHealthHUD_cod5 )
 		hook.Add("HUDPaint", "PlayerStaminaBarHUD", PlayerStaminaHUD_cod5 )
 		hook.Add("HUDPaint", "scoreHUD", ScoreHud_cod5 )
 		hook.Add("HUDPaint", "powerupHUD", PowerUpsHud_cod5 )
 		hook.Add("HUDPaint", "perksHUD", PerksHud_cod5 )
-		hook.Add("HUDPaint", "vultureVision", VultureVision_cod5 )
 		hook.Add("HUDPaint", "roundnumHUD", RoundHud_cod5 )
 		hook.Add("HUDPaint", "perksmmoinfoHUD", PerksMMOHud_cod5 )
 		hook.Add("HUDPaint", "deathiconsHUD", DeathHud_cod5 )

@@ -110,10 +110,46 @@ nzTools:CreateTool("exfilradioeditor", {
 			nzSettings:SetSimpleSetting("ExfilBossDelay", tonumber(val) or 10)
 		end
 
+		local Row10 = DProperties:CreateRow("Config Settings", "Pilot VOX and Model")
+		Row10:Setup( "Combo" )
+		Row10:AddChoice("1. Terminus - Raptor One", "raptor")
+		Row10:AddChoice("2. Liberty Falls - Blanchard & Exfil Pilot", "blanchard")
+		Row10:AddChoice("3. Citadelle Des Morts - Strauss & Raptor One", "citadelle")
+		Row10:AddChoice("4. No VOX - Custom Model", "none")
+		local str = nzSettings:GetSimpleSetting("ExfilPilotType", "raptor")
+		if str == "blanchard" then
+			Row10:SetSelected(2)
+		elseif str == "citadelle" then
+			Row10:SetSelected(3)
+		elseif str == "none" then
+			Row10:SetSelected(4)
+		else
+			Row10:SetSelected(1)
+		end
+		Row10.DataChanged = function( _, val )
+			nzSettings:SetSimpleSetting("ExfilPilotType", val)
+		end
+
+		local Row11 = DProperties:CreateRow("Config Settings", "Custom Pilot Model (If selected)")
+		Row11:Setup("Generic")
+		Row11:SetValue(nzSettings:GetSimpleSetting("ExfilCustomPilotModel", "models/player/riot.mdl"))
+		nzSettings:SyncValueToElement("ExfilCustomPilotModel", Row11)
+		Row11.DataChanged = function( s, val ) 
+			nzSettings:SetSimpleSetting("ExfilCustomPilotModel", val)
+		end
+
+		local Row12 = DProperties:CreateRow("Config Settings", "Enable Liberty Falls Exfil Fail Animation?")
+		Row12:Setup("Boolean")
+		Row12:SetValue(nzSettings:GetSimpleSetting("ExfilLiberty", false))
+		nzSettings:SyncValueToElement("ExfilLiberty", Row12)
+		Row12.DataChanged = function( _, val ) 
+			nzSettings:SetSimpleSetting("ExfilLiberty", tobool(val))
+		end
+
 		local text = vgui.Create("DLabel", DProperties)
 		text:SetText("Tip: Place your position far away from walls to prevent bugs.\nYou can have only one radio on map!")
 		text:SetFont("Trebuchet18")
-		text:SetPos(0, 260)
+		text:SetPos(0, 300)
 		text:SetTextColor( Color(50, 50, 50) )
 		text:SetSize(400, 30)
 		text:CenterHorizontal()

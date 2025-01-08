@@ -73,7 +73,7 @@ function ENT:Initialize()
 	if SERVER then
 		self:SetMoveType( MOVETYPE_NONE )
 		self:SetSolid( SOLID_VPHYSICS )
-		self:DrawShadow( false )
+		self:DrawShadow( true )
 		self:SetUseType( SIMPLE_USE )
 
 		self.AutomaticFrameAdvance = true
@@ -125,7 +125,9 @@ function ENT:TurnOn()
 	seq, dur = self:LookupSequence("perk_power_on")
 
 	self:SetActive(true)
+	if not nzMapping.Settings.gamemodeentities then
 	self:ToggleSmoke(true)
+	end
 	self:Update()
 
 	self.NextJingle = CurTime() + math.random(0,600) -- Have a slightly shorter time for inital tune.
@@ -324,7 +326,7 @@ function ENT:Reset()
 
 	self:SetNoDraw(false)
 	self:SetSolid(SOLID_VPHYSICS)
-	self:DrawShadow(false)
+	self:DrawShadow(true)
 	self:SetTrigger(true)
 
 	self:SetColor(color_white)
@@ -539,6 +541,12 @@ function ENT:Update()
 				Stinger 		= {PerkData.sting},
 				Jingle 			= {PerkData.jingle},
 			},
+			["xmas"] = {
+				PapModel       	= {PerkData.model_xmas},
+				AmbSnd 			= {"nz_moo/perkacolas/pap/pap_loop.wav"},
+				Stinger 		= {PerkData.sting},
+				Jingle 			= {PerkData.jingle},
+			},
 		}
 		self:SetModel(tbl[paptype].PapModel[1])
 		self:SetLoopingSound(tbl[paptype].AmbSnd[1])
@@ -547,8 +555,15 @@ function ENT:Update()
 		self.Sting 			= tbl[paptype].Stinger[1]
 	end
 
-	self:SetPrice(self.StoredPrice or self.PriceOverride or self.PerkTbl[perktype].Price[1])
-	self:SetUpgradePrice(self.StoredPriceUpgrade or self.PriceOverrideUpgrade or self.PerkTbl[perktype].UpgradePrice[1])
+	local price = self.PerkTbl[perktype].Price[1]
+	local billnye = self.PerkTbl[perktype].UpgradePrice[1]
+	if self:GetPerkID() == "pap" then
+		price = 5000
+		billnye = 2500
+	end
+
+	self:SetPrice(self.StoredPrice or self.PriceOverride or price)
+	self:SetUpgradePrice(self.StoredPriceUpgrade or self.PriceOverrideUpgrade or billnye)
 
 	local maxrevives = (nzMapping.Settings.solorevive or 3)
 
@@ -571,6 +586,7 @@ function ENT:Use(activator, caller)
 		return
 	end
 	if self:GetBeingUsed() and self:IsOn() and activator == self:GetLastUser() then return end
+	if activator.NextUse and activator.NextUse > CurTime() then return end
 
 	if CurTime() < self.PerkUseCoolDown then return end
 
@@ -707,6 +723,7 @@ function ENT:Use(activator, caller)
 			self:EmitSound("nz_moo/perkacolas/deny_00.mp3", 90, math.random(97, 103))
 		end
 
+		activator.NextUse = CurTime() + 0.25
 	elseif self:IsOn() and self:BrutusLocked() then
 		activator:Buy(2000, self, function()
 			self:SetBrutusLocked(false)
@@ -757,9 +774,58 @@ function ENT:PapAction(activator)
 		reroll = true
 	end
 
-	-- Buy the Pap
-	local cost = reroll and nzPowerUps:IsPowerupActive("bonfiresale") and 500 or reroll and 2500 or nzPowerUps:IsPowerupActive("bonfiresale") and 1000 or 5000
-	
+	/*
+		.--'''''''''--.
+     .'      .---.      '.
+    /    .-----------.    \
+   /        .-----.        \
+   |       .-.   .-.       |
+   |      /   \ /   \      |
+    \    | .-. | .-. |    /
+     '-._| | | | | | |_.-'
+         | '-' | '-' |
+          \___/ \___/
+       _.-'  /   \  `-._
+     .' _.--|     |--._ '.
+     ' _...-|     |-..._ '
+            |     |
+            '.___.'
+              | |
+             _| |_
+            /\( )/\
+           /  ` '  \
+          | |     | |
+          '-'     '-'
+          | |     | |
+          | |     | |
+          | |-----| |
+       .`/  |     | |/`.
+       |    |     |    |
+       '._.'| .-. |'._.'
+             \ | /
+             | | |
+             | | |
+             | | |
+            /| | |\
+          .'_| | |_`.
+          `. | | | .'
+       .    /  |  \    .
+      /o`.-'  / \  `-.`o\
+     /o  o\ .'   `. /o  o\
+     `.___.'       `.___.'
+	*/
+
+	local cost = self:GetPrice()
+	if reroll then
+		cost = self:GetUpgradePrice()
+	end
+	if nzPowerUps:IsPowerupActive("bonfiresale") then
+		cost = math.Round(cost/5)
+	end
+	if nzRound:InState(ROUND_CREATE) and activator:IsInCreative() then
+		cost = 0
+	end
+
 	activator:Buy(cost, machine, function()
 		hook.Call("OnPlayerBuyPackAPunch", nil, activator, wep, machine)
 
@@ -1158,7 +1224,7 @@ function ENT:StartTouch(entity)
 end
 
 if CLIENT then
-	local usedcolor = Color(255,255,255)
+	local usedcolor = Color(255,250,245)
 	local nz_preview = GetConVar("nz_creative_preview")
 	local displayfont = "ChatFont"
 	local outline = Color(0,0,0,59)
@@ -1199,47 +1265,34 @@ if CLIENT then
 				local dlight = DynamicLight(self:EntIndex(), true)
 				local center = self:OBBCenter() * 0.25
 				local fwd = self:GetForward() * 35
+				local mymodel = self:GetModel()
 
 				if perk == "pap" then
 					center = self:GetPos() + self:GetUp() * 35
 					fwd = self:GetForward()
 				end
+			if not nzMapping.Settings.gamemodeentities then
 
 				if ( dlight ) then
 					-- NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE 
 
 					local PerkData = nzPerks:Get(self:GetPerkID())
 					local col = PerkData.color or usedcolor
-					local col_cw = PerkData.color_cw or col
-					local col_vg = PerkData.color_vg or col
-					local col_spooky = PerkData.color_spooky or col
-					local col_origins_red = PerkData.color_redtomb or col
-					local col_classic = PerkData.color_classic or col
 
-					local cwskin = PerkData.model_cw
-					local vgskin = PerkData.model_vg
-					local spookyskin = PerkData.model_spooky
-					local redtombskin = PerkData.model_origins_red
-					local classicskin = PerkData.model_classic
+					local perk_color_by_model = {
+						[tostring(PerkData.model_cw)] = PerkData.color_cw,
+						[tostring(PerkData.model_vg)] = PerkData.color_vg,
+						[tostring(PerkData.model_spooky)] = PerkData.color_spooky,
+						[tostring(PerkData.model_xmas)] = PerkData.color_xmas,
+						[tostring(PerkData.model_origins_red)] = PerkData.color_redtomb,
+						[tostring(PerkData.model_classic)] = PerkData.color_classic,
+					}
 
-					if self:GetModel() == cwskin then
-						col = col_cw
+					if mymodel and perk_color_by_model[mymodel] then
+						col = perk_color_by_model[mymodel]
 					end
-
-					if self:GetModel() == vgskin then
-						col = col_vg
-					end
-					
-					if self:GetModel() == classicskin then
-						col = col_classic
-					end
-					
-					if self:GetModel() == spookyskin then
-						col = col_spooky
-					end
-
-					if self:GetModel() == redtombskin then
-						col = col_origins_red
+					if !col or !IsColor(col) then
+						col = (PerkData.color or usedcolor)
 					end
 
 					if self:GetPerkID() == "pap" then
@@ -1257,6 +1310,7 @@ if CLIENT then
 					dlight.DieTime = CurTime() + 1
 				end
 				if math.random(300) == 1 then self.NextLight = CurTime() + 0.05 end
+				end
 			end
 
 			if self:GetLoopingSound() ~= "" then

@@ -58,6 +58,10 @@ function ENT:Initialize()
 			MDL = {"models/moo/_codz_ports_props/t6/global/zombie_teddybear/moo_codz_p6_teddybear.mdl"},
 			ANGLE = Angle(-90,90,0)
 		},
+		["Present Box"] = {
+			MDL = {"models/wavy_ports/ugx/present_bear.mdl"},
+			ANGLE = Angle(0,180,0)
+		},
 		["Mob of the Dead"] = {
 			MDL = {"models/moo/_codz_ports_props/t6/global/zombie_teddybear/moo_codz_p6_teddybear.mdl"},
 			ANGLE = Angle(-90,90,0)
@@ -86,7 +90,7 @@ function ENT:Initialize()
 		self:SetLocalVelocity(self.WindupMovement/self.WindupTime)
 	end
 	
-	if (nzMapping.Settings.boxtype == "UGX Coffin") then
+	if (nzMapping.Settings.boxtype == "UGX Coffin" or nzMapping.Settings.boxtype == "Present Box") then
 		self:SetAngles(Angle(-90,-90,0))
 		--self:SetPos(Vector(0,0,0))
 	end
@@ -154,7 +158,7 @@ function ENT:WindUp( )
 end
 
 function ENT:Think()
-	if CLIENT and DynamicLight then
+	if CLIENT and DynamicLight and not nzMapping.Settings.gamemodeentities then
 		local dlight = dlight or DynamicLight(self:EntIndex(), false)
 		if dlight then
 			dlight.pos = self:GetPos()
@@ -173,7 +177,7 @@ function ENT:Think()
 	if SERVER then
 		if self:GetIsTeddy() then
 			if self.TeddyFlyTime and self.TeddyFlyTime < CurTime() then
-				if !(nzMapping.Settings.boxtype == "UGX Coffin") then
+				if !(nzMapping.Settings.boxtype == "UGX Coffin" or nzMapping.Settings.boxtype == "Present Box") then
 				self:SetLocalVelocity(self.TeddyVelocity)
 			else
 				self:SetLocalVelocity(self.TeddyVelocityCoffin)
@@ -190,10 +194,14 @@ function ENT:Think()
 		elseif self:GetWinding() then
 			if self.WindingTime > CurTime() then
 				self:WindUp()
+				if nzMapping.Settings.gamemodeentities then
+				self:NextThink(CurTime() + 0.6/(self.WindingTime - CurTime()))
+				else
 				if !(nzMapping.Settings.boxtype == "UGX Coffin") then
 					self:NextThink(CurTime() + 0.2/(self.WindingTime - CurTime()))
 					else
 					self:NextThink(CurTime() + 0.1*(self.WindingTime - CurTime()))
+					end
 					end
 				return true 
 			end

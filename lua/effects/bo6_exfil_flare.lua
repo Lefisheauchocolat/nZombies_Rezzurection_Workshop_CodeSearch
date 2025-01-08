@@ -18,7 +18,6 @@ function EFFECT:Init(data)
         timer.Simple(i/25, function()
             if !isvector(self.Position) then return end
             local emitter = ParticleEmitter(self.Position)
-            print(self.Position)
             local particle = emitter:Add("trails/smoke.vmt", self.Position)
             if particle then
                 particle:SetVelocity(Vector(0, 0, 5))

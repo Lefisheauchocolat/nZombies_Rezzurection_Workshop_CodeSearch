@@ -570,6 +570,12 @@ function nzMapping:Electric(pos, ang, data, ply)
 	if data.model then
 		ent:SetPowerSwitchModel(tonumber(data.model))
 	end
+	if data.activetype then
+		ent:SetActivationType(tonumber(data.activetype))
+	end
+	if data.dmgtype then
+		ent:SetDmgType(tonumber(data.dmgtype))
+	end
 
 	ent:Spawn()
 	ent:PhysicsInit( SOLID_VPHYSICS )
@@ -615,6 +621,40 @@ function nzMapping:BlockSpawn(pos, ang, model, flags, ply)
 
 	if ply then
 		undo.Create( "Invisible Block" )
+			undo.SetPlayer( ply )
+			undo.AddEntity( block )
+		undo.Finish( "Effect (" .. tostring( model ) .. ")" )
+	end
+	return block
+end
+
+function nzMapping:ZombieBlockSpawn(pos, ang, model, flags, ply)
+	local block = ents.Create( "zombie_wall_block" )
+	
+	-- Replace with nZombies versions of the same model (if exist) which are grate-based (bullets go through)
+	local model2 = string.Replace(model, "/hunter/plates/", "/nzombies_plates/")
+	if !util.IsValidModel(model2) then
+		model2 = model
+	end
+	
+	block:SetModel( model2 )
+	block:SetPos( pos )
+	block:SetAngles( ang )
+	block:Spawn()
+	block:PhysicsInit( SOLID_VPHYSICS )
+
+	-- REMINDER APPLY FLAGS
+	if flags != nil then
+		nzDoors:CreateLink( block, flags )
+	end
+	
+	local phys = block:GetPhysicsObject()
+	if IsValid(phys) then
+		phys:EnableMotion(false)
+	end
+
+	if ply then
+		undo.Create( "Invisible Zombie Block" )
 			undo.SetPlayer( ply )
 			undo.AddEntity( block )
 		undo.Finish( "Effect (" .. tostring( model ) .. ")" )
@@ -1244,6 +1284,7 @@ local ghostentities = {
 	["invis_wall_zombie"] = true,
 	["jumptrav_block"] = true,
 	["wall_buys"] = true,
+	["zombie_wall_block"] = true,
 	--["perk_machine"] = true,
 }
 local function onPhysgunPickup( ply, ent )

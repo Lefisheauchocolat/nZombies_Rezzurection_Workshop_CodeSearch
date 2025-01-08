@@ -1,23 +1,7 @@
 
 -- Copyright (c) 2018-2020 TFA Base Devs
 
--- Permission is hereby granted, free of charge, to any person obtaining a copy
--- of this software and associated documentation files (the "Software"), to deal
--- in the Software without restriction, including without limitation the rights
--- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
--- copies of the Software, and to permit persons to whom the Software is
--- furnished to do so, subject to the following conditions:
-
--- The above copyright notice and this permission notice shall be included in all
--- copies or substantial portions of the Software.
-
--- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
--- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
--- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
--- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
--- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
--- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
--- SOFTWARE.
+--joe biden: just shut up man.
 
 AddCSLuaFile()
 
@@ -26,9 +10,9 @@ ENT.Base = "tfa_exp_base"
 ENT.PrintName = "Semtex Grenade (BO1)"
 
 --[Parameters]--
-ENT.NZTacticalPaP = true
+--ENT.NZTacticalPaP = true
 ENT.Delay = 2
-ENT.DelayPAP = 4
+--ENT.DelayPAP = 4
 ENT.Range = 220
 ENT.BeepDelay = 0.35
 ENT.BeepSound = "TFA.BO1.SEMTEX.Alert"
@@ -42,9 +26,9 @@ local nzombies = engine.ActiveGamemode() == "nzombies"
 local blueflare = Material("effects/blueflare1")
 
 function ENT:SetupDataTables()
-	self:NetworkVar("Bool", 0, "Upgraded")
-	self:NetworkVar("Bool", 1, "Activated")
-	self:NetworkVar("Bool", 2, "Blinking")
+	--self:NetworkVar("Bool", 0, "Upgraded")
+	self:NetworkVar("Bool", 0, "Activated")
+	self:NetworkVar("Bool", 1, "Blinking")
 	self:NetworkVar("Float", 0, "BeepTimer")
 end
 
@@ -59,22 +43,30 @@ function ENT:Draw()
 end
 
 function ENT:StartTouch(ent)
-    if not ent:IsSolid() then return end
-    if self:GetActivated() then return end
+	if ent == self:GetOwner() then return end
+	if not ent:IsSolid() then return end
+	if self:GetActivated() then return end
 
-    if ent:IsNextBot() then
-        self:SetParent(ent)
-        self:SetCollisionGroup(COLLISION_GROUP_WORLD)
+	if ent:IsPlayer() or ent:IsNPC() or ent:IsNextBot() then
+		self:SetParent(ent)
+		self.HasParent = true
+		print("im parented to flesh!")
+		self:EmitSound("TFA_BO3_SEMTEX.Stick")
+		self:SetCollisionGroup(COLLISION_GROUP_WORLD)
 
-        if ent:IsValidZombie() and not (ent.NZBossType or ent.IsMooBossZombie) then
-            self:InflictDamage(ent, self:GetPos())
-        end
+		if nzombies then
+			local ply = self:GetOwner()
+			if nzombies and IsValid(ply) then
+				ply:GivePoints(10)
+			end
+			if ent:IsValidZombie() and not (ent.NZBossType or ent.IsMooBossZombie) then
+				ent:SetBlockAttack(true)
+			end
+		end
 
-        self:MonkeyBombNZ()
-
-        self.killtime = CurTime() + self.Delay
-        self:SetActivated(true)
-    end
+		self.killtime = CurTime() + self.Delay
+		self:SetActivated(true)
+	end
 end
 
 function ENT:PhysicsCollide(data, phys)
@@ -89,35 +81,38 @@ function ENT:PhysicsCollide(data, phys)
 		self:SetAngles(ang)
 		self:SetSolid(SOLID_NONE)
 		self:SetMoveType(MOVETYPE_NONE)
-		if IsValid(ent) and ent:IsValidZombie() then
+		self:SetCollisionGroup(COLLISION_GROUP_WEAPON)
+		if IsValid(ent) and not ent:IsWorld() and IsValid(ent:GetPhysicsObject()) then
 			self:SetParent(ent)
-			self:InflictDamage(ent, data.HitPos)
+			print("im parented to physics!")
+			self.HasParent = true
 		end
 	end)
 
 	self.killtime = CurTime() + self.Delay
 	self:EmitSound("TFA_BO3_SEMTEX.Stick")
 	
-	if nzombies then
+	--[[if nzombies then
 		self:MonkeyBombNZ()
-	end
+	end]]
 
 	phys:EnableMotion(false)
 	phys:Sleep()
 end
 
 function ENT:Initialize()
-
+	
 	self:EmitSound("TFA.BO1.SEMTEX.Charge")
 	BaseClass.Initialize(self)
 
 	self:PhysicsInit(SOLID_VPHYSICS)
 	self:SetSolid(SOLID_VPHYSICS)
-	self:SetCollisionGroup(COLLISION_GROUP_PASSABLE_DOOR)
+	--self:SetCollisionGroup(COLLISION_GROUP_PASSABLE_DOOR)
 	self:SetBeepTimer(CurTime() + self.BeepDelay)
-	self.Delay = self:GetUpgraded() and self.DelayPAP or self.Delay
+	self.Delay = self.Delay
+	self.HasParent = false
 	
-	if self:GetUpgraded() then self.BeepSound = "TFA.BO1.SEMTEX.AlertUpgrade" end
+	--if self:GetUpgraded() then self.BeepSound = "TFA.BO1.SEMTEX.AlertUpgrade" end
 	
 	self.RangeSqr = self.Range * self.Range
 	self.KillRangeSqr = 80^2
@@ -141,6 +136,8 @@ function ENT:Initialize()
 end
 
 function ENT:Think()
+	local parent = self:GetParent()
+	
 	if self:GetActivated() and CurTime() > self:GetBeepTimer() then
 		if IsFirstTimePredicted() then self:EmitSound(self.BeepSound) end
 
@@ -156,17 +153,22 @@ function ENT:Think()
 			return false
 		end
 	end
+	
+	if self.HasParent and not IsValid(parent) then
+		self:Explode()
+		print("im an orphan!!")
+	end
 
 	self:NextThink(CurTime())
 	return true
 end
 
-function ENT:MonkeyBombNZ()
+--[[function ENT:MonkeyBombNZ()
 	if not self:GetUpgraded() then return end
 	if CLIENT then return end
 	self:SetTargetPriority(TARGET_PRIORITY_SPECIAL)
 	UpdateAllZombieTargets(self)
-end
+end]]
 
 function ENT:InflictDamage(ent, hitpos)
 	if ent.IsAATTurned and ent:IsAATTurned() then return end

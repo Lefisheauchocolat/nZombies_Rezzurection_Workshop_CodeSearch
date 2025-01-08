@@ -107,7 +107,10 @@ end
 
 local function DrawColorModulation()
 	local ply = LocalPlayer()
-	if IsValid(ply:GetObserverTarget()) then ply = ply:GetObserverTarget() end
+	if !ply:ShouldDrawHUD() then return end
+	if IsValid(ply:GetObserverTarget()) then
+		ply = ply:GetObserverTarget()
+	end
 
 	if nzRevive.Players[ply:EntIndex()] and !nzRound:InState(ROUND_GO) then
 		local fadeadd = ((1/(ply.GetBleedoutTime and ply:GetBleedoutTime() or nz_bleedouttime:GetFloat())) * FrameTime()) * -1
@@ -119,7 +122,9 @@ local function DrawColorModulation()
 end
 
 local function DrawDownedPlayers()
-	if not cl_drawhud:GetBool() then return end
+	local ply = LocalPlayer()
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawReviveHUD() then return end
 
 	local w, h = ScrW(), ScrH()
 	local scale = (w/1920 + 1)/2
@@ -171,9 +176,10 @@ local function DrawDownedPlayers()
 end
 
 local function DrawRevivalProgress()
-	if not cl_drawhud:GetBool() then return end
-
 	local ply = LocalPlayer()
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawReviveHUD() then return end
+
 	if IsValid(ply:GetObserverTarget()) then
 		ply = ply:GetObserverTarget()
 	end
@@ -227,12 +233,15 @@ local downed = false
 local downdelay = 0
 
 local function DrawDownedNotify()
-	if not cl_drawhud:GetBool() then return end
-	local hudtype = nzMapping.Settings.downsoundtype
 	local ply = LocalPlayer()
-	/*if IsValid(ply:GetObserverTarget()) then
-		ply = ply:GetObserverTarget()
-	end*/
+	if !ply:ShouldDrawHUD() then
+		if ply.downambience and ply.downambience:IsPlaying() then
+			ply.downambience:Pause()
+		end
+		return
+	end
+
+	local hudtype = nzMapping.Settings.downsoundtype
 
 	local downdata = {}
 	if nzDisplay and nzDisplay.HUDdowndata and nzDisplay.HUDdowndata[hudtype] then
@@ -271,15 +280,17 @@ local function DrawDownedNotify()
 		if downed and !nzRound:InState(ROUND_GO) then
 			if downdelay < CurTime() then
 				ply.downambience:Play()
-				ply.downambience:ChangeVolume(downdata.volume,0)
+				ply.downambience:ChangeVolume(downdata.volume, 0)
 			end
 		else
 			if downdata.revive and ply.downambience:IsPlaying() and !nzRound:InState(ROUND_GO) then
-				ply:EmitSound(downdata.revive)
+				surface.PlaySound(downdata.revive)
 			end
 			ply.downambience:Stop()
 		end
 	end
+
+	if !ply:ShouldDrawNotificationHUD() then return end
 
 	if nzRevive.Players and nzRevive.Players[ply:EntIndex()] then
 		local rply = nzRevive.Players[ply:EntIndex()].RevivePlayer
@@ -304,9 +315,12 @@ local function DrawDownedNotify()
 end
 
 local function DrawDownedHeadsUp()
-	if not cl_drawhud:GetBool() then return end
+	local ply = LocalPlayer()
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawNotificationHUD() then return end
+
 	if nzRound:InState(ROUND_GO) then
-		if !table.IsEmpty(nzRevive.Notify) then
+		if nzRevive.Notify and next(nzRevive.Notify) ~= nil then
 			table.Empty(nzRevive.Notify)
 		end
 		return
@@ -353,10 +367,43 @@ local function DrawDownedHeadsUp()
 	end
 end
 
+local firefade = 0
+local lastburn = IsValid(LocalPlayer()) and LocalPlayer():GetNW2Float("nzLastBurn") or 0
+
 local function DrawDamageOverlay()
 	local ply = LocalPlayer()
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawReviveHUD() then return end
+
 	if IsValid(ply:GetObserverTarget()) then
 		ply = ply:GetObserverTarget()
+	end
+
+	if ply.IsOnFire and ply:IsOnFire() or ply:GetNW2Float("nzLastBurn", 0) ~= lastburn then
+		if ply:GetNW2Float("nzLastBurn") > lastburn then
+			firefade = 3
+		else
+			firefade = 1
+		end
+		lastburn = ply:GetNW2Float("nzLastBurn")
+	end
+
+	if firefade > 0 then
+		local w, h = ScrW(), ScrH()
+		surface.SetDrawColor(ColorAlpha(color_white, 255*firefade))
+		surface.SetMaterial(zmhud_player_onfire)
+		surface.DrawTexturedRect(0, 0, w, h)
+
+		firefade = math.max(firefade - math.min(FrameTime()*5, engine.TickInterval()*5), 0)
+	end
+
+	if ply:GetNW2Float("nzLastShock", 0) + 1.25 > CurTime() then
+		local ratio = math.Clamp(((ply:GetNW2Float("nzLastShock", 0) + 1.25) - CurTime()) / 1, 0, 1)
+
+		local w, h = ScrW(), ScrH()
+		surface.SetDrawColor(ColorAlpha(color_white, 100*ratio))
+		surface.SetMaterial(zmhud_player_shocked)
+		surface.DrawTexturedRect(0, 0, w, h)
 	end
 
 	if nz_bloodoverlay:GetBool() and (ply:Alive() or !ply:GetNotDowned()) then
@@ -393,6 +440,18 @@ local senttombstonerequest = false
 
 local function DrawTombstoneProgress()
 	local ply = LocalPlayer()
+	if !ply:ShouldDrawHUD() then
+		if tombstonetime then
+			tombstonetime = nil
+		end
+		return
+	end
+
+	local b_spectating = false
+	if IsValid(ply:GetObserverTarget()) then
+		ply = ply:GetObserverTarget()
+		b_spectating = true
+	end
 
 	if ply:GetDownedWithTombstone() then
 		local w, h = ScrW(), ScrH()
@@ -403,7 +462,7 @@ local function DrawTombstoneProgress()
 
 		local killtime = 1
 
-		if ply:KeyDown(IN_USE) then
+		if (b_spectating and ply:HasButtonDown(IN_USE) or ply:KeyDown(IN_USE)) then
 			if !tombstonetime then
 				tombstonetime = CurTime()
 			end
@@ -432,8 +491,23 @@ local sentwhoswhorequest = false
 local attacktime = 0
 
 local function DrawWhosWhoProgress()
-	if not cl_drawhud:GetBool() then return end
 	local ply = LocalPlayer()
+	if !ply:ShouldDrawHUD() then
+		if whoswhotime then
+			whoswhotime = nil
+		end
+		return
+	end
+
+	local ply = LocalPlayer()
+	local b_spectating = false
+	if IsValid(ply:GetObserverTarget()) then
+		ply = ply:GetObserverTarget()
+		if ply.GetDownButtons then
+			b_spectating = true
+		end
+	end
+
 	local curtime = CurTime()
 
 	if ply:HasUpgrade("whoswho") and ply:GetNW2Float("nz.ChuggaTeleDelay",0) < CurTime() then
@@ -451,7 +525,7 @@ local function DrawWhosWhoProgress()
 		if (not ply:IsOnGround())
 		or (ply:GetNW2Float("nz.LastHit", 0) + 5) > CurTime()
 		or (IsValid(revive) and nzRevive.Players[revive:EntIndex()])
-		or (ply:KeyDown(IN_ATTACK)) then
+		or (b_spectating and ply:HasButtonDown(IN_ATTACK) or ply:KeyDown(IN_ATTACK)) then
 			fuck = false
 			attacktime = curtime + 0.5
 		end
@@ -460,7 +534,7 @@ local function DrawWhosWhoProgress()
 			fuck = false
 		end
 
-		if ply:KeyDown(IN_USE) and ply:KeyDown(IN_RELOAD) and fuck then
+		if (b_spectating and ply:HasButtonDown(IN_USE) or ply:KeyDown(IN_USE)) and (b_spectating and ply:HasButtonDown(IN_RELOAD) or ply:KeyDown(IN_RELOAD)) and fuck then
 			if !whoswhotime then
 				whoswhotime = CurTime()
 			end
@@ -491,12 +565,14 @@ local color_grey_100 = Color(100,100,100,255)
 local color_red_70 = Color(255, 70, 70, 255)
 local color_yellow_70 = Color(255, 255, 70, 255)
 local nz_bleedoutstyle = GetConVar("nz_hud_bleedout_style")
+local nz_useplayercolor = GetConVar("nz_hud_use_playercolor")
+local vector_yellow_70 = Vector(1, 1, 0.2745)
 
 local function DrawBleedoutProgress()
-	if not cl_drawhud:GetBool() then return end
 	if nzRound:InState(ROUND_GO) then return end
 
 	local ply = LocalPlayer()
+	if !ply:ShouldDrawHUD() then return end
 	if IsValid(ply:GetObserverTarget()) then
 		ply = ply:GetObserverTarget()
 	end
@@ -564,16 +640,20 @@ local function DrawBleedoutProgress()
 			local bigx = 54*finalpulse
 			local bigy = 20*finalpulse
 
-			surface.SetDrawColor(ColorAlpha(reviving and color_white or color_yellow_70, 60))
+			local rate = (1/nzMapping.Settings.perkstokeep)/3
+			local faderate = math.Remap(progress, 0, 1, -rate, 1) + rate
+			local ourcolor = LerpVector(math.min(faderate, 1), Vector(0.8, 0, 0), vector_yellow_70):ToColor()
+
+			surface.SetDrawColor(ColorAlpha(reviving and color_white or ourcolor, 60))
 			surface.DrawRect(icon_x - (bigx/2)*pscale, icon_y - (bigy/2)*pscale, bigx*pscale, bigy*pscale)
 
-			surface.SetDrawColor(reviving and color_white or color_yellow_70)
+			surface.SetDrawColor(reviving and color_white or ourcolor)
 			surface.DrawRect(icon_x - (sizex/2)*pscale, icon_y - (sizey/2)*pscale, sizex*pscale, sizey*pscale)
 
-			surface.SetDrawColor(ColorAlpha(reviving and color_white or color_yellow_70, 60))
+			surface.SetDrawColor(ColorAlpha(reviving and color_white or ourcolor, 60))
 			surface.DrawRect(icon_x - (bigy/2)*pscale, icon_y - (bigx/2)*pscale, bigy*pscale, bigx*pscale)
 
-			surface.SetDrawColor(reviving and color_white or color_yellow_70)
+			surface.SetDrawColor(reviving and color_white or ourcolor)
 			surface.DrawRect(icon_x - (sizey/2)*pscale, icon_y - (sizex/2)*pscale, sizey*pscale, sizex*pscale)
 
 			surface.SetDrawColor(color_white)

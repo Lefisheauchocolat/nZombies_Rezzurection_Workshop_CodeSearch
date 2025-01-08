@@ -77,7 +77,6 @@ else
 
     net.Receive("nZr.HariSettings", function()
         local tab = net.ReadTable()
-        print(tab)
         if #elementsTab > 0 then
             for name, value in pairs(tab) do
                 if not elementsTab[name] then continue end

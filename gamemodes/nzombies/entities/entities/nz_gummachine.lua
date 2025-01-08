@@ -490,6 +490,7 @@ function ENT:Use(activator, caller)
 	if nzGum:GetTotalBuys(activator) >= (nzMapping.Settings.maxplayergumuses or 3) then return end
 	if activator:GetUsingSpecialWeapon() then return end
 	if self:GetIsRolling() then return end
+	if activator.NextUse and activator.NextUse > CurTime() then return end
 
 	local in_creative = (nzRound:InState(ROUND_CREATE) or activator:IsInCreative())
 
@@ -511,6 +512,7 @@ function ENT:Use(activator, caller)
 			else
 				activator:Buy(math.huge, self, function() return false end)
 			end
+			activator.NextUse = CurTime() + 0.25
 			return false
 		end)
 		return
@@ -547,6 +549,8 @@ function ENT:Use(activator, caller)
 
 	self:SetCycle(0)
 	self:ResetSequence("Gumball_Take")
+
+	activator.NextUse = CurTime() + 0.25
 end
 
 function ENT:EmptyGums()

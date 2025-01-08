@@ -21,6 +21,7 @@ if SERVER then
 				continue 
 			end
 
+			//credit notGarry for code below
 			local bleedtime = ent.GetBleedoutTime and ent:GetBleedoutTime() or cvar_bleedout:GetFloat()
 			local timetodeath = data.DownTime + bleedtime - ct
 
@@ -114,6 +115,58 @@ if SERVER then
 end
 
 if SERVER then
+	local function GetClearPaths(ply, pos, tiles)
+		local clearPaths = {}
+		local filter = player.GetAll()
+		for _, tile in pairs( tiles ) do
+			local tr = util.TraceLine({
+				start = pos,
+				endpos = tile,
+				filter = filter,
+				mask = MASK_PLAYERSOLID
+			})
+			
+			if not tr.Hit and util.IsInWorld(tile) then
+				table.insert( clearPaths, tile )
+			end
+		end
+		
+		return clearPaths
+	end
+
+	local function GetSurroundingTiles(ply, pos)
+		local tiles = {}
+		local x, y, z
+		local minBound, maxBound = ply:GetHull()
+		local checkRange = math.max(32, maxBound.x, maxBound.y)
+		
+		for z = -1, 1, 1 do
+			for y = -1, 1, 1 do
+				for x = -1, 1, 1 do
+					local testTile = Vector(x,y,z)
+					testTile:Mul( checkRange )
+					local tilePos = pos + testTile
+					table.insert( tiles, tilePos )
+				end
+			end
+		end
+		
+		return tiles
+	end
+
+	local function CollisionBoxClear(ply, pos, minBound, maxBound, spawns)
+		local filter = {ply}
+		table.Add(filter, spawns)
+		local tr = util.TraceEntity({
+			start = pos,
+			endpos = pos,
+			filter = filter,
+			mask = MASK_PLAYERSOLID
+		}, ply)
+
+		return !tr.StartSolid || !tr.AllSolid
+	end
+
 	util.AddNetworkString("nz_WhosWhoActive")
 	util.AddNetworkString("nz_WhosWhoTeleRequest")
 
@@ -191,18 +244,59 @@ if SERVER then
 			pos = moo:GetPos()
 		end
 
-		ply:EmitSound("NZ.ChuggaBud.Sweet")
+		local guests = {}
+		for _, ent in ipairs(player.GetAll()) do
+			local target = ent:GetEyeTrace().Entity
+			if (!IsValid(target)) or (target ~= ply) or (!ent:KeyDown(IN_USE)) then continue end
+			if ent:GetPos():DistToSqr(startpos) >= 4096 then continue end
+			guests[#guests + 1] = ent
+		end
+
+		sound.Play("NZ.ChuggaBud.Sweet", ply:EyePos(), SNDLVL_TALKING, math.random(97,103), 1)
 		ply:ViewPunch(Angle(-4, math.random(-6, 6), 0))
 		ply:SetPos(pos)
 
 		timer.Simple(0, function()
 			if not IsValid(ply) then return end
 
+			local guestpos = pos
+			for i, ent in ipairs(guests) do
+				timer.Simple(engine.TickInterval()*i, function()
+					if not IsValid(ent) then return end
+					if not IsValid(ply) then return end
+
+					local minBound, maxBound = ent:GetHull()
+					if not CollisionBoxClear(ent, guestpos, minBound, maxBound, available ) then
+						local surroundingTiles = GetSurroundingTiles( ent, guestpos )
+						local clearPaths = GetClearPaths( ent, guestpos, surroundingTiles )	
+						for _, tile in pairs( clearPaths ) do
+							if CollisionBoxClear( ent, tile, minBound, maxBound, available ) then
+								guestpos = tile
+								break
+							end
+						end
+					end
+
+					ent:ViewPunch(Angle(-4, math.random(-6, 6), 0))
+					ent:SetPos(guestpos + vector_up)
+
+					nzSounds:PlayFile("weapons/tfa_bo3/qed/teleports.wav", ent)
+					ParticleEffect("nz_perks_chuggabud_tp", guestpos + vector_up, angle_zero)
+				end)
+			end
+
 			if bool then //create ghost
 				nzRevive:CreateChuggaBud(ply, startpos)
 			end
+
 			ply:SetPos(pos)
-			ply:EmitSound("NZ.ChuggaBud.Teleport")
+
+			if #guests > 0 then
+				sound.Play("weapons/tfa_bo3/qed/teleports.wav", ply:EyePos(), SNDLVL_GUNFIRE, math.random(97,103), 1)
+			else
+				ply:EmitSound("NZ.ChuggaBud.Teleport")
+			end
+
 			ParticleEffect("nz_perks_chuggabud_tp", pos, angle_zero)
 
 			nzSounds:Play("WhosWhoLooper", ply)

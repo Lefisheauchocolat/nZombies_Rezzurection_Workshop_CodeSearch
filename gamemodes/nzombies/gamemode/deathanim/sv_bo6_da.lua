@@ -23,13 +23,13 @@ nZr_Death_Animations_Effects = {
         ["mwz_da_%s_novacrawler"] = {time = 6.6, model = "models/bo6/hari/da/novacrawler.mdl", eff = {[0.5] = "fear", [1.5] = "touch", [2.1] = "rleg_bite", [2.2] = "fear", [2.8] = "drop", [4.1] = "touch", [4.5] = "rhand_bite", [4.6] = "pain", [5.5] = "neck_bite", [6] = "drop"}},
     },
     ["Mangler"] = {
-        ["mwz_da_%s_mangler"] = {time = 6.15, model = "models/bo6/hari/da/mangler.mdl", eff = {[0.7] = "touch", [0.8] = "fear", [2] = "slash_spine_blood", [2.1] = "pain", [3.6] = "mangler_ready", [4.8] = "mangler_shot", [5] = "headblow", [6] = "drop"}},
+        ["mwz_da_%s_mangler_t10"] = {time = 7.6, model = "models/bo6/hari/da/mangler.mdl", eff = {[0] = "sound", [2.1] = "slash_spine_blood", [6.1] = "mangler_ready", [7.3] = "mangler_shot"}},
     },
     ["Mangler_jup"] = {
-        ["mwz_da_%s_mangler"] = {time = 6.15, model = "models/bo6/hari/da/mangler_jup.mdl", eff = {[0.7] = "touch", [0.8] = "fear", [2] = "slash_spine_blood", [2.1] = "pain", [3.6] = "mangler_ready", [4.8] = "mangler_shot", [5] = "headblow", [6] = "drop"}},
+        ["mwz_da_%s_mangler_t10"] = {time = 7.6, model = "models/bo6/hari/da/mangler_jup.mdl", eff = {[0] = "sound", [2.1] = "slash_spine_blood", [6.1] = "mangler_ready", [7.3] = "mangler_shot"}},
     },
     ["Mangler_t10"] = {
-        ["mwz_da_%s_mangler"] = {time = 6.15, model = "models/bo6/hari/da/mangler_t10.mdl", eff = {[0.7] = "touch", [0.8] = "fear", [2] = "slash_spine_blood", [2.1] = "pain", [3.6] = "mangler_ready", [4.8] = "mangler_shot", [5] = "headblow", [6] = "drop"}},
+        ["mwz_da_%s_mangler_t10"] = {time = 7.6, model = "models/bo6/hari/da/mangler_t10.mdl", eff = {[0] = "sound", [2.1] = "slash_spine_blood", [6.1] = "mangler_ready", [7.3] = "mangler_shot"}},
     },
     ["Hellhound"] = {
         ["mwz_da_%s_dog"] = {time = 8.6, model = "models/bo6/hari/da/dog.mdl", eff = {[0.2] = "dog_bark", [0.8] = "drop", [1] = "fear", [1.6] = "touch", [2.2] = "dog_attack", [2.8] = "neck_bite", [2.9] = "pain", [5.1] = "touch", [6.8] = "dog_attack", [7.4] = "headblow", [7.9] = "drop"}},

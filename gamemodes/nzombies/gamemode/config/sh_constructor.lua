@@ -29,6 +29,7 @@ if not ConVarExists("nz_weapon_auto_reload") then CreateConVar("nz_weapon_auto_r
 if not ConVarExists("nz_zombie_eye_trails") then CreateConVar("nz_zombie_eye_trails", 0, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
 if not ConVarExists("nz_oldtunes") then CreateConVar("nz_oldtunes", 0, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
 if not ConVarExists("nz_difficulty_zombie_stumble") then CreateConVar("nz_difficulty_zombie_stumble", 1, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
+if not ConVarExists("nz_rounds_survived_classic") then CreateConVar("nz_rounds_survived_classic", 0, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Enable for the game over 'Rounds Survived' amount to count the current round, like in classic zombies. (0 Disable, 1 Enabled)", 0, 1) end
 
 cvars.AddChangeCallback("nz_downtime", function(name, old, new)
 	for _, ply in pairs(player.GetAll()) do
@@ -109,6 +110,7 @@ local zombieconfig = {
 	"walker_derriese",
 	"walker_prototype_enhanced",
 	"walker_derriese_enhanced",
+	"walker_derriese_wwii",
 	"walker_ascension_classic",
 	"walker_classic",
 	"walker_classic_wii",
@@ -136,6 +138,7 @@ local zombieconfig = {
 	"walker_quartz_hazmat",
 	"walker_seal",
 	"walker_lmghost",
+	"walker_poolday",
 
 	"special_alien_scout",
 	"special_alien_scorpion",
@@ -161,6 +164,7 @@ local zombieconfig = {
 	"special_dog_gas",
 	"special_dog_fire",
 	"special_dog_jup",
+	"special_elf_bomber",
 	"special_facehugger",
 	"special_follower",
 	"special_frog",
@@ -211,6 +215,7 @@ local zombieconfig = {
 	"special_toxic_hazmat_zhd",
 	"special_scrake",
 	"special_goliathcodol",
+	"special_snowman",
 	
 	"special_raz",
 	"special_raz_jup",

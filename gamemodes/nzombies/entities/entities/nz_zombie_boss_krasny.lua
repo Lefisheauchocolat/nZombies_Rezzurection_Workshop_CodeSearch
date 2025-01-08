@@ -401,41 +401,20 @@ ENT.ArmorBreakSounds = {
 
 function ENT:StatsInitialize()
 	if SERVER then
-		local count = #player.GetAllPlaying()
-		local playerhpmod = 1
-
-		local basehealth = 1200
-		local basehealthmax = 22500
-
-		local bosshealth = basehealth
-
-		local healthincrease = 1000
-		local coopmultiplier = 0.75
-
-		if count > 1 then
-			playerhpmod = count * coopmultiplier
-		end
-
-		bosshealth = math.Round(playerhpmod * (basehealth + (healthincrease * nzRound:GetNumber())))
+		local count = #player.GetAllPlaying() * 0.5
 
 		if nzRound:InState( ROUND_CREATE ) then
-			self:SetHealth(basehealth)
-			self:SetMaxHealth(basehealth)
+			self:SetHealth(4300)
+			self:SetMaxHealth(4300)
 		else
-			if nzRound:InState( ROUND_PROG ) then
-				self:SetHealth(math.Clamp(bosshealth, basehealth, basehealthmax * playerhpmod))
-				self:SetMaxHealth(math.Clamp(bosshealth, basehealth, basehealthmax * playerhpmod))
-				print("Current Soldat health is: "..self:GetMaxHealth()..".")
-			else
-				self:SetHealth(basehealth)
-				self:SetMaxHealth(basehealth)	
-			end
+			self:SetHealth(nzRound:GetNumber() * 950 + (1000 * count))
+			self:SetMaxHealth(nzRound:GetNumber() * 950 + (1000 * count))
 		end
 
-		self.HelmetHP = self:GetMaxHealth() * 0.25
+		self.HelmetHP = self:GetMaxHealth() * 0.5
 
 		self.HasPSupply = true
-		self.PowerSupplyHP = self:GetMaxHealth() * 0.1
+		self.PowerSupplyHP = self:GetMaxHealth() * 0.25
 
 		self.SpawnProtection = true -- Zero Health Zombies tend to be created right as they spawn.
 		self.SpawnProtectionTime = CurTime() + 5 -- So this is an experiment to see if negating any damage they take for a second will stop this.

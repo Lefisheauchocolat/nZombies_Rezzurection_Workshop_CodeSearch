@@ -75,6 +75,7 @@ function nzPerks:GetPAPType(id)
 	local tbl = {
 		["Classic"] 				= "waw",
 		["Halloween"] 				= "spooky",
+		["Christmas"] 				= "xmas",
 		["Original"] 				= "og",
 		["Tranzit"] 				= "bo2",
 		["Origins"] 				= "nz_tomb",
@@ -976,7 +977,8 @@ nzPerks:NewPerk("cherry", {
 	name 			= "Electric Cherry",
 	name_skin 		= "Blue Bolts",
 	name_vg 		= "Voltaic Tempest",
-	model 			= "models/nzr/2022/machines/cherry/vending_cherry.mdl",
+	model 			= "models/kate/_codz_ports_props/t7/zm/p7_zm_vending_cherry/p7_zm_vending_electric_cherry.mdl",
+	model_classic 	= "models/nzr/2022/machines/cherry/vending_cherry.mdl",
 	model_vg 		= "models/moo/_codz_ports_props/s4/zod/cherry/moo_codz_s4_zm_demonic_fountain_cherry.mdl",
 	skin 			= "models/iwperks/bolts/cherry.mdl",
 	off_skin = 0,
@@ -1445,17 +1447,19 @@ nzPerks:NewPerk("pap", {
 	model_origins_red = "models/moo/_codz_ports_props/t6/zm/p6_zm_tm_packapunch_red/moo_codz_p6_zm_tm_packapunch_red.mdl",
 	model_waw 		= "models/wavy_ports/waw/packapunch_machine.mdl",
 	model_spooky 	= "models/wavy_ports/waw/packapunch_machine_halloween.mdl",
+	model_xmas 		= "models/wavy_ports/waw/packapunch_machine_xmas.mdl",
 
 	off_skin 		= 0,
 	on_skin 		= 1,
-	price 			= 0,
-	upgradeprice 	= 0, 
+	price 			= 5000,
+	upgradeprice 	= 2500, 
 	specialmachine 	= true,
 	nobuy 			= true,
 	icon 			= Material("vulture_icons/pap.png", "smooth unlitgeneric"),
 	icon_skin 		= Material("vulture_icons/pap.png", "smooth unlitgeneric"),
 	color 			= Color(20, 235, 255),
 	color_spooky 	= Color(255, 106, 0),
+	color_xmas 		= Color(255, 43, 57),
 	color_redtomb 	= Color(255, 10, 10),
 
 	sting 			= "nz_moo/perkacolas/pap_sting.mp3",
@@ -1479,8 +1483,18 @@ nzPerks:NewPerk("pap", {
 				reroll = true
 			end
 
-			local cost = reroll and nzPowerUps:IsPowerupActive("bonfiresale") and 500 or reroll and 2500 or nzPowerUps:IsPowerupActive("bonfiresale") and 1000 or 5000
-			return ply:GetPoints() >= cost
+			local cost = machine:GetPrice()
+			if reroll then
+			    cost = machine:GetUpgradePrice()
+			end
+			if nzPowerUps:IsPowerupActive("bonfiresale") then
+			    cost = math.Round(cost / 5)
+			end
+			if nzRound:InState(ROUND_CREATE) and ply:IsInCreative() then
+			    cost = 0
+			end
+
+			return ply:CanAfford(cost)
 		else
 			if !machine:GetBeingUsed() then
 				ply:PrintMessage(HUD_PRINTTALK, "This weapon is already Pack-a-Punched")

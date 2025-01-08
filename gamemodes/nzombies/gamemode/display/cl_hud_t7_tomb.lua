@@ -33,6 +33,7 @@ local nz_showperkframe = GetConVar("nz_hud_show_perk_frames")
 local nz_showzcounter = GetConVar("nz_hud_show_alive_counter")
 local nz_showpoweruptimer = GetConVar("nz_hud_show_powerup_time")
 local nz_showportrait = GetConVar("nz_hud_show_player_portrait")
+local nz_showgamebegintext = GetConVar("nz_hud_show_game_start_text")
 
 local nz_indicators = GetConVar("nz_hud_player_indicators")
 local nz_indicatorangle = GetConVar("nz_hud_player_indicator_angle")
@@ -324,19 +325,6 @@ local t7_hud_score = Material("nz_moo/huds/bo3/uie_score_feed_glow.png", "unlitg
 local t7_hud_player_vignette = Material("nz_moo/huds/t7/vignette.png", "unlitgeneric smooth")
 local t7_hud_player_glow = Material("nz_moo/huds/t7/uie_t7_zm_hud_panel_rnd.png", "unlitgeneric smooth")
 
-//t7 powerup
-/*local t7_powerup_minigun = Material("nz_moo/icons/t7/t7_hud_zm_powerup_giant_deathmachine.png", "unlitgeneric")
-local t7_powerup_blood = Material("nz_moo/icons/t7/specialty_giant_blood_zombies.png", "unlitgeneric")
-local t7_powerup_2x = Material("nz_moo/icons/t7/specialty_giant_2x_zombies.png", "unlitgeneric")
-local t7_powerup_killjoy = Material("nz_moo/icons/t7/specialty_giant_killjoy_zombies.png", "unlitgeneric")
-local t7_powerup_firesale = Material("nz_moo/icons/t7/specialty_giant_firesale_zombies.png", "unlitgeneric")
-local t7_powerup_bonfiresale = Material("nz_moo/icons/t7/powerup_bon_fire.png", "unlitgeneric")
-local t7_powerup_timewarp = Material("vgui/icon_timewarp.png", "unlitgeneric")
-local t7_powerup_berzerk = Material("vgui/bo3_bzk.png", "unlitgeneric")
-local t7_powerup_infinite = Material("vgui/bo3_infinite.png", "unlitgeneric")
-local t7_powerup_godmode = Material("vgui/bo3_greyson.png", "unlitgeneric")
-local t7_powerup_quick = Material("vgui/bo3_quick.png", "unlitgeneric")*/
-
 //t7 inventory
 local t7_icon_shield_fill = Material("nz_moo/huds/t7/uie_t7_icon_inventory_dlc3_dragonshield_fill.png", "unlitgeneric smooth")
 local t7_icon_shield = Material("nz_moo/huds/t7/uie_t7_icon_inventory_dlc3_dragonshield_outline.png", "unlitgeneric smooth")
@@ -367,6 +355,7 @@ local zmhud_icon_voicedim = Material("nz_moo/icons/voice_on_dim.png", "unlitgene
 local zmhud_icon_voiceoff = Material("nz_moo/icons/voice_off.png", "unlitgeneric smooth")
 local zmhud_icon_offscreen = Material("nz_moo/icons/offscreen_arrow.png", "unlitgeneric smooth")
 local zmhud_icon_zedcounter = Material("nz_moo/icons/ugx_talkballoon.png", "unlitgeneric smooth")
+local zmhud_player_teleporting = Material("effects/tp_eyefx/tpeye.vmt")
 
 local illegalspecials = {
 	["specialgrenade"] = true,
@@ -374,35 +363,6 @@ local illegalspecials = {
 	["knife"] = true,
 	["display"] = true,
 }
-
-local function StatesHud_t7()
-	if not cl_drawhud:GetBool() then return end
-	if nzRound:InProgress() then return end
-
-	local text = ""
-	local font = "nz.main.blackops2"
-	if nz_mapfont:GetBool() then
-		font = "nz.main."..GetFontType(nzMapping.Settings.mainfont)
-	end
-
-	local w, h = ScrW(), ScrH()
-	local pscale = (w/1920 + 1) / 2
-
-	if nzRound:InState(ROUND_WAITING) then
-		text = "Waiting for players. Type /ready to ready up."
-		font = "nz.small.blackops2"
-		if nz_mapfont:GetBool() then
-			font = "nz.small."..GetFontType(nzMapping.Settings.smallfont)
-		end
-	elseif nzRound:InState(ROUND_CREATE) then
-		text = "Creative Mode"
-	elseif nzRound:InState(ROUND_GO) then
-		text = "Game Over"
-	end
-
-	local fontColor = !IsColor(nzMapping.Settings.textcolor) and color_red_200 or nzMapping.Settings.textcolor
-	draw.SimpleTextOutlined(text, font, w/2, 60*pscale, fontColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, color_black_100)
-end
 
 local PointsNotifications = {}
 local function PointsNotification(ply, amount, profit_id)
@@ -476,12 +436,13 @@ local function DrawSpecialistCircle( X, Y, target_radius, value, active, empty )
 end
 
 local function InventoryHUD_t7()
-	if not cl_drawhud:GetBool() then return end
-	if not (nzRound:InProgress() or nzRound:InState(ROUND_CREATE)) then return end
-
 	local ply = LocalPlayer()
 	if not IsValid(ply) then return end
+
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawInventoryHUD() then return end
 	if ply:IsNZMenuOpen() then return end
+
 	if IsValid(ply:GetObserverTarget()) then
 		ply = ply:GetObserverTarget()
 	end
@@ -698,8 +659,16 @@ local function InventoryHUD_t7()
 end
 
 local function ScoreHud_t7()
-	if not cl_drawhud:GetBool() then return end
-	if not (nzRound:InProgress() or nzRound:InState(ROUND_CREATE)) then return end
+	local ply = LocalPlayer()
+	if not IsValid(ply) then return end
+
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawScoreHUD() then return end
+	if ply:IsNZMenuOpen() then return end
+
+	if IsValid(ply:GetObserverTarget()) then
+		ply = ply:GetObserverTarget()
+	end
 
 	local fontsmall = "nz.ammo.bo3.wepname"
 	local fontmain = "nz.small.blackops2"
@@ -713,11 +682,6 @@ local function ScoreHud_t7()
 	local scale = (w/1920 + 1) / 2
 	local offset = 0
 	local wr = w/1920
-
-	local ply = LocalPlayer()
-	if IsValid(ply:GetObserverTarget()) then
-		ply = ply:GetObserverTarget()
-	end
 
 	local plyindex = ply:EntIndex()
 	local plytab = player.GetAll()
@@ -856,9 +820,32 @@ local function ScoreHud_t7()
 		surface.SetMaterial(pmpath)
 		surface.DrawTexturedRect(wr + 70*scale, h - (260*scale) - offset, 40*scale, 40*scale)
 
-		surface.SetDrawColor(color_white)
 		surface.SetMaterial(t7_hud_player_vignette)
 		surface.DrawTexturedRect(wr + 68*scale, h - (262*scale) - offset, 44*scale, 44*scale)
+
+		if v.GetTeleporterEntity and IsValid(v:GetTeleporterEntity()) then
+			surface.SetMaterial(zmhud_player_teleporting)
+			surface.DrawTexturedRect(wr + 70*scale, h - 260 * scale - offset, 40*scale, 40*scale)
+		end
+
+		if v.IsOnFire and v:IsOnFire() or v:GetNW2Float("nzLastBurn", 0) + 1.5 > CurTime() then
+			surface.SetMaterial(zmhud_player_onfire)
+			surface.DrawTexturedRect(wr + 70*scale, h - 260 * scale - offset, 40*scale, 40*scale)
+		end
+
+		if v:GetNW2Float("nzLastShock", 0) + 1.5 > CurTime() then
+			surface.SetMaterial(zmhud_player_shocked)
+			surface.DrawTexturedRect(wr + 70*scale, h - 260 * scale - offset, 40*scale, 40*scale)
+		end
+
+		if v.HasVultureStink and v:HasVultureStink() then
+			surface.SetMaterial(zmhud_player_stink)
+			surface.DrawTexturedRect(wr + 70*scale, h - 260 * scale - offset, 40*scale, 40*scale)
+
+			surface.SetMaterial(Material("color"))
+			surface.SetDrawColor(160, 255, 0, math.max(24 * math.abs(math.sin(CurTime())), 14))
+			surface.DrawTexturedRect(wr + 70*scale, h - 260 * scale - offset, 40*scale, 40*scale)
+		end
 
 		surface.SetDrawColor(color_black_100)
 		surface.DrawOutlinedRect(wr + 68*scale, h - (262*scale) - offset, 44*scale, 44*scale, 2*scale)
@@ -1041,15 +1028,13 @@ local function DoAnimatedHudBits()
 end
 
 local function GunHud_t7()
-	if not cl_drawhud:GetBool() then return end
-
 	local ply = LocalPlayer()
 	if not IsValid(ply) then return end
-	if nzRound:InState(ROUND_GO) and not ply:Alive() then
-		return
-	end
 
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawGunHUD() then return end
 	if ply:IsNZMenuOpen() then return end
+
 	if IsValid(ply:GetObserverTarget()) then
 		ply = ply:GetObserverTarget()
 	end
@@ -1070,45 +1055,6 @@ local function GunHud_t7()
 
 	local fontColor = !IsColor(nzMapping.Settings.textcolor) and color_red_200 or nzMapping.Settings.textcolor
 
-	//glow background
-	/*surface.SetMaterial(t7_hud_score)
-	surface.SetDrawColor(ColorAlpha(color_t7, math.random(60, 90)))
-	surface.DrawTexturedRect(w - 234*scale, h - 270*scale, 128*scale*1.8, 128*scale*1.8)
-
-	surface.SetMaterial(t7_hud_ammo_projection_lrg)
-	surface.SetDrawColor(ColorAlpha(color_t7_tomb, math.random(100, 140)))
-	surface.DrawTexturedRect(w - 419*scale, h - 318*scale, 468*scale*0.85, 360*scale*0.86)
-
-	surface.SetMaterial(t7_hud_ammo_panelglow)
-	surface.SetDrawColor(color_t7_outline)
-	surface.DrawTexturedRect(w - 260*scale - (52*scale), h - 145*scale - (52*scale), 429*scale*0.25, 288*scale*0.25)
-
-	//animated bits
-	p1pos = p1pos + FrameTime()*0.2
-	if p1pos > 1 then p1pos = 0 end
-
-	surface.SetMaterial(t7_hud_ammo_p1)
-	surface.SetDrawColor(color_white)
-	surface.DrawTexturedRectUV(w - 320*scale, h - 230*scale, 100*scale, 120*scale, 0 + p1pos*scale, 0, 0.33*scale + p1pos*scale, 1*scale)
-
-	p2pos = p2pos + FrameTime()*0.1
-	if p2pos > 1 then p2pos = 0 end
-
-	surface.SetMaterial(t7_hud_ammo_p2)
-	surface.SetDrawColor(color_white)
-	surface.DrawTexturedRectUV(w - 320*scale, h - 230*scale, 100*scale, 120*scale, 0 + p2pos*scale, 0, 0.33*scale + p2pos*scale, 1*scale)
-
-	p3pos = p3pos + FrameTime()*0.25
-	if p3pos > 1 then p3pos = 0 end
-
-	surface.SetMaterial(t7_hud_ammo_p3)
-	surface.SetDrawColor(color_white)
-	surface.DrawTexturedRectUV(w - 420*scale, h - 240*scale, 200, 156, 0 + p3pos, 0, 0.66 + p3pos, 1)
-
-	//base
-	surface.SetMaterial(t7_hud_dpad_base)
-	surface.SetDrawColor(color_white)
-	surface.DrawTexturedRect(w - 220*scale, h - 260*scale, 128*scale*1.5, 128*scale*1.6)*/
 	DoAnimatedHudBits()
 
 	if not (nzRound:InProgress() or nzRound:InState(ROUND_CREATE)) then return end
@@ -1128,47 +1074,49 @@ local function GunHud_t7()
 	end
 
 	//grenade hud
-	local specialweps = ply.NZSpecialWeapons or {}
-	local tacnade = specialweps["specialgrenade"]
-	local grenade = specialweps["grenade"]
-	local num = ply:GetAmmoCount(GetNZAmmoID("grenade") or -1)
-	local numspecial = ply:GetAmmoCount(GetNZAmmoID("specialgrenade") or -1)
+	if ply:ShouldDrawInventoryHUD() then
+		local specialweps = ply.NZSpecialWeapons or {}
+		local tacnade = specialweps["specialgrenade"]
+		local grenade = specialweps["grenade"]
+		local num = ply:GetAmmoCount(GetNZAmmoID("grenade") or -1)
+		local numspecial = ply:GetAmmoCount(GetNZAmmoID("specialgrenade") or -1)
 
-	if numspecial > 0 then
-		local icon = t7_icon_grenade
-		if tacnade and IsValid(tacnade) and tacnade.NZHudIcon then
-			icon = tacnade.NZHudIcon_t7tomb or tacnade.NZHudIcon
+		if numspecial > 0 then
+			local icon = t7_icon_grenade
+			if tacnade and IsValid(tacnade) and tacnade.NZHudIcon then
+				icon = tacnade.NZHudIcon_t7tomb or tacnade.NZHudIcon
+			end
+
+			if not icon or icon:IsError() then
+				icon = zmhud_icon_missing
+			end
+
+			surface.SetMaterial(icon)
+			for i = numspecial, 1, -1 do
+				surface.SetDrawColor(ColorAlpha(color_t7_outline, 100/i*1.5))
+				surface.DrawTexturedRect(w - 310*scale + (i*9*scale) - 4, h - 215*scale - (i*2*scale) - 4, 44*scale, 44*scale)
+
+				surface.SetDrawColor(ColorAlpha(color_white, 200/i*1.5))
+				surface.DrawTexturedRect(w - 310*scale + (i*9*scale), h - 215*scale - (i*2*scale), 36*scale, 36*scale)
+			end
 		end
 
-		if not icon or icon:IsError() then
-			icon = zmhud_icon_missing
-		end
+		if num > 0 then
+			local icon = t7_icon_grenade
+			if grenade and IsValid(grenade) and grenade.NZHudIcon_t7 then
+				icon = grenade.NZHudIcon_t7
+			end
 
-		surface.SetMaterial(icon)
-		for i = numspecial, 1, -1 do
-			surface.SetDrawColor(ColorAlpha(color_t7_outline, 100/i*1.5))
-			surface.DrawTexturedRect(w - 310*scale + (i*9*scale) - 4, h - 215*scale - (i*2*scale) - 4, 44*scale, 44*scale)
+			surface.SetDrawColor(color_t7)
+			surface.SetMaterial(icon)
 
-			surface.SetDrawColor(ColorAlpha(color_white, 200/i*1.5))
-			surface.DrawTexturedRect(w - 310*scale + (i*9*scale), h - 215*scale - (i*2*scale), 36*scale, 36*scale)
-		end
-	end
+			for i = num, 1, -1 do
+				surface.SetDrawColor(ColorAlpha(color_t7_outline, 100/i*1.5))
+				surface.DrawTexturedRect(w - 270*scale + (i*9*scale) - 4, h - 215*scale - (i*2*scale) - 4, 44*scale, 44*scale)
 
-	if num > 0 then
-		local icon = t7_icon_grenade
-		if grenade and IsValid(grenade) and grenade.NZHudIcon_t7 then
-			icon = grenade.NZHudIcon_t7
-		end
-
-		surface.SetDrawColor(color_t7)
-		surface.SetMaterial(icon)
-
-		for i = num, 1, -1 do
-			surface.SetDrawColor(ColorAlpha(color_t7_outline, 100/i*1.5))
-			surface.DrawTexturedRect(w - 270*scale + (i*9*scale) - 4, h - 215*scale - (i*2*scale) - 4, 44*scale, 44*scale)
-
-			surface.SetDrawColor(ColorAlpha(color_white, 200/i*1.5))
-			surface.DrawTexturedRect(w - 270*scale + (i*9*scale), h - 215*scale - (i*2*scale), 36*scale, 36*scale)
+				surface.SetDrawColor(ColorAlpha(color_white, 200/i*1.5))
+				surface.DrawTexturedRect(w - 270*scale + (i*9*scale), h - 215*scale - (i*2*scale), 36*scale, 36*scale)
+			end
 		end
 	end
 
@@ -1430,12 +1378,15 @@ local function GunHud_t7()
 end
 
 local function PerksMMOHud_t7()
-	if not cl_drawhud:GetBool() then return end
 	if not nz_showmmostats:GetBool() then return end
 
 	local ply = LocalPlayer()
 	if not IsValid(ply) then return end
+
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawPerksHUD() then return end
 	if ply:IsNZMenuOpen() then return end
+
 	if IsValid(ply:GetObserverTarget()) then
 		ply = ply:GetObserverTarget()
 	end
@@ -1500,9 +1451,13 @@ local function PerksMMOHud_t7()
 end
 
 local function DeathHud_t7()
-	if not cl_drawhud:GetBool() then return end
 	local ply = LocalPlayer()
 	if not IsValid(ply) then return end
+	if !ply:ShouldDrawHUD() then return end
+	if ply:IsNZMenuOpen() then return end
+	if IsValid(ply:GetObserverTarget()) then
+		ply = ply:GetObserverTarget()
+	end
 
 	local screen = ScreenScale(16)
 	local pscale = ScreenScale(128)
@@ -1611,9 +1566,13 @@ local powerup_data = {}
 local antipowerup_data = {}
 
 local function PowerUpsHud_t7()
-	if not cl_drawhud:GetBool() then return end
 	local ply = LocalPlayer()
 	if not IsValid(ply) then return end
+
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawPowerupsHUD() then return end
+	if ply:IsNZMenuOpen() then return end
+
 	local spectating = false
 	if IsValid(ply:GetObserverTarget()) then
 		ply = ply:GetObserverTarget()
@@ -1821,16 +1780,18 @@ local perkcount = 0
 local perkflashtime = 0
 local stinkfade = 0
 local function PerksHud_t7()
-	if not cl_drawhud:GetBool() then return end
-	if not (nzRound:InProgress() or nzRound:InState(ROUND_CREATE)) then return end
-
 	local ply = LocalPlayer()
 	if not IsValid(ply) then return end
+
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawPerksHUD() then return end
+	if ply:IsNZMenuOpen() then return end
+
 	if IsValid(ply:GetObserverTarget()) then
 		ply = ply:GetObserverTarget()
 	end
 
-	local pscale = (ScrW()/1920 + 1)/2
+	local scale = (ScrW()/1920 + 1)/2
 	local perks = ply:GetPerks()
 
 	local bleedtime = ply.GetBleedoutTime and ply:GetBleedoutTime() or nz_bleedouttime:GetFloat()
@@ -1846,17 +1807,17 @@ local function PerksHud_t7()
 	end
 
 	local maxperks = ply:GetMaxPerks()
-	local w = ScrW()/1920 + (206*pscale)
+	local w = ScrW()/1920 + (206*scale)
 	local h = ScrH()
 	local size = 50
 
 	if nz_showhealth:GetBool() then
-		w = w + (64*pscale)
+		w = w + (64*scale)
 		if nz_showcompass:GetBool() and nz_showzcounter:GetBool() then
-			w = w + (6*pscale)
+			w = w + (6*scale)
 		end
 	elseif nz_showcompass:GetBool() and nz_showzcounter:GetBool() then
-		w = w + (70*pscale)
+		w = w + (70*scale)
 	end
 
 	local num = 0
@@ -1876,7 +1837,7 @@ local function PerksHud_t7()
 				modded = true
 			end
 			if i > #perks then
-				surface.DrawTexturedRect(w + num_b*(size + 6)*pscale, h - 100*pscale - (64*row_b)*pscale, 54*pscale, 54*pscale)
+				surface.DrawTexturedRect(w + num_b*(size + 6)*scale, h - 100*scale - (64*row_b)*scale, 54*scale, 54*scale)
 			end
 
 			if modded then
@@ -1910,11 +1871,11 @@ local function PerksHud_t7()
 		local flashrow = perkcount > rowmod and math.floor(perkcount/rowmod) or 0
 		local flashcount = perkcount > rowmod and perkcount%(rowmod) or perkcount
 
-		cwimage("rf/round/sparks/" .. (math.ceil(CurTime()*30) % 20) .. ".png", (w + 46*pscale) + ((flashcount-1)*(size + 6))*pscale, h - 154*pscale - 64*flashrow, 168*pscale*0.8, 252*pscale*0.8, ColorAlpha(color_t7_sparks, 255*alpha))
+		cwimage("rf/round/sparks/" .. (math.ceil(CurTime()*30) % 20) .. ".png", (w + 46*scale) + ((flashcount-1)*(size + 6))*scale, h - 154*scale - 64*flashrow, 168*scale*0.8, 252*scale*0.8, ColorAlpha(color_t7_sparks, 255*alpha))
 
 		surface.SetMaterial(t7_hud_score)
 		surface.SetDrawColor(ColorAlpha(color_t7, 200*alpha))
-		surface.DrawTexturedRect((w - 40*pscale) + ((flashcount-1)*(size + 6))*pscale, h - 148*pscale - 64*flashrow, 128*pscale, 128*pscale)
+		surface.DrawTexturedRect((w - 40*scale) + ((flashcount-1)*(size + 6))*scale, h - 148*scale - 64*flashrow, 128*scale, 128*scale)
 	end
 
 	for i, perk in pairs(perks) do
@@ -1947,12 +1908,12 @@ local function PerksHud_t7()
 
 		surface.SetMaterial(icon)
 		surface.SetDrawColor(alpha < 1 and ColorAlpha(perkcolor, 800*alpha) or perkcolor)
-		surface.DrawTexturedRect(w + num*(size + 6)*pscale - fuckset*pscale, h - (100 + fuckset)*pscale - (64*row)*pscale, 54*pulse*pscale, 54*pulse*pscale)
+		surface.DrawTexturedRect(w + num*(size + 6)*scale - fuckset*scale, h - (100 + fuckset)*scale - (64*row)*scale, 54*pulse*scale, 54*pulse*scale)
 
 		if ply:HasUpgrade(perk) then
 			surface.SetDrawColor(color_gold)
 			surface.SetMaterial(GetPerkFrameMaterial())
-			surface.DrawTexturedRect(w + num*(size + 6)*pscale - fuckset*pscale, h - (100 + fuckset)*pscale - (64*row)*pscale, 54*pulse*pscale, 54*pulse*pscale)
+			surface.DrawTexturedRect(w + num*(size + 6)*scale - fuckset*scale, h - (100 + fuckset)*scale - (64*row)*scale, 54*pulse*scale, 54*pulse*scale)
 		end
 
 		if perk == "vulture" then
@@ -1964,11 +1925,11 @@ local function PerksHud_t7()
 				surface.SetDrawColor(ColorAlpha(color_white, 255*stinkfade))
 
 				surface.SetMaterial(zmhud_vulture_glow)
-				surface.DrawTexturedRect((w + num*(size + 6)*pscale) - 24*pscale, (h - 100*pscale - (64*row)*pscale) - 24*pscale, 102*pscale, 102*pscale)
+				surface.DrawTexturedRect((w + num*(size + 6)*scale) - 24*scale, (h - 100*scale - (64*row)*scale) - 24*scale, 102*scale, 102*scale)
 				
 				local stink = surface.GetTextureID("nz_moo/huds/t6/zm_hud_stink_ani_green")
 				surface.SetTexture(stink)
-				surface.DrawTexturedRect((w + num*(size + 6)*pscale), (h - 100*pscale - (64*row)*pscale) - 62*pscale, 64*pscale, 64*pscale)
+				surface.DrawTexturedRect((w + num*(size + 6)*scale), (h - 100*scale - (64*row)*scale) - 62*scale, 64*scale, 64*scale)
 			
 				stinkfade = math.max(stinkfade - FrameTime()*3, 0)
 			end
@@ -1979,61 +1940,6 @@ local function PerksHud_t7()
 			row = row + 1
 			num = 0
 		end
-	end
-end
-
-local function VultureVision_t7()
-	local ply = LocalPlayer()
-	if IsValid(ply:GetObserverTarget()) then ply = ply:GetObserverTarget() end
-	if not ply:HasPerk("vulture") then return end
-	local scale = (ScrW()/1920 + 1)/2
-	local icon = nzDisplay.vultureHUDicons["wunderfizz_machine"] //? if unknown
-
-	for k, v in nzLevel.GetVultureArray() do
-		if not IsValid(v) then continue end
-		if v:GetNoDraw() then continue end
-
-		local data = v:WorldSpaceCenter():ToScreen()
-		if not data.visible then continue end
-
-		local dist = ply:GetPos():DistToSqr(v:GetPos())
-		if (dist > 1000000) then continue end //1000hu^2
-
-		local distfac = 1 - math.Clamp((dist - 1000000 + 160000)/160000, 0, 1) //fade of 400hu^2
-		local class = v:GetClass()
-		local ourcolor = ColorAlpha(color_white, 120*distfac)
-
-		if nzDisplay.vultureHUDicons[class] then
-			icon = nzDisplay.vultureHUDicons[class]
-		elseif v.GetPerkID then
-			local perk = v:GetPerkID()
-			if perk == "pap" then
-				icon = nzDisplay.vultureHUDicons["pap"]
-			else
-				icon = GetPerkIconMaterial(perk)
-			end
-		elseif nzPowerUps.EntityClasses[class] then
-			data = class == "drop_tombstone" and v:GetAttachment(1).Pos:ToScreen() or  v:GetPos():ToScreen()
-			if v.GetPowerUp then
-				icon = GetPowerupIconMaterial(v:GetPowerUp())
-			end
-			if v.GetAnti and v:GetAnti() then
-				ourcolor = ColorAlpha(color_red_255, 200*distfac)
-			else
-				if v.GetActivated and not v:GetActivated() then
-					continue
-				end
-				ourcolor = ColorAlpha(color_white, 200*distfac)
-			end
-		end
-
-		if not icon or icon:IsError() then
-			icon = zmhud_icon_missing
-		end
-
-		surface.SetMaterial(icon)
-		surface.SetDrawColor(ourcolor)
-		surface.DrawTexturedRect(data.x - 21*scale, data.y - 21*scale, 42*scale, 42*scale)
 	end
 end
 
@@ -2100,16 +2006,111 @@ local function AddStrokeBulk(number)
 	end
 end
 
-local function RoundHud_t7()
-	if !nzRound then return end
-	if not cl_drawhud:GetBool() then return end
-	if not (nzRound:InProgress() or nzRound:InState(ROUND_GO) or nzRound:InState(ROUND_CREATE)) then return end
-	if nzRound:InState(ROUND_GO) and not LocalPlayer():Alive() then
-		return
+local round_posdata = {
+	["alpha"] = 255,
+	["white"] = 255,
+	["time"] = 0,
+	["kys_time"] = 0,
+	["intro"] = false,
+}
+
+local function ResetRoundPos()
+	local w, h = ScrW(), ScrH()
+	local scale = (ScrW()/1920 + 1)/2
+	local wscale = w/1920*scale
+
+	round_posdata[1] = 10
+	round_posdata[2] = 140
+end
+
+local function GameBeginRound(round)
+	round_posdata["intro"] = true
+	round_posdata["time"] = CurTime() + 6.5
+	round_posdata["alpha"] = 0
+	nzDisplay.HUDIntroDuration = round_posdata["time"]
+
+	if !round then
+		round = nzRound:GetNumber()
 	end
 
 	local w, h = ScrW(), ScrH()
-	local pscale = (w/1920 + 1)/2
+	local scale = (ScrW()/1920 + 1)/2
+	local wscale = w/1920*scale
+
+	round_posdata[1] = w/2 - 18*scale
+	round_posdata[2] = h/2
+
+	hook.Add("HUDPaint", "nz_fuckoffshitt", function()
+		if round_posdata["time"] > CurTime() then return end
+
+		if round_posdata["kys_time"] == 0 then
+			round_posdata["kys_time"] = CurTime() + 2
+		end
+
+		local kysratio = math.Clamp(((round_posdata["kys_time"] - 1) - CurTime())/1, 0, 1)
+		round_posdata["alpha"] = Lerp(kysratio, 0, 255)
+
+		if round_posdata["kys_time"] < CurTime() then
+			hook.Remove("HUDPaint", "nz_fuckoffshitt")
+
+			round_posdata["intro"] = false
+			round_posdata["alpha"] = 255
+			round_posdata["white"] = 255
+			round_posdata["kys_time"] = 0
+
+			ResetRoundPos()
+		end
+	end)
+end
+
+local function RoundHud_t7()
+	local ply = LocalPlayer()
+	if not IsValid(ply) then return end
+
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawRoundHUD() then return end
+	if ply:IsNZMenuOpen() then return end
+
+	local w, h = ScrW(), ScrH()
+	local scale = (w/1920 + 1)/2
+
+	if round_posdata["intro"] then
+		if round_posdata["time"] - 4 < CurTime() then
+			round_posdata["white"] = math.Approach(round_posdata["white"], 0, FrameTime()*160)
+		end
+
+		local font2 = "nz.main."..GetFontType(nzMapping.Settings.mainfont)
+		if nz_showgamebegintext:GetBool() then
+			surface.SetFont(font2)
+			local tw, th = surface.GetTextSize(nzMapping.Settings.gamebegintext)
+
+			local fuck_alpha = math.Clamp(255 - round_posdata["white"], 0, 255)
+			if round_posdata["time"] < CurTime() then
+				fuck_alpha = round_posdata["alpha"]
+			end
+
+			local personalhell = round_posdata["white"] > round_posdata["alpha"] and round_posdata["white"] or math.max(round_posdata["alpha"] - 40, round_posdata["white"] )
+			draw.SimpleTextOutlined(nzMapping.Settings.gamebegintext, font2, ScrW()/2, h/2 - 2, ColorAlpha(Color(personalhell, round_posdata["white"], round_posdata["white"]*0.5), round_posdata["alpha"]), TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 1, ColorAlpha(color_black, fuck_alpha))
+		end
+
+		if round_posdata["time"] > CurTime() and round_posdata["alpha"] < 255 then
+			local iwandieratio = 1 - math.Clamp(((round_posdata["time"] - 4.5) - CurTime())/2, 0, 1)
+			round_posdata["alpha"] = Lerp(iwandieratio, 0, 255)
+		end
+	elseif round_posdata[1] ~= 10 then
+		ResetRoundPos()
+	end
+
+	if table.IsEmpty(round_posdata) then
+		ResetRoundPos()
+	end
+
+	if round_posdata["time"] < CurTime() and round_posdata["kys_time"] > CurTime() then
+		local kysratio = math.Clamp((round_posdata["kys_time"] - CurTime())/2, 0, 1)
+
+		round_posdata[1] = Lerp(kysratio, 10, w/2 - 18*scale)
+		round_posdata[2] = Lerp(kysratio, 140, h/2)
+	end
 
 	if (!roundbusy or table_isempty(rounddata)) and !(nzRound:InState(ROUND_WAITING) or nzRound:InState(ROUND_PREP) or nzRound:InState(ROUND_CREATE)) then
 		local R = nzRound and nzRound:GetNumber() or 0
@@ -2138,39 +2139,39 @@ local function RoundHud_t7()
 		local timer = v.state - CurTime()
 		local T = v.istally
 		local offset = ((k-1)*spacing)
-		local hi = T and 145 or 140
-		if nz_showcompass:GetBool() then
+		local hi = T and (round_posdata[2] + 5) or round_posdata[2]
+		if nz_showcompass:GetBool() and !round_posdata["intro"] then
 			hi = hi - 10
 		end
 
 		if timer > 3 then
 			surface.SetMaterial(roundassets["burnt"][v.image])
 			surface.SetDrawColor(color_white)
-			surface.DrawTexturedRectUV(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, (T and tallysize or digitsize.y) * (4-timer), 0, 0, 1, 4-timer)
+			surface.DrawTexturedRectUV(round_posdata[1] + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, (T and tallysize or digitsize.y) * (4-timer), 0, 0, 1, 4-timer)
 		elseif timer > 2 then
 			surface.SetMaterial(roundassets["burnt"][v.image])
 			surface.SetDrawColor(color_white)
-			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			surface.DrawTexturedRect(round_posdata[1] + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 			surface.SetMaterial(roundassets["heat"][v.image])
 			surface.SetDrawColor(Color(255,255,99,255*(3-timer)))
-			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			surface.DrawTexturedRect(round_posdata[1] + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 		elseif timer > 1 and !v.fade then
 			surface.SetMaterial(roundassets["normal"][v.image])
 			surface.SetDrawColor(Color(255,255,255,255*(2-timer)))
-			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			surface.DrawTexturedRect(round_posdata[1] + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 			surface.SetMaterial(roundassets["burnt"][v.image])
 			surface.SetDrawColor(Color(255,255,255,1024*(timer-1)))
-			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			surface.DrawTexturedRect(round_posdata[1] + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 			surface.SetMaterial(roundassets["heat"][v.image])
 			surface.SetDrawColor(Color(255,80 + (175*(timer-1)),99*(timer-1)))
-			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			surface.DrawTexturedRect(round_posdata[1] + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 		elseif timer > 0 and !v.fade then
 			surface.SetMaterial(roundassets["normal"][v.image])
 			surface.SetDrawColor(color_white)
-			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			surface.DrawTexturedRect(round_posdata[1] + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 			surface.SetMaterial(roundassets["heat"][v.image])
 			surface.SetDrawColor(Color(255,80,0,255*timer))
-			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			surface.DrawTexturedRect(round_posdata[1] + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 		elseif v.fade then
 			local fade_colora = ColorAlpha(color_white, 255*timer)
 			local fade_colorb = ColorAlpha(color_white, 255*(1-timer))
@@ -2178,26 +2179,25 @@ local function RoundHud_t7()
 			if timer > 1 then
 				surface.SetMaterial(roundassets["normal"][v.image])
 				surface.SetDrawColor(fade_colora)
-				surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+				surface.DrawTexturedRect(round_posdata[1] + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 				surface.SetMaterial(roundassets["burnt"][v.image])
 				surface.SetDrawColor(fade_colorb)
-				surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+				surface.DrawTexturedRect(round_posdata[1] + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 			else
 				surface.SetMaterial(roundassets["burnt"][v.image])
 				surface.SetDrawColor(fade_colora)
-				surface.DrawTexturedRectUV(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y, 0, 0, 1, 1 - math.sin(math.pi*(0.5 + timer/2)))
-				--surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+				surface.DrawTexturedRectUV(round_posdata[1] + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y, 0, 0, 1, 1 - math.sin(math.pi*(0.5 + timer/2)))
 			end
 		else
 			surface.SetMaterial(roundassets["normal"][v.image])
 			surface.SetDrawColor(color_white)
-			surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+			surface.DrawTexturedRect(round_posdata[1] + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 			if nzRound:InState(ROUND_PREP) then
 				local prep_color = ColorAlpha(color_white, 127.5 + (127.5*math.sin(CurTime()*8)))
 
 				surface.SetMaterial(roundassets["heat"][v.image])
 				surface.SetDrawColor(prep_color)
-				surface.DrawTexturedRect(10 + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
+				surface.DrawTexturedRect(round_posdata[1] + (T and 0 or offset), h - hi, T and tallysize or digitsize.x, T and tallysize or digitsize.y)
 			end
 		end
 	end
@@ -2215,17 +2215,17 @@ local function RoundHud_t7()
 					local mod1 = math.floor(movement)
 					local mod2 = math.ceil(movement)
 					local mod3 = mod1 == mod2 and 1 or (movement % 1)
-					local X = 10 + (T and 0 or v.offset)
-					local Y = v.offsetheight or (T and 145 or 140)
+					local X = round_posdata[1] + (T and 0 or v.offset)
+					local Y = v.offsetheight or (T and (round_posdata[2] + 5) or round_posdata[2])
 					local SIZE = v.overridesize or 1
 					if b[mod1] and b[mod2] then
 						local x1 = b[mod1][1] * (T and tallycoordmult or 1)
 						local y1 = b[mod1][2] * (T and tallycoordmult or 1)
 						local x2 = b[mod2][1] * (T and tallycoordmult or 1)
 						local y2 = b[mod2][2] * (T and tallycoordmult or 1)
-						cwimage("rf/round/sparks/" .. (math.ceil(CurTime()*30) % 20) .. ".png", X + (x1*(1-mod3)) + (x2*mod3) + (33*SIZE), h - Y*pscale + (y1*(1-mod3)) + (y2*mod3) - (84*SIZE), 168 * SIZE, 252 * SIZE, spark_color)
+						cwimage("rf/round/sparks/" .. (math.ceil(CurTime()*30) % 20) .. ".png", X + (x1*(1-mod3)) + (x2*mod3) + (33*SIZE), h - Y*scale + (y1*(1-mod3)) + (y2*mod3) - (84*SIZE), 168 * SIZE, 252 * SIZE, spark_color)
 					elseif b[mod1] then
-						cwimage("rf/round/sparks/" .. (math.ceil(CurTime()*30) % 20) .. ".png", X + (b[mod1][1] * (T and tallycoordmult or 1)) + (33*SIZE), h - Y*pscale + (b[mod1][2] * (T and tallycoordmult or 1)) - (84*SIZE), 168 * SIZE, 252 * SIZE, spark_color)
+						cwimage("rf/round/sparks/" .. (math.ceil(CurTime()*30) % 20) .. ".png", X + (b[mod1][1] * (T and tallycoordmult or 1)) + (33*SIZE), h - Y*scale + (b[mod1][2] * (T and tallycoordmult or 1)) - (84*SIZE), 168 * SIZE, 252 * SIZE, spark_color)
 					end
 				end
 			end
@@ -2243,6 +2243,13 @@ local function StartChangeRound_t7()
 		SND = "SpecialRoundEnd"
 	end
 	nzSounds:Play(SND)
+
+	if !nzDisplay.HasPlayedRoundIntro then
+		nzDisplay.HasPlayedRoundIntro = true
+		timer.Simple((nzMapping.Settings.firstroundwaittime or 1) - engine.TickInterval(), function()
+			GameBeginRound(nzRound:GetNumber() + 1)
+		end)
+	end
 end
 
 local function EndChangeRound_t7()
@@ -2267,17 +2274,26 @@ local function ResetRound_t7()
 			WipeRound()
 		end
 	end)
+
+	nzDisplay.HasPlayedRoundIntro = nil
 end
 
 --[[ JEN WALTER'S ROUND COUNTER ]]--
 
 local function PlayerHealthHUD_t7()
-	if not cl_drawhud:GetBool() then return end
 	if not nz_showhealth:GetBool() then return end
 
 	local ply = LocalPlayer()
 	if not IsValid(ply) then return end
-	if IsValid(ply:GetObserverTarget()) then ply = ply:GetObserverTarget() end
+
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawScoreHUD() then return end
+	if ply:IsNZMenuOpen() then return end
+
+	if IsValid(ply:GetObserverTarget()) then
+		ply = ply:GetObserverTarget()
+	end
+	
 	if not (nzRound:InProgress() or nzRound:InState(ROUND_CREATE)) then return end
 
 	local w, h = ScrW(), ScrH()
@@ -2314,13 +2330,20 @@ local function PlayerHealthHUD_t7()
 end
 
 local function PlayerStaminaHUD_t7()
-	if not cl_drawhud:GetBool() then return end
 	if not nz_showstamina:GetBool() then return end
 
 	local ply = LocalPlayer()
 	if not IsValid(ply) then return end
 	if not ply.GetStamina then return end
-	if IsValid(ply:GetObserverTarget()) then ply = ply:GetObserverTarget() end
+
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawScoreHUD() then return end
+	if ply:IsNZMenuOpen() then return end
+
+	if IsValid(ply:GetObserverTarget()) then
+		ply = ply:GetObserverTarget()
+	end
+
 	if not (nzRound:InProgress() or nzRound:InState(ROUND_CREATE)) then return end
 
 	local w, h = ScrW(), ScrH()
@@ -2345,8 +2368,19 @@ local function PlayerStaminaHUD_t7()
 end
 
 local function ZedCounterHUD_t7()
-	if not cl_drawhud:GetBool() then return end
 	if not nz_showzcounter:GetBool() then return end
+
+	local ply = LocalPlayer()
+	if not IsValid(ply) then return end
+
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawScoreHUD() then return end
+	if ply:IsNZMenuOpen() then return end
+
+	if IsValid(ply:GetObserverTarget()) then
+		ply = ply:GetObserverTarget()
+	end
+	
 	if not (nzRound:InProgress() or nzRound:InState(ROUND_CREATE)) then return end
 
 	local w, h = ScrW(), ScrH()
@@ -2379,14 +2413,12 @@ end
 -- Hooks
 hook.Add("HUDPaint", "nzHUDswapping_t7_tomb", function()
 	if nzMapping.Settings.hudtype == "Origins (HD)" then
-		hook.Add("HUDPaint", "roundHUD", StatesHud_t7 )
 		hook.Add("HUDPaint", "PlayerHealthBarHUD", PlayerHealthHUD_t7 )
 		hook.Add("HUDPaint", "PlayerStaminaBarHUD", PlayerStaminaHUD_t7 )
 		hook.Add("HUDPaint", "scoreHUD", ScoreHud_t7 )
 		hook.Add("HUDPaint", "powerupHUD", PowerUpsHud_t7 )
 		hook.Add("HUDPaint", "perksmmoinfoHUD", PerksMMOHud_t7 )
 		hook.Add("HUDPaint", "perksHUD", PerksHud_t7 )
-		hook.Add("HUDPaint", "vultureVision", VultureVision_t7 )
 		hook.Add("HUDPaint", "roundnumHUD", RoundHud_t7 )
 		hook.Add("HUDPaint", "deathiconsHUD", DeathHud_t7 )
 		hook.Add("HUDPaint", "0nzhudlayer", GunHud_t7 )

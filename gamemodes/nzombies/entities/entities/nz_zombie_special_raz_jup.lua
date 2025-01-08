@@ -23,6 +23,8 @@ ENT.IsMooZombie = true
 ENT.IsMooSpecial = true
 ENT.IsMiniBoss = true
 
+ENT.AffectedByTurned = true
+
 ENT.AttackRange = 95
 ENT.DamageRange = 95
 
@@ -63,6 +65,8 @@ local AttackSequences = {
 	{seq = "nz_base_zmb_raz_attack_sickle_swing_l_to_r"},
 	{seq = "nz_base_zmb_raz_attack_sickle_swing_r_to_l"},
 	{seq = "nz_base_zmb_raz_attack_sickle_swing_uppercut"},
+	{seq = "nz_base_zmb_dstyr_melee_l_1"},
+	{seq = "nz_base_zmb_dstyr_melee_l_2"},
 }
 
 local WalkAttackSequences = {
@@ -183,6 +187,126 @@ ENT.SequenceTables = {
 			PassiveSounds = {walksounds},
 		},
 	}}
+}
+
+ENT.DanceSequences = {
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+}
+
+ENT.ElectricDanceSequences = {
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
+	"nz_base_zmb_raz_dance",
 }
 
 ENT.EnrageSounds = {
@@ -465,7 +589,7 @@ end
 
 function ENT:AI()
 	-- Cannon
-	if CurTime() > self.NextShoot and self.ArmCannon and self:IsOnGround() and IsValid(self.Target) then
+	if CurTime() > self.NextShoot and self.ArmCannon and self:IsOnGround() and IsValid(self.Target) and !self.IsTurned then
 		if !self:IsAttackBlocked() and self:TargetInRange(750) and !self:TargetInRange(150) and self:IsFacingEnt(self.Target) then
 			self:TempBehaveThread(function(self)
 				self.NextShoot = CurTime() + math.random(5,9)
@@ -485,7 +609,7 @@ function ENT:AI()
 	end
 
 	-- Random Enrage
-	if CurTime() > self.RandomEnrage and !self.Enraged and math.random(100) <= 25 then
+	if (CurTime() > self.RandomEnrage and !self.Enraged and math.random(100) <= 25) or (self.IsTurned and !self.Enraged) then
 		self.NextShoot = CurTime() + math.random(5,9)
 		self:DoSpecialAnimation("nz_base_zmb_raz_enrage")
 	end
@@ -501,7 +625,7 @@ function ENT:AI()
 	end
 
 	-- Stim Inspect
-	if CurTime() > self.CannonInspect and self.ArmCannon and !self:HasTarget() then
+	if CurTime() > self.CannonInspect and self.ArmCannon and !self:HasTarget() and !self.IsTurned then
 		self:EmitSound("nz_moo/zombies/vox/_raz/_t9/flourish_cannon.mp3",75)
 		self:DoSpecialAnimation("nz_base_zmb_raz_idle_twitch_check")
 		self.CannonInspect = CurTime() + math.random(8,15)
@@ -616,6 +740,13 @@ function ENT:PostTookDamage(dmginfo)
 	local headpos = self:GetBonePosition(self:LookupBone("j_head"))
 	local chestpos = self:GetBonePosition(self:LookupBone("j_spine4"))
 
+	if dmginfo:GetDamage() == 75 and dmginfo:IsDamageType(DMG_MISSILEDEFENSE) and !self:GetSpecialAnimation() then
+		--print("Uh oh Luigi, I'm about to commit insurance fraud lol.")
+		self:DoSpecialAnimation("nz_base_zmb_mrdr_pain_knockdown_blend")
+		if inflictor and inflictor:GetClass() == "nz_zombie_boss_hulk" then dmginfo:ScaleDamage(0) return end
+		dmginfo:ScaleDamage(0.5)
+	end
+
 	-- Using the same type of armor code as the Heavy Zombie.
 	if (hitpos:DistToSqr(headpos) < 13^2) then
 		if self.Helmet then
@@ -634,8 +765,10 @@ function ENT:PostTookDamage(dmginfo)
 				self:EmitSound(self.ArmorBreakSounds[math.random(#self.ArmorBreakSounds)], 95)	
 				attacker:EmitSound(self.ArmorBreakSounds[math.random(#self.ArmorBreakSounds)], SNDLVL_GUNFIRE)
 
-				attacker:GivePoints(50)
-
+				if attacker:IsPlayer() then
+					attacker:GivePoints(50)
+				end
+				
 				ParticleEffectAttach("npcarmor_break", PATTACH_POINT_FOLLOW, self, 10)
 
 				if !self:GetSpecialAnimation() then
@@ -660,7 +793,9 @@ function ENT:PostTookDamage(dmginfo)
 				self:EmitSound(self.ArmorBreakSounds[math.random(#self.ArmorBreakSounds)], 95)	
 				attacker:EmitSound(self.ArmorBreakSounds[math.random(#self.ArmorBreakSounds)], SNDLVL_GUNFIRE)
 
-				attacker:GivePoints(50)
+				if attacker:IsPlayer() then
+					attacker:GivePoints(50)
+				end
 
 				ParticleEffectAttach("npcarmor_break", PATTACH_POINT_FOLLOW, self, 9)
 
@@ -696,12 +831,6 @@ function ENT:OnGameOver()
 		self.yousuck = true
 		self:DoSpecialAnimation("nz_base_zmb_raz_com_summon")
 	end
-end
-
-function ENT:IsValidTarget( ent )
-	if !ent then return false end
-	return IsValid(ent) and ent:GetTargetPriority() ~= TARGET_PRIORITY_NONE and ent:GetTargetPriority() ~= TARGET_PRIORITY_MONSTERINTERACT and ent:GetTargetPriority() ~= TARGET_PRIORITY_SPECIAL and ent:GetTargetPriority() ~= TARGET_PRIORITY_FUNNY
-	-- Won't go for special targets (Monkeys), but still MAX, ALWAYS and so on
 end
 
 function ENT:CustomAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how sad I am that I didn't know about this sooner.

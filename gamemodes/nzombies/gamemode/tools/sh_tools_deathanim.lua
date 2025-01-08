@@ -55,14 +55,6 @@ nzTools:CreateTool("deathanimpos", {
 			nzSettings:SetSimpleSetting("DeathAnim_Laugh", tobool(val))
 		end
 
-		local Row1 = DProperties:CreateRow("Config Settings", "Enable Black Ops 6 Game Over Screen?")
-		Row1:Setup("Boolean")
-		Row1:SetValue(nzSettings:GetSimpleSetting("DeathAnim_BO6_GO", false))
-		nzSettings:SyncValueToElement("DeathAnim_BO6_GO", Row1)
-		Row1.DataChanged = function( _, val ) 
-			nzSettings:SetSimpleSetting("DeathAnim_BO6_GO", tobool(val))
-		end
-
 		local text = vgui.Create("DLabel", DProperties)
 		text:SetText("Tip: Place your position away from walls to prevent bugs.\nThe cutscene starts at a random angle.\n\nList of supported special enemies:")
 		text:SetFont("Trebuchet18")

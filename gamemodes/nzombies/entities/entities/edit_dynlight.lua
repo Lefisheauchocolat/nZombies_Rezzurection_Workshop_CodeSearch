@@ -1,4 +1,4 @@
--- Massively optimized by Ethorbit
+
 AddCSLuaFile()
 DEFINE_BASECLASS( "base_edit" )
 
@@ -7,8 +7,6 @@ ENT.AdminOnly			= true
 
 ENT.PrintName			= "Dynamic Light"
 ENT.Category			= "Editors"
-
-ENT.NZEntity = true
 
 function ENT:Initialize()
 
@@ -36,7 +34,7 @@ function ENT:Initialize()
 		end
 
 		self:DrawShadow( false )
-		self:SetCollisionGroup( COLLISION_GROUP_DEBRIS )
+		self:SetCollisionGroup( COLLISION_GROUP_WEAPON )
 
 	else
 
@@ -52,9 +50,9 @@ end
 
 function ENT:SetupDataTables()
 
-	self:NetworkVar( "Int",	0, "Brightness", { KeyName = "brightness", Edit = { type = "Int", min = 0, max = 1000, order = 1 } }  )
+	self:NetworkVar( "Int",	0, "Brightness", { KeyName = "brightness", Edit = { type = "Int", min = 0, max = 5, order = 1 } }  )
 	self:NetworkVar( "Vector",	0, "LightColor", { KeyName = "color", Edit = { type = "VectorColor", order = 2 } }  )
-	self:NetworkVar( "Int",	1, "Size", { KeyName = "size", Edit = { type = "Int", min = 0, max = 500, order = 3 } }  )
+	self:NetworkVar( "Int",	1, "Size", { KeyName = "size", Edit = { type = "Int", min = 0, max = 1000, order = 3 } }  )
 	
 	self:NetworkVar( "Int",	2, "Style", { KeyName = "style", Edit = { type = "Int", min = 0, max = 12, order = 4 } }  )
 	
@@ -68,6 +66,7 @@ function ENT:SetupDataTables()
 		self:SetSize(256)
 		self:SetStyle(0) -- Standard bright all the time
 		self:SetElec(false)
+
 	end
 
 end
@@ -103,25 +102,13 @@ if CLIENT then
                 -- Reduce size by distance to player
                 -- (Added by Ethorbit to save on FPS)
                 local dist = (self:GetPos():DistToSqr(LocalPlayer():GetPos()) - self:GetSize()^2)
-                size = math.Clamp(size - (dist / 4000), 0, size)
+                size = math.Clamp(size - (dist / 28000), 0, size)
               
                 local checkingFps = size > 0
                 dlight.Size = size 
 				dlight.DieTime = CurTime() + 1
 				dlight.Style = style
-              
-                -- Turn off lights if the player's FPS is too low
-                -- (Added by Ethorbit to save FPS)
-                if checkingFps then 
-                    if (!nzRound:InState(ROUND_CREATE) and (1 / RealFrameTime()) < 90) then 
-                        self.NextLagMitigation = self.NextLagMitigation or 0
 
-                        if CurTime() > self.NextLagMitigation then 
-                            self.NextLagMitigation = CurTime() + RealFrameTime()
-                            self:SetSize(math.Clamp(self:GetSize() - 2, 0, self:GetSize()))
-                        end 
-                    end
-                end
             end
 		end
 		

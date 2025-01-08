@@ -1428,10 +1428,6 @@ function ENT:StatsInitialize()
 	end
 end
 
-function ENT:SpecialInit()
-	if CLIENT then
-	end
-end
 function ENT:OnSpawn(animation, grav, dirt)
 	animation = animation or self:SelectSpawnSequence()
 	grav = grav
@@ -1455,7 +1451,7 @@ function ENT:OnSpawn(animation, grav, dirt)
 			self:EmitSound(finalsound)
 		end
 
-		ParticleEffect("bo3_zombie_spawn",self:GetPos()+Vector(0,0,1),self:GetAngles(),self)
+		ParticleEffect("zmb_zombie_spawn_dirt",self:GetPos()+Vector(0,0,1),self:GetAngles(),self)
 		self:EmitSound("nz_moo/zombies/spawn/_generic/dirt/dirt_0"..math.random(0,2)..".mp3",100,math.random(95,105))
 	end
 
@@ -1463,7 +1459,7 @@ function ENT:OnSpawn(animation, grav, dirt)
 		self:SolidMaskDuringEvent(MASK_PLAYERSOLID)
 		self:SetSpecialAnimation(true)
 		self:SetIsBusy(true)
-
+		
 		self:PlaySequenceAndMove(animation, {gravity = grav})
 
 		self:SetSpecialAnimation(false)
@@ -1471,6 +1467,7 @@ function ENT:OnSpawn(animation, grav, dirt)
 		self:CollideWhenPossible()
 	end
 end
+
 ENT.PainSounds = {
 	"nz_moo/zombies/vox/_2k20/pain/series_1/pain_00.mp3",
 	"nz_moo/zombies/vox/_2k20/pain/series_1/pain_01.mp3",

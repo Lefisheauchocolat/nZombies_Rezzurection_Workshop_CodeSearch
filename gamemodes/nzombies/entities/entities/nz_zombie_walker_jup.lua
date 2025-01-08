@@ -10,6 +10,8 @@ ENT.Spawnable = true
 if CLIENT then 
 	ENT.EyeColorTable = {
 		[0] = Material("models/moo/codz/t10_zombies/jup/xmaterial_e739cc7eabf07b.vmt"),
+		[1] = Material("models/moo/codz/t10_zombies/jup/xmaterial_11c58c054f531ac.vmt"),
+		[2] = Material("models/moo/codz/t10_zombies/jup/xmaterial_11c5ac054f53512.vmt"),
 	}
 	return 
 end -- Client doesn't really need anything beyond the basics
@@ -29,8 +31,10 @@ ENT.Models = {
 	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_charred_male.mdl", Skin = 0, Bodygroups = {0,0}},
 	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_charred_female.mdl", Skin = 0, Bodygroups = {0,0}},
 
+	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_male_shredded_base.mdl", Skin = 0, Bodygroups ={0,0}},
 	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_male_shredded_shirtless.mdl", Skin = 0, Bodygroups ={0,0}},
 	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_male_shredded_shirtless_safe.mdl", Skin = 0, Bodygroups ={0,0}},
+	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_male_shredded_base.mdl", Skin = 0, Bodygroups ={0,0}},
 	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_male_shredded_shirtless.mdl", Skin = 0, Bodygroups ={0,0}},
 	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_male_shredded_shirtless_safe.mdl", Skin = 0, Bodygroups ={0,0}},
 
@@ -47,6 +51,11 @@ ENT.Models = {
 	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_male_shredded_02_slackjaw.mdl", Skin = 0, Bodygroups ={0,0}},
 	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_male_shredded_02_half_head.mdl", Skin = 0, Bodygroups ={0,0}},
 	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_male_shredded_02_slackjaw.mdl", Skin = 0, Bodygroups ={0,0}},
+
+	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_female_jeans_01_rz.mdl", Skin = 0, Bodygroups ={0,0}},
+	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_female_jeans_02_rz.mdl", Skin = 0, Bodygroups ={0,0}},
+	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_female_jeans_01_rz.mdl", Skin = 1, Bodygroups ={0,0}},
+	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_female_jeans_02_rz.mdl", Skin = 1, Bodygroups ={0,0}},
 
 }
 
@@ -1429,10 +1438,6 @@ function ENT:StatsInitialize()
 	end
 end
 
-function ENT:SpecialInit()
-	if CLIENT then
-	end
-end
 function ENT:OnSpawn(animation, grav, dirt)
 	animation = animation or self:SelectSpawnSequence()
 	grav = grav
@@ -1456,7 +1461,7 @@ function ENT:OnSpawn(animation, grav, dirt)
 			self:EmitSound(finalsound)
 		end
 
-		ParticleEffect("bo3_zombie_spawn",self:GetPos()+Vector(0,0,1),self:GetAngles(),self)
+		ParticleEffect("zmb_zombie_spawn_dirt",self:GetPos()+Vector(0,0,1),self:GetAngles(),self)
 		self:EmitSound("nz_moo/zombies/spawn/_generic/dirt/dirt_0"..math.random(0,2)..".mp3",100,math.random(95,105))
 	end
 
@@ -1464,7 +1469,7 @@ function ENT:OnSpawn(animation, grav, dirt)
 		self:SolidMaskDuringEvent(MASK_PLAYERSOLID)
 		self:SetSpecialAnimation(true)
 		self:SetIsBusy(true)
-
+		
 		self:PlaySequenceAndMove(animation, {gravity = grav})
 
 		self:SetSpecialAnimation(false)
@@ -1472,6 +1477,7 @@ function ENT:OnSpawn(animation, grav, dirt)
 		self:CollideWhenPossible()
 	end
 end
+
 ENT.PainSounds = {
 	"nz_moo/zombies/vox/_2k20/pain/series_1/pain_00.mp3",
 	"nz_moo/zombies/vox/_2k20/pain/series_1/pain_01.mp3",

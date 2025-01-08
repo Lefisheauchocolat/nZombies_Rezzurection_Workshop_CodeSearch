@@ -11,6 +11,8 @@ PLAYER.CanUseFlashlight     = true
 function PLAYER:SetupDataTables()
 	self.Player:NetworkVar("Bool", 0, "UsingSpecialWeapon")
 	self.Player:NetworkVar("Entity", 0, "TeleporterEntity")
+	self.Player:NetworkVar("Int", 0, "DownButtons") //KeyDown is not networked, so we do this
+	self.Player:NetworkVar("Int", 1, "LastPressedButtons") //idk maybe this will be usefull
 end
 
 function PLAYER:Init()
@@ -42,37 +44,10 @@ function PLAYER:Spawn()
 	self.Player:SetReviveTime(cvar_revive:GetFloat())
 	self.Player:SetMaxPerks(cvar_perkmax:GetInt())
 
-	local spawns = ents.FindByClass("player_spawns")
-	if IsValid(spawns[1]) then
-		local availableSpawns = {}
-		local finalpos = spawns[math.random(#spawns)]:GetPos()
-
-		-- Find all available spawn points
-		for _, spawn in ipairs(spawns) do
-			local isSpawnOccupied = false
-
-			local mins, maxs = spawn:GetCollisionBounds()
-			for _, ply in pairs(ents.FindInBox(spawn:LocalToWorld(mins), spawn:LocalToWorld(maxs))) do
-				if IsValid(ply) and ply:IsPlayer() and ply:Alive() and ply:IsPlaying() then
-					isSpawnOccupied = true
-				end
-			end
-
-			if not isSpawnOccupied then
-				availableSpawns[#availableSpawns + 1] = spawn
-			end
-		end
-
-		for _, spawn in RandomPairs(availableSpawns) do
-			finalpos = spawn:GetPos()
-			if spawn:GetPreferred() then break end
-		end
-
-		self.Player:SetPos(finalpos + vector_up)
-	end
+	self.Player:MoveToSpawn()
 end
 
-function PLAYER:ViewModelChanged(vm, oldmodel, newmodel)
+/*function PLAYER:ViewModelChanged(vm, oldmodel, newmodel)
 	local wep
 	for k, v in ipairs(self.Player:GetWeapons()) do
 		if v:GetWeaponViewModel() == newmodel then
@@ -86,12 +61,7 @@ function PLAYER:ViewModelChanged(vm, oldmodel, newmodel)
 	if wep.NZSpecialCategory then return end
 	if not wep:HasNZModifier("pap") then return end
 
-	local ply = self.Player
-	timer.Simple(0, function()
-		if not IsValid(ply) then return end
-		if not IsValid(wep) then return end
-		nzCamos:UpdatePlayerViewmodel(ply, wep:GetWeaponViewModel())
-	end)
-end
+	nzCamos:UpdatePlayerViewmodel(self.Player, newmodel)
+end*/
 
 player_manager.RegisterClass( "player_create", PLAYER, "player_default" )

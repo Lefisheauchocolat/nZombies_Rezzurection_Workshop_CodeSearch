@@ -55,6 +55,7 @@ function MenuFrame:Think()
 	ply:SetEyeAngles( ang )
 end
 
+local matcolor = Material("color")
 function MenuFrame:Paint()
 	Derma_DrawBackgroundBlur( self, self.startTime )
 	return
@@ -453,6 +454,6 @@ local function showSettings(ply, cmd, args)
 end
 concommand.Add("nz_settings", showSettings)
 
-hook.Add("InitPostEntity", "AutoOpenMenu", function()
+/*hook.Add("InitPostEntity", "AutoOpenMenu", function()
 	LocalPlayer():ConCommand("nz_settings")
-end)
+end)*/

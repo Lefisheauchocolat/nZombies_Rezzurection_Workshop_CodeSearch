@@ -57,15 +57,16 @@ local function DrawReviveCircle( X, Y, target_radius, value, dying, revive )
 end
 
 local function DrawDownedPlayers_t7()
-	if not cl_drawhud:GetBool() then return end
+	local pply = LocalPlayer()
+	if !pply:ShouldDrawHUD() then return end
+	if !pply:ShouldDrawReviveHUD() then return end
+	if IsValid(pply:GetObserverTarget()) then
+		pply = pply:GetObserverTarget()
+	end
 
 	local w, h = ScrW(), ScrH()
 	local scale = (w/1920 + 1)/2
 	local bleedtime = nz_bleedouttime:GetFloat()
-	local pply = LocalPlayer()
-	if IsValid(pply:GetObserverTarget()) then
-		pply = pply:GetObserverTarget()
-	end
 
 	for id, data in pairs(nzRevive.Players) do
 		local ply = Entity(id)
@@ -121,9 +122,9 @@ end
 
 local revnum = 0
 local function DrawRevivalProgress_t7()
-	if not cl_drawhud:GetBool() then return end
-
 	local ply = LocalPlayer()
+	if !ply:ShouldDrawHUD() then return end
+	if !ply:ShouldDrawReviveHUD() then return end
 	if IsValid(ply:GetObserverTarget()) then
 		ply = ply:GetObserverTarget()
 	end

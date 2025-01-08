@@ -86,6 +86,10 @@ if CLIENT then
 
 		local len = net.ReadUInt(10) / 1023 * 1024
 
+		if not IsValid(ply) then
+			ply = LocalPlayer()
+		end
+
 		local pos = ply:EyePos()
 
 		for i = 1, 3 do
@@ -157,6 +161,10 @@ if CLIENT then
 		local realtime = RealTime()
 
 		local scale = h2 * (2 / 1080)
+
+		if not IsValid(ply) then
+			ply = LocalPlayer()
+		end
 
 		local eyepos = ply:EyePos()
 		local ex, ey, ez = eyepos[1], eyepos[2], eyepos[3]

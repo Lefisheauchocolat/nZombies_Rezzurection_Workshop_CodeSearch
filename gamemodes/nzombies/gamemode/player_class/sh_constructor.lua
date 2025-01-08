@@ -13,6 +13,33 @@ function CMoveData:RemoveKeys( keys )
 	self:SetButtons( newbuttons )
 end
 
+//credit TFA Base maintainers for this
+//lua/tfa/modules/tfa_hooks.lua #202
+
+local band = bit.band
+local bxor = bit.bxor
+local bnot = bit.bnot
+hook.Add("FinishMove", "nzPlayerTick", function(ply, cmovedata)
+	if not ply.GetDownButtons then return end
+
+	local lastButtons = ply:GetDownButtons()
+	local buttons = cmovedata:GetButtons()
+	local changed = bxor(lastButtons, buttons)
+	local pressed = band(changed, bnot(lastButtons), buttons)
+
+	ply:SetDownButtons(buttons)
+	ply:SetLastPressedButtons(pressed)
+end)
+
+//shared version of PLAYER:KeyDown() for HUD and spectator HUD related stuff
+local PLAYER = FindMetaTable("Player")
+function PLAYER:HasButtonDown(button)
+	if not self.GetDownButtons or (button == nil) or !isnumber(button) then
+		return false
+	end
+	return bit.band(self:GetDownButtons(), button) ~= 0
+end
+
 -- Stops players from moving if downed
 hook.Add("SetupMove", "nzFreezePlayersDowned", function( ply, mv, cmd )
 	if !ply:GetNotDowned() then
@@ -46,8 +73,12 @@ hook.Add("StartCommand", "nzPlayerDownFake", function(ply, cmd)
 			if lockedPlayers[ply] and lockedPlayers[ply] + 0.25 < CurTime() and ply:GetTargetPriority() > 0 then
 				ply:SetTargetPriority(TARGET_PRIORITY_NONE)
 				ply:GodEnable()
+				ply:SetNW2Bool("nzLagProtection", true)
 			end
 		elseif lockedPlayers[ply] then
+			if ply:GetNW2Bool("nzLagProtection", false) then
+				ply:SetNW2Bool("nzLagProtection", false)
+			end
 			if ply:HasGodMode() then
 				print('[NZ] Player '..ply:Nick()..' stopped sending CMoveData for '..math.Round(CurTime() - lockedPlayers[ply], 2)..' seconds and was granted notarget')
 				ply:SetTargetPriority(TARGET_PRIORITY_PLAYER)
@@ -103,62 +134,6 @@ hook.Add("PlayerSpawn", "SetupHands", function(ply)
 	timer.Simple(0, function()
 		if IsValid(ply) then ply:SetupHands() end
 	end)
-end)
-
-hook.Add("OnPlayerHitGround", "nzPlayerHitGround", function(ply, inWater, onFloater, speed)
-	if ply:HasPerk("phd") and (speed >= 400 or (ply.DivingGroundZ and ply:GetPos().z <= ply.DivingGroundZ)) then
-		ply.DivingGroundZ = nil
-		/*if speed < 400 and ply:GetDiving() and ply:GetNW2Float("nz.PHDDelay", 0) > CurTime() then
-			return
-		end*/
-
-		local mult = math.Clamp(math.floor(speed/400), 1, 3)
-
-		local maxpunch = 2*mult
-		ply:ViewPunch(Angle(3.5*mult, math.random(-maxpunch,maxpunch), math.random(-maxpunch,maxpunch)))
-
-		//only for our self (clientside in multiplayer)
-		if IsFirstTimePredicted() and (game.SinglePlayer() or CLIENT) then
-			local fx = EffectData()
-			fx:SetOrigin(ply:GetPos() + vector_up*4)
-			fx:SetAngles(angle_zero)
-			util.Effect("nz_phd_flop", fx)
-
-			ply:EmitSound("NZ.PHD.Wubz")
-			ply:EmitSound("NZ.PHD.Impact")
-
-			util.ScreenShake(ply:GetPos(), 10*mult, 5, math.max(1*mult, 1.2), 200*mult)
-		end
-
-		if SERVER then
-			/*if speed < 400 and ply:GetDiving() then
-				ply:SetNW2Float("nz.PHDDelay", CurTime() + 2)
-			end*/
-
-			//network to other clients in multiplayer
-			if !game.SinglePlayer() then
-				local filter = RecipientFilter()
-				filter:AddPAS(ply:GetPos())
-				filter:RemovePlayer(ply)
-
-				ply:EmitSound("NZ.PHD.Wubz", SNDLVL_GUNFIRE, math.random(97,103), 1, CHAN_USER_BASE, 0, 0, filter)
-				ply:EmitSound("NZ.PHD.Impact", SNDLVL_NORM, math.random(97,103), 1, CHAN_VOICE_BASE, 0, 0, filter)
-
-				filter:RemoveAllPlayers()
-				filter:AddPVS(ply:GetPos())
-				filter:RemovePlayer(ply)
-
-				local fx = EffectData()
-				fx:SetOrigin(ply:GetPos() + vector_up*4)
-				fx:SetAngles(angle_zero)
-				util.Effect("nz_phd_flop", fx, filter)
-
-				util.ScreenShake(ply:GetPos(), 10*mult, 5, math.max(1*mult, 1.2), 200*mult, true, filter)
-			end
-
-			util.BlastDamage(ply:GetActiveWeapon(), ply, ply:GetPos(), 150*mult, 4000*mult)
-		end
-	end
 end)
 
 hook.Add("ScalePlayerDamage", "nzFriendlyFire", function(ply, hitgroup, dmginfo)

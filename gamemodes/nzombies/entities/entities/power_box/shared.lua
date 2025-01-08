@@ -18,6 +18,8 @@ function ENT:SetupDataTables()
 
 	self:NetworkVar("Int", 0, "AOE")
 	self:NetworkVar("Int", 1, "PowerSwitchModel")
+	self:NetworkVar("Int", 2, "ActivationType")
+	self:NetworkVar("Int", 3, "DmgType")
 
 	self:NetworkVar("Float", 0, "ResetTime")
 end
@@ -74,6 +76,13 @@ function ENT:Initialize()
 				pos 				= self:GetPos() + self:GetAngles():Right()*5.05 + self:GetAngles():Up()*1 + self:GetAngles():Forward()*4.5,
 				angle 				= Angle(45,0,0),
 			},
+			[6] = {
+				panelmodel       	= {"models/moo/_codz_ports_props/t6/alcatraz/p6_zm_al_shock_box/moo_codz_p6_zm_al_shock_box.mdl"},
+				switchmodel       	= {nil},
+				activatesnd 		= {"nz_moo/effects/afterlife/after_panel_on.mp3"},
+				pos 				= self:GetPos(),
+				angle 				= Angle(0,0,0),
+			},
 		}
 
 		local selection = tbl[self:GetPowerSwitchModel()]
@@ -105,119 +114,124 @@ function ENT:Use( activator )
 	local onanim = self:LookupSequence("on")
 	local offanim = self:LookupSequence("off")
 
-	if ( !activator:IsPlayer() ) then return end
-	if nzRound:InState(ROUND_CREATE) and activator:IsInCreative() then
-		if self.NextUse and self.NextUse > CurTime() then return end
-		self.NextUse = CurTime() + 2
+	if self:GetActivationType() == 0 or self:GetActivationType() == 1 and self.ShotSwitch then
+		if ( !activator:IsPlayer() ) then return end
+		if nzRound:InState(ROUND_CREATE) and activator:IsInCreative() then
+			if self.NextUse and self.NextUse > CurTime() then return end
+			self.NextUse = CurTime() + 2
 
-		self:SetSwitch(true)
-		self:EmitSound(self.ActivationSound, 90, math.random(95,105))
+			self:SetSwitch(true)
+			self:EmitSound(self.ActivationSound, 90, math.random(95,105))
 
-		if onanim > 0 then self:ResetSequence(onanim) end
+			if onanim > 0 then self:ResetSequence(onanim) end
 
-		timer.Simple(1, function()
-			if not IsValid(self) then return end
-			self:SetSwitch(false)
-
-			if offanim > 0 then self:ResetSequence(offanim) end
-		end)
-		return
-	end
-	if !nzRound:InProgress() then return end
-
-	if self:GetLimited() == true and self:GetAOE() > 0 then
-		net.Start("nz.nzElec.Sound")
-			net.WriteBool(true)
-		net.SendPAS(self:GetPos()) //send to players in 'Potentially Audible Set' (pvs for sound)
-
-		if onanim > 0 then self:ResetSequence(onanim) end
-
-		self:EmitSound(self.ActivationSound, 90, math.random(95,105))
-		self:SetSwitch(true)
-		//self.Switched = 0
-
-		local weball = false
-		for k, v in pairs(ents.FindByClass("wunderfizz_machine")) do
-			if v:IsOn() then 
-				weball = true
-				break
-			end
-		end
-
-		-- Open all doors with no price and electricity requirement
-		for k, v in pairs(ents.FindInSphere(self:GetPos(), self:GetAOE())) do
-			if v:GetClass() == "wunderfizz_machine" and !weball then 
-				v:TurnOn()
-			end
-
-			if v:GetClass() == "perk_machine" and !v:IsOn() then 
-				v:TurnOn()
-			end
-
-			if v:GetClass() == "nz_teleporter" then 
-				v:TurnOn()
-			end
-
-			if v:GetClass() == "nz_soulbox" then 
-				v:TurnOn()
-			end
-
-			if v:GetClass() == "nz_launchpad" then 
-				v:TurnOn()
-			end
-
-			if v:GetClass() == "nz_button" or v:GetClass() == "nz_activatable" then
-				v:Ready() 
-				v.LocalPower = true -- Give it a new variable so it knows to turn on.
-			end
-
-			if v:IsBuyableEntity() then
-				local data = v:GetDoorData()
-				if data then
-					if tonumber(data.price) == 0 and tobool(data.elec) == true then
-						nzDoors:OpenDoor( v )
-					end
-				end
-			end
-		end
-	else
-		if self:GetDoReset() then
-			timer.Simple(self:GetResetTime(), function()
+			timer.Simple(1, function()
 				if not IsValid(self) then return end
-				if nzElec:IsOn() then return end
-				if !self:GetSwitch() then return end
-
 				self:SetSwitch(false)
+				self.ShotSwitch = false
+
 				if offanim > 0 then self:ResetSequence(offanim) end
 			end)
+			return
 		end
+		if !nzRound:InProgress() then return end
 
-		if self:GetRequireAll() then
-			local b_allon = true
-			for k, v in pairs(ents.FindByClass("power_box")) do
-				if !v:GetSwitch() and !v:GetLimited() and v ~= self then 
-					b_allon = false
+		if self:GetLimited() == true and self:GetAOE() > 0 then
+			net.Start("nz.nzElec.Sound")
+				net.WriteBool(true)
+			net.SendPAS(self:GetPos()) //send to players in 'Potentially Audible Set' (pvs for sound)
+
+			if onanim > 0 then self:ResetSequence(onanim) end
+
+			self:EmitSound(self.ActivationSound, 90, math.random(95,105))
+			self:SetSwitch(true)
+			//self.Switched = 0
+
+			local weball = false
+			for k, v in pairs(ents.FindByClass("wunderfizz_machine")) do
+				if v:IsOn() then 
+					weball = true
 					break
 				end
 			end
 
-			if !b_allon then
-				if !self:GetSwitch() then
-					if onanim > 0 then self:ResetSequence(onanim) end
-
-					self:EmitSound(self.ActivationSound, 90, math.random(95,105))
-					self:SetSwitch(true)
+			-- Open all doors with no price and electricity requirement
+			for k, v in pairs(ents.FindInSphere(self:GetPos(), self:GetAOE())) do
+				if v:GetClass() == "wunderfizz_machine" and !weball then 
+					v:TurnOn()
 				end
-				return false
-			end
-		end
 
-		if !IsElec() then
-			self:SetSwitch(true)
-			//self.Switched = 0
-			self:EmitSound(self.ActivationSound, 90, math.random(95,105))
-			nzElec:Activate()
-			if onanim > 0 then self:ResetSequence(onanim) end
+				if v:GetClass() == "perk_machine" and !v:IsOn() then 
+					v:TurnOn()
+				end
+
+				if v:GetClass() == "nz_teleporter" then 
+					v:TurnOn()
+				end
+
+				if v:GetClass() == "nz_soulbox" then 
+					v:TurnOn()
+				end
+
+				if v:GetClass() == "nz_launchpad" then 
+					v:TurnOn()
+				end
+
+				if v:GetClass() == "nz_button" or v:GetClass() == "nz_activatable" then
+					v:Ready() 
+					v.LocalPower = true -- Give it a new variable so it knows to turn on.
+				end
+
+				if v:IsBuyableEntity() then
+					local data = v:GetDoorData()
+					if data then
+						if tonumber(data.price) == 0 and tobool(data.elec) == true then
+							nzDoors:OpenDoor( v )
+						end
+					end
+				end
+			end
+		else
+			if self:GetDoReset() then
+				timer.Simple(self:GetResetTime(), function()
+					if not IsValid(self) then return end
+					if nzElec:IsOn() then return end
+					if !self:GetSwitch() then return end
+
+
+					self.ShotSwitch = false
+					self:SetSwitch(false)
+					if offanim > 0 then self:ResetSequence(offanim) end
+				end)
+			end
+
+			if self:GetRequireAll() then
+				local b_allon = true
+				for k, v in pairs(ents.FindByClass("power_box")) do
+					if !v:GetSwitch() and !v:GetLimited() and v ~= self then 
+						b_allon = false
+						break
+					end
+				end
+
+				if !b_allon then
+					if !self:GetSwitch() then
+						if onanim > 0 then self:ResetSequence(onanim) end
+
+						self:EmitSound(self.ActivationSound, 90, math.random(95,105))
+						self:SetSwitch(true)
+					end
+					return false
+				end
+			end
+
+			if !IsElec() then
+				self:SetSwitch(true)
+				//self.Switched = 0
+				self:EmitSound(self.ActivationSound, 90, math.random(95,105))
+				nzElec:Activate()
+				if onanim > 0 then self:ResetSequence(onanim) end
+			end
 		end
 	end
 end
@@ -252,6 +266,10 @@ function ENT:Think()
 				offrot 				= Angle(45,0,0),
 				onrot 				= Angle(-45,0,0),
 			},
+			[6] = {
+				offrot 				= nil,
+				onrot 				= nil,
+			},
 		}
 
 		local offang = tbl[self:GetPowerSwitchModel()].offrot
@@ -262,15 +280,15 @@ function ENT:Think()
 			self.Switching = math.Approach( self.Switching or 0, 1, FrameTime() * 1.75 )
 			local ang = self:GetAngles()
 			if self:GetSwitch() then
+				self:SetSkin(1)
 				if isangle(offang) and isangle(onang) then
 					handle:SetRenderAngles(LerpAngle(self.Switching, self:LocalToWorldAngles(offang), self:LocalToWorldAngles(onang)))
 				end
-				self:SetSkin(1)
 			else
+				self:SetSkin(0)
 				if isangle(offang) and isangle(onang) then
 					handle:SetRenderAngles(LerpAngle(self.Switching, self:LocalToWorldAngles(onang), self:LocalToWorldAngles(offang)))
 				end
-				self:SetSkin(0)
 			end
 				
 			if self.Switching >= 1 then
@@ -284,8 +302,45 @@ function ENT:Think()
 	return true
 end
 
+local testtime = 0
+function ENT:OnTakeDamage(dmginfo)
+	if self:GetActivationType() == 1 then
+		if self:GetSwitch() then return end
+		if nzRound:InState(ROUND_CREATE) and testtime > CurTime() then return end
+
+		local ply = dmginfo:GetAttacker()
+		local wep = dmginfo:GetInflictor()
+
+		if not IsValid(ply) then return end
+		if not IsValid(wep) then return end
+		if not ply:IsPlayer() then return end
+
+		local dmgtype = dmginfo:GetDamageType()
+		local meleedamage = bit.band(dmgtype, bit.bor(DMG_CLUB, DMG_SLASH, DMG_CRUSH)) ~= 0
+		local burndamage = bit.band(dmgtype, bit.bor(DMG_BURN, DMG_SLOWBURN)) ~= 0
+		local shockdamage = bit.band(dmgtype, bit.bor(DMG_SHOCK, DMG_ENERGYBEAM)) ~= 0
+		local blastdamage = dmginfo:IsExplosionDamage()
+		local bulletdamage = dmginfo:IsBulletDamage()
+
+		if (self:GetDmgType() == 1 and meleedamage) or (self:GetDmgType() == 2 and blastdamage) or (self:GetDmgType() == 3 and burndamage) or (self:GetDmgType() == 4 and bulletdamage) or (self:GetDmgType() == 5 and shockdamage) then
+			--[[if nzRound:InState(ROUND_CREATE) then
+				ply:ChatPrint('Test activated '..self:GetClass()..'['..self:EntIndex()..']')
+			return end]]
+
+			testtime = CurTime() + 2
+			self.ShotSwitch = true
+			self:Use(ply)
+		end
+	end
+end
+
 if CLIENT then
 	function ENT:Draw()
 		self:DrawModel()
+
+		if ConVarExists("nz_creative_preview") and !GetConVar("nz_creative_preview"):GetBool() and nzRound:InState( ROUND_CREATE ) then		
+			render.SetColorMaterial()
+			render.DrawSphere(self:GetPos(), self:GetAOE(), 50, 50, Color(200, 200, 0, 35))
+		end	
 	end
 end

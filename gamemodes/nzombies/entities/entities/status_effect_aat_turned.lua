@@ -161,7 +161,7 @@ ENT.Initialize = function(self)
 
 	if CLIENT then return end
 	if IsValid(p) and p:IsNextBot() then
-		if self:GetDance() or (p.IsMooSpecial and not p.MooSpecialZombie) then
+		if self:GetDance() or (p.IsMooSpecial and not p.MooSpecialZombie and !p.AffectedByTurned) then
 			p.loco:SetVelocity(vector_origin)
 			p.loco:SetAcceleration(0)
 			p.loco:SetDesiredSpeed(0)
@@ -184,7 +184,7 @@ ENT.UpdateDuration = function(self, newtime)
 
 	if self.statusEnd - CurTime() > newtime then return end
 	local p = self:GetParent()
-	if (p.IsMooSpecial and not p.MooSpecialZombie) and p.Freeze then
+	if (p.IsMooSpecial and not p.MooSpecialZombie and !p.AffectedByTurned) and p.Freeze then
 		p:Freeze(newtime)
 	end
 

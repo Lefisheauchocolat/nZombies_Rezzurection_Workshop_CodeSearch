@@ -356,18 +356,18 @@ if SERVER then
 			--[[ EYE TRAILS ]]--
 
 			-- [[ Christmas Hat ]]--
-			if miricalday and math.random(100) < 25 and !self.xmas and !self.IsMooSpecial then
+			if miricalday == true and math.random(100) < 1 and !self.xmas and !self.IsMooSpecial then
 
 				local headpos = self:GetBonePosition(self:LookupBone("j_head"))
 
-				if IsValid(headpos) then
+				if headpos then
 					self.xmas = ents.Create("nz_prop_effect_attachment")
 					self.xmas:SetPos(headpos)
 					self.xmas:SetAngles(self:GetAngles() - Angle(90,0,0))
 					self.xmas:SetParent(self, 2)
 					self.xmas:SetModel("models/moo/holidays/xmas/santa_hat.mdl")
 					self.xmas:SetCollisionGroup(COLLISION_GROUP_IN_VEHICLE)
-					self.xmas:SetModelScale(0.87, 0)
+					self.xmas:SetModelScale(0.99, 0)
 					self.xmas:Spawn()
 
 					self:DeleteOnRemove( self.xmas )
@@ -705,16 +705,16 @@ if SERVER then
 end
 
 ------- Fields -------
-ENT.SoundDelayMin = 3
-ENT.SoundDelayMax = 5
+ENT.SoundDelayMin = 5
+ENT.SoundDelayMax = 6
 ENT.BehindSoundDistance = 0 -- The distance to a target where we will play "behind sounds" instead (0 = disable). This requires ENT.BehindSounds to be set
 
 function ENT:PlaySound(s, lvl, pitch, vol, chan, delay) --Moo Mark This part is a port of the nZu zombie base sound functions.
 	local delay = delay or math.Rand(self.SoundDelayMin, self.SoundDelayMax)
 	if s then
-		local dur = SoundDuration(s)
+		--local dur = SoundDuration(s)
 		self:EmitSound(s, lvl, pitch, vol, chan)
-		delay = delay + dur
+		--delay = delay + dur
 	end
 	self.NextSound = CurTime() + delay
 end
@@ -2263,7 +2263,7 @@ if SERVER then
 
 			local tr = util_traceline({
 				start = pos,
-				endpos = ent:EyePos(),
+				endpos = ent:WorldSpaceCenter(),
 				filter = self,
 				mask = MASK_PLAYERSOLID,
 				collisiongroup = COLLISION_GROUP_WORLD, -- This is what allows zombies to ignore each other.
@@ -2349,7 +2349,8 @@ if SERVER then
 
 	-- Moo Mark 3/23/24: A helper function to make testing for if a entity has a specified sequence simpler.
 	function ENT:HasSequence(seq)
-
+		if !isstring(seq) then return false end
+		
 		if self:LookupSequence(seq) > 0 then 
 			return true 
 		else
@@ -5520,7 +5521,12 @@ if SERVER then
 		if self.IsTurned or self.IsNZAlly then
 			return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooBossZombie and !ent.IsNZAlly and ent:Alive() 
 		end
-	
+
+		-- Special Enemy and Boss Targetting
+		if (self.IsMooSpecial and !self.MooSpecialZombie) or self.IsMooBossZombie or self.NZBossType then
+			return IsValid(ent) and ent:GetTargetPriority() ~= TARGET_PRIORITY_NONE and ent:GetTargetPriority() ~= TARGET_PRIORITY_MONSTERINTERACT and ent:GetTargetPriority() ~= TARGET_PRIORITY_SPECIAL and ent:GetTargetPriority() ~= TARGET_PRIORITY_FUNNY
+		end
+
 		return IsValid(ent) and ent:GetTargetPriority() ~= TARGET_PRIORITY_NONE and ent:GetTargetPriority() ~= TARGET_PRIORITY_MONSTERINTERACT and ent:GetTargetPriority() ~= TARGET_PRIORITY_FUNNY -- This is really funny.
 	end
 
@@ -5923,7 +5929,7 @@ function ENT:PlaySequenceAndMove(seq, options, callback)
 
 		if not options.gravity then
 			self:SetPos(previousPos)
-			self:SetVelocity(Vector(0, 0, 0))
+			self:SetVelocity(Vector(0,0,0))
 			--print("move5")
 		end
 	return res
@@ -5938,6 +5944,226 @@ if SERVER then
 		self:ClearBigJumpNav()
 		self:OnRemoveCustom()
 	end
+end
+
+--AccessorFuncs
+function ENT:IsJumping()
+	return self:GetJumping()
+end
+
+function ENT:IsClimbing()
+	return self:GetClimbing()
+end
+
+function ENT:IsAttacking()
+	return self:GetAttacking()
+end
+
+function ENT:IsStandingAttack()
+	return self:GetStandingAttack()
+end
+
+function ENT:IsTimedOut()
+	return self:GetTimedOut()
+end
+
+function ENT:SetInvulnerable(bool)
+	self.Invulnerable = bool
+end
+
+function ENT:IsInvulnerable()
+	return self.Invulnerable
+end
+
+function ENT:EyePos()
+
+	local eyepos = self:LookupBone("j_head") -- If the model of the enemy has a 'j_head' bone, just use that for the eye pos.
+
+	if !eyepos then return self:WorldSpaceCenter() + (self:OBBCenter()*0.7) end
+
+	return eyepos:GetPos()
+end
+
+function ENT:WaterBuff() return self:GetWaterBuff() end
+
+function ENT:BomberBuff() return self:GetBomberBuff() end
+
+function ENT:TripleBuff() return self:GetTripleBuff() end
+
+if CLIENT then
+	local eyeglow =  Material("nz_moo/sprites/moo_glow1")
+	--local eyeglow = Material("nz_moo/sprites/hud_particle_glow_04")
+
+	local defaultColor = Color(255, 75, 0, 255)
+
+	function ENT:Draw() //Runs every frame
+		self:DrawModel()
+		self:PostDraw()
+		if self.RedEyes == true and self:Alive() and !self:GetDecapitated() and !self:GetMooSpecial() and !self.IsMooSpecial then
+			self:DrawEyeGlow() 
+		end
+
+		if self:GetShadowBuff() and !self:GetBomberBuff() and !self:GetWaterBuff() and self:Alive() then
+			local elight = DynamicLight( self:EntIndex(), true )
+			if ( elight ) then
+				local bone = self:LookupBone("j_spineupper")
+				local pos = self:GetBonePosition(bone)
+				pos = pos 
+				elight.pos = pos
+				elight.r = 50
+				elight.g = 0
+				elight.b = 50
+				elight.brightness = 10
+				elight.Decay = 1000
+				elight.Size = 40
+				elight.DieTime = CurTime() + 1
+				elight.style = 0
+				elight.noworld = true
+			end
+		elseif self:WaterBuff() and !self:BomberBuff() and self:Alive() then
+			local elight = DynamicLight( self:EntIndex(), true )
+			if ( elight ) then
+				local bone = self:LookupBone("j_spineupper")
+				local pos = self:GetBonePosition(bone)
+				pos = pos 
+				elight.pos = pos
+				elight.r = 0
+				elight.g = 50
+				elight.b = 255
+				elight.brightness = 10
+				elight.Decay = 1000
+				elight.Size = 40
+				elight.DieTime = CurTime() + 1
+				elight.style = 0
+				elight.noworld = true
+			end
+		elseif self:BomberBuff() and !self:WaterBuff() and self:Alive() then
+			local elight = DynamicLight( self:EntIndex(), true )
+			if ( elight ) then
+				local bone = self:LookupBone("j_spineupper")
+				local pos = self:GetBonePosition(bone)
+				pos = pos 
+				elight.pos = pos
+				elight.r = 150
+				elight.g = 255
+				elight.b = 75
+				elight.brightness = 10
+				elight.Decay = 1000
+				elight.Size = 40
+				elight.DieTime = CurTime() + 1
+				elight.style = 0
+				elight.noworld = true
+			end
+		elseif self:WaterBuff() and self:BomberBuff() and self:Alive() then
+			local elight = DynamicLight( self:EntIndex(), true )
+			if ( elight ) then
+				local bone = self:LookupBone("j_spineupper")
+				local pos = self:GetBonePosition(bone)
+				pos = pos 
+				elight.pos = pos
+				elight.r = 255
+				elight.g = 0
+				elight.b = 0
+				elight.brightness = 10
+				elight.Decay = 1000
+				elight.Size = 40
+				elight.DieTime = CurTime() + 1
+				elight.style = 0
+				elight.noworld = true
+			end
+		end
+
+		self:ZCTFire()
+		if GetConVar( "nz_zombie_debug" ):GetBool() then
+			local min, max = self:GetCollisionBounds()
+			render.DrawWireframeBox(self:GetPos(), Angle(0,0,0), min, max, Color(255,0,0), true)
+		end
+	end
+
+	function ENT:ZCTFire()
+		if self:Alive() and self:GetShadowBuff() then
+			if !IsValid(self) then return end
+			if (!self.Draw_SHDWFX or !IsValid(self.Draw_SHDWFX)) then
+				self.Draw_SHDWFX = CreateParticleSystem(self, "zmb_zombie_shadow_marked", PATTACH_POINT_FOLLOW, 10)
+			end
+		end
+		if self:Alive() and self:GetZCTFlameColor() ~= "" then
+			-- Credit: FlamingFox for Code and fighting the PVS monster -- 
+			if !IsValid(self) then return end
+			if (!self.Draw_FX or !IsValid(self.Draw_FX)) then
+				self.Draw_FX = CreateParticleSystem(self, self:GetZCTFlameColor(), PATTACH_POINT_FOLLOW, 10)
+			end
+		end
+	end
+
+	function ENT:PostDraw() end -- Is called within the "Draw" function, added for easier adjusting/tweaking.
+
+	function ENT:DrawEyeGlow()
+		local eyeColor = nzMapping.Settings.zombieeyecolor
+		local nocolor = Color(0,0,0)
+
+		if self.EyeColorTable then
+			-- Go through every material given and set the color.
+			local eyecolor = nzMapping.Settings.zombieeyecolor
+			local col = Color(eyecolor.r,eyecolor.g,eyecolor.b):ToVector()
+
+			for k,v in pairs(self.EyeColorTable) do
+				v:SetVector("$emissiveblendtint", col)
+			end
+		end
+		
+		if eyeColor == nocolor then return end
+
+
+		local latt = self:LookupAttachment("lefteye")
+		local ratt = self:LookupAttachment("righteye")
+
+		if latt == nil then return end
+		if ratt == nil then return end
+
+		local leye = self:GetAttachment(latt)
+		local reye = self:GetAttachment(ratt)
+
+		if leye == nil then return end
+		if reye == nil then return end
+
+		local righteyepos = leye.Pos + leye.Ang:Forward()*0.49
+		local lefteyepos = reye.Pos + reye.Ang:Forward()*0.49
+
+		if lefteyepos and righteyepos then
+			render.SetMaterial(eyeglow)
+			render.DrawSprite(lefteyepos, 5, 5, eyeColor)
+			render.DrawSprite(righteyepos, 5, 5, eyeColor)
+		end
+	end
+
+	hook.Add("CreateClientsideRagdoll", "nzZCTragdollfire", function(ent, ragdoll)
+        if not IsValid(ent) or not IsValid(ragdoll) then return end
+        if not ent:IsValidZombie() then return end
+        
+        if nzGum.NewtonianNegation then
+        	--local phys = ragdoll:GetPhysicsObject()
+        	local bones = ragdoll:GetPhysicsObjectCount()
+        	for i = 0, bones - 1 do
+
+				local phys = ragdoll:GetPhysicsObjectNum( i )
+				if ( IsValid( phys ) ) then
+					phys:EnableGravity( false )
+					phys:Wake()
+				end
+			end
+        end
+        --
+        if IsValid(ent) and ent.GetZCTFlameColor and ent:GetZCTFlameColor() then 
+        	if ent:GetZCTFlameColor() == "" then
+        		return 
+        	end
+        end
+
+        if ent.Draw_FX and IsValid(ent.Draw_FX) then
+            ent.Draw_FX:StopEmissionAndDestroyImmediately()
+        end
+    end)
 end
 
 
@@ -6719,226 +6945,6 @@ ENT.TauntAnimV9Sounds = {
 	Sound("nz_moo/zombies/vox/taunt_anims/taunt_anim_v9_01.mp3"),
 	Sound("nz_moo/zombies/vox/taunt_anims/taunt_anim_v9_02.mp3"),
 }
-
---AccessorFuncs
-function ENT:IsJumping()
-	return self:GetJumping()
-end
-
-function ENT:IsClimbing()
-	return self:GetClimbing()
-end
-
-function ENT:IsAttacking()
-	return self:GetAttacking()
-end
-
-function ENT:IsStandingAttack()
-	return self:GetStandingAttack()
-end
-
-function ENT:IsTimedOut()
-	return self:GetTimedOut()
-end
-
-function ENT:SetInvulnerable(bool)
-	self.Invulnerable = bool
-end
-
-function ENT:IsInvulnerable()
-	return self.Invulnerable
-end
-
-function ENT:EyePos()
-
-	local eyepos = self:LookupBone("j_head") -- If the model of the enemy has a 'j_head' bone, just use that for the eye pos.
-
-	if !eyepos then return self:WorldSpaceCenter() + (self:OBBCenter()*0.7) end
-
-	return eyepos:GetPos()
-end
-
-function ENT:WaterBuff() return self:GetWaterBuff() end
-
-function ENT:BomberBuff() return self:GetBomberBuff() end
-
-function ENT:TripleBuff() return self:GetTripleBuff() end
-
-if CLIENT then
-	local eyeglow =  Material("nz_moo/sprites/moo_glow1")
-	--local eyeglow = Material("nz_moo/sprites/hud_particle_glow_04")
-
-	local defaultColor = Color(255, 75, 0, 255)
-
-	function ENT:Draw() //Runs every frame
-		self:DrawModel()
-		self:PostDraw()
-		if self.RedEyes == true and self:Alive() and !self:GetDecapitated() and !self:GetMooSpecial() and !self.IsMooSpecial then
-			self:DrawEyeGlow() 
-		end
-
-		if self:GetShadowBuff() and !self:GetBomberBuff() and !self:GetWaterBuff() and self:Alive() then
-			local elight = DynamicLight( self:EntIndex(), true )
-			if ( elight ) then
-				local bone = self:LookupBone("j_spineupper")
-				local pos = self:GetBonePosition(bone)
-				pos = pos 
-				elight.pos = pos
-				elight.r = 50
-				elight.g = 0
-				elight.b = 50
-				elight.brightness = 10
-				elight.Decay = 1000
-				elight.Size = 40
-				elight.DieTime = CurTime() + 1
-				elight.style = 0
-				elight.noworld = true
-			end
-		elseif self:WaterBuff() and !self:BomberBuff() and self:Alive() then
-			local elight = DynamicLight( self:EntIndex(), true )
-			if ( elight ) then
-				local bone = self:LookupBone("j_spineupper")
-				local pos = self:GetBonePosition(bone)
-				pos = pos 
-				elight.pos = pos
-				elight.r = 0
-				elight.g = 50
-				elight.b = 255
-				elight.brightness = 10
-				elight.Decay = 1000
-				elight.Size = 40
-				elight.DieTime = CurTime() + 1
-				elight.style = 0
-				elight.noworld = true
-			end
-		elseif self:BomberBuff() and !self:WaterBuff() and self:Alive() then
-			local elight = DynamicLight( self:EntIndex(), true )
-			if ( elight ) then
-				local bone = self:LookupBone("j_spineupper")
-				local pos = self:GetBonePosition(bone)
-				pos = pos 
-				elight.pos = pos
-				elight.r = 150
-				elight.g = 255
-				elight.b = 75
-				elight.brightness = 10
-				elight.Decay = 1000
-				elight.Size = 40
-				elight.DieTime = CurTime() + 1
-				elight.style = 0
-				elight.noworld = true
-			end
-		elseif self:WaterBuff() and self:BomberBuff() and self:Alive() then
-			local elight = DynamicLight( self:EntIndex(), true )
-			if ( elight ) then
-				local bone = self:LookupBone("j_spineupper")
-				local pos = self:GetBonePosition(bone)
-				pos = pos 
-				elight.pos = pos
-				elight.r = 255
-				elight.g = 0
-				elight.b = 0
-				elight.brightness = 10
-				elight.Decay = 1000
-				elight.Size = 40
-				elight.DieTime = CurTime() + 1
-				elight.style = 0
-				elight.noworld = true
-			end
-		end
-
-		self:ZCTFire()
-		if GetConVar( "nz_zombie_debug" ):GetBool() then
-			local min, max = self:GetCollisionBounds()
-			render.DrawWireframeBox(self:GetPos(), Angle(0,0,0), min, max, Color(255,0,0), true)
-		end
-	end
-
-	function ENT:ZCTFire()
-		if self:Alive() and self:GetShadowBuff() then
-			if !IsValid(self) then return end
-			if (!self.Draw_SHDWFX or !IsValid(self.Draw_SHDWFX)) then
-				self.Draw_SHDWFX = CreateParticleSystem(self, "zmb_zombie_shadow_marked", PATTACH_POINT_FOLLOW, 10)
-			end
-		end
-		if self:Alive() and self:GetZCTFlameColor() ~= "" then
-			-- Credit: FlamingFox for Code and fighting the PVS monster -- 
-			if !IsValid(self) then return end
-			if (!self.Draw_FX or !IsValid(self.Draw_FX)) then
-				self.Draw_FX = CreateParticleSystem(self, self:GetZCTFlameColor(), PATTACH_POINT_FOLLOW, 10)
-			end
-		end
-	end
-
-	function ENT:PostDraw() end -- Is called within the "Draw" function, added for easier adjusting/tweaking.
-
-	function ENT:DrawEyeGlow()
-		local eyeColor = nzMapping.Settings.zombieeyecolor
-		local nocolor = Color(0,0,0)
-
-		if self.EyeColorTable then
-			-- Go through every material given and set the color.
-			local eyecolor = nzMapping.Settings.zombieeyecolor
-			local col = Color(eyecolor.r,eyecolor.g,eyecolor.b):ToVector()
-
-			for k,v in pairs(self.EyeColorTable) do
-				v:SetVector("$emissiveblendtint", col)
-			end
-		end
-		
-		if eyeColor == nocolor then return end
-
-
-		local latt = self:LookupAttachment("lefteye")
-		local ratt = self:LookupAttachment("righteye")
-
-		if latt == nil then return end
-		if ratt == nil then return end
-
-		local leye = self:GetAttachment(latt)
-		local reye = self:GetAttachment(ratt)
-
-		if leye == nil then return end
-		if reye == nil then return end
-
-		local righteyepos = leye.Pos + leye.Ang:Forward()*0.49
-		local lefteyepos = reye.Pos + reye.Ang:Forward()*0.49
-
-		if lefteyepos and righteyepos then
-			render.SetMaterial(eyeglow)
-			render.DrawSprite(lefteyepos, 5, 5, eyeColor)
-			render.DrawSprite(righteyepos, 5, 5, eyeColor)
-		end
-	end
-
-	hook.Add("CreateClientsideRagdoll", "nzZCTragdollfire", function(ent, ragdoll)
-        if not IsValid(ent) or not IsValid(ragdoll) then return end
-        if not ent:IsValidZombie() then return end
-        
-        if nzGum.NewtonianNegation then
-        	--local phys = ragdoll:GetPhysicsObject()
-        	local bones = ragdoll:GetPhysicsObjectCount()
-        	for i = 0, bones - 1 do
-
-				local phys = ragdoll:GetPhysicsObjectNum( i )
-				if ( IsValid( phys ) ) then
-					phys:EnableGravity( false )
-					phys:Wake()
-				end
-			end
-        end
-        --
-        if IsValid(ent) and ent.GetZCTFlameColor and ent:GetZCTFlameColor() then 
-        	if ent:GetZCTFlameColor() == "" then
-        		return 
-        	end
-        end
-
-        if ent.Draw_FX and IsValid(ent.Draw_FX) then
-            ent.Draw_FX:StopEmissionAndDestroyImmediately()
-        end
-    end)
-end
 
 -- God I love Roxanne, she's such a bad bitch tho!!!
 -- The ELECTRIC SLIDE

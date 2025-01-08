@@ -247,6 +247,14 @@ hook.Add("PostEntityTakeDamage", "nzPostPlayerTakeDamage", function(ply, dmginfo
 		ply.lasthit = CurTime()
 		ply:SetNW2Float("nz.LastHit", CurTime())
 
+		if bit.band(dmginfo:GetDamageType(), bit.bor(DMG_SHOCK, DMG_ENERGYBEAM)) ~= 0 then
+			ply:SetNW2Float("nzLastShock", CurTime())
+		end
+
+		if bit.band(dmginfo:GetDamageType(), bit.bor(DMG_BURN, DMG_SLOWBURN)) ~= 0 then
+			ply:SetNW2Float("nzLastBurn", CurTime())
+		end
+
 		local ent = dmginfo:GetAttacker()
 		if IsValid(ent) and ent:IsValidZombie() then
 			if ply:HasPerk("fire") and ply:GetNW2Float("nz.BurnDelay", 0) < CurTime() then
@@ -342,7 +350,35 @@ hook.Add("PlayerDowned", "nzPlayerDown", function(ply)
 	end
 end)
 
+local lastuse = 0
 hook.Add("PlayerPostThink", "nzStatsRestePlayer", function(ply)
+	local wep = ply:GetActiveWeapon()
+	if IsValid(wep) and (wep:GetCreationTime() + 1) < CurTime() and wep.Base then
+		if !ply.LastWeaponViewmodel or (wep:GetWeaponViewModel() ~= ply.LastWeaponViewmodel) then
+			ply.LastWeaponViewmodel = wep:GetWeaponViewModel()
+			if wep:HasNZModifier("pap") then
+				wep.ViewmodelUpdatedTime = CurTime()
+				local wannaseehellonearth = "fuck_it_we_ball"..wep:EntIndex()
+				hook.Add("Think", wannaseehellonearth, function()
+					if not IsValid(wep) or !wep.ViewmodelUpdatedTime then
+						hook.Remove("Think", wannaseehellonearth)
+						return
+					end
+					if wep.ViewmodelUpdatedTime + engine.TickInterval() > CurTime() then return end
+
+					hook.Remove("Think", wannaseehellonearth)
+					if not IsValid(ply) then return end
+
+					local wep2 = ply:GetActiveWeapon()
+					if not IsValid(wep2) then return end
+					if ply.LastWeaponViewmodel ~= wep2:GetWeaponViewModel() then return end
+
+					nzCamos:UpdatePlayerViewmodel(ply, ply.LastWeaponViewmodel)
+				end)
+			end
+		end
+	end
+
 	if ply:HasPerk("banana") then
 		if ply:GetNW2Float("nz.BananaDelay", 0) < CurTime() and ply:GetNW2Int("nz.BananaCount", 0) < (ply:HasUpgrade("banana") and 9 or 7) then
 			if !ply.NZBananaRegenDelay then
@@ -370,36 +406,21 @@ hook.Add("PlayerPostThink", "nzStatsRestePlayer", function(ply)
 	if barricade then
 		if IsValid(barricade) and barricade.GetHasPlanks and barricade:GetNumPlanks() < 6 then
 			if !barricade.NextPlank or barricade.NextPlank < CurTime() then
-				if barricade:GetPos():DistToSqr(ply:GetPos()) > 2500 then
+				if barricade:GetPos():DistToSqr(ply:GetPos()) > 2500 then //50^2
+					if ply:GetNW2Bool("nzInteracting", false) then
+						ply:SetNW2Bool("nzInteracting", false)
+					end
 					ply.UsedBarricade = nil
 				else
 					barricade:Use(ply, ply, USE_ON, 1)
 				end
 			end
 		else
+			if ply:GetNW2Bool("nzInteracting", false) then
+				ply:SetNW2Bool("nzInteracting", false)
+			end
 			ply.UsedBarricade = nil
 		end
-	end
-end)
-
-hook.Add("OnEntityCreated", "nodmglolfucku", function(ent)
-	timer.Simple(0, function()
-		if not IsValid(ent) then return end
-		if IsValid(ent:GetOwner()) and ent:GetOwner():IsPlayer() then
-			local phys = ent:GetPhysicsObject()
-			if IsValid(phys) then
-				phys:AddGameFlag(FVPHYSICS_NO_IMPACT_DMG)
-			end
-		end
-	end)
-end)
-
-hook.Add("WeaponEquip", "nzWeaponPickupString", function(wep, ply)
-	if wep.NZPickupHintText then
-		timer.Simple(0, function()
-			if not IsValid(wep) or not IsValid(ply) then return end
-			ply:PrintMessage(HUD_PRINTCENTER, wep.NZPickupHintText)
-		end)
 	end
 end)
 
@@ -426,6 +447,9 @@ hook.Add("KeyPress", "nzBarricadeRebuild", function(ply, key)
 		if not IsValid(ent) then continue end
 
 		ply.UsedBarricade = ent
+		if !ply:GetNW2Bool("nzInteracting", false) then
+			ply:SetNW2Bool("nzInteracting", true)
+		end
 		break
 	end
 end)
@@ -434,13 +458,154 @@ hook.Add("KeyRelease", "nzBarricadeRebuild", function(ply, key)
 	if key ~= IN_USE then return end
 	if ply.UsedBarricade then
 		ply.UsedBarricade = nil
+		if ply:GetNW2Bool("nzInteracting", false) then
+			ply:SetNW2Bool("nzInteracting", false)
+		end
 	end
 end)
 
-local PLAYER = FindMetaTable("Entity")
-if PLAYER then
-	local oldignite = PLAYER.Ignite
-	function PLAYER:Ignite(...)
+hook.Add("OnEntityCreated", "nodmglolfucku", function(ent)
+	timer.Simple(0, function()
+		if not IsValid(ent) then return end
+		if IsValid(ent:GetOwner()) and ent:GetOwner():IsPlayer() then
+			local phys = ent:GetPhysicsObject()
+			if IsValid(phys) then
+				phys:AddGameFlag(FVPHYSICS_NO_IMPACT_DMG)
+			end
+		end
+	end)
+end)
+
+hook.Add("WeaponEquip", "nzWeaponPickupString", function(wep, ply)
+	if wep.NZPickupHintText then
+		timer.Simple(0, function()
+			if not IsValid(wep) or not IsValid(ply) then return end
+			ply:PrintMessage(HUD_PRINTCENTER, wep.NZPickupHintText)
+		end)
+	end
+end)
+
+
+local cvar_respawnonplayers = GetConVar("nz_difficulty_respawn_on_players")
+
+local function GetClearPaths(ply, pos, tiles)
+	local clearPaths = {}
+	local filter = player.GetAll()
+	for _, tile in pairs( tiles ) do
+		local tr = util.TraceLine({
+			start = pos,
+			endpos = tile,
+			filter = filter,
+			mask = MASK_PLAYERSOLID
+		})
+		
+		if not tr.Hit and util.IsInWorld(tile) then
+			table.insert( clearPaths, tile )
+		end
+	end
+	
+	return clearPaths
+end
+
+local function GetSurroundingTiles(ply, pos)
+	local tiles = {}
+	local x, y, z
+	local minBound, maxBound = ply:GetHull()
+	local checkRange = math.max(32, maxBound.x, maxBound.y)
+
+	for z = -1, 1, 1 do
+		for y = -1, 1, 1 do
+			for x = -1, 1, 1 do
+				local testTile = Vector(x,y,z)
+				testTile:Mul( checkRange )
+				local tilePos = pos + testTile
+				table.insert( tiles, tilePos )
+			end
+		end
+	end
+	
+	return tiles
+end
+
+local function CollisionBoxClear(ply, pos, spawns)
+	local filter = {ply}
+	table.Add(filter, spawns)
+	local tr = util.TraceEntity({
+		start = pos,
+		endpos = pos,
+		filter = filter,
+		mask = MASK_PLAYERSOLID
+	}, ply)
+
+	return !tr.StartSolid || !tr.AllSolid
+end
+
+local PLAYER = FindMetaTable("Player")
+function PLAYER:MoveToSpawn(dontuseplayers)
+	--Charlotte here, this took 2 fucking hours. I've never been so happy to have something done >:3
+	local spawns = ents.FindByClass("player_spawns")
+	if not IsValid(spawns[1]) then return end
+
+	local availableSpawns = {}
+	local finalpos = spawns[math.random(#spawns)]:GetPos()
+
+	-- Find all available spawn points
+	for _, spawn in ipairs(spawns) do
+		local isSpawnOccupied = false
+
+		local mins, maxs = spawn:GetCollisionBounds()
+		for _, ply in pairs(ents.FindInBox(spawn:LocalToWorld(mins), spawn:LocalToWorld(maxs))) do
+			if IsValid(ply) and ply:IsPlayer() and ply:Alive() then
+				isSpawnOccupied = true
+			end
+		end
+
+		if not isSpawnOccupied then
+			availableSpawns[#availableSpawns + 1] = spawn
+		end
+	end
+
+	for _, spawn in RandomPairs(availableSpawns) do
+		finalpos = spawn:GetPos()
+		if spawn:GetPreferred() then break end
+	end
+
+	if cvar_respawnonplayers:GetBool() and nzRound:GetNumber() > 1 and !dontuseplayers then
+		local spawns = player.GetAllPlaying()
+
+		local spectator = self.LastSpectatedPlayer
+		if IsValid(spectator) and spectator:Alive() and spectator:IsPlaying() then
+			finalpos = spectator:GetPos()
+		elseif not table.IsEmpty(spawns) then
+			for _, ply in RandomPairs(spawns) do
+				finalpos = ply:GetPos()
+				if !ply:GetNotDowned() then break end
+				//prefer respawning on downed players :)
+			end
+		end
+	end
+
+	local minBound, maxBound = self:GetHull()
+	if not CollisionBoxClear(self, finalpos, availableSpawns ) then
+		local surroundingTiles = GetSurroundingTiles( self, finalpos )
+		local clearPaths = GetClearPaths( self, finalpos, surroundingTiles )	
+		for _, tile in pairs( clearPaths ) do
+			if CollisionBoxClear( self, tile, availableSpawns ) then
+				finalpos = tile
+				break
+			end
+		end
+	end
+
+	self:SetPos(finalpos + vector_up)
+
+	return finalpos
+end
+
+local ENTITY = FindMetaTable("Entity")
+if ENTITY then
+	local oldignite = ENTITY.Ignite
+	function ENTITY:Ignite(...)
 		if not self:IsPlayer() then return oldignite(self, ...) end
 		if self:HasPerk("fire") then return end
 		return oldignite(self, ...)

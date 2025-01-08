@@ -573,6 +573,7 @@ nzTools:CreateTool("settings", {
 		local Row133 = 			DProperties:CreateRow("Map Functionality", "Bleedout Perk Count")
 		local gravityrow = 		DProperties:CreateRow("Map Functionality", "Gravity")
 
+
 		Shmoovment:Setup("Combo")
 		Shmoovment:AddChoice("None", 0, valz["Movement"] == 0)
 		Shmoovment:AddChoice("Sliding", 1, valz["Movement"] == 1)
@@ -683,6 +684,7 @@ nzTools:CreateTool("settings", {
 		Row128:SetValue(valz["Row128"])
 		Row128.DataChanged = function( _, val ) valz["Row128"] = tonumber(val) end
 		Row128:SetTooltip("Delay before the game over camera starts when all players go down, if one is setup. THIS ADDS TO THE TOTAL GAME OVER DURATION!!! (Default 5 seconds)")
+		
 
 		--[[-------------------------------------------------------------------------
 		Perk Reward Settings

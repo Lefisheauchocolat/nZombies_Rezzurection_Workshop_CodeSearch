@@ -398,9 +398,9 @@ nzRound:AddBossType("Werewolf", "nz_zombie_boss_werewolf", {
 })
 nzRound:AddBossType("Megaton", "nz_zombie_boss_steiner", {
     specialspawn = false,
-    health = 700,
-    scale = 500,
-    dmgmul = 0.75,
+    health = 80,
+    scale = 400,
+    dmgmul = 0.65,
 	amountatonce = 2,
 	initalrnd = 12,
 	intermission = 4,
@@ -1035,13 +1035,7 @@ nzRound:AddBossType("Brutus", "nz_zombie_boss_brutus", {
 	initfunc = function()
 	end,
 	spawnfunc = function(self)
-		BroadcastLua("surface.PlaySound('nz_moo/zombies/vox/_cellbreaker/spawn_2d.mp3')")
-
-		local data = nzRound:GetBossData(self.NZBossType)
-		local count = #player.GetAllPlaying()
-
-		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+		BroadcastLua("surface.PlaySound('nz_moo/zombies/vox/_bruiser/brutus_spawn_2d.mp3')")
 	end,
 	deathfunc = function(self, killer, dmginfo, hitgroup)
 		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then

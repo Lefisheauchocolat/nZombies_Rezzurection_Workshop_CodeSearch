@@ -4,11 +4,15 @@ nzFuncs = nzFuncs or {}
 
 hook.Add("EntityTakeDamage", "nZr.CheckZombieModel", function(ply, dmg)
     local att = dmg:GetAttacker()
-    if att:LookupBone("j_spineupper") and att:LookupBone("j_ankle_ri") and !nZr_Death_Animations_Classes[att:GetClass()] then
+    if att:LookupBone("j_spineupper") and att:LookupBone("j_ankle_ri") and !nZr_Death_Animations_Classes[att:GetClass()] and !string.match(att:GetClass(), "_boss") then
         ply.LastDamageZombieModel = att:GetModel()
     elseif dmg:GetDamage() > 10 then
         ply.LastDamageZombieModel = nil
     end
+end)
+
+hook.Add("PlayerSpawn", "nZr.CheckZombieModel", function(ply)
+    ply.LastDamageZombieModel = nil
 end)
 
 function nzFuncs:GetZombieMapModel(is_table, ply)
@@ -81,4 +85,14 @@ function nzFuncs:ShowTeleportGif(ply)
             surface.PlaySound("weapons/tfa_waw/teslanade/teleport_out.wav")
         ]])
     end)
+end
+
+function nzFuncs:TransformModelData(base, to)
+    if !IsValid(base) or !IsValid(to) then return end
+    to:SetModel(base:GetModel())
+    to:SetColor(base:GetColor())
+    to:SetSkin(base:GetSkin())
+    for i = 0, base:GetNumBodyGroups() - 1 do
+        to:SetBodygroup(i, base:GetBodygroup(i))
+    end
 end
