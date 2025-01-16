@@ -839,6 +839,25 @@ local function ScoreHud_t7_zod()
 			surface.DrawTexturedRect(wr + 70*scale, h - 260 * scale - offset, 40*scale, 40*scale)
 		end
 
+		if v:HasPerk("pop") then
+			local delay = v:GetNW2Float("nz.EPopDecay", 0)
+			if delay > CurTime() then
+				local effect = v:GetNW2Int("nz.EPopEffect", 1)
+				local fadefac = 0
+
+				if delay > CurTime() then
+					fadefac = delay - CurTime()
+					fadefac = math.Clamp(fadefac / 1, 0, 1)
+				end
+
+				if fadefac > 0 then
+					surface.SetMaterial(nzPerks.EPoPIcons[effect])
+					surface.SetDrawColor(ColorAlpha(color_white, 255*fadefac))
+					surface.DrawTexturedRect(wr + 70*scale + (16*scale), h - 260*scale + (16*scale) - offset, 24*scale, 48*scale)
+				end
+			end
+		end
+
 		if v.HasVultureStink and v:HasVultureStink() then
 			surface.SetMaterial(zmhud_player_stink)
 			surface.DrawTexturedRect(wr + 70*scale, h - 260 * scale - offset, 40*scale, 40*scale)
@@ -1486,351 +1505,6 @@ local function PerksMMOHud_t7_zod()
 	end
 end
 
-local hud_grenadetypes = {
-	["bo1_m67_grenade"] = true,
-	["nz_bo3_tac_gersch"] = true,
-	["nz_bo3_tac_gstrike"] = true,
-	["nz_bo3_tac_lilarnie"] = true,
-	["nz_bo4_tac_matryoshka"] = true,
-	["nz_bo3_tac_matryoshka"] = true,
-	["nz_bo3_tac_matryoshka_mini"] = true,
-	["nz_bo3_tac_monkeybomb"] = true,
-	["nz_bo3_tac_qed"] = true,
-}
-
-local function DeathHud_t7_zod()
-	local ply = LocalPlayer()
-	if not IsValid(ply) then return end
-	if !ply:ShouldDrawHUD() then return end
-	if ply:IsNZMenuOpen() then return end
-	if IsValid(ply:GetObserverTarget()) then
-		ply = ply:GetObserverTarget()
-	end
-
-	local screen = ScreenScale(16)
-	local pscale = ScreenScale(128)
-	local screen2 = ScreenScale(24)
-
-	local pos = ply:GetPos()
-	local range = 160000
-	local ang = 0.65
-	local zeds = {}
-	local nades = {}
-
-	for i, ent in nzLevel.GetHudEntityArray() do
-		if not IsValid(ent) then continue end
-		if (ent.NZThrowIcon or ent.NZNadeRethrow) and (ent:GetCreationTime() + 0.3 < CurTime()) then
-			local epos = ent:WorldSpaceCenter() + vector_up*10
-			local data = epos:ToScreen()
-			if data.visible then
-				if ent.GetActivated and ent:GetActivated() then continue end
-				local dist = 1 - math.Clamp(pos:DistToSqr(ent:GetPos()) / 160000, 0, 1)
-
-				surface.SetMaterial(ent.NZThrowIcon or t7_icon_grenade)
-				surface.SetDrawColor(ColorAlpha(color_t7_outline, 300*dist))
-				surface.DrawTexturedRect(data.x - screen*0.5 - 4, data.y - screen*0.5 - 4, screen + 8, screen + 8)
-
-				surface.SetMaterial(ent.NZThrowIcon or t7_icon_grenade)
-				surface.SetDrawColor(ColorAlpha(color_t7zod, 300*dist))
-				surface.DrawTexturedRect(data.x - screen*0.5, data.y - screen*0.5, screen, screen)
-			else
-				if ent.NZNadeRethrow and ply ~= ent:GetOwner() then continue end
-				table_insert(nades, ent)
-			end
-		end
-	end
-
-	for _, ent in ipairs(nades) do
-		local epos = ent:GetPos()
-
-		local dist = 1 - math.Clamp(pos:DistToSqr(epos) / 160000, 0, 1)
-		local dir = (epos - pos):Angle()
-		dir = dir - EyeAngles()
-		local angle = dir.y + 90
-
-		local x = (math.cos(math.rad(angle)) * pscale) + ScrW() / 2
-		local y = (math.sin(math.rad(angle)) * -pscale) + ScrH() / 2
-
-		surface.SetMaterial(ent.NZThrowIcon or t7_icon_grenade)
-		surface.SetDrawColor(ColorAlpha(color_t7_outline, 400*dist))
-		surface.DrawTexturedRect(x - (screen*0.5) - 4, y - (screen*0.5) - 4, screen + 8, screen + 8)
-
-		surface.SetMaterial(ent.NZThrowIcon or t7_icon_grenade)
-		surface.SetDrawColor(ColorAlpha(color_t7zod, 400*dist))
-		surface.DrawTexturedRect(x - (screen*0.5), y - (screen*0.5), screen, screen)
-
-		if nz_useplayercolor:GetBool() then
-			local owner = ent:GetOwner()
-			if IsValid(owner) and owner:IsPlayer() then
-				local pcol = owner:GetPlayerColor()
-				surface.SetDrawColor(Color(255*pcol.x, 255*pcol.y, 255*pcol.z, math.min(400*dist, 200)))
-			end
-		end
-
-		surface.SetMaterial(zmhud_icon_offscreen)
-		surface.DrawTexturedRectRotated(x, y, screen2, screen2, angle - 90)
-	end
-
-	if ply:HasPerk("death") then
-		for i, ent in nzLevel.GetZombieArray() do
-			if not IsValid(ent) then continue end
-			if ent:IsValidZombie() and ent:Alive() then
-				if pos:DistToSqr(ent:GetPos()) > range then continue end
-				local dir = ply:EyeAngles():Forward()
-				local facing = (pos - ent:GetPos()):GetNormalized()
-
-				if (facing:Dot(dir) + 1) / 2 > ang then
-					table_insert(zeds, ent)
-				end
-			end
-		end
-
-		for i, ent in nzLevel.GetZombieBossArray() do
-			if not IsValid(ent) then continue end
-			if ent:IsValidZombie() and ent:Alive() then
-				local dir = ply:EyeAngles():Forward()
-				local facing = (pos - ent:GetPos()):GetNormalized()
-
-				if (facing:Dot(dir) + 1) / 2 > ang then
-					table_insert(zeds, ent)
-				end
-			end
-		end
-
-		for _, ent in ipairs(zeds) do
-			local epos = ent:GetPos()
-
-			local dist = math.Clamp(pos:DistToSqr(epos) / range, 0, 1)
-			local dir = (epos - pos):Angle()
-			dir = dir - EyeAngles()
-			local angle = dir.y + 90
-
-			local mod = math.Remap(1 - dist, 0, 1, 0.5, 1)
-
-			local x = (math.cos(math.rad(angle)) * pscale) + ScrW() / 2
-			local y = (math.sin(math.rad(angle)) * -pscale) + ScrH() / 2
-
-			surface.SetMaterial(zmhud_icon_death)
-			surface.SetDrawColor(Color(255, 500*dist, 500*dist, 400*(1 - dist)))
-			surface.DrawTexturedRect(x - (screen*mod)/2, y - (screen*mod)/2, screen*mod, screen*mod)
-		end
-	end
-end
-
-local powerup_data = {}
-local antipowerup_data = {}
-
-local function PowerUpsHud_t7_zod()
-	local ply = LocalPlayer()
-	if not IsValid(ply) then return end
-
-	if !ply:ShouldDrawHUD() then return end
-	if !ply:ShouldDrawPowerupsHUD() then return end
-	if ply:IsNZMenuOpen() then return end
-
-	local spectating = false
-	if IsValid(ply:GetObserverTarget()) then
-		ply = ply:GetObserverTarget()
-		spectating = true
-	end
-
-	local ctime = CurTime()
-	local scw, sch = ScrW(), ScrH()
-
-	local fontColor = !IsColor(nzMapping.Settings.textcolor) and color_white or nzMapping.Settings.textcolor
-	local font = "nz.points.blackops2"
-	if nz_mapfont:GetBool() then
-		font = "nz.points."..GetFontType(nzMapping.Settings.ammofont)
-	end
-
-	local scale = (scw/1920 + 1)/2
-	local height = sch - 170*scale
-	local size = 72*scale
-
-	local powerupsActive = 0
-	local powerupsTotal = 0
-
-	local tActivePowerUps = nzPowerUps.ActivePowerUps
-	for k, v in pairs(tActivePowerUps) do
-		if (v - CurTime()) < engine.TickInterval() then continue end
-		powerupsTotal = powerupsTotal + 1
-	end
-
-	local tActiveAntiPowerUps = nzPowerUps.ActiveAntiPowerUps
-	for k, v in pairs(tActiveAntiPowerUps) do
-		powerupsTotal = powerupsTotal + 1
-	end
-
-	local tPlayerPowerUps = ply:AllActivePowerUps()
-	for k, v in pairs(tPlayerPowerUps) do
-		powerupsTotal = powerupsTotal + 1
-	end
-
-	local tPlayerAntiPowerUps = ply:AllActiveAntiPowerUps()
-	for k, v in pairs(tPlayerAntiPowerUps) do
-		powerupsTotal = powerupsTotal + 1
-	end
-
-	local function AddPowerup(powerup, icon, time, anti, noflash) -- Display another powerup on the player's screen
-		local timeleft = time - ctime
-		if timeleft < engine.TickInterval() then return end
-
-		if icon:IsError() then
-			icon = zmhud_icon_missing
-		end
-
-		if !anti and !powerup_data[powerup] then
-			powerup_data[powerup] = {[1] = (scw/2), [2] = 1}
-		end
-		if anti and !antipowerup_data[powerup] then
-			antipowerup_data[powerup] = {[1] = (scw/2), [2] = 1}
-		end
-
-		local width = (scw/2) + (size/2 + (-(size/2) * powerupsTotal + (powerupsActive * size)))
-		local convarstyle = nz_powerupstyle:GetInt()
-		if convarstyle > 0 then
-			if anti then
-				antipowerup_data[powerup][1] = math.Approach(antipowerup_data[powerup][1], width, FrameTime()*160)
-				antipowerup_data[powerup][2] = convarstyle > 1 and 0 or math.Approach(antipowerup_data[powerup][2], 0, FrameTime()*3)
-			else
-				powerup_data[powerup][1] = math.Approach(powerup_data[powerup][1], width, FrameTime()*160)
-				powerup_data[powerup][2] = convarstyle > 1 and 0 or math.Approach(powerup_data[powerup][2], 0, FrameTime()*3)
-			end
-		else
-			if anti then
-				antipowerup_data[powerup][1] = width
-				antipowerup_data[powerup][2] = 0
-			else
-				powerup_data[powerup][1] = width
-				powerup_data[powerup][2] = 0
-			end
-		end
-
-		local warningthreshold = anti and 5 or 10 --at what time does the icon start blinking?
-		local frequency1 = 0.1 --how long in seconds it takes for the icon to toggle visibility
-		local urgencythreshold = anti and 2 or 5 --at what time does the blinking get faster/slower?
-		local frequency2 = 0.1 --how long in seconds it takes for the icon to toggle visibility in urgency mode
-
-		if noflash then
-			warningthreshold = 0
-			urgencythreshold = 0
-		end
-
-		if timeleft > warningthreshold or (timeleft > urgencythreshold and timeleft % (frequency1 * 4) > frequency1) or (timeleft <= urgencythreshold and timeleft % (frequency2*2) > frequency2) then
-			local finalwidth = anti and antipowerup_data[powerup][1] or powerup_data[powerup][1]
-			local cuntas = anti and antipowerup_data[powerup][2] or powerup_data[powerup][2]
-			local finalfade = math.Clamp(1 - cuntas, 0, 1)
-			local bonus = (32*cuntas)
-
-			surface.SetMaterial(icon)
-			surface.SetDrawColor(ColorAlpha(anti and color_red_255 or color_white, 300*finalfade))
-			surface.DrawTexturedRect(finalwidth - (32*scale) - (bonus/2), sch - 160*scale - (bonus/2), 64*scale + bonus, 64*scale + bonus)
-
-			if nz_showpoweruptimer:GetBool() then
-				draw.SimpleTextOutlined(math.Round(timeleft), font, finalwidth, sch - 175*scale - (bonus/2), color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, color_black_100)
-			end
-		end
-
-		powerupsActive = powerupsActive + 1
-	end
-
-	for powerup, time in pairs(tActivePowerUps) do
-		local icon, noflash = GetPowerupIconMaterial(powerup)
-		if icon then
-			AddPowerup(powerup, icon, time, false, noflash)
-		end
-	end
-
-	for powerup, time in pairs(tActiveAntiPowerUps) do	
-		local icon = GetPowerupIconMaterial(powerup)
-		if icon then
-			AddPowerup(powerup, icon, time, true)
-		end
-	end
-
-	for powerup, time in pairs(tPlayerPowerUps) do
-		local icon, noflash = GetPowerupIconMaterial(powerup)
-		if icon then
-			AddPowerup(powerup, icon, time, false, noflash)
-		end
-	end
-
-	for powerup, time in pairs(tPlayerAntiPowerUps) do
-		local icon = GetPowerupIconMaterial(powerup)
-		if icon then
-			AddPowerup(powerup, icon, time, true)
-		end
-	end
-
-	for k, v in pairs(nzPowerUps.Data) do
-		if v.global then
-			local active = nzPowerUps:IsPowerupActive(k)
-			local antiactive = nzPowerUps:IsAntiPowerupActive(k)
-			if !active and powerup_data[k] then
-				powerup_data[k] = nil
-			end
-			if !antiactive and antipowerup_data[k] then
-				antipowerup_data[k] = nil
-			end
-		else
-			local pactive = nzPowerUps:IsPlayerPowerupActive(ply, k)
-			local pantiactive = nzPowerUps:IsPlayerAntiPowerupActive(ply, k)
-
-			if !pactive and powerup_data[k] then
-				powerup_data[k] = nil
-			end
-			if !pantiactive and antipowerup_data[k] then
-				antipowerup_data[k] = nil
-			end
-		end
-	end
-
-	if spectating then return end
-	if not ply.ambiences then ply.ambiences = {} end
-	if not ply.refstrings then ply.refstrings = {} end
-	if not ply.picons then ply.picons = {} end
-
-	for k, v in pairs(nzPowerUps.Data) do
-		local active = false
-
-		if v.global then
-			active = nzPowerUps:IsPowerupActive(k)
-		else
-			if nzPowerUps.ActivePlayerPowerUps[ply] then
-				active = nzPowerUps:IsPlayerPowerupActive(ply, k)
-			end
-		end
-
-		if v.loopsound then
-			if active then
-				if not ply.refstrings[k] then --Haven't cached yet
-					ply.refstrings[k] = v.loopsound
-					ply.ambiences[k] = CreateSound(ply, v.loopsound)
-				elseif ply.refstrings[k] ~= v.loopsound then --Cached but the sound was changed, requires re-cache
-					if ply.ambiences[k] then ply.ambiences[k]:Stop() end --stop the existing sound if it's still playing
-
-					ply.refstrings[k] = v.loopsound
-					ply.ambiences[k] = CreateSound(ply, v.loopsound)
-				end
-
-				if ply.ambiences[k] then
-					ply.ambiences[k]:Play()
-					if ply.picons[k] then
-						local timer = ply.picons[k].time - CurTime()
-						ply.ambiences[k]:ChangePitch(100 + (v.nopitchshift and 0 or math.max(0, (10-timer)*5)) + (v.addpitch or 0))
-					end
-				end
-			elseif ply.ambiences[k] then
-				if v.stopsound and ply.ambiences[k]:IsPlaying() then
-					ply:EmitSound(v.stopsound, 95, 100 + (v.addpitch or 0))
-				end
-
-				ply.ambiences[k]:Stop()
-			end
-		end
-	end
-end
-
 local perkcount = 0
 local perkflashtime = 0
 local stinkfade = 0
@@ -2471,11 +2145,9 @@ hook.Add("HUDPaint", "nzHUDswapping_t7_zod", function()
 		hook.Add("HUDPaint", "PlayerHealthBarHUD", PlayerHealthHUD_t7_zod )
 		hook.Add("HUDPaint", "PlayerStaminaBarHUD", PlayerStaminaHUD_t7_zod )
 		hook.Add("HUDPaint", "scoreHUD", ScoreHud_t7_zod )
-		hook.Add("HUDPaint", "powerupHUD", PowerUpsHud_t7_zod )
 		hook.Add("HUDPaint", "perksmmoinfoHUD", PerksMMOHud_t7_zod )
 		hook.Add("HUDPaint", "perksHUD", PerksHud_t7_zod )
 		hook.Add("HUDPaint", "roundnumHUD", RoundHud_t7_zod )
-		hook.Add("HUDPaint", "deathiconsHUD", DeathHud_t7_zod )
 		hook.Add("HUDPaint", "0nzhudlayer", GunHud_t7_zod )
 		hook.Add("HUDPaint", "1nzhudlayer", InventoryHUD_t7_zod )
 		hook.Add("HUDPaint", "zedcounterHUD", ZedCounterHUD_t7_zod )

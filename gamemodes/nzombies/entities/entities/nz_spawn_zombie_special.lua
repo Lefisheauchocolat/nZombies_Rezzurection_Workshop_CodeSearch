@@ -17,6 +17,8 @@ function ENT:Initialize()
 	self:SetNextSpawn(CurTime())
     self:SetSpawnUpdateRate(0)
 
+    self.NextUse = CurTime() + 1
+
     if (self:GetSpawnType() == 0 or self:GetSpawnType() == nil) and !self:GetMasterSpawn() then
         self:AutoSpawnType() -- Spawns don't have the data set.
     end

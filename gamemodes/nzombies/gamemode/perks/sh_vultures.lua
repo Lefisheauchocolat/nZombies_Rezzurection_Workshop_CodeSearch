@@ -17,6 +17,7 @@ nzPerks:AddVultureClass("drop_powerup")
 nzPerks:AddVultureClass("drop_widows")
 nzPerks:AddVultureClass("drop_tombstone")
 nzPerks:AddVultureClass("wunderfizz_windup")
+nzPerks:AddVultureClass("nz_gummachine")
 
 //vulture drop data
 nzPerks.VultureData = nzPerks.VultureData or {}

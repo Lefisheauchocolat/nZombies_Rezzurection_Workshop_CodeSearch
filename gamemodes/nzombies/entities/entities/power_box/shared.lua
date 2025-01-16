@@ -145,6 +145,8 @@ function ENT:Use( activator )
 
 			self:EmitSound(self.ActivationSound, 90, math.random(95,105))
 			self:SetSwitch(true)
+
+			hook.Run("PowerSwitchLimitedActivate", nil, activator, self)
 			//self.Switched = 0
 
 			local weball = false
@@ -198,6 +200,7 @@ function ENT:Use( activator )
 					if nzElec:IsOn() then return end
 					if !self:GetSwitch() then return end
 
+					hook.Run("PowerSwitchReset", nil, activator, self)
 
 					self.ShotSwitch = false
 					self:SetSwitch(false)
@@ -218,6 +221,8 @@ function ENT:Use( activator )
 					if !self:GetSwitch() then
 						if onanim > 0 then self:ResetSequence(onanim) end
 
+						hook.Run("PowerSwitchActivate", nil, activator, self)
+
 						self:EmitSound(self.ActivationSound, 90, math.random(95,105))
 						self:SetSwitch(true)
 					end
@@ -230,6 +235,8 @@ function ENT:Use( activator )
 				//self.Switched = 0
 				self:EmitSound(self.ActivationSound, 90, math.random(95,105))
 				nzElec:Activate()
+
+				hook.Run("PowerSwitchActivate", nil, activator, self)
 				if onanim > 0 then self:ResetSequence(onanim) end
 			end
 		end

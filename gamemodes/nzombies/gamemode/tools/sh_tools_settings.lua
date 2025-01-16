@@ -1,3 +1,7 @@
+if CLIENT then
+	include("contenticon.lua")
+end
+
 nzTools:CreateTool("settings", {
 	displayname = "Map Settings",
 	desc = "Use the Tool Interface and press Submit to save changes",
@@ -109,7 +113,7 @@ nzTools:CreateTool("settings", {
 		valz["Row84"] = data.slidejump or false
 		valz["Row85"] = data.cwfizzround or 15
 		valz["Row86"] = data.slideduration or 0.6
-		valz["Row87"] = data.slidespeed or 200
+		valz["Row87"] = data.slidespeed or 1.3
 		//valz["Row88"] = data.slidestamina == nil and true or data.slidestamina
 		valz["Row89"] = data.stamina or 100
 		valz["Row90"] = data.staminaregenamount or 4.5
@@ -131,7 +135,7 @@ nzTools:CreateTool("settings", {
 		valz["Row107"] = data.typewritertext or "Berlin, Germany;Wittenau Sanatorium;September, 1945"
 		valz["Row108"] = data.typewriterdelay or 0.125
 		valz["Row109"] = data.typewriterlinedelay or 1.5
-		valz["Row110"] = data.typewriteroffset or 420
+		valz["Row110"] = data.typewriteroffset or 435
 		valz["Row111"] = data.divingallowweapon or false
 		valz["Row112"] = data.divingomnidirection or false
 		valz["Row113"] = data.roundwaittime or 15
@@ -155,6 +159,10 @@ nzTools:CreateTool("settings", {
 		valz["Row131"] = data.divingwait or 0.2
 		valz["Row132"] = data.downsystem or 0
 		valz["Row133"] = data.perkstokeep or 3
+
+		valz["Row134"] = data.skyintro or false
+		valz["Row135"] = data.skyintrotime or 1.4
+		valz["Row136"] = data.skyintroheight or 6000
 
 		valz["PaPBeam"] = data.papbeam or false
 		valz["RandomPaP"] = data.randompap or false
@@ -312,6 +320,10 @@ nzTools:CreateTool("settings", {
 			local Row70 =			DProperties1:CreateRow("Cosmetic Settings", "Power-Up Outlines")
 			local Colorlessrow =	DProperties1:CreateRow("Cosmetic Settings", "Monochrome Vision Until Power On")
 			local Row104 =			DProperties1:CreateRow("Cosmetic Settings", "Blur Vision on Power On")
+
+			local Row134 =			DProperties1:CreateRow("Cosmetic Settings", "Modern Warfare 3 Survival Intro")
+			local Row135 =			DProperties1:CreateRow("Cosmetic Settings", "Survival Intro Time")
+			local Row136 =			DProperties1:CreateRow("Cosmetic Settings", "Survival Intro Vertical Offset")
 
 			local GameBeginText =	DProperties1:CreateRow("Text Settings", "Game Begin Text")
 			local GameOverText =	DProperties1:CreateRow("Text Settings", "Game Over Text")
@@ -477,7 +489,7 @@ nzTools:CreateTool("settings", {
 			Row70:AddChoice('Enabled', 1, valz["Row70"] == 1)
 			Row70:AddChoice('Ignore Z', 2, valz["Row70"] == 2)
 			Row70.DataChanged = function( _, val ) valz["Row70"] = val end
-			Row70:SetTooltip("More of an accessibility option, enables a glowing halo around powerups, ignorez makes the outline show through walls.")
+			Row70:SetTooltip("More of an accessibility option, enables a glowing halo around Power-Ups, ignorez makes the outline show through walls.")
 
 			Colorlessrow:Setup("Boolean")
 			Colorlessrow:SetValue(valz["Colorless"])
@@ -488,6 +500,21 @@ nzTools:CreateTool("settings", {
 			Row104:SetValue(valz["Row104"])
 			Row104.DataChanged = function( _, val) valz["Row104"] = tobool(val) end
 			Row104:SetTooltip("Enable for players vision to blur when power is turned on (or at gamestart when no power switch is present).")
+
+			Row134:Setup("Boolean")
+			Row134:SetValue(valz["Row134"])
+			Row134.DataChanged = function( _, val) valz["Row134"] = tobool(val) end
+			Row134:SetTooltip("Enable MW3-esque spawn animation (disabled if infil animation is enabled).")
+
+			Row135:Setup("Generic")
+			Row135:SetValue(valz["Row135"])
+			Row135.DataChanged = function( _, val ) valz["Row135"] = tonumber(val) end
+			Row135:SetTooltip("Time it takes for spawning animation to play out, in seconds. (Default 1.4)")
+
+			Row136:Setup("Generic")
+			Row136:SetValue(valz["Row136"])
+			Row136.DataChanged = function( _, val ) valz["Row136"] = tonumber(val) end
+			Row136:SetTooltip("Vertical offset from player spawns when animation starts, in hammer units. (Default 6000)")
 
 			GameBeginText:Setup("Generic")
 			GameBeginText:SetValue(valz["GameBeginText"])
@@ -537,7 +564,7 @@ nzTools:CreateTool("settings", {
 			Row110:Setup("Generic")
 			Row110:SetValue(valz["Row110"])
 			Row110.DataChanged = function( _, val ) valz["Row110"] = tonumber(val) end
-			Row110:SetTooltip("Verticle offset of the first line from bottom of screen. (Default 420, looks good with 3 lines or less)")
+			Row110:SetTooltip("Vertical offset of the first line from bottom of screen. (Default 420, looks good with 3 lines or less)")
 		end
 		AddCosmeticStuff()
 		--[[-------------------------------------------------------------------------
@@ -572,7 +599,6 @@ nzTools:CreateTool("settings", {
 		local Row128 = 			DProperties:CreateRow("Map Functionality", "Game Over Camera Delay")
 		local Row133 = 			DProperties:CreateRow("Map Functionality", "Bleedout Perk Count")
 		local gravityrow = 		DProperties:CreateRow("Map Functionality", "Gravity")
-
 
 		Shmoovment:Setup("Combo")
 		Shmoovment:AddChoice("None", 0, valz["Movement"] == 0)
@@ -684,7 +710,6 @@ nzTools:CreateTool("settings", {
 		Row128:SetValue(valz["Row128"])
 		Row128.DataChanged = function( _, val ) valz["Row128"] = tonumber(val) end
 		Row128:SetTooltip("Delay before the game over camera starts when all players go down, if one is setup. THIS ADDS TO THE TOTAL GAME OVER DURATION!!! (Default 5 seconds)")
-		
 
 		--[[-------------------------------------------------------------------------
 		Perk Reward Settings
@@ -990,6 +1015,10 @@ nzTools:CreateTool("settings", {
 		end
 		Row1.DataChanged = function( _, val ) valz["Row1"] = val end
 
+		Row1.DoClick = function( panel, index, value )
+			valz["Row1"] = OpenWeaponSelectMenu( )
+		end
+
 		kniferow:Setup( "Combo" )
 		for k,v in pairs(weapons.GetList()) do
 			if v.Category and v.Category == "nZombies Knives" then
@@ -1127,7 +1156,7 @@ nzTools:CreateTool("settings", {
 		Row130:Setup("Generic")
 		Row130:SetValue(valz["Row130"])
 		Row130.DataChanged = function( _, val ) valz["Row130"] = tonumber(val) end
-		Row130:SetTooltip("Verticle velocity gained by diving. (Default 200)")
+		Row130:SetTooltip("Vertical velocity gained by diving. (Default 200)")
 
 		Row131:Setup("Generic")
 		Row131:SetValue(valz["Row131"])
@@ -1551,7 +1580,7 @@ nzTools:CreateTool("settings", {
 			if valz["Row84"] == nil then data.slidejump = false else data.slidejump = tobool(valz["Row84"]) end
 			if valz["Row85"] == nil then data.cwfizzround = 15 else data.cwfizzround = tonumber(valz["Row85"]) end
 			if valz["Row86"] == nil then data.slideduration = 0.6 else data.slideduration = tonumber(valz["Row86"]) end
-			if valz["Row87"] == nil then data.slidespeed = 200 else data.slidespeed = tonumber(valz["Row87"]) end
+			if valz["Row87"] == nil then data.slidespeed = 1.3 else data.slidespeed = tonumber(valz["Row87"]) end
 			//if valz["Row88"] == nil then data.slidestamina = true else data.slidestamina = tobool(valz["Row88"]) end
 			if valz["Row89"] == nil then data.stamina = 100 else data.stamina = tonumber(valz["Row89"]) end
 			if valz["Row90"] == nil then data.staminaregenamount = 4.5 else data.staminaregenamount = tonumber(valz["Row90"]) end
@@ -1597,6 +1626,9 @@ nzTools:CreateTool("settings", {
 			if valz["Row131"] == nil then data.divingwait = 0.2 else data.divingwait = tonumber(valz["Row131"]) end
 			if valz["Row132"] == nil then data.downsystem = 0 else data.downsystem = tonumber(valz["Row132"]) end
 			if valz["Row133"] == nil then data.perkstokeep = 3 else data.perkstokeep = tonumber(valz["Row133"]) end
+			if valz["Row134"] == nil then data.skyintro = false else data.skyintro = tobool(valz["Row134"]) end
+			if valz["Row135"] == nil then data.skyintrotime = 1.4 else data.skyintrotime = tonumber(valz["Row135"]) end
+			if valz["Row136"] == nil then data.skyintroheight = 6000 else data.skyintroheight = tonumber(valz["Row136"]) end
 			if valz["JumpPower"] == nil then data.jumppower = 200 else data.jumppower = tonumber(valz["JumpPower"]) end
 			if valz["GameBeginText"] == nil then data.gamebegintext = "Round" else data.gamebegintext = tostring(valz["GameBeginText"]) end
 			if valz["RBoxPrice"] == nil then data.rboxprice = 950 else data.rboxprice = tonumber(valz["RBoxPrice"]) end
@@ -1891,29 +1923,22 @@ nzTools:CreateTool("settings", {
 				end
 			end
 
-			local wepentry = vgui.Create( "DComboBox", rboxpanel )
+			local wepentry = vgui.Create( "DButton", rboxpanel )
+			local wepadd = vgui.Create( "DButton", rboxpanel )
+
 			wepentry:SetPos( 0, 365 )
 			wepentry:SetSize( 146, 20 )
-			wepentry:SetValue( "Weapon ..." )
-			for k,v in pairs(weapons.GetList()) do
-				if !v.NZTotalBlacklist and !v.NZPreventBox then
-					if v.Category and v.Category != "" then
-						local special = v.NZSpecialCategory and " ("..v.NZSpecialCategory..")" or ""
-						wepentry:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName..special or v.ClassName, v.ClassName, false)
-					else
-						wepentry:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, false)
-					end
-				end
-			end
-			wepentry.OnSelect = function( panel, index, value )
+			wepentry:SetText( "Weapon ..." )
+
+			wepentry.DoClick = function( panel, index, value )
+				OpenWeaponSelectMenu( wepentry, wepadd )
 			end
 
-			local wepadd = vgui.Create( "DButton", rboxpanel )
 			wepadd:SetText( "Add" )
 			wepadd:SetPos( 150, 365 )
 			wepadd:SetSize( 53, 20 )
 			wepadd.DoClick = function()
-				local v = weapons.Get(wepentry:GetOptionData(wepentry:GetSelectedID()))
+				local v = weapons.Get(wepentry.optionData)
 				if v then
 					if v.Category and v.Category != "" then
 						local special = v.NZSpecialCategory and " ("..v.NZSpecialCategory..")" or ""
@@ -1922,7 +1947,7 @@ nzTools:CreateTool("settings", {
 						InsertWeaponToList(v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, 10, v.ClassName.." [No Category]")
 					end
 				end
-				wepentry:SetValue( "Weapon..." )
+				wepentry:SetText( "Weapon..." )
 			end
 
 			local wepmore = vgui.Create( "DButton", rboxpanel )
@@ -2842,19 +2867,19 @@ end
 			Row99:Setup("Boolean")
 			Row99:SetValue(valz["Row99"])
 			Row99.DataChanged = function( _, val ) valz["Row99"] = tobool(val) end
-			Row99:SetTooltip("Enable for powerups to only spawn after X amount of rounds.")
+			Row99:SetTooltip("Enable for Power-Ups to only spawn after X amount of rounds.")
 
 			local Row102 = pproperties:CreateRow("Settings", "Max Power-Ups Per Round")
 			Row102:Setup("Generic")
 			Row102:SetValue(valz["Row102"])
 			Row102.DataChanged = function( _, val ) valz["Row102"] = tonumber(val) end
-			Row102:SetTooltip("How many powerups can spawn naturally in a single round.")
+			Row102:SetTooltip("How many Power-Ups can spawn naturally in a single round.")
 
 			local Row66 = pproperties:CreateRow("Settings", "Enable Anti Power-Ups")
 			Row66:Setup("Boolean")
 			Row66:SetValue(valz["Row66"])
 			Row66.DataChanged = function( _, val ) valz["Row66"] = tobool(val) end
-			Row66:SetTooltip("Enable anti powerups spawning on this config")
+			Row66:SetTooltip("Enable anti Power-Ups spawning on this config")
 
 			local Row67 = pproperties:CreateRow("Settings", "Max Anti Power-Ups Chance")
 			Row67:Setup("Generic")
@@ -2964,8 +2989,13 @@ end
 			},
 			[13] = {
 				["Title"] = "Kaboom Sound",
-				["ToolTip"] = "Sound that plays on all clients when a nuke powerup is picked up.",
+				["ToolTip"] = "Sound that plays on all clients when a nuke Power-Up is picked up.",
 				["Bind"] = valz["SndRow44"]
+			},
+			[14] = {
+				["Title"] = "Sky Intro Sound",
+				["ToolTip"] = "Sound that plays during the Modern Warfare 3 Survival intro animation.",
+				["Bind"] = valz["SndRow47"]
 			},
 			--[[[10] = {
 				["Title"] = "Round Underscore Song",
@@ -2982,7 +3012,7 @@ end
 		local SndMenuPowerUp = { 
 			[1] = {
 				["Title"] = "Spawn",
-				["ToolTip"] = "Played on the powerup itself when it spawns",
+				["ToolTip"] = "Played on the Power-Up itself when it spawns",
 				["Bind"] = valz["SndRow7"]
 			},
 			[2] = {
@@ -2992,7 +3022,7 @@ end
 			},
 			[3] = {
 				["Title"] = "Grab",
-				["ToolTip"] = "When players get the powerup",
+				["ToolTip"] = "When players get the Power-Up",
 				["Bind"] = valz["SndRow8"]
 			},
 			[4] = {
@@ -3296,7 +3326,7 @@ end
 
 		-- Menu categories with Event Lists inside
 		local mainCat = catList:Add("Main")
-		local powerupCat = catList:Add("Powerups")
+		local powerupCat = catList:Add("Power-Ups")
 		powerupCat:SetExpanded(false)
 		local boxCat = catList:Add("Mystery Box")
 		boxCat:SetExpanded(false)

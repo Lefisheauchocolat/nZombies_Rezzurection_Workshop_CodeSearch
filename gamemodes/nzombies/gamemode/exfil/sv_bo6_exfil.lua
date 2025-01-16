@@ -4,6 +4,7 @@ util.AddNetworkString("nZr.ExfilTimer")
 util.AddNetworkString("nZr.ExfilCutscene")
 util.AddNetworkString("nZr.ExfilPosition")
 util.AddNetworkString("nZr.ExfilMessage")
+util.AddNetworkString("nzPreviewExfilAnim")
 
 nZr_Exfil_Map_Positions = nZr_Exfil_Map_Positions or {}
 nZr_Exfil_Map_Angles = nZr_Exfil_Map_Angles or {}
@@ -76,6 +77,30 @@ function nZr_Exfil_Message(type)
     net.Broadcast()
 end
 
+function nZr_Exfil_PreviewCutscene(is_success, ply)
+    local npos, nang, ndist = nil, nil, math.huge
+    for _, ent in pairs(ents.FindByClass("bo6_exfil_point")) do
+        if ply:GetPos():DistToSqr(ent:GetPos()) < ndist then
+            ndist = ply:GetPos():DistToSqr(ent:GetPos())
+            nang = ent:GetAngles()
+            npos = ent:GetPos()
+        end
+    end
+    if !isvector(npos) then return end
+
+    net.Start("nZr.ExfilCutscene")
+    net.WriteBool(is_success)
+    net.WriteVector(npos)
+    net.WriteAngle(nang)
+    net.WriteTable(nzFuncs:GetZombieMapModel(true))
+    net.Send(ply)
+end
+
+net.Receive("nzPreviewExfilAnim", function(len, ply)
+    local bool = net.ReadBool()
+    nZr_Exfil_PreviewCutscene(bool, ply)
+end)
+
 function nZr_Exfil_Cutscene(is_success, pos, ang)
     net.Start("nZr.ExfilCutscene")
     net.WriteBool(is_success)
@@ -104,6 +129,7 @@ function nZr_Exfil_StartRandom()
     local ang = nZr_Exfil_Map_Angles[id]
     nZr_Exfil_RadioActive = false
     nzPowerUps:Nuke(nil, nil, nil, true)
+    nzFuncs:PlayClientSound("bo6/exfil/nuke_sound.mp3")
     nzRound:Freeze(true)
     nzRound:SetZombiesMax(0)
     timer.Simple(4, function()
@@ -196,11 +222,7 @@ function nZr_Exfil_Stop(is_success)
             nzRound:Freeze(false)
         end)
     else
-        local time = 10.5
-        if nzSettings:GetSimpleSetting("ExfilLiberty", false) then
-            time = 13
-        end
-        timer.Simple(time, function()
+        timer.Simple(13, function()
             nZr_Exfil_RadioActive = true
             nZr_ChangeGameOverDelay()
             nzRound:Lose(nil, nzMapping.Settings.gameovertime+5)
@@ -316,7 +338,7 @@ hook.Add("Think", "nZr_Exfil_Think", function()
         if nZr_Exfil_Landing and nZr_Exfil_Heli:GetCycle() >= 0.2 and not nZr_Exfil_Heli.downing then
             nZr_Exfil_Heli.downing = true
             nZr_Exfil_Heli:ResetSequence("landing")
-            nZr_Exfil_Heli:SetCycle(0.2)
+            nZr_Exfil_Heli:SetCycle(0)
             nzDialog:PlayCustomDialog(nzSettings:GetSimpleSetting("ExfilPilotType", "raptor").."Exfil_GetIn")
             timer.Remove("BO6_Exfil_Faster")
             for i=1,150 do

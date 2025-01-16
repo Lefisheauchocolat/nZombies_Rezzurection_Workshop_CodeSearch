@@ -60,7 +60,15 @@ if GetConVar("nz_hud_show_player_portrait") == nil then
 end
 
 if GetConVar("nz_hud_show_game_start_text") == nil then
-	CreateClientConVar("nz_hud_show_game_start_text", 1, true, false, "Enable or disable showing the text that appears on game begin, usually 'Round', only works with W@W/BO1/BO2 styled HUDs. (0 false, 1 true), Default is 1.", 0, 1)
+	CreateClientConVar("nz_hud_show_game_start_text", 1, true, false, "Enable or disable showing the text that appears on game begin, usually 'Round'. (0 false, 1 true), Default is 1.", 0, 1)
+end
+
+if GetConVar("nz_hud_show_clan_tags") == nil then
+	CreateClientConVar("nz_hud_show_clan_tags", 1, true, true, "Enable or disable showing clan tags. (0 Disabled, 1 Friends Only, 2 All Players), Default is 1.", 0, 2)
+end
+
+if GetConVar("nz_hud_show_clan_icons") == nil then
+	CreateClientConVar("nz_hud_show_clan_icons", 1, true, true, "Enable or disable showing clan icons. (0 Disabled, 1 Friends Only, 2 All Players), Default is 1.", 0, 2)
 end
 
 if GetConVar("nz_hud_player_indicators") == nil then
@@ -115,6 +123,14 @@ if GetConVar("nz_bloodmeleeoverlay") == nil then
 	CreateClientConVar("nz_bloodmeleeoverlay", 1, true, true, "Enable or disable drawing the blood splatter effect on the screen when damaging zombies with a melee weapon. (0 false, 1 true), Default is 1.", 0, 1)
 end
 
+if GetConVar("nz_hud_use_powerup_blacklist") == nil then
+	CreateClientConVar("nz_hud_use_powerup_blacklist", 0, true, false, "Enable or disable blacklisting certain Power-Ups from showing on the players Power-Ups tray, Default is 0.", 0, 1)
+end
+
+if GetConVar("nz_hud_powerup_blacklist") == nil then
+	CreateClientConVar("nz_hud_powerup_blacklist", "nuke;carpenter", true, false, "What Power-Ups to not show on the HUD, uses internal name and is seperated by an ';'. Default is 'nuke;carpenter'")
+end
+
 cvars.AddChangeCallback("nz_hud_clientside_points", function(name, old, new)
 	local b_clpoints = tonumber(new) == 1
 	if timer.Exists(name) then timer.Remove(name) end
@@ -142,12 +158,15 @@ local nz_showzcounter = GetConVar("nz_hud_show_alive_counter")
 local nz_showpoweruptimer = GetConVar("nz_hud_show_powerup_time")
 local nz_showportrait = GetConVar("nz_hud_show_player_portrait")
 local nz_showgamebegintext = GetConVar("nz_hud_show_game_start_text")
+local nz_showclanicons = GetConVar("nz_hud_show_clan_icons")
 
 local nz_indicators = GetConVar("nz_hud_player_indicators")
 local nz_indicatorangle = GetConVar("nz_hud_player_indicator_angle")
 local nz_betterscaling = GetConVar("nz_hud_better_scaling")
 local nz_useplayercolor = GetConVar("nz_hud_use_playercolor")
 local nz_powerupstyle = GetConVar("nz_hud_powerup_style")
+local nz_usepowerupblacklist = GetConVar("nz_hud_use_powerup_blacklist")
+local nz_powerupblacklist = GetConVar("nz_hud_powerup_blacklist")
 
 local nz_aatstyle = GetConVar("nz_hud_aat_style")
 local nz_aatcolor = GetConVar("nz_hud_aat_textcolor")
@@ -886,6 +905,25 @@ local function ScoreHud()
 				surface.DrawTexturedRect(wf + 25*pscale, h - 275*scale - offset, 40*pscale, 40*pscale)
 			end
 
+			if v:HasPerk("pop") then
+				local delay = v:GetNW2Float("nz.EPopDecay", 0)
+				if delay > CurTime() then
+					local effect = v:GetNW2Int("nz.EPopEffect", 1)
+					local fadefac = 0
+
+					if delay > CurTime() then
+						fadefac = delay - CurTime()
+						fadefac = math.Clamp(fadefac / 1, 0, 1)
+					end
+
+					if fadefac > 0 then
+						surface.SetMaterial(nzPerks.EPoPIcons[effect])
+						surface.SetDrawColor(ColorAlpha(color_white, 255*fadefac))
+						surface.DrawTexturedRect(wf + 25*pscale + (16*pscale), h - 275*scale + (16*pscale) - offset, 24*pscale, 48*pscale)
+					end
+				end
+			end
+
 			if v.HasVultureStink and v:HasVultureStink() then
 				surface.SetMaterial(zmhud_player_stink)
 				surface.DrawTexturedRect(wf + 25*pscale, h - 275*scale - offset, 40*pscale, 40*pscale)
@@ -1346,7 +1384,7 @@ local function DeathHud()
 	for i, ent in nzLevel.GetHudEntityArray() do
 		if not IsValid(ent) then continue end
 		if (ent.NZThrowIcon or ent.NZNadeRethrow) and (ent:GetCreationTime() + 0.3 < CurTime()) then
-			local epos = ent:WorldSpaceCenter() + vector_up*10
+			local epos = ent:WorldSpaceCenter() + vector_up*12
 			local data = epos:ToScreen()
 			if data.visible then
 				if ent.GetActivated and ent:GetActivated() then continue end
@@ -1383,8 +1421,8 @@ local function DeathHud()
 		if nz_useplayercolor:GetBool() then
 			local owner = ent:GetOwner()
 			if IsValid(owner) and owner:IsPlayer() then
-				local pcol = owner:GetPlayerColor()
-				surface.SetDrawColor(Color(255*pcol.x, 255*pcol.y, 255*pcol.z, math.min(400*dist, 200)))
+				local pcol = owner:GetPlayerColor():ToColor()
+				surface.SetDrawColor(ColorAlpha(pcol, math.min(400*dist, 200)))
 			end
 		end
 
@@ -1458,8 +1496,22 @@ local function PowerUpsHud()
 	local ctime = CurTime()
 	local scw, sch = ScrW(), ScrH()
 
+	local fontbyhud = nzDisplay.fonttypebyHUDs[nzMapping.Settings.hudtype]
+
 	local fontColor = !IsColor(nzMapping.Settings.textcolor) and color_white or nzMapping.Settings.textcolor
-	local font = "nz.powerup"
+	local font = fontbyhud and "nz.points."..fontbyhud or "nz.powerup"
+	if nz_mapfont:GetBool() then
+		font = "nz.points."..GetFontType(nzMapping.Settings.mediumfont)
+	end
+
+	local b_useblacklist = nz_usepowerupblacklist:GetBool()
+	local tPowerupBlacklist = {}
+	if b_useblacklist then
+		local t_powerupblacklist = string.Split(nz_powerupblacklist:GetString(), ";")
+		for _, name in ipairs(t_powerupblacklist) do
+			tPowerupBlacklist[name] = true
+		end
+	end
 
 	local scale = (scw/1920 + 1)/2
 	local height = sch - 170*scale
@@ -1470,6 +1522,8 @@ local function PowerUpsHud()
 
 	local tActivePowerUps = nzPowerUps.ActivePowerUps
 	for k, v in pairs(tActivePowerUps) do
+		if tPowerupBlacklist[k] then continue end
+
 		if (v - CurTime()) < engine.TickInterval() then continue end
 		powerupsTotal = powerupsTotal + 1
 	end
@@ -1481,6 +1535,8 @@ local function PowerUpsHud()
 
 	local tPlayerPowerUps = ply:AllActivePowerUps()
 	for k, v in pairs(tPlayerPowerUps) do
+		if tPowerupBlacklist[k] then continue end
+
 		powerupsTotal = powerupsTotal + 1
 	end
 
@@ -1553,6 +1609,8 @@ local function PowerUpsHud()
 	end
 
 	for powerup, time in pairs(tActivePowerUps) do
+		if tPowerupBlacklist[powerup] then continue end
+
 		local icon, noflash = GetPowerupIconMaterial(powerup)
 		if icon then
 			AddPowerup(powerup, icon, time, false, noflash)
@@ -1567,6 +1625,8 @@ local function PowerUpsHud()
 	end
 
 	for powerup, time in pairs(tPlayerPowerUps) do
+		if tPowerupBlacklist[powerup] then continue end
+
 		local icon, noflash = GetPowerupIconMaterial(powerup)
 		if icon then
 			AddPowerup(powerup, icon, time, false, noflash)
@@ -2272,7 +2332,7 @@ end
 
 local talksize = 64
 local voicesize = 32
-local namesize = 16
+local namesize = 24
 local _sp = game.SinglePlayer()
 
 local name_cvarname = "nz_hud_player_names"
@@ -2288,36 +2348,217 @@ cvars.AddChangeCallback(namedist_cvarname, function(name, old, new)
 end)
 
 local namefull_cvarname = "nz_hud_player_name_showfull"
-local namefull_enabled = CreateConVar(namefull_cvarname, 0, FCVAR_ARCHIVE, "Enable or Disable displaying full player names above their head instead of the first 16 characters. (1 is Enabled, 0 is Disabled),  Default is 0.", 0, 1):GetBool()
+local namefull_enabled = CreateConVar(namefull_cvarname, 0, FCVAR_ARCHIVE, "Enable or disable displaying full player names above their head instead of the first 24 characters. (1 is Enabled, 0 is Disabled),  Default is 0.", 0, 1):GetBool()
 cvars.AddChangeCallback(namefull_cvarname, function(name, old, new)
 	namefull_enabled = tonumber(new) == 1
 end)
 
+local namefade_cvarname = "nz_hud_player_name_fade"
+local namefade_time = CreateConVar(namefade_cvarname, 0, FCVAR_ARCHIVE, "How long before player names fade away when not looking at them. (0 to Disable), Default is 0.", 0, 600):GetFloat()
+cvars.AddChangeCallback(namefade_cvarname, function(name, old, new)
+	namefade_time = tonumber(new)
+end)
+
+local namefont_cvarname = "nz_hud_player_name_font"
+local namefont_type = CreateConVar(namefont_cvarname, 0, FCVAR_ARCHIVE, "What font style/size to use for player name plates, font type used is always 'points' font in map setting. (0 is Points, 1 is Ammo, 2 is Small, 3 is Main, 4 is Ammo2), Default is 0.", 0, 4):GetInt()
+cvars.AddChangeCallback(namefont_cvarname, function(name, old, new)
+	namefont_type = tonumber(new)
+end)
+
 local status_cvarname = "nz_hud_player_statuses"
-local statuses_enabled = CreateConVar(status_cvarname, 1, FCVAR_ARCHIVE, "Enable or Disable drawing a status indicator on players name plates for specific actions the player could be taking. (1 Enabled, 0 Disabled), Default is 1.", 0, 1):GetBool()
+local statuses_enabled = CreateConVar(status_cvarname, 1, FCVAR_ARCHIVE, "Enable or disable drawing a status indicator on players name plates for specific actions the player could be taking. (1 Enabled, 0 Disabled), Default is 1.", 0, 1):GetBool()
 cvars.AddChangeCallback(status_cvarname, function(name, old, new)
 	statuses_enabled = tonumber(new) == 1
 end)
 
+local status_cvarname = "nz_hud_player_status_icon_size"
+local statusicon_size = CreateConVar(status_cvarname, 32, FCVAR_ARCHIVE, "Size of the player status icon next to their name plate in 3d space. Default is 32.", 0, 128):GetInt()
+cvars.AddChangeCallback(status_cvarname, function(name, old, new)
+	statusicon_size = tonumber(new)
+end)
+
+local clanicon_cvarname = "nz_hud_player_clan_icon_size"
+local clanicon_size = CreateConVar(clanicon_cvarname, 32, FCVAR_ARCHIVE, "Size of player's clan icon next to their name plate in 3d space. Default is 32.", 0, 128):GetInt()
+cvars.AddChangeCallback(clanicon_cvarname, function(name, old, new)
+	clanicon_size = tonumber(new)
+end)
+
+local iconpos_cvarname = "nz_hud_player_clan_icon_pos"
+local clanicon_pos = CreateConVar(iconpos_cvarname, 0, FCVAR_ARCHIVE, "Position of the players clan icon (0 left side of name, 1 right side of name, 2 above name). Default is 0.", 0, 2):GetInt()
+cvars.AddChangeCallback(iconpos_cvarname, function(name, old, new)
+	clanicon_pos = tonumber(new)
+end)
+
+local function DrawPlayerInfo(ply, pos, ang, ratio, font)
+	local localply = LocalPlayer()
+	local myindex = localply:EntIndex()
+	local index = ply:EntIndex()
+
+	if !name_enabled or (ply.HideMyNameplate and index == myindex) then return end
+
+	local name_pos = pos + vector_up*14
+
+	local nick = ply:Nick()
+	if not namefull_enabled and #nick > namesize then
+		nick = string.sub(nick, 1, namesize).."..."
+	end
+
+	local pcolor = player.GetColorByIndex(index)
+	if nz_useplayercolor:GetBool() then
+		pcolor = ply:GetPlayerColor():ToColor()
+	end
+
+	local n_clanicons = nz_showclanicons:GetInt()
+
+	cam.Start3D2D(name_pos, ang, 0.24)
+		cam.IgnoreZ(true)
+
+		surface.SetFont(font)
+
+		if ply:GetNW2Bool("nzLagProtection", false) and statuses_enabled then //lagging or timing out
+			local tw, th = surface.GetTextSize(nick)
+
+			surface.SetMaterial(zmhud_icon_connection)
+			surface.SetDrawColor(ColorAlpha(color_white, 255*ratio))
+			surface.DrawTexturedRect(-tw/2 - statusicon_size, -(statusicon_size*0.75)/2, (statusicon_size*0.75), (statusicon_size*0.75))
+		elseif ply:IsSpeaking() then //using voicechat
+			local icon = zmhud_icon_voicedim
+			if ply:VoiceVolume() > 0 then
+				icon = zmhud_icon_voiceon
+			end
+			if ply:IsMuted() then
+				icon = zmhud_icon_voiceoff
+			end
+
+			local tw, th = surface.GetTextSize(nick)
+
+			surface.SetMaterial(icon)
+			surface.SetDrawColor(ColorAlpha(color_white, 255*ratio))
+			surface.DrawTexturedRect(-tw/2 - statusicon_size, -statusicon_size/2, statusicon_size, statusicon_size)
+		elseif localply:IsScoreboardOpen() and ply:IsListenServerHost() and !_sp and statuses_enabled then //p2p lobby host if scoreboard is showing
+			local tw, th = surface.GetTextSize(nick)
+
+			surface.SetMaterial(zmhud_icon_localhost)
+			surface.SetDrawColor(ColorAlpha(color_white, 255*ratio))
+			surface.DrawTexturedRect(-tw/2 - statusicon_size, -statusicon_size/2, statusicon_size, statusicon_size)
+		elseif ply:GetNW2Bool("nzInteracting", false) and statuses_enabled then //interacting with something important
+			local tw, th = surface.GetTextSize(nick)
+
+			surface.SetMaterial(zmhud_icon_useable)
+			surface.SetDrawColor(ColorAlpha(color_white, 255*ratio))
+			surface.DrawTexturedRect(-tw/2 - statusicon_size, -statusicon_size/2, statusicon_size, statusicon_size)
+		elseif ply:GetNW2Bool("ThirtOTS", false) and index ~= myindex and statuses_enabled then //in thirdperson
+			local tw, th = surface.GetTextSize(nick)
+
+			surface.SetMaterial(zmhud_icon_camera)
+			surface.SetDrawColor(ColorAlpha(color_white, 255*ratio))
+			surface.DrawTexturedRect(-tw/2 - statusicon_size, -statusicon_size/2, statusicon_size, statusicon_size)
+		elseif nzDisplay.PlayerClanIcon[ply:EntIndex()] and (ply:GetFriendStatus() == "friend" or n_clanicons > 1 or index == myindex) and n_clanicons > 0 and !ply:IsMuted() and (!clanicon_pos or (clanicon_pos == 0 or (ply:IsTyping() and clanicon_pos == 2))) then
+			local tw, th = surface.GetTextSize(nick)
+
+			surface.SetMaterial(nzDisplay.PlayerClanIcon[ply:EntIndex()])
+			surface.SetDrawColor(ColorAlpha(color_white, 255*ratio))
+			surface.DrawTexturedRect(-tw/2 - clanicon_size, -clanicon_size/2, clanicon_size, clanicon_size)
+		end
+
+		if clanicon_pos and (clanicon_pos == 1 or (ply:IsSpeaking() and clanicon_pos == 0)) and nzDisplay.PlayerClanIcon[ply:EntIndex()] and (ply:GetFriendStatus() == "friend" or n_clanicons > 1 or index == myindex) and n_clanicons > 0 and !ply:IsMuted() then
+			local tw, th = surface.GetTextSize(nick)
+
+			surface.SetMaterial(nzDisplay.PlayerClanIcon[ply:EntIndex()])
+			surface.SetDrawColor(ColorAlpha(color_white, 255*ratio))
+			surface.DrawTexturedRect((tw/2) + 2, -clanicon_size/2, clanicon_size, clanicon_size)
+		end
+
+		draw.SimpleTextOutlined(nick, font, 0, 0, ColorAlpha(pcolor, 255*ratio), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, ColorAlpha(color_black, 180*ratio))
+		cam.IgnoreZ(false)
+	cam.End3D2D()
+end
+
+local fontsbytype = {
+	[0] = "nz.points.",
+	[1] = "nz.ammo.",
+	[2] = "nz.small.",
+	[3] = "nz.main.",
+	[4] = "nz.ammo2."
+}
+
+local playerstofade = {}
 local function PlayerInfoHUD(bdepth, bskybox) //credit to Player Status Icons by Haaax
 	if bskybox then return end
 
 	local localply = LocalPlayer()
 	if not IsValid(localply) then return end
 	if !localply:ShouldDrawHUD() then return end
+	if IsValid(localply:GetObserverTarget()) then
+		localply = localply:GetObserverTarget()
+	end
 
 	local render_ang = EyeAngles()
 	render_ang:RotateAroundAxis(render_ang:Right(), 90)
 	render_ang:RotateAroundAxis(-render_ang:Up(), 90)
 
-	local fontsmall = "nz.points."..GetFontType(nzMapping.Settings.smallfont)
+	local myindex = localply:EntIndex()
+	local font = (fontsbytype[namefont_type] or "nz.points.")..GetFontType(nzMapping.Settings.mediumfont)
 	local namefade = max_namedist*0.8
-
 	local plytab = player.GetAll()
+	local fade_enabled = namefade_time and namefade_time > 0
+	local n_clanicons = nz_showclanicons:GetInt()
+
+	if fade_enabled then
+		local ent = localply:GetEyeTrace().Entity
+		if IsValid(ent) and ent:IsPlayer() then
+			playerstofade[ent] = CurTime()
+		end
+
+		if localply:ShouldDrawLocalPlayer() then
+			playerstofade[localply] = CurTime()
+		elseif playerstofade[localply] then
+			playerstofade[localply] = nil
+		end
+
+		for ply, start in pairs(playerstofade) do
+			if not IsValid(ply) or ply:IsDormant() or not ply:Alive() then
+				playerstofade[ply] = nil
+				continue
+			end
+
+			local id = ply:LookupAttachment("anim_attachment_head") or 0
+			local att = ply:GetAttachment(id)
+
+			local pos = (att and att.Pos) and att.Pos or ply:WorldSpaceCenter() + ply:GetUp()*26
+			local distfac = pos:DistToSqr(EyePos())
+			if distfac >= max_namedist then continue end
+
+			local ratio = math.Clamp(((start + math.max(namefade_time, 1)) - CurTime()) / 1, 0, 1)
+			if ratio <= 0 then
+				playerstofade[ply] = nil
+				continue
+			end
+
+			DrawPlayerInfo(ply, pos, render_ang, ratio, font)
+		end
+	else
+		for i, ply in ipairs(plytab) do
+			if not IsValid(ply) or ply:IsDormant() or not ply:Alive() then continue end
+			local index = ply:EntIndex()
+			if index == myindex and not localply:ShouldDrawLocalPlayer() then continue end
+
+			local id = ply:LookupAttachment("anim_attachment_head") or 0
+			local att = ply:GetAttachment(id)
+
+			local pos = (att and att.Pos) and att.Pos or ply:WorldSpaceCenter() + ply:GetUp()*26
+			local distfac = pos:DistToSqr(EyePos())
+			local ratio = 1 - math.Clamp((distfac - max_namedist + namefade) / namefade, 0, 1)
+			if ratio <= 0 then continue end
+
+			DrawPlayerInfo(ply, pos, render_ang, ratio, font)
+		end
+	end
+
 	for i, ply in ipairs(plytab) do
 		if not IsValid(ply) or ply:IsDormant() or not ply:Alive() then continue end
 		local index = ply:EntIndex()
-		if index == localply:EntIndex() and not localply:ShouldDrawLocalPlayer() then continue end
+		if index == myindex and not localply:ShouldDrawLocalPlayer() then continue end
 
 		local id = ply:LookupAttachment("anim_attachment_head") or 0
 		local att = ply:GetAttachment(id)
@@ -2327,8 +2568,30 @@ local function PlayerInfoHUD(bdepth, bskybox) //credit to Player Status Icons by
 		local ratio = 1 - math.Clamp((distfac - max_namedist + namefade) / namefade, 0, 1)
 		if ratio <= 0 then continue end
 
+		if fade_enabled and ply:IsSpeaking() and index ~= myindex then
+			local talk_pos = pos + vector_up*(fade_enabled and !playerstofade[ply] and 16 or 24)
+
+			local icon = zmhud_icon_voicedim
+			if ply:VoiceVolume() > 0 then
+				icon = zmhud_icon_voiceon
+			end
+			if ply:IsMuted() then
+				icon = zmhud_icon_voiceoff
+			end
+
+			cam.Start3D2D(talk_pos, render_ang, 0.24)
+				cam.IgnoreZ(true)
+				surface.SetMaterial(icon)
+				surface.SetDrawColor(ColorAlpha(color_white, 255*ratio))
+				surface.DrawTexturedRect(-talksize/2, -talksize/2, talksize, talksize)
+				cam.IgnoreZ(false)
+			cam.End3D2D()
+
+			continue
+		end
+
 		if ply:IsTyping() then
-			local talk_pos = pos + vector_up*24
+			local talk_pos = pos + vector_up*(fade_enabled and !playerstofade[ply] and 16 or 24)
 
 			cam.Start3D2D(talk_pos, render_ang, 0.24)
 				cam.IgnoreZ(true)
@@ -2337,71 +2600,20 @@ local function PlayerInfoHUD(bdepth, bskybox) //credit to Player Status Icons by
 				surface.DrawTexturedRect(-talksize/2, -talksize/2, talksize, talksize)
 				cam.IgnoreZ(false)
 			cam.End3D2D()
+
+			continue
 		end
 
-		if name_enabled then
-			local name_pos = pos + vector_up*14
+		if clanicon_pos and clanicon_pos == 2 and nzDisplay.PlayerClanIcon[ply:EntIndex()] and (ply:GetFriendStatus() == "friend" or n_clanicons > 1 or index == myindex) and n_clanicons > 0 and !ply:IsMuted() then
+			local talk_pos = pos + vector_up*(10 + (clanicon_size/2))
 
-			local nick = ply:Nick()
-			if not namefull_enabled and #nick > namesize then
-				nick = string.sub(nick, 1, namesize).."..."
-			end
+			cam.Start3D2D(talk_pos, render_ang, 0.24)
+				surface.SetFont(font)
+				local tw, th = surface.GetTextSize("I")
 
-			local pcolor = player.GetColorByIndex(index)
-			if nz_useplayercolor:GetBool() then
-				pcolor = ply:GetPlayerColor():ToColor()
-			end
-
-			cam.Start3D2D(name_pos, render_ang, 0.24)
-				cam.IgnoreZ(true)
-
-				if ply:GetNW2Bool("nzLagProtection", false) and statuses_enabled then //lagging or timing out
-					surface.SetFont(fontsmall)
-					local tw, th = surface.GetTextSize(nick)
-
-					surface.SetMaterial(zmhud_icon_connection)
-					surface.SetDrawColor(ColorAlpha(color_white, 255*ratio))
-					surface.DrawTexturedRect(-tw/2 - voicesize, -voicesize/2, voicesize, voicesize)
-				elseif ply:IsSpeaking() then //using voicechat
-					local icon = zmhud_icon_voicedim
-					if ply:VoiceVolume() > 0 then
-						icon = zmhud_icon_voiceon
-					end
-					if ply:IsMuted() then
-						icon = zmhud_icon_voiceoff
-					end
-
-					surface.SetFont(fontsmall)
-					local tw, th = surface.GetTextSize(nick)
-
-					surface.SetMaterial(icon)
-					surface.SetDrawColor(ColorAlpha(color_white, 255*ratio))
-					surface.DrawTexturedRect(-tw/2 - voicesize, -voicesize/2, voicesize, voicesize)
-				elseif localply:IsScoreboardOpen() and ply:IsListenServerHost() and !_sp and statuses_enabled then //p2p lobby host if scoreboard is showing
-					surface.SetFont(fontsmall)
-					local tw, th = surface.GetTextSize(nick)
-
-					surface.SetMaterial(zmhud_icon_localhost)
-					surface.SetDrawColor(ColorAlpha(color_white, 255*ratio))
-					surface.DrawTexturedRect(-tw/2 - voicesize, -voicesize/2, voicesize, voicesize)
-				elseif ply:GetNW2Bool("nzInteracting", false) and statuses_enabled then //interacting with something important
-					surface.SetFont(fontsmall)
-					local tw, th = surface.GetTextSize(nick)
-
-					surface.SetMaterial(zmhud_icon_useable)
-					surface.SetDrawColor(ColorAlpha(color_white, 255*ratio))
-					surface.DrawTexturedRect(-tw/2 - voicesize, -voicesize/2, voicesize, voicesize)
-				elseif ply:GetNW2Bool("ThirtOTS", false) and ply ~= localply and statuses_enabled then //in thirdperson
-					surface.SetFont(fontsmall)
-					local tw, th = surface.GetTextSize(nick)
-
-					surface.SetMaterial(zmhud_icon_camera)
-					surface.SetDrawColor(ColorAlpha(color_white, 255*ratio))
-					surface.DrawTexturedRect(-tw/2 - voicesize, -voicesize/2, voicesize, voicesize)
-				end
-
-				draw.SimpleTextOutlined(nick, fontsmall, 0, 0, ColorAlpha(pcolor, 255*ratio), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, ColorAlpha(color_black, 180*ratio))
-				cam.IgnoreZ(false)
+				surface.SetMaterial(nzDisplay.PlayerClanIcon[ply:EntIndex()])
+				surface.SetDrawColor(ColorAlpha(color_white, 255*ratio))
+				surface.DrawTexturedRect(-clanicon_size/2, (fade_enabled and !playerstofade[ply] and 0 or -th) + clanicon_size, clanicon_size, clanicon_size)
 			cam.End3D2D()
 		end
 	end
@@ -2498,6 +2710,7 @@ local function YaPh1lTypeWriter()
 	local w, h = ScrW(), ScrH()
 	local scale = (ScrW()/1920 + 1)/2
 	local wscale = w/1920*scale
+	local ply = LocalPlayer()
 
 	local b_alldone = false
 
@@ -2505,9 +2718,10 @@ local function YaPh1lTypeWriter()
 	local mapoffset = nzMapping.Settings.typewriteroffset or 420
 	local mapdelay = nzMapping.Settings.typewriterdelay or 0.15
 	local maplinedelay = nzMapping.Settings.typewriterlinedelay or 1.5
+	local hudtype = nzMapping.Settings.hudtype
 
 	local leftsided = false
-	if nzDisplay.leftsidedHUDs and nzDisplay.leftsidedHUDs[nzMapping.Settings.hudtype] then
+	if nzDisplay.leftsidedHUDs and nzDisplay.leftsidedHUDs[hudtype] or !nzDisplay.reworkedHUDs[hudtype] then
 		leftsided = true
 	end
 
@@ -2521,6 +2735,12 @@ local function YaPh1lTypeWriter()
 	next_letter = CurTime() + 1
 
 	hook.Add("HUDPaint", "phil_typewriter_intro", function()
+		local ply = LocalPlayer()
+		if nzMapping.Settings.skyintro and IsValid(ply) and ply.GetLastSpawnTime then 
+			if ply:GetLastSpawnTime() + (nzMapping.Settings.skyintrotime or 1.4) + 0.15 > CurTime() then
+				return
+			end
+		end
 		local font = "nz.small."..GetFontType(nzMapping.Settings.smallfont)
 		local fontColor = !IsColor(nzMapping.Settings.textcolor) and color_white or nzMapping.Settings.textcolor
 
@@ -2565,7 +2785,7 @@ local function YaPh1lTypeWriter()
 
 			if current_line >= #intro_strings then
 				local finalist = intro_hud[intro_strings[#intro_strings]]
-			 	if finalist[2] >= #intro_strings[#intro_strings] and finalist[1] == 0 then
+				if finalist[2] >= #intro_strings[#intro_strings] and finalist[1] == 0 then
 					b_alldone = true
 				end
 			end
@@ -2670,7 +2890,7 @@ local function VultureVision()
 	end
 end
 
-local function StatesHud()
+local function StatesHUD()
 	if nzRound:InProgress() then return end
 	if !LocalPlayer():ShouldDrawHUD() then return end
 
@@ -2711,7 +2931,9 @@ hook.Add("OnRoundEnd", "typewriteintroHUD", function()
 end)
 hook.Add("HUDPaint", "bloodspatterHUD", BloodSpatterHUD )
 hook.Add("HUDPaint", "vultureVision", VultureVision )
-hook.Add("HUDPaint", "roundHUD", StatesHud )
+hook.Add("HUDPaint", "deathiconsHUD", DeathHud )
+hook.Add("HUDPaint", "powerupHUD", PowerUpsHud )
+hook.Add("HUDPaint", "roundHUD", StatesHUD )
 
 //End of global HUD elements
 //---------------------------------------------------------
@@ -2723,11 +2945,10 @@ hook.Add("HUDPaint", "nzHUDswapping_default", function()
 		hook.Add("HUDPaint", "PlayerHealthBarHUD", PlayerHealthHUD )
 		hook.Add("HUDPaint", "PlayerStaminaBarHUD", PlayerStaminaHUD )
 		hook.Add("HUDPaint", "scoreHUD", ScoreHud )
-		hook.Add("HUDPaint", "powerupHUD", PowerUpsHud )
+		hook.Add("HUDPaint", "powerupHUD", PowerUpsHud ) //huds in the future might require their own
 		hook.Add("HUDPaint", "perksmmoinfoHUD", PerksMMOHud )
 		hook.Add("HUDPaint", "perksHUD", PerksHud )
 		hook.Add("HUDPaint", "roundnumHUD", RoundHud )
-		hook.Add("HUDPaint", "deathiconsHUD", DeathHud )
 		hook.Add("HUDPaint", "0nzhudlayer", GunHud )
 		hook.Add("HUDPaint", "1nzhudlayer", InventoryHUD )
 		hook.Add("HUDPaint", "zedcounterHUD", ZedCounterHUD )

@@ -4,6 +4,7 @@ game.AddParticles("particles/moo_misc_fx.pcf")
 game.AddParticles("particles/loonicity_particles.pcf")
 game.AddParticles("particles/temp_fx.pcf")
 game.AddParticles("particles/tomb_pap_red.pcf")
+game.AddParticles("particles/mysterybox.pcf")
 
 PrecacheParticleSystem("zmb_zombie_spawn_dirt")
 PrecacheParticleSystem("zmb_zombie_spawn_snow")
@@ -80,6 +81,9 @@ PrecacheParticleSystem("fire_margwa_footstep")
 PrecacheParticleSystem("shdw_margwa_footstep")
 PrecacheParticleSystem("shdw_margwa_smoke")
 
+PrecacheParticleSystem("zmb_cyborg_dismember_limb")
+PrecacheParticleSystem("zmb_cybord_impact_headshot")
+PrecacheParticleSystem("zmb_cyborg_hound_explosion")
 
 -- SNPC Particles
 game.AddParticles("particles/horror/bloodsplosion.pcf")

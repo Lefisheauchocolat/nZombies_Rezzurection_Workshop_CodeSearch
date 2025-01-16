@@ -1,88 +1,83 @@
 -- bo3 down animations ported by Wavy
 -- coded by wavy & latte w/ help from ghostlymoo
 
-local downed = {}
-local ihavebeendowned = {}
-local revived = {}
-local ihavebeenrevived = {}
+local downedPlayers = {}
 
+//hack fix for players disconnecting while down, PlayerDisconnect is not shared
+hook.Add("EntityRemoved", "nzDownedAnimationFix", function(ply, fullUpdate)
+	if (fullUpdate) then return end
+
+	if downedPlayers[ply:EntIndex()] then
+		downedPlayers[ply:EntIndex()] = nil
+	end
+end)
+
+//adding ability to fake the player being down for use later
 hook.Add("CalcMainActivity", "nzDownedAnimation", function(ply, vel)
-	
-    if downed[ply] == nil then downed[ply] = false end
-    if ihavebeendowned[ply] == nil then ihavebeendowned[ply] = false end
-    if revived[ply] == nil then revived[ply] = true end
-    if ihavebeenrevived[ply] == nil then ihavebeenrevived[ply] = true end
+	local stored = downedPlayers[ply:EntIndex()]
+	local notdowned = ply:GetNotDowned()
+	if ply:GetNW2Bool("nzFakeDown", false) then
+		notdowned = false
+	end
 
-    if ply:GetNotDowned() and not revived[ply] and not ihavebeenrevived[ply] then
-        local seq, dur = ply:LookupSequence("bo3_revived")
-        ply:SetPlaybackRate(1)
-        revived[ply] = true
-        timer.Simple(dur, function()
-            if IsValid(ply) then
-                ihavebeenrevived[ply] = true
-            end
-        end)
-        ply:SetCycle(0)
-        ply:AddVCDSequenceToGestureSlot(6, seq, 0, true)
-    end
+	if notdowned and stored ~= nil then
+		downedPlayers[ply:EntIndex()] = nil
 
-    if ply:GetNotDowned() and downed[ply] and ihavebeendowned[ply] then
-        downed[ply] = false
-        ihavebeendowned[ply] = false
-    end
-    
-    if not ply:GetNotDowned() then
-        if not downed[ply] then
-            downed[ply] = true
-            revived[ply] = false
-            ihavebeenrevived[ply] = false
-            local seq, dur = ply:LookupSequence("bo3_downed")
-            ply:SetPlaybackRate(1)
-            timer.Simple(dur - 1, function()
-                if IsValid(ply) then
-                    ihavebeendowned[ply] = true
-                end
-            end)
-            ply:AddVCDSequenceToGestureSlot(6, seq, 0, true)
-        end    
-    end
-        
-    if ihavebeendowned[ply] then
-        local angle, angle2 = vel:Angle(), ply:GetAngles()
-        local ydif = math.abs(math.NormalizeAngle(angle.y - angle2.y))
+		local seq, dur = ply:LookupSequence("bo3_revived")
+		ply:SetPlaybackRate(1)
+		ply:SetCycle(0)
+		ply:AddVCDSequenceToGestureSlot(6, seq, 0, true)
+	end
 
-        local seq1 = ply:LookupSequence("bo3_crawl_idle")
-        local seq2 = ply:LookupSequence("bo3_crawl_back")
-        local seq3 = ply:LookupSequence("bo3_crawl_forward")
+	if not notdowned and stored == nil then
+		local seq, dur = ply:LookupSequence("bo3_downed")
+		ply:SetPlaybackRate(1)
+		ply:AddVCDSequenceToGestureSlot(6, seq, 0, true)
 
-        ply:SetPlaybackRate(1)
+		downedPlayers[ply:EntIndex()] = true
+	end
 
-        if vel:Length2D() < 1 then
-            return ACT_IDLE, seq1
-        elseif ydif < 90 then
-            return ACT_IDLE, seq3
-        else
-            return ACT_IDLE, seq2
-        end
-    end
+	if stored then
+		local angle, angle2 = vel:Angle(), ply:GetAngles()
+		local ydif = math.abs(math.NormalizeAngle(angle.y - angle2.y))
+
+		local seq1 = ply:LookupSequence("bo3_crawl_idle")
+		local seq2 = ply:LookupSequence("bo3_crawl_back")
+		local seq3 = ply:LookupSequence("bo3_crawl_forward")
+
+		ply:SetPlaybackRate(1)
+
+		if vel:Length2D() < 1 then
+			return ACT_IDLE, seq1
+		elseif ydif < 90 then
+			return ACT_IDLE, seq3
+		else
+			return ACT_IDLE, seq2
+		end
+	end
 end)
 
 local cyclex, cycley = 0.6, 0.65
 hook.Add("UpdateAnimation", "nzDownedAnimation", function(ply, vel, seqspeed)
-    if not ply:GetNotDowned() then
-        local movement = 0
+	local notdowned = ply:GetNotDowned()
+	if ply:GetNW2Bool("nzFakeDown", false) then
+		notdowned = false
+	end
 
-        local len = vel:Length2D()
-        if len > 1 then
-            movement = len / seqspeed
-        else
-            local cycle = ply:GetCycle()
-            if cycle < cyclex or cycle > cycley then
-                movement = 5
-            end
-        end
+	if not notdowned then
+		local movement = 0
 
-        ply:SetPlaybackRate(1)
-        return true
-    end
+		local len = vel:Length2D()
+		if len > 1 then
+			movement = len / seqspeed
+		else
+			local cycle = ply:GetCycle()
+			if cycle < cyclex or cycle > cycley then
+				movement = 5
+			end
+		end
+
+		ply:SetPlaybackRate(1)
+		return true
+	end
 end)

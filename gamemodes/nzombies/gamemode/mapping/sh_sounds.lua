@@ -60,6 +60,7 @@ nzSounds.struct = { -- For use with 'data' when creating config menu options
 	"kaboomsnd",
 	"random_gumsnd",
 	"fullarmorsnd",
+	"skyintrosnd",
 }
 
 nzSounds.Sounds = {}
@@ -113,6 +114,7 @@ nzSounds.Sounds.Default.RevivalStinger = "nz_moo/effects/revive/zmb_revive_music
 nzSounds.Sounds.Default.Kaboom = "nz_moo/powerups/nuke_flux.mp3"
 nzSounds.Sounds.Default.RandomGum = "nz_moo/zombies/vox/mute_00.mp3"
 nzSounds.Sounds.Default.FullArmor = "nz_moo/zombies/vox/mute_00.mp3"
+nzSounds.Sounds.Default.SkyIntro = {"nz_moo/effects/viewin1.wav", "nz_moo/effects/viewin2.wav"}
 
 function nzSounds:RefreshSounds()
     
@@ -163,6 +165,7 @@ function nzSounds:RefreshSounds()
     nzSounds.Sounds.Custom.Kaboom = nzMapping.Settings.kaboomsnd
     nzSounds.Sounds.Custom.RandomGum = nzMapping.Settings.randomgumsnd
     nzSounds.Sounds.Custom.FullArmor = nzMapping.Settings.fullarmorsnd
+    nzSounds.Sounds.Custom.SkyIntro = nzMapping.Settings.skyintrosnd
     
     if (!table.IsEmpty(nzMapping.Settings) and table.IsEmpty(nzSounds.Sounds.Custom)) then
         nzSounds.Sounds.Custom = table.Copy(nzSounds.Sounds.Default)

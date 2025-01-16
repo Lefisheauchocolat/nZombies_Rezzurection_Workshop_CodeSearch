@@ -332,14 +332,14 @@ nzWeps:AddWeaponModification("vigor_tfa", "vigor", function(wep) return wep.IsTF
 	if not wep.Primary_TFA.Projectile then
 		local ply = wep:GetOwner()
 
-		wep.Primary_TFA.DamageType = bit.bor(wep.Primary_TFA.DamageType, DMG_BLAST)
+		--wep.Primary_TFA.DamageType = bit.bor(wep.Primary_TFA.DamageType, DMG_BLAST)
 		wep.Primary_TFA.Damage = wep.Primary_TFA.Damage * (ply:HasUpgrade("vigor") and 3 or 2)
-		wep.Primary_TFA.BlastRadius = 32
+		--wep.Primary_TFA.BlastRadius = 32
 		wep.Primary_TFA.ImpactEffect = "MetalSpark"
 
-		wep:ClearStatCache("Primary.DamageType")
+		--wep:ClearStatCache("Primary.DamageType")
 		wep:ClearStatCache("Primary.Damage")
-		wep:ClearStatCache("Primary.BlastRadius")
+		--wep:ClearStatCache("Primary.BlastRadius")
 		wep:ClearStatCache("Primary.ImpactEffect")
 	end
 end, nil, true)

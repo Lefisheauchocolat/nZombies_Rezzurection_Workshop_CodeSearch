@@ -6,11 +6,16 @@ ENT.PrintName = "Chopper Gunner"
 ENT.Category = "Black Ops 6"
 ENT.Spawnable = true
 
+local add_time = 8
+local function GetChopperTime()
+    return nzSettings:GetSimpleSetting("BO6_Killstreak_ChopperTime", 30)+add_time
+end
+
 if SERVER then
     ENT.Waypoints = {}
 
     function ENT:Initialize()
-        self:SetModel("models/bo6/chopper/mwlittlebird.mdl")
+        self:SetModel("models/hari/props/heli.mdl")
         self:PhysicsInit(SOLID_VPHYSICS)
         self:SetSolid(SOLID_VPHYSICS)
         self:GetPhysicsObject():EnableMotion(false)
@@ -22,23 +27,26 @@ if SERVER then
         if not self.Player then
             self.Player = Entity(1)
         end
-        self.EquipTime = CurTime()+1.5
+        self.EquipTime = CurTime()+4.5
 
-        local crew = ents.Create("base_anim")
-        crew:SetModel("models/bo6zm_pilot.mdl")
-        crew:SetPos(self:GetPos()+self:GetForward()*32-self:GetRight()*16+self:GetUp()*-64)
+        local crew = ents.Create("bo6_animated")
+        crew:SetPos(self:GetPos())
         crew:SetAngles(self:GetAngles())
         crew:Spawn()
+        crew:SetModel("models/bo6zm_pilot.mdl")
         crew:SetParent(self)
-        crew:ResetSequence("sit")
-        crew:ManipulateBoneAngles(crew:LookupBone("ValveBiped.Bip01_R_Upperarm"), Angle(20, -60, 0), true)
-        crew:ManipulateBoneAngles(crew:LookupBone("ValveBiped.Bip01_R_Forearm"), Angle(-45, 30, 0), true)
-        crew:ManipulateBoneAngles(crew:LookupBone("ValveBiped.Bip01_R_Hand"), Angle(-140, 90, -30), true)
-        crew:ManipulateBoneAngles(crew:LookupBone("ValveBiped.Bip01_R_Calf"), Angle(0, -55, 0), true)
-        crew:ManipulateBoneAngles(crew:LookupBone("ValveBiped.Bip01_L_Calf"), Angle(22, -55, 0), true)
-        crew:ManipulateBoneAngles(crew:LookupBone("ValveBiped.Bip01_R_Foot"), Angle(0, 20, 0), true)
-        crew:ManipulateBoneAngles(crew:LookupBone("ValveBiped.Bip01_L_Foot"), Angle(0, 20, 0), true)
+        crew:ResetSequence("bo6_choppergunner_pilot1_idle")
         self:DeleteOnRemove(crew)
+        self.Pilot = crew
+
+        local crew2 = ents.Create("bo6_animated")
+        crew2:SetPos(self:GetPos())
+        crew2:SetAngles(self:GetAngles())
+        crew2:Spawn()
+        crew2:SetModel("models/bo6zm_pilot.mdl")
+        crew2:SetParent(self)
+        crew2:ResetSequence("bo6_choppergunner_pilot2_idle")
+        self:DeleteOnRemove(crew2)
 
         for _, p in pairs(ents.FindByClass("bo6_choppergunner_point")) do
             table.insert(self.Waypoints, {pos = p:GetPos(), ang = Angle(0,p:GetAngles().y,0)})
@@ -47,11 +55,49 @@ if SERVER then
             self.Stop = true
             self:Remove()
         end
+        timer.Simple(GetChopperTime()-3.6, function()
+            if IsValid(self) and IsValid(self.Player) then
+                self.Player:SetEyeAngles(self:GetFAng())
+                self.Player:Freeze(true)
+            end
+        end)
+        timer.Simple(GetChopperTime()/2, function()
+            if IsValid(self) then
+                nzDialog:PlayCustomDialog("ChopperKillstreak_Fuel")
+            end
+        end)
+        timer.Simple(GetChopperTime()-3.5, function()
+            if IsValid(self) and IsValid(self.Player) then
+                self.Player:SetSVAnim("bo6_choppergunner_end", true)
+                self.EquipTime = CurTime()+10
+            end
+            if IsValid(self) and IsValid(self.Pilot) then
+                self.Pilot:SetCycle(0)
+                self.Pilot:ResetSequence("bo6_choppergunner_pilot1_end")
+            end
+        end)
+        timer.Simple(GetChopperTime()-2, function()
+            if IsValid(self) and IsValid(self.Pilot) then
+                nzDialog:PlayCustomDialog("ChopperKillstreak_End")
+            end
+        end)
+        timer.Simple(GetChopperTime()-0.7, function()
+            if IsValid(self) and IsValid(self.Player) then
+                self.Player:ScreenFade(SCREENFADE.OUT, color_black, 0.2, 1.5)
+            end
+        end)
+        timer.Simple(GetChopperTime()+1, function()
+            nzDialog:PlayCustomDialog("BaseKillstreak_AirEnd")
+        end)
+    end
+
+    function ENT:GetFAng()
+        return Angle(0,0,0)
     end
 
     function ENT:MoveAlongWaypoints()
         local elapsedTime = CurTime() - self.StartTime
-        local progress = math.Clamp(elapsedTime / nzSettings:GetSimpleSetting("BO6_Killstreak_ChopperTime", 30), 0, 1)
+        local progress = math.Clamp(elapsedTime / GetChopperTime(), 0, 1)
         
         if self.CurrentWaypoint < #self.Waypoints then
             local startPos = self.Waypoints[self.CurrentWaypoint].pos
@@ -87,9 +133,28 @@ if SERVER then
         ply:SetMoveParent(self)
         ply:ConCommand("cl_drawhud 0")
         ply:SetTargetPriority(0)
-        timer.Simple(0.5, function()
+        ply.KS_VoiceOverDelay = CurTime()+5
+        ply:SetNWBool('UsingChopperGunner', true)
+        timer.Simple(0.8, function()
             if !IsValid(self) or !IsValid(ply) then return end
-            ply:SetEyeAngles(Angle(20,self:GetAngles().y+140,0))
+            ply:SetEyeAngles(self:GetFAng())
+            ply:Freeze(true)
+        end)
+        timer.Simple(1, function()
+            if !IsValid(self) or !IsValid(ply) then return end
+            ply:SetSVAnim("bo6_choppergunner_start", true)
+            nzDialog:PlayCustomDialog("ChopperKillstreak_Start")
+            if IsValid(self.Pilot) then
+                self.Pilot:SetCycle(0)
+                self.Pilot:ResetSequence("bo6_choppergunner_pilot1_start")
+            end
+        end)
+        timer.Simple(4.5, function()
+            if !IsValid(self) or !IsValid(ply) then return end
+            ply:Freeze(false)
+            if IsValid(self.Pilot) then
+                self.Pilot:ResetSequence("bo6_choppergunner_pilot1_idle")
+            end
         end)
         ply:SendLua([[LocalPlayer():EmitSound("bo6/heli/chopper_theme.mp3")]])
     end
@@ -101,11 +166,13 @@ if SERVER then
         ply:ConCommand("cl_drawhud 1")
         ply:ConCommand("stopsound")
         ply:SetUsingSpecialWeapon(false)
+        ply:SetNWBool('UsingChopperGunner', false)
         ply:SetTargetPriority(TARGET_PRIORITY_PLAYER)
         if IsValid(ply:GetPreviousWeapon()) then
             ply:SelectWeapon(ply:GetPreviousWeapon():GetClass())
         end
         ply:GodDisable()
+        ply:Freeze(false)
         ply:SetMoveType(2)
         ply:ScreenFade(SCREENFADE.IN, color_black, 0.5, 1)
         ply:SendLua([[LocalPlayer():StopSound("bo6/heli/chopper_theme.mp3")]])
@@ -124,7 +191,7 @@ if SERVER then
         if IsValid(ply) and !isvector(ply.KS_LastPosition) then
             self:Setup(ply)
         elseif IsValid(ply) then
-            local leftEdge = self:GetPos() + self:GetRight() * -48 + self:GetUp() * -102 + self:GetForward() * 8
+            local leftEdge = self:GetPos() + self:GetRight() * -47 + self:GetUp() * -46 + self:GetForward() * 34
             ply:SetPos(leftEdge)
             ply:SetMoveType(0)
             if self.EquipTime < CurTime() then
@@ -135,19 +202,10 @@ if SERVER then
         end
     end
 
-    function ENT:Rotors()
-        self:ManipulateBoneAngles(0, Angle(0,270,0))
-        self:ManipulateBoneAngles(22, self:GetManipulateBoneAngles(22)+Angle(0,30,0))
-        self:ManipulateBoneAngles(3, self:GetManipulateBoneAngles(3)+Angle(0,30,0))
-        self:SetBodygroup(5, 1)
-        self:SetBodygroup(6, 1)
-    end
-
     function ENT:Think()
         if not self.Stop then
             self:MoveAlongWaypoints()
             self:TeleportPlayer()
-            self:Rotors()
         end
         self:NextThink(CurTime())
         return true
@@ -170,6 +228,12 @@ if SERVER then
         self:Desetup(self.Player)
     end
 else
+    function ENT:Draw()
+        self:DrawModel()
+        self:ManipulateBoneAngles(6, self:GetManipulateBoneAngles(6)+Angle(0,5,0))
+        self:ManipulateBoneAngles(10, self:GetManipulateBoneAngles(10)+Angle(0,0,5))
+    end
+
     local function We(x)
         return (x / 1920) * ScrW()
     end
@@ -189,11 +253,22 @@ else
 
     local enemyMat = Material("bo6/hud/enemy.png", "noclamp")
     local chopperIcon = Material("bo6/hud/chopper.png", "mips")
+    local crosshairCircle1 = Material("bo6/hud/circle.png", "")
+    local crosshairCircle2 = Material("bo6/hud/cleancircle.png", "")
     local ChopperDespawnTime = 0
+    local MaxChopperDespawnTime = 0
     hook.Add("HUDPaint", "nzrKillstreaks_Chopper", function()
         local ply = LocalPlayer()
         if IsValid(ply:GetActiveWeapon()) and ply:GetActiveWeapon():GetClass() == "bo6_deathmachine" then
-            local percent = math.max((ChopperDespawnTime-CurTime())/nzSettings:GetSimpleSetting("BO6_Killstreak_ChopperTime", 30), 0)
+            surface.SetDrawColor(255,255,255)
+            surface.SetMaterial(crosshairCircle1)
+            surface.DrawTexturedRectRotated(ScrW()/2, ScrH()/2, We(72), He(72), ply:KeyDown(IN_ATTACK) and math.fmod(CurTime() * -720, 360) or 0)
+
+            surface.SetDrawColor(255,255,255)
+            surface.SetMaterial(crosshairCircle2)
+            surface.DrawTexturedRectRotated(ScrW()/2, ScrH()/2, We(24), He(24), 0)
+
+            local percent = math.max((ChopperDespawnTime-CurTime())/MaxChopperDespawnTime, 0)
 
             surface.SetDrawColor(20,20,20,180)
             surface.DrawRect(We(40), ScrH()-He(130), We(400), He(80))
@@ -232,7 +307,30 @@ else
                 end
             end
         else
-            ChopperDespawnTime = CurTime()+(nzSettings:GetSimpleSetting("BO6_Killstreak_ChopperTime", 30)-1)
+            ChopperDespawnTime = CurTime()+(GetChopperTime()-add_time)
+            MaxChopperDespawnTime = GetChopperTime()-add_time
+        end
+    end)
+
+    hook.Add("CalcView", "nzrKillstreaks_Chopper", function(ply, pos, angles, fov)
+        if ply:GetNWBool('UsingChopperGunner') then
+            local view = {
+                origin = pos,
+                angles = angles,
+                fov = fov,
+                drawviewer = false
+            }
+            if ply:GetSVAnim() != "" then
+                local att = ply:GetAttachment(ply:LookupAttachment("eyes"))
+                view = {
+                    origin = att.Pos,
+                    angles = att.Ang,
+                    fov = fov,
+                    drawviewer = true
+                }
+            end
+        
+            return view
         end
     end)
 end

@@ -125,6 +125,7 @@ nzEnemies:AddValidZombieType("nz_zombie_special_dog_zhd")
 nzEnemies:AddValidZombieType("nz_zombie_special_dog_gas")
 nzEnemies:AddValidZombieType("nz_zombie_special_dog_fire")
 nzEnemies:AddValidZombieType("nz_zombie_special_dog_jup")
+nzEnemies:AddValidZombieType("nz_zombie_special_dog_cyborg")
 
 nzEnemies:AddValidZombieType("nz_zombie_special_goliathcodol")
 
@@ -140,6 +141,7 @@ nzEnemies:AddValidZombieType("nz_zombie_special_toxic_hazmat")
 nzEnemies:AddValidZombieType("nz_zombie_special_toxic_hazmat_codol")
 nzEnemies:AddValidZombieType("nz_zombie_special_toxic_hazmat_zhd")
 
+nzEnemies:AddValidZombieType("nz_zombie_special_za_suicider")
 
 nzEnemies:AddValidZombieType("nz_zombie_special_cloaker")
 
@@ -210,10 +212,11 @@ nzEnemies:AddValidZombieType("nz_zombie_walker_titanic")
 nzEnemies:AddValidZombieType("nz_zombie_walker_ix")
 nzEnemies:AddValidZombieType("nz_zombie_walker_dierise")
 nzEnemies:AddValidZombieType("nz_zombie_walker_prototype")
-nzEnemies:AddValidZombieType("nz_zombie_walker_derriese")
 nzEnemies:AddValidZombieType("nz_zombie_walker_prototype_enhanced")
+nzEnemies:AddValidZombieType("nz_zombie_walker_derriese")
 nzEnemies:AddValidZombieType("nz_zombie_walker_derriese_enhanced")
 nzEnemies:AddValidZombieType("nz_zombie_walker_derriese_wwii")
+nzEnemies:AddValidZombieType("nz_zombie_walker_derriese_pro")
 nzEnemies:AddValidZombieType("nz_zombie_walker_haus")
 nzEnemies:AddValidZombieType("nz_zombie_walker_sumpf_classic")
 nzEnemies:AddValidZombieType("nz_zombie_walker_ascension_classic")
@@ -229,7 +232,9 @@ nzEnemies:AddValidZombieType("nz_zombie_walker_armoredheavy")
 nzEnemies:AddValidZombieType("nz_zombie_walker_park_cop")
 nzEnemies:AddValidZombieType("nz_zombie_walker_park")
 nzEnemies:AddValidZombieType("nz_zombie_walker_park_3arc")
+
 nzEnemies:AddValidZombieType("nz_zombie_walker_poolday")
+nzEnemies:AddValidZombieType("nz_zombie_walker_cyborg")
 
 nzEnemies:AddValidZombieType("nz_zombie_walker")
 nzEnemies:AddValidZombieType("nz_zombie_walker_buried")

@@ -104,15 +104,15 @@ ENT.SequenceTables = {
 
 function ENT:StatsInitialize()
 	if SERVER then
-		local data = nzRound:GetBossData(self.NZBossType)
 		local count = #player.GetAllPlaying()
-
+		local scale  = 600
+		local basehealth = 1800
 		if nzRound:InState( ROUND_CREATE ) then
 			self:SetHealth(500)
 			self:SetMaxHealth(500)
 		else
-			self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
-			self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+			self:SetHealth(nzRound:GetNumber() * scale + (health * count))
+			self:SetMaxHealth(nzRound:GetNumber() * scale + (health * count))
 		end
 		
 		

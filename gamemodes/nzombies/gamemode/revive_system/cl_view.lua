@@ -291,10 +291,14 @@ local function DrawDownedNotify()
 	end
 
 	if !ply:ShouldDrawNotificationHUD() then return end
+	if IsValid(ply:GetObserverTarget()) then
+		ply = ply:GetObserverTarget()
+	end
 
-	if nzRevive.Players and nzRevive.Players[ply:EntIndex()] then
-		local rply = nzRevive.Players[ply:EntIndex()].RevivePlayer
-		if !ply:GetNotDowned() and IsValid(rply) and rply:IsPlayer() then
+	local fakerevivor = ply:GetNW2Int("nzFakeRevivor", 0)
+	if (nzRevive.Players and nzRevive.Players[ply:EntIndex()]) or fakerevivor > 0 then
+		local rply = fakerevivor > 0 and Entity(fakerevivor) or nzRevive.Players[ply:EntIndex()].RevivePlayer
+		if (!ply:GetNotDowned() or fakerevivor > 0) and IsValid(rply) and rply:IsPlayer() then
 			local font = ("nz.small."..GetFontType(nzMapping.Settings.smallfont))
 			local w, h = ScrW(), ScrH()
 			local scale = (w/1920 + 1)/2

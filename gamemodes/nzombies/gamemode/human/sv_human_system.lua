@@ -10,11 +10,10 @@ function nzHuman:CreateNPC(pos, ang, data) --baseClass, baseModel, hp, weaponCla
     if !IsValid(npc) then return end
     npc:SetPos(pos)
     npc:SetAngles(ang or Angle(0,math.random(0,360),0))
-    npc.noTargetToZombies = tobool(data.noTargetToZombies)
-    if tobool(data.followNearestPlayer) then
-        npc.followNearestPlayer = tobool(data.followNearestPlayer)
-        npc:SetSquad("")
-        npc:Fire("StopPatrolling")
+    if data.noTargetToZombies then
+        npc:SetTargetPriority(TARGET_PRIORITY_NONE)
+    else
+        npc:SetTargetPriority(TARGET_PRIORITY_PLAYER)
     end
     npc.IsNZ = true
     npc:Spawn()
@@ -23,6 +22,12 @@ function nzHuman:CreateNPC(pos, ang, data) --baseClass, baseModel, hp, weaponCla
     end
     npc:SetMaxHealth(tonumber(data.hp) or 100)
     npc:SetHealth(npc:GetMaxHealth())
+    npc:SetCurrentWeaponProficiency(WEAPON_PROFICIENCY_VERY_GOOD)
+    if tobool(data.followNearestPlayer) then
+        npc.followNearestPlayer = tobool(data.followNearestPlayer)
+        npc:SetSquad("")
+        npc:Fire("StopPatrolling")
+    end
 
     if data.weaponClass and data.weaponClass != "" then
         npc:Give(data.weaponClass)
@@ -68,9 +73,7 @@ hook.Add("OnNPCKilled", "nzr_humanSystem", function(npc, attacker, inflictor)
 end)
 
 hook.Add("OnEntityCreated", "nzr_humanSystem", function(ent, dmg) --nzLevel.TargetCache
-    if ent:IsNPC() and not ent.noTargetToZombies then
-        ent:SetTargetPriority(TARGET_PRIORITY_PLAYER)
-    elseif ent:IsNextBot() then
+    if ent:IsNextBot() then
         ent:AddFlags(FL_OBJECT)
     end
     timer.Simple(0.1, function()
@@ -120,7 +123,7 @@ hook.Add("Think", "nzr_humanSystem", function()
             if nearestPlayer and npc:GetPos():DistToSqr(nearestPlayer:GetPos()) > 40000 then
                 local radius = math.random(48, 72)
                 local angle = math.rad(math.random(0, 360))
-                local offset = Vector(math.cos(angle) * radius, math.sin(angle) * radius, 0)
+                local offset = Vector(math.cos(angle) * radius, math.sin(angle) * radius, 24)
                 local targetPos = nearestPlayer:GetPos() + offset
 
                 npc:SetLastPosition(targetPos)

@@ -30,6 +30,13 @@ if not ConVarExists("nz_zombie_eye_trails") then CreateConVar("nz_zombie_eye_tra
 if not ConVarExists("nz_oldtunes") then CreateConVar("nz_oldtunes", 0, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
 if not ConVarExists("nz_difficulty_zombie_stumble") then CreateConVar("nz_difficulty_zombie_stumble", 1, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
 if not ConVarExists("nz_rounds_survived_classic") then CreateConVar("nz_rounds_survived_classic", 0, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Enable for the game over 'Rounds Survived' amount to count the current round, like in classic zombies. (0 Disable, 1 Enabled)", 0, 1) end
+if not ConVarExists("nz_sky_intro_always") then CreateClientConVar("nz_sky_intro_always", 0, true, true, "Enable for the MW3 Survival intro to always play when spawning, regardless of map setting. This only applies to your client! (0 false, 1 true), Default is 0.", 0, 1) end
+if not ConVarExists("nz_sky_intro_bloom") then CreateClientConVar("nz_sky_intro_bloom", 1, true, true, "Enable or disable bloom effect when MW3 Survival intro finishes playing. (0 false, 1 true), Default is 1.", 0, 1) end
+if not ConVarExists("nz_sky_intro_viewpunch") then CreateClientConVar("nz_sky_intro_viewpunch", 1, true, true, "Enable or disable viewpunch applied to player when MW3 Survival intro finishes playing. Default is 1.", 0, 1) end
+if not ConVarExists("nz_sky_intro_server_allow") then CreateConVar("nz_sky_intro_server_allow", 1, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Enable or disable allowing clients to always play the MW3 Survival intro on your server (0 false, 1 true), Default is 1.", 0, 1) end
+
+if not ConVarExists("nz_clan_tag") then CreateClientConVar("nz_clan_tag", "", true, true, "Clan tag, default only your friends can see your clan tag, set to nothing to disable. (LIMITED TO 5 CHARACTERS)") end
+if not ConVarExists("nz_clan_icon") then CreateClientConVar("nz_clan_icon", "", true, true, "Clan icon, path/to/icon.png, appears next to your name plate in thirdperson, default only your friends can see your clan icon. (LIMITED TO 61 CHARACTERS)") end
 
 cvars.AddChangeCallback("nz_downtime", function(name, old, new)
 	for _, ply in pairs(player.GetAll()) do
@@ -110,7 +117,6 @@ local zombieconfig = {
 	"walker_derriese",
 	"walker_prototype_enhanced",
 	"walker_derriese_enhanced",
-	"walker_derriese_wwii",
 	"walker_ascension_classic",
 	"walker_classic",
 	"walker_classic_wii",
@@ -139,6 +145,7 @@ local zombieconfig = {
 	"walker_seal",
 	"walker_lmghost",
 	"walker_poolday",
+	"walker_cyborg",
 
 	"special_alien_scout",
 	"special_alien_scorpion",
@@ -164,6 +171,7 @@ local zombieconfig = {
 	"special_dog_gas",
 	"special_dog_fire",
 	"special_dog_jup",
+	"special_dog_cyborg",
 	"special_elf_bomber",
 	"special_facehugger",
 	"special_follower",

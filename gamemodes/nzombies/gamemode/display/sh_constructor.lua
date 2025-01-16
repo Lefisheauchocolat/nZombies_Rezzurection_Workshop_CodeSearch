@@ -34,7 +34,13 @@ if (CLIENT) then
 	    local powerupType = nzMapping.Settings.poweruptype
 	    if not powerupType then return end
 
-	    return nzPowerUps:GetPowerupIcon(powerup, powerupType)
+	    local b_dontflash = false
+	    local data = nzPowerUps:Get(powerup)
+	    if data and data.noflashing ~= nil then
+	    	b_dontflash = tobool(data.noflashing)
+	    end
+
+	    return nzPowerUps:GetPowerupIcon(powerup, powerupType), b_dontflash
 	end
 
 	function GetPerkFrameMaterial(usemmo)
@@ -46,7 +52,7 @@ end
 if (SERVER) then
 	util.AddNetworkString("nz_game_end_notif")
 
-	//every hud needs a unique netmessages
+	//every hud needs a unique netmessage string
 	util.AddNetworkString("nz_points_notification_bo1") 		//Black Ops 1
 	util.AddNetworkString("nz_points_notification_bo2") 		//Black Ops 2
 	util.AddNetworkString("nz_points_notification_bo2_dlc") 	//Black Ops 2 (Buried/Origins/MOTD)
@@ -123,6 +129,7 @@ nzDisplay.leftsidedHUDs = {
 	["Shadows of Evil"]			= true,
 	["Origins (HD)"]			= true,
 	["Mob of the Dead (HD)"]	= true,
+	["Der Riese Declassified"]	= true,
 	["Encampment"]				= true,
 }
 
@@ -133,6 +140,25 @@ nzDisplay.modernHUDs = {
 	["Shadows of Evil"]			= true,
 	["Origins (HD)"] 			= true,
 	["Mob of the Dead (HD)"]	= true,
+	["Der Riese Declassified"]	= true,
+}
+
+//used to get what font to use for what hud
+nzDisplay.fonttypebyHUDs = {
+	["Tranzit (Black Ops 2)"]	= "blackops2",
+	["Black Ops 1"]				= "bo1",
+	["Buried"] 					= "blackops2",
+	["Mob of the Dead"]			= "blackops2",
+	["Origins (Black Ops 2)"]	= "blackops2",
+	["Snowglobe"]				= "bo1",
+	["Industrial Estate"]		= "bo1",
+	["Encampment"]				= "blackops2",
+	["World at War"]			= "waw",
+	["Black Ops 3"]				= "blackops2",
+	["Shadows of Evil"]			= "blackops2",
+	["Origins (HD)"]			= "blackops2",
+	["Mob of the Dead (HD)"]	= "blackops2",
+	["Der Riese Declassified"]	= "blackops2",
 }
 
 //used for different revive icon styles
@@ -159,6 +185,7 @@ nzDisplay.t7revive = {
 	["Shadows of Evil"]			= true,
 	["Origins (HD)"]			= true,
 	["Mob of the Dead (HD)"]	= true,
+	["Der Riese Declassified"]	= true,
 }
 
 //to be used later
@@ -237,6 +264,7 @@ nzDisplay:AddVultureIcon("random_box", Material("nz_moo/vulture/fxt_zmb_perk_mag
 nzDisplay:AddVultureIcon("wunderfizz_machine", Material("nz_moo/vulture/fxt_zmb_question_mark.png", "smooth unlitgeneric"))
 nzDisplay:AddVultureIcon("drop_widows", Material("nz_moo/vulture/t7_hud_mp_inventory_semtex.png", "smooth unlitgeneric"))
 nzDisplay:AddVultureIcon("drop_tombstone", Material("nz_moo/vulture/specialty_tombstone_zombies.png", "smooth unlitgeneric"))
+nzDisplay:AddVultureIcon("nz_gummachine", Material("nz_moo/vulture/fxt_zmb_gobblegum.png", "smooth unlitgeneric"))
 
 //used in revive_system for hud based down/revive sounds 
 nzDisplay.HUDdowndata = nzDisplay.HUDdowndata or {}
@@ -317,6 +345,7 @@ if CLIENT then
 	local color_t7tomb_outline = Color(200, 40, 80, 10)
 	local color_t7factory = Color(255, 250, 245, 255)
 	local color_t7factory_outline = Color(255, 140, 20, 10)
+	local color_yellow = Color(255, 178, 0, 255)
 
 	net.Receive("nzPowerUps.PickupHud", function( length )
 		local text = net.ReadString()

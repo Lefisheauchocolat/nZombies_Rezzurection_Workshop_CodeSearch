@@ -49,7 +49,7 @@ end)
 
 local lockedPlayers = {}
 hook.Add("StartCommand", "nzPlayerDownFake", function(ply, cmd)
-	if !ply:GetNotDowned() then
+	if !ply:GetNotDowned() or ply:GetNW2Bool("nzFakeDown", false) then
 		cmd:RemoveKey(IN_SPEED)
 		cmd:RemoveKey(IN_JUMP)
 		cmd:SetButtons(bit.bor(cmd:GetButtons(), IN_DUCK))

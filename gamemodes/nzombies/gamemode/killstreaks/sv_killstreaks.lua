@@ -138,9 +138,14 @@ local function manglerback(ply)
     ply:SetModel(ply.KS_LastModel)
     ply:SetWalkSpeed(ply.KS_LastSpeed[1])
     ply:SetRunSpeed(ply.KS_LastSpeed[2])
+    ply:SetSkin(ply.KS_LastSkin)
+    for i, value in pairs(ply.KS_LastBodygroups) do
+        ply:SetBodygroup(i, value)
+    end
     ply:ScreenFade(SCREENFADE.IN, color_white, 0.5, 0)
     ply:GodDisable()
     ply:EmitSound("ambient/levels/labs/electric_explosion"..math.random(1,5)..".wav", 80)
+    ply:SetUsingSpecialWeapon(false)
     ParticleEffect("bo3_panzer_landing", ply:GetPos(), Angle(0,0,0), ply)
     ParticleEffect("bo3_panzer_explosion", ply:GetPos(), Angle(0,0,0), ply)
     local wep = ply:GetPreviousWeapon()
@@ -180,7 +185,10 @@ local function manglervoice(ply, type)
         ply.ZapShot.Player = ply
 		ply.ZapShot:Spawn()
     elseif type == "idle" then
-        --str = "nz_moo/zombies/vox/_raz/_t10/rage/rage_0"..math.random(0,3)..".mp3"
+        local path = "nz_moo/zombies/vox/_raz/_t10/lines/mutant_injection"
+        local files, _ = file.Find("sound/" .. path .. "/*", "GAME")
+        if not files or #files == 0 then return end
+        str = path .. "/" .. files[math.random(#files)]
     end
     ply:EmitSound(str, 70)
 end
@@ -188,9 +196,19 @@ end
 function nzKillstreak:ManglerInjection(ply)
     if !ply:Alive() or !ply:GetNotDowned() or ply:GetModel() == "models/moo/_codz_ports/t10/zm/moo_codz_t10_mangler.mdl" then return end
 
+    ply.KS_LastVoicelineDelay = CurTime()+math.random(8,20)
     ply.KS_LastModel = ply:GetModel()
+    ply.KS_LastSkin = ply:GetSkin()
     ply.KS_LastSpeed = {ply:GetWalkSpeed(), ply:GetRunSpeed()}
+    ply.KS_LastBodygroups = {}
+    for i = 0, ply:GetNumBodyGroups() - 1 do
+        ply.KS_LastBodygroups[i] = ply:GetBodygroup(i)
+    end
+    for i = 0, ply:GetNumBodyGroups() - 1 do
+        ply:SetBodygroup(i, 0)
+    end
     ply:SetModel("models/moo/_codz_ports/t10/zm/moo_codz_t10_mangler.mdl")
+    ply:SetSkin(2)
     ply:SetWalkSpeed(80)
     ply:SetRunSpeed(200)
     ply:SetSVAnim("nz_base_zmb_raz_enrage", true)
@@ -208,6 +226,7 @@ function nzKillstreak:ManglerInjection(ply)
         if !IsValid(ply) or ply:GetModel() != "models/moo/_codz_ports/t10/zm/moo_codz_t10_mangler.mdl" then return end
         ply:SetSVAnim("nz_base_zmb_raz_stun_in", true)
         ply:ScreenFade(SCREENFADE.OUT, color_white, 2.9, 0.1)
+        ply.KS_LastVoicelineDelay = CurTime()+10
         manglervoice(ply, "despawn")
         timer.Simple(3, function()
             if !IsValid(ply) or ply:GetModel() != "models/moo/_codz_ports/t10/zm/moo_codz_t10_mangler.mdl" then return end
@@ -245,7 +264,7 @@ hook.Add("KeyPress", "nzrKillstreaks_Mangler", function(ply, key)
                             ent:EmitSound("physics/flesh/flesh_impact_hard"..math.random(1,6)..".wav", 70, math.random(80,110))
                             ent:EmitSound("physics/flesh/flesh_squishy_impact_hard"..math.random(1,4)..".wav", 70, math.random(80,110))
                             if string.match(ent:GetClass(), "_boss") then
-                                ent:TakeDamage(5000, ply)
+                                ent:TakeDamage(10000, ply)
                             else
                                 ent:TakeDamage(math.max(10000+(2500*nzRound:GetNumber()), 10000), ply)
                             end
@@ -267,11 +286,15 @@ end)
 hook.Add("PlayerPostThink", "nzrKillstreaks_Mangler", function(ply)
     if ply:IsPlayer() and ply:GetModel() == "models/moo/_codz_ports/t10/zm/moo_codz_t10_mangler.mdl" then
         ply:SetActiveWeapon(nil)
+        if ply.KS_LastVoicelineDelay < CurTime() then
+            ply.KS_LastVoicelineDelay = CurTime()+math.random(8,20)
+            manglervoice(ply, "idle")
+        end
     end
 end)
 
 hook.Add("EntityTakeDamage", "!nzrKillstreaks_Mangler", function(ent, dmg)
-    if ent:IsPlayer() and ent:GetModel() == "models/moo/_codz_ports/t10/zm/moo_codz_t10_mangler.mdl" then
+    if ent:IsPlayer() and (ent:GetModel() == "models/moo/_codz_ports/t10/zm/moo_codz_t10_mangler.mdl" or IsValid(ent:GetActiveWeapon()) and ent:GetActiveWeapon():GetClass() == "bo6_killstreak_mangler") then
         dmg:SetDamage(0)
         return true
     end
@@ -284,7 +307,7 @@ hook.Add("PlayerSilentDeath", "nzrKillstreaks_Mangler", manglerback)
 
 hook.Add("EntityTakeDamage", "!nzrKillstreaks_Cannon", function(ent, dmg)
     local at = dmg:GetAttacker()
-    if at:IsPlayer() and IsValid(at:GetActiveWeapon()) and at:GetActiveWeapon():GetClass() == "bo6_killstreak_cannon" then
+    if at:IsPlayer() and IsValid(at:GetActiveWeapon()) and at:GetActiveWeapon():GetClass() == "bo6_killstreak_cannon" and ent:IsNextBot() then
         dmg:SetDamage(25000+(2500*nzRound:GetNumber()))
         if string.match(ent:GetClass(), "_boss") then
             dmg:SetDamage(1000)
@@ -296,7 +319,7 @@ end)
 
 hook.Add("EntityTakeDamage", "!nzrKillstreaks_Death", function(ent, dmg)
     local at = dmg:GetAttacker()
-    if at:IsPlayer() and IsValid(at:GetActiveWeapon()) and at:GetActiveWeapon():GetClass() == "bo6_killstreak_death" then
+    if at:IsPlayer() and IsValid(at:GetActiveWeapon()) and at:GetActiveWeapon():GetClass() == "bo6_killstreak_death" and ent:IsNextBot() then
         dmg:SetDamage(1000+(200*nzRound:GetNumber()))
         if string.match(ent:GetClass(), "_boss") then
             dmg:SetDamage(100)
@@ -310,6 +333,10 @@ hook.Add("EntityTakeDamage", "!nzrKillstreaks_Chopper", function(ent, dmg)
     local at = dmg:GetAttacker()
     if at:IsPlayer() and IsValid(at:GetActiveWeapon()) and at:GetActiveWeapon():GetClass() == "bo6_deathmachine" then
         dmg:SetDamage(10000+(2000*nzRound:GetNumber()))
+        if ent:IsNextBot() and dmg:GetDamage() >= ent:Health() and at.KS_VoiceOverDelay < CurTime() then
+            at.KS_VoiceOverDelay = CurTime()+math.random(5,10)
+            nzDialog:PlayCustomDialog("ChopperKillstreak_Kill")
+        end
     end
 end)
 

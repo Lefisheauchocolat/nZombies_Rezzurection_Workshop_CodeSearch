@@ -8,8 +8,6 @@ ENT.Contact = "dont"
 ENT.Purpose = ""
 ENT.Instructions = ""
 
-game.AddParticles("particles/mysterybox.pcf")
-game.AddParticles("particles/moo_misc_fx.pcf")
 
 function ENT:SetupDataTables()
 	self:NetworkVar("Bool", 0, "Open")

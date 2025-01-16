@@ -66,6 +66,8 @@ function ENT:Initialize()
 
 	self.NukeDelay = false
 	
+	self.NextUse = CurTime() + 1
+
 	if CLIENT then
 		self:SetLOD(8)
 	end
@@ -331,6 +333,35 @@ function ENT:DecrementTotalSpawns()
 				v.TotalSpawns = v.TotalSpawns + 1
 				--print(v.TotalSpawns)
 			end
+		end
+	end
+end
+
+function ENT:Use(ply)
+	if nzRound:InState(ROUND_CREATE) and !self:GetMasterSpawn() then
+		if CurTime() > self.NextUse then
+			self:EmitSound("nz_moo/effects/ui/main_click_rear.mp3")
+			self.NextUse = CurTime() + 1
+
+			local class
+			local zombie
+			local zombietype = self:GetZombieType()
+
+			-- Now we're gonna see if the spawner has a zombie type set.
+			if zombietype ~= "none" then
+				class = zombietype	
+			else
+				class = "nz_zombie_walker"
+			end
+
+			zombie = ents.Create(class)
+			zombie:SetPos(self:GetPos())
+			zombie:SetAngles(self:GetAngles())
+			zombie:Spawn()
+
+			-- make a reference to the spawner object used for "respawning"
+			zombie:SetSpawner(self:GetSpawner())
+			zombie:Activate()
 		end
 	end
 end

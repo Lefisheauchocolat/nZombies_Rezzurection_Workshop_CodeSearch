@@ -69,14 +69,13 @@ local traceents = {
 		if IsValid(ply:GetObserverTarget()) then ply = ply:GetObserverTarget() end
 
 		local text = "Press " .. usekey .. "Ammo [" .. string.Comma(ent:AmmoPrice(ply)) .. "]"
-		return text  
+		return text
 	end,
 	["ammo_mod"] = function(ent)
 		local ply = LocalPlayer()
 		if IsValid(ply:GetObserverTarget()) then ply = ply:GetObserverTarget() end
 
-
-		local text = "Press " .. usekey .. "Ammo Mod for Current Weapon [" .. string.Comma(ent:GetPrice()) .. "]"
+		local text = "Press " .. usekey .. "Random AAT [" .. string.Comma(ent:GetPrice()) .. "]"
 		return text
 	end,
 	["stinky_lever"] = function(ent)
@@ -385,6 +384,8 @@ local color_black_120 = Color(0, 0, 0, 120)
 local color_black_100 = Color(0, 0, 0, 100)
 local color_nzwhite = Color(225, 235, 255,255)
 local color_gold = Color(255, 255, 100, 255)
+local color_red = Color(255, 20, 20, 255)
+local color_white_50 = Color(255, 255, 255, 50)
 
 if GetConVar("nz_hud_show_targeticon") == nil then
 	CreateClientConVar("nz_hud_show_targeticon", 1, true, false, "Enable or disable displaying an entity's HUD icon above their hint string. (0 false, 1 true), Default is 1.", 0, 1)
@@ -403,22 +404,33 @@ local zmhud_icon_interact = Material("vgui/hud/hud_grenadethrowback_glow.png", "
 local function GetDoorText( ent )
 	local door_data = ent:GetDoorData()
 	local text = ""
+	
 	--[[if istable(door_data) then
 		PrintTable(door_data)
 	else
 		print("fuck")
 	end]]
 
-	if door_data and tonumber(door_data.price) == 0 and nzRound:InState(ROUND_CREATE) then
-		if tobool(door_data.elec) then
+
+	if door_data and nzRound:InState(ROUND_CREATE) then
+	local link = door_data.link
+	local price = tonumber(door_data.price)
+	local req_elec = tobool(door_data.elec)
+		if tobool(door_data.elec) and tonumber(door_data.price) == 0 then
 			text = "This door will open when electricity is turned on."
-		else
-			text = "This door will open on game start."
+		elseif link then
+		if req_elec then
+			text = "Door Price: " .. string.Comma(price) .." Points. Requires Power. Door Flag: " .. string.Comma(link) ..""
+			else
+			text = "Door Price: " .. string.Comma(price) .." Points. Door Flag: " .. string.Comma(link) ..""
+		end
+			else
+			text ="wiener."
 		end
 	elseif door_data and tonumber(door_data.buyable) == 1 then
 		local price = tonumber(door_data.price)
 		local req_elec = tobool(door_data.elec)
-		local link = door_data.link
+		
 
 		if ent:IsLocked() then
 			if req_elec and !IsElec() then
@@ -432,7 +444,11 @@ local function GetDoorText( ent )
 			end
 		end
 		elseif door_data and tonumber(door_data.buyable) != 1 and nzRound:InState( ROUND_CREATE ) then
+		if link then
+		text = "Door cannot be purchased and opens when flag " .. string.Comma(link) .. " is activated"
+		else
 		text = "This door is locked and cannot be bought in-game."
+		end
 		--PrintTable(door_data)
 	end
 	return text
@@ -583,6 +599,7 @@ local function DrawTargetID(text, ent, dist)
 			local perks = ent:GetPerks()
 			local size = 34
 			local num, row = 0, 0
+			local curtime = CurTime()
 
 			for _, perk in pairs(perks) do
 				local icon = GetPerkIconMaterial(perk)
@@ -594,10 +611,33 @@ local function DrawTargetID(text, ent, dist)
 
 				surface.SetMaterial(icon)
 				surface.SetDrawColor(color_white)
+
+				local data = nzPerks:Get(perk)
+				if data and data.mmohud then
+					local mmohud = data.mmohud
+					if (!mmohud.upgradeonly or (mmohud.upgradeonly and ent:HasUpgrade(v))) and (!mmohud.solo or game.SinglePlayer()) then
+						if (mmohud.countup and mmohud.max and ent:GetNW2Int(tostring(mmohud.count), 0) >= mmohud.max) or (mmohud.countdown and ent:GetNW2Int(tostring(mmohud.count), 0) == 0) or (mmohud.delay and ent:GetNW2Float(tostring(mmohud.delay), 0) > curtime) then
+							surface.SetDrawColor(color_white_50)
+						end
+					end
+				end
+
 				surface.DrawTexturedRect(scw/2 + (num*(size + 2)*pscale) - (fuck/2)*size*pscale, (sch - 280*pscale - (th+12)) - size*row, size*pscale, size*pscale)
 
 				if ent:HasUpgrade(perk) then
 					surface.SetDrawColor(color_gold)
+					surface.SetMaterial(GetPerkFrameMaterial())
+					surface.DrawTexturedRect(scw/2 + (num*(size + 2)*pscale) - (fuck/2)*size*pscale, (sch - 280*pscale - (th+12)) - size*row, size*pscale, size*pscale)
+				end
+
+				if perk == "phd" and ent:GetNW2Bool("nz.PHDJumpd", false) then
+					surface.SetDrawColor(color_red)
+					surface.SetMaterial(GetPerkFrameMaterial())
+					surface.DrawTexturedRect(scw/2 + (num*(size + 2)*pscale) - (fuck/2)*size*pscale, (sch - 280*pscale - (th+12)) - size*row, size*pscale, size*pscale)
+				end
+
+				if perk == "cherry" and ent:GetNW2Bool("nz.CherryBool", false) then
+					surface.SetDrawColor(color_red)
 					surface.SetMaterial(GetPerkFrameMaterial())
 					surface.DrawTexturedRect(scw/2 + (num*(size + 2)*pscale) - (fuck/2)*size*pscale, (sch - 280*pscale - (th+12)) - size*row, size*pscale, size*pscale)
 				end

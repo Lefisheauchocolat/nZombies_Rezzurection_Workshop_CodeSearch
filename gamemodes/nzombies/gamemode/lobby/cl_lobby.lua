@@ -268,7 +268,7 @@ function nzLobby:CreatePlayerModels(frame)
                         ent:SetBodygroup(bodyGroupIndex, ply:GetBodygroup(bodyGroupIndex) or 0)
                     end
 
-                    ent.GetPlayerColor = function() return ply:GetPlayerColor() or Vector(1, 1, 1) end
+                    ent.GetPlayerColor = function() return IsValid(ply) and ply:GetPlayerColor() or Vector(1, 1, 1) end
                 end
 
                 self:RunAnimation()

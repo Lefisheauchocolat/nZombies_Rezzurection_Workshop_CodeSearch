@@ -158,7 +158,7 @@ function ENT:WindUp( )
 end
 
 function ENT:Think()
-	if CLIENT and DynamicLight and not nzMapping.Settings.gamemodeentities then
+	if CLIENT and DynamicLight then
 		local dlight = dlight or DynamicLight(self:EntIndex(), false)
 		if dlight then
 			dlight.pos = self:GetPos()
@@ -194,14 +194,10 @@ function ENT:Think()
 		elseif self:GetWinding() then
 			if self.WindingTime > CurTime() then
 				self:WindUp()
-				if nzMapping.Settings.gamemodeentities then
-				self:NextThink(CurTime() + 0.6/(self.WindingTime - CurTime()))
-				else
 				if !(nzMapping.Settings.boxtype == "UGX Coffin") then
 					self:NextThink(CurTime() + 0.2/(self.WindingTime - CurTime()))
 					else
 					self:NextThink(CurTime() + 0.1*(self.WindingTime - CurTime()))
-					end
 					end
 				return true 
 			end

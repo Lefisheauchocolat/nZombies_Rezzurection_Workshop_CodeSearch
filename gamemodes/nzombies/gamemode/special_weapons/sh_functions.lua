@@ -451,9 +451,15 @@ if CLIENT then
 		return id, wep
 	end
 
+	local cl_skyintro = GetConVar("nz_sky_intro_always")
+	local sv_skyintro = GetConVar("nz_sky_intro_server_allow")
+
 	hook.Add("CreateMove", "nzSpecialWeaponSelect", function( cmd )
 		if vgui.CursorVisible() then return end
+
 		local ply = LocalPlayer()
+		if not ply.GetUsingSpecialWeapon then return end
+
 		local id, wep = GetSpecialWeaponIDFromInput()
 		if id and (ply:GetNotDowned() or id == "knife") and !ply:GetUsingSpecialWeapon() then
 			local ammo = GetNZAmmoID(id)
@@ -462,6 +468,9 @@ if CLIENT then
 					if nzPowerUps:IsAntiPowerupActive("infinite") then return end
 					if ply.DoWeaponSwitch then return end
 					if hook.Call("PlayerSwitchWeapon", nil, ply, ply:GetActiveWeapon(), wep) then return end
+					local nz_skyintro = nzMapping.Settings.skyintro
+					if (nz_skyintro or (cl_skyintro:GetBool() and sv_skyintro:GetBool())) and ply:GetLastSpawnTime() + (!nz_skyintro and 1.4 or nzMapping.Settings.skyintrotime) + engine.TickInterval() > CurTime() then return end
+
 					ply:SelectWeapon(wep:GetClass())
 				end
 			end
@@ -546,7 +555,9 @@ hook.Add( "PostRender", "example_screenshot", function()
 end )
 
 hook.Add("PlayerButtonDown", "nzSpecialWeaponsHandler", function(ply, but)
-	if but == ply:GetInfoNum("nz_key_grenade", KEY_G) and !ply.nzSpecialButtonDown then
+	if not ply.GetUsingSpecialWeapon then return end
+
+	if but == ply:GetInfoNum("nz_key_grenade", KEY_G) and !ply.nzSpecialButtonDown and !ply:GetUsingSpecialWeapon() then
 		local wep = ply:GetSpecialWeaponFromCategory("grenade")
 		if not IsValid(wep) then
 			wep = ply:GetWeapon(nzMapping.Settings.grenade or "tfa_bo1_m67")
@@ -584,7 +595,8 @@ hook.Add("PlayerButtonDown", "nzSpecialWeaponsHandler", function(ply, but)
 	this should be more reliable, because DoAnimationEvent is Third person ONLY, 
 	this is why it broke in single player" --]]
 
-	if id and (ply:GetNotDowned() or id == "knife") and !ply:GetUsingSpecialWeapon() then end
+	if id and (ply:GetNotDowned() or id == "knife") and !ply:GetUsingSpecialWeapon() then
+	end
 end)
 
 hook.Add("PlayerButtonUp", "nzSpecialWeaponsThrow", function(ply, but)

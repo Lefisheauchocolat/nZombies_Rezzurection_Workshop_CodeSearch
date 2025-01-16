@@ -29,7 +29,7 @@ if SERVER then
     end)
 
     function ENT:Initialize()
-        self:SetModel("models/zmb/bo2/tranzit/zm_work_bench.mdl")
+        self:SetModel("models/hari/props/crafting_table.mdl")
         self:PhysicsInit(SOLID_VPHYSICS)
         self:SetSolid(SOLID_VPHYSICS)
         self:GetPhysicsObject():EnableMotion(false)

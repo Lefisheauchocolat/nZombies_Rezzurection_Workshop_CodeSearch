@@ -26,7 +26,6 @@ function nzRound:Init()
 
 	self:SetVictory( false )
 	self:SetState( ROUND_INIT )
-
 	self:SetEndTime( starttime )
 	--PrintMessage( HUD_PRINTTALK, "5 seconds till start time." )
 	hook.Call( "OnRoundInit", nzRound )
@@ -674,6 +673,7 @@ function nzRound:Create(on)
 			hook.Call("OnRoundCreative", nzRound)
 			--We are in create
 			for _, ply in pairs( player.GetAll() ) do
+				ply:ConCommand("hari_lobby_close")
 				if ply:IsSuperAdmin() then
 					ply:GiveCreativeMode()
 				end
@@ -749,41 +749,7 @@ function nzRound:SetupGame()
 
 	nzMapping:CleanUpMap()
 	nzDoors:LockAllDoors()
-	
-		--master spawner failsafe
-	local normalMaster = false
-		for k, v in ipairs( ents.FindByClass( "nz_spawn_zombie_normal" ) ) do
-            	if v:GetMasterSpawn() then
-                	normalMaster = true
-					break
-            	end        	
-			end
 
-		if not normalMaster then
-		    	for k, v in ipairs( ents.FindByClass( "nz_spawn_zombie_normal" ) ) do
-					v:SetMasterSpawn(true)
-					break
-    	end
-		PrintMessage( HUD_PRINTTALK, "You need to place a normal master spawner. Skill issue." )
-		end
-	--special spawner check
-	local specialMaster = false
-		for k, v in ipairs( ents.FindByClass( "nz_spawn_zombie_special" ) ) do
-            	if v:GetMasterSpawn() then
-                	specialMaster = true
-					break
-            	end        	
-			end
-
-		if not specialMaster then
-		    	for k, v in ipairs( ents.FindByClass( "nz_spawn_zombie_special" ) ) do
-					v:SetMasterSpawn(true)
-					break
-    	end
-		PrintMessage( HUD_PRINTTALK, "You need to place a special master spawner. Skill issue." )
-		end
-		
-		
 	nzNav.Functions.NavLockApply() -- Apply the Nav Locks that exist. Just don't do "nav_save" while playing... If you do this I want you to know personally that you're an idiot.
 
 	-- Open all doors with no price and electricity requirement

@@ -31,18 +31,9 @@ nzTools:CreateTool("harimapsettings", {
 		return true
 	end,
 	interface = function(frame, data)
-		local text = vgui.Create("DLabel", frame)
-		text:SetText("Extra Map Settings made by Hari")
-		text:SetFont("Trebuchet18")
-		text:SetPos(0, 5)
-		text:SetTextColor( Color(50, 50, 50) )
-		text:SetSize(400, 30)
-		text:CenterHorizontal()
-		text:SetWrap(true)
-
 		local DProperties = vgui.Create( "DProperties", frame )
-		DProperties:SetSize( 480, 420 )
-		DProperties:SetPos( 10, 40 )
+		DProperties:SetSize( 480, 450 )
+		DProperties:SetPos( 10, 10 )
 
 		--GAME OVER SCREEN SETTINGS-------------------------------------------------------------------
 
@@ -76,6 +67,14 @@ nzTools:CreateTool("harimapsettings", {
 		nzSettings:SyncValueToElement("BO6_GO_RoundText", Row4)
 		Row4.DataChanged = function( s, val ) 
 			nzSettings:SetSimpleSetting("BO6_GO_RoundText", val)
+		end
+
+		local Row5 = DProperties:CreateRow("Game Over Screen Settings", "Enable Camera on Background?")
+		Row5:Setup("Boolean")
+		Row5:SetValue(nzSettings:GetSimpleSetting("BO6_GO_Alpha", false))
+		nzSettings:SyncValueToElement("BO6_GO_Alpha", Row5)
+		Row5.DataChanged = function( _, val ) 
+			nzSettings:SetSimpleSetting("BO6_GO_Alpha", tobool(val))
 		end
 
 		--ARMOR SETTINGS-------------------------------------------------------------------

@@ -57,6 +57,10 @@ end)
 
 hook.Add("EntityTakeDamage", "!!!nzrArmorSystem", function(ply, dmg)
     if ply:IsPlayer() and nzSettings:GetSimpleSetting("BO6_Armor", false) and ply:Armor() > 1 and bit.band(dmg:GetDamageType(), DMG_FALL + DMG_DROWN + DMG_POISON + DMG_RADIATION) == 0 then
+        if ply:HasPerk("phd") and dmg:GetDamageType() == DMG_BLAST then
+            dmg:ScaleDamage(0)
+            return true
+        end
         ply:SetArmor(ply:Armor()-dmg:GetDamage())
         dmg:ScaleDamage(nzSettings:GetSimpleSetting("BO6_Armor_Percent", 30)/100)
     end
@@ -92,7 +96,6 @@ end)
 
 function GM:HandlePlayerArmorReduction(ply, dmginfo)
     if nzSettings:GetSimpleSetting("BO6_Armor", false) then return end
-
     if ( ply:Armor() <= 0 || bit.band( dmginfo:GetDamageType(), DMG_FALL + DMG_DROWN + DMG_POISON + DMG_RADIATION ) != 0 ) then return end
 
     local flBonus = 1.0

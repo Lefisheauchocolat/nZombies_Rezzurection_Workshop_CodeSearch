@@ -20,7 +20,11 @@ local function DisplayCharacterDialog(name, iconPath, soundPath, color)
     local text = subtitlesTab[soundPath] or "???"
     activeDialog.name = name
     activeDialog.text = text
-    activeDialog.icon = Material(iconPath, "noclamp smooth")
+    if iconPath then
+        activeDialog.icon = Material(iconPath, "noclamp smooth")
+    else
+        activeDialog.icon = nil
+    end
     activeDialog.endTime = CurTime() + math.max(#text/12, 2)
     activeDialog.color = color
     if soundPath then

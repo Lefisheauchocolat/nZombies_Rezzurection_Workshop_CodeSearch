@@ -125,9 +125,7 @@ function ENT:TurnOn()
 	seq, dur = self:LookupSequence("perk_power_on")
 
 	self:SetActive(true)
-	if not nzMapping.Settings.gamemodeentities then
 	self:ToggleSmoke(true)
-	end
 	self:Update()
 
 	self.NextJingle = CurTime() + math.random(0,600) -- Have a slightly shorter time for inital tune.
@@ -1271,7 +1269,6 @@ if CLIENT then
 					center = self:GetPos() + self:GetUp() * 35
 					fwd = self:GetForward()
 				end
-			if not nzMapping.Settings.gamemodeentities then
 
 				if ( dlight ) then
 					-- NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE NIGHTMARE 
@@ -1310,7 +1307,6 @@ if CLIENT then
 					dlight.DieTime = CurTime() + 1
 				end
 				if math.random(300) == 1 then self.NextLight = CurTime() + 0.05 end
-				end
 			end
 
 			if self:GetLoopingSound() ~= "" then

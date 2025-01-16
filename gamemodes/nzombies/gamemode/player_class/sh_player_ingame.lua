@@ -8,11 +8,14 @@ PLAYER.RunSpeed				= 310 -- Don't worry, the overall stamina is being increased 
 PLAYER.JumpPower			= 200
 PLAYER.CanUseFlashlight     = true
 
+local cvar_skyintro = GetConVar("nz_sky_intro_server_allow")
+
 function PLAYER:SetupDataTables()
 	self.Player:NetworkVar("Bool", 0, "UsingSpecialWeapon")
 	self.Player:NetworkVar("Entity", 0, "TeleporterEntity") -- So we can know what Teleporter is teleporting us
 	self.Player:NetworkVar("Int", 0, "DownButtons") //KeyDown is not networked, so we do this
 	self.Player:NetworkVar("Int", 1, "LastPressedButtons") //idk maybe this will be usefull
+	self.Player:NetworkVar("Float", 0, "LastSpawnTime")
 end
 
 function PLAYER:Init()
@@ -20,7 +23,15 @@ end
 
 function PLAYER:Loadout()
 	if nzMapping.Settings.startwep and weapons.Get(tostring(nzMapping.Settings.startwep)) then
-		self.Player:Give(nzMapping.Settings.startwep)
+		if (nzMapping.Settings.skyintro or (self.Player:GetInfoNum("nz_sky_intro_always", 0) > 0) and cvar_skyintro:GetBool()) and !nzSettings:GetSimpleSetting("InfilEnabled", false) then
+			local ply = self.Player
+			timer.Simple(nzMapping.Settings.skyintrotime, function()
+				if not IsValid(ply) then return end
+				ply:Give(nzMapping.Settings.startwep)
+			end)
+		else
+			self.Player:Give(nzMapping.Settings.startwep)
+		end
 	else
 		self.Player:Give("tfa_bo3_wepsteal")
 		self.Player:PrintMessage( HUD_PRINTTALK, "You have to change the starting weapon in Map Settings!" )
@@ -57,6 +68,10 @@ function PLAYER:Loadout()
 		end
 		self.Player.OldWeapons = nil
 	end
+
+	if (nzMapping.Settings.skyintro or (self.Player:GetInfoNum("nz_sky_intro_always", 0) > 0) and cvar_skyintro:GetBool()) then
+		self.Player:SetActiveWeapon(nil)
+	end
 end
 
 local cvar_bleedout = GetConVar("nz_downtime")
@@ -73,6 +88,7 @@ function PLAYER:Spawn()
 	end
 
 	local health = nzMapping.Settings.hp
+
 	self.Player:SetHealth(health or 150)
 	self.Player:SetMaxHealth(health or 150)
 	self.Player:SetArmor(nzMapping.Settings.startarmor or 0)
@@ -84,12 +100,44 @@ function PLAYER:Spawn()
 	self.Player:RemovePerks()
 	self.Player:RemoveUpgrades()
 	self.Player:MoveToSpawn()
+	self.Player:SetLastSpawnTime(CurTime())
 
 	self.Player:SetUsingSpecialWeapon(false)
 	self.Player:SetBleedoutTime(cvar_bleedout:GetFloat())
 	self.Player:SetReviveTime(cvar_revive:GetFloat())
 	self.Player:SetMaxPerks(cvar_perkmax:GetInt())
 	self.Player:AllowFlashlight(tobool(nzMapping.Settings.flashlight))
+
+	local nz_skyintro = nzMapping.Settings.skyintro
+	local cl_skyintro = self.Player:GetInfoNum("nz_sky_intro_always", 0) > 0
+	local sv_skyintro = cvar_skyintro:GetBool()
+	if (nz_skyintro or (cl_skyintro and sv_skyintro)) and !nzSettings:GetSimpleSetting("InfilEnabled", false) then
+		local skytime = !nz_skyintro and 1.4 or math.max(nzMapping.Settings.skyintrotime or 1.4, 0)
+		local skyheight = math.Clamp((nzMapping.Settings.skyintroheight or 6000), -30000, 30000)
+
+		local QueueStructure = {
+			time = skytime,
+			start = (self.Player:GetPos() + vector_up*skyheight) - self.Player:GetForward(),
+			endpos = self.Player:EyePos(),
+			rotation = self.Player:EyeAngles(),
+			rotateratio = 0.2,
+			viewpunch = self.Player:GetInfoNum("nz_sky_intro_viewpunch", 1) > 0 and Angle(10,0,0) or nil,
+			followplayer = true,
+			allowmove = true,
+			bloom = self.Player:GetInfoNum("nz_sky_intro_bloom", 1) > 0,
+			faderatio = 0.25,
+		}
+
+		local mapsound = nzMapping.Settings.skyintrosnd
+		local oursound = next(mapsound) ~= nil and mapsound or "nz_moo/effects/viewin"..math.random(2)..".wav"
+		if istable(oursound) then
+			oursound = table.Random(oursound)
+		end
+
+		nzEE.Cam:QueueViewData(QueueStructure, self.Player)
+		nzEE.Cam:Music(oursound, self.Player)
+		nzEE.Cam:Begin(self.Player)
+	end
 
 	-- Resend the map data to any player that spawns/respawns(They might've joined late and haven't recived the mapsettings.)
 	nzMapping:SendMapData(self.Player)

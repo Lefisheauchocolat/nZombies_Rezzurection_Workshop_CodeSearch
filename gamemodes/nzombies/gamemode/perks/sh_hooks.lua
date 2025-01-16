@@ -875,7 +875,7 @@ hook.Add("TFA_CompleteReload", "nzCherryBool", function(wep)
 	end
 end)
 
-hook.Add("TFA_LoadShell", "nzCherryBool2", function(wep)
+hook.Add("TFA_LoadShell", "nzCherryBool", function(wep)
 	if wep.NZSpecialCategory then return end
 	local ply = wep:GetOwner()
 	if not IsValid(ply) or not ply:IsPlayer() then return end
@@ -885,6 +885,34 @@ hook.Add("TFA_LoadShell", "nzCherryBool2", function(wep)
 	end
 end)
 
+hook.Add("TFA_Pump", "nzCherryBool", function(wep)
+	if wep.NZSpecialCategory then return end
+	local ply = wep:GetOwner()
+	if not IsValid(ply) or not ply:IsPlayer() then return end
+
+	if ply:HasPerk("cherry") then
+		ply:SetNW2Bool("nz.CherryBool", false)
+	end
+end)
+
+hook.Add("TFA_PostReload", "nzCherryBool", function(wep)
+	if wep.NZSpecialCategory then return end
+	local ply = wep:GetOwner()
+	if not IsValid(ply) or not ply:IsPlayer() then return end
+
+	if ply:HasPerk("cherry") and wep:GetStatL("LoopedReload") then
+		ply:SetNW2Bool("nz.CherryBool", false) //some shotguns just dont want to play nice :(
+	end
+end)
+
+local cherry_reload_switch = {
+	[0] = 255, //unlimited
+	[1] = 255, //unlimited
+	[2] = 8,
+	[3] = 4,
+	[4] = 2,
+}
+
 hook.Add("TFA_Reload", "nzCherryEffects", function(wep)
 	local ply = wep:GetOwner()
 	if not IsValid(ply) or not ply:IsPlayer() then return end
@@ -893,81 +921,101 @@ hook.Add("TFA_Reload", "nzCherryEffects", function(wep)
 	if ply:HasPerk("cherry") and not ply:GetNW2Bool("nz.CherryBool") and ply:GetAmmoCount(wep:GetPrimaryAmmoType()) > 0 then
 		ply:SetNW2Bool("nz.CherryBool", true)
 
-		local round = nzRound:GetNumber() > 0 and nzRound:GetNumber() or 1
-
 		if ply:GetNW2Float("nz.CherryDelay", 0) < CurTime() and ply:GetNW2Int("nz.CherryCount", 0) > 0 then
 			ply:SetNW2Int("nz.CherryCount", 0)
 		end
 
-		local scale = 1 - math.Clamp(ply:GetNW2Int("nz.CherryCount", 0) / 10, 0, 0.9)
-		local proc = 1 - math.Clamp(wep:Clip1() / wep.Primary.ClipSize, 0, 1)
-		local dmg = (320 * math.pow(1.1, math.floor(round/2) - 1)) * proc
+		if SERVER then
+			ply.CherryKills = 0
+		end
+
+		local ifp = IsFirstTimePredicted()
+		local round = nzRound:GetNumber() > 0 and nzRound:GetNumber() or 1
+
+		local reloads = ply:GetNW2Int("nz.CherryCount", 0)
+		local scale = 1 - math.Clamp(reloads / #cherry_reload_switch, 0, 0.9) //visual duration
+		local proc = 1 - math.Clamp(wep:Clip1() / wep.Primary.ClipSize, 0, 1) //damage, radius, stun duration
+		local max = cherry_reload_switch[reloads] or 0 //amount of enemies to damage, stun is unlimited
+		local dmg = (565 * math.pow(1.1, math.max(round/(ply:HasUpgrade("cherry") and 3 or 10), 1) - 1)) * proc //should kill up to round 10
 		local count = 0
 
 		local damage = DamageInfo()
-		damage:SetDamage(dmg * scale)
+		damage:SetDamage(dmg)
 		damage:SetDamageType(DMG_SHOCK)
 		damage:SetAttacker(ply)
 		damage:SetInflictor(wep)
 		damage:SetDamageForce(vector_up)
 
-		for k, v in pairs(ents.FindInSphere(ply:GetPos(), 160 * proc)) do
-			if ((v:IsNPC() or v:IsNextBot()) and v:Health() > 0) or v.DoCherryShock then
-				damage:SetDamagePosition(v:WorldSpaceCenter())	
+		local closest = ents.FindInSphere(ply:GetPos(), (128 * proc) + 32) //160hu at max range, 32hu minimum size, player hull width is 16hu
+		local zeds = {}
+		for i=1, #closest do
+			local ent = closest[i]
+			if not IsValid(ent) then continue end
+			if not (ent:IsValidZombie() or ent:IsNPC() or ent.DoCherryShock) then continue end
+			if ent:Health() <= 0 then continue end
 
-				if ply:HasUpgrade("cherry") and !v.IsMooBossZombie then
-					damage:SetDamage(v:Health() + 666)
+			zeds[i] = ent:GetPos():DistToSqr(ply:GetPos())
+		end
+
+		for i, dist in SortedPairsByValue(zeds) do
+			local zed = closest[i]
+			if not IsValid(zed) then continue end
+
+			damage:SetDamagePosition(zed:WorldSpaceCenter())	
+
+			if ply:HasUpgrade("cherry") and !(zed.NZBossType or zed.IsMooBossZombie) and (proc == 0) and (scale == 1) then
+				damage:SetDamage(zed:Health() + 666)
+			end
+
+			if ifp and !zed.DoCherryShock then
+				if damage:GetDamage() > zed:Health() then
+					ParticleEffectAttach("bo3_waffe_electrocute", PATTACH_POINT_FOLLOW, zed, 2)
+					if zed:OnGround() then
+						ParticleEffectAttach("bo3_waffe_ground", PATTACH_ABSORIGIN_FOLLOW, zed, 0)
+					end
+					if zed:IsValidZombie() and not zed.IsMooSpecial then
+						ParticleEffectAttach("bo3_waffe_eyes", PATTACH_POINT_FOLLOW, zed, 3)
+						ParticleEffectAttach("bo3_waffe_eyes", PATTACH_POINT_FOLLOW, zed, 4)
+					end
+				end
+			end
+
+			if SERVER then
+				if zed:IsValidZombie() and !zed:GetSpecialAnimation() and !zed.IsMooSpecial and !zed:GetCrawler() and !(zed.NZBossType or zed.IsMooBossZombie) then
+					zed:PerformStun(math.max(math.Rand(2.4,3.6)*proc, 1.2))
 				end
 
-				if damage:GetDamage() > v:Health() and IsFirstTimePredicted() and !v.DoCherryShock then
-					ParticleEffectAttach("bo3_waffe_electrocute", PATTACH_POINT_FOLLOW, v, 2)
-					if v:OnGround() then
-						ParticleEffectAttach("bo3_waffe_ground", PATTACH_ABSORIGIN_FOLLOW, v, 0)
-					end
-					if v:IsValidZombie() and not v.IsMooSpecial then
-						ParticleEffectAttach("bo3_waffe_eyes", PATTACH_POINT_FOLLOW, v, 3)
-						ParticleEffectAttach("bo3_waffe_eyes", PATTACH_POINT_FOLLOW, v, 4)
-					end
-				end
-
-				if SERVER then
-				
-					if v:IsValidZombie() and !v:GetSpecialAnimation() and !v.IsMooSpecial and !v:GetCrawler() and !(v.NZBossType or v.IsMooBossZombie) then
-						v:PerformStun( math.Rand(1,3) )
-					end
-					--[[if v.TempBehaveThread and v.SparkySequences then
-						ParticleEffectAttach("bo3_shield_electrify_zomb", PATTACH_ABSORIGIN_FOLLOW, v, 2)
-						if v.PlaySound and v.ElecSounds then
-							v:PlaySound(v.ElecSounds[math.random(#v.ElecSounds)], v.SoundVolume or SNDLVL_NORM, math.random(v.MinSoundPitch, v.MaxSoundPitch), 1, 2)
-						end
-
-						v:TempBehaveThread(function(v)
-							local seq = v.SparkySequences[math.random(#v.SparkySequences)]
-							local id, time = v:LookupSequence(seq)
-							v:PlaySequenceAndWait(seq)
-							v:StopParticles()
-						end)
-					end]]
-
-					v.WasShockedThisTick = true
-					v:TakeDamageInfo(damage)
+				if count < max then
+					zed.WasShockedThisTick = true
+					zed:TakeDamageInfo(damage)
 
 					timer.Simple(0, function()
-						if not IsValid(v) then return end
-						v.WasShockedThisTick = nil
+						if not IsValid(zed) then return end
+						zed.WasShockedThisTick = nil
 					end)
 
-					if damage:GetDamage() > v:Health() then
-						count = count + 1
-					end
+					count = count + 1
 				end
 			end
 		end
 
 		ply:SetNW2Int("nz.CherryCount", ply:GetNW2Int("nz.CherryCount", 0) + 1)
-		ply:SetNW2Float("nz.CherryDelay", CurTime() + 10)
 
-		if IsFirstTimePredicted() then
+		if wep.IsTFAWeapon then
+			if wep:GetStatL("LoopedReload") then
+				local _, tanim, ttype = wep:ChooseShotgunReloadAnim()
+				local cherrydelay = tanim and wep:GetActivityLength(tanim)*(wep:GetPrimaryClipSizeForReload(true) - wep:Clip1()) or 2.5
+				ply:SetNW2Float("nz.CherryDelay", CurTime() + math.max(cherrydelay, engine.TickInterval()) + 3)
+			else
+				local _, tanim, ttype = wep:ChooseReloadAnim()
+				local cherrydelay = tanim and wep:GetActivityLength(tanim) or 2.5
+				ply:SetNW2Float("nz.CherryDelay", CurTime() + math.max(cherrydelay, engine.TickInterval()) + 3)
+			end
+		else
+			ply:SetNW2Float("nz.CherryDelay", CurTime() + 10)
+		end
+
+		if ifp then
 			ParticleEffectAttach("nz_perks_cherry", PATTACH_ABSORIGIN_FOLLOW, ply, 0)
 			ply:EmitSound("NZ.Cherry.Shock")
 			if ply:HasUpgrade("cherry") or proc >= 1 then
@@ -979,17 +1027,29 @@ hook.Add("TFA_Reload", "nzCherryEffects", function(wep)
 			timer.Simple(scale, function()
 				if not IsValid(ply) then return end
 				ply:StopParticles()
-
-				if count and count >= 12 then
-					if not ply.bo3cherryachv and TFA.BO3GiveAchievement then
-						TFA.BO3GiveAchievement("A Burst of Flavor", "vgui/overlay/achievment/cherry.png", ply)
-						ply.bo3cherryachv = true
-					end
-				end
 			end)
 		end
 	end
 end)
+
+if SERVER then
+	hook.Add("PostEntityTakeDamage", "nz.CherryAchievement", function(ent, dmginfo, took)
+		if !IsValid(ent) or !(ent:IsValidZombie() or ent:IsNPC()) then return end
+		if !ent.WasShockedThisTick or ent:Health() > 0 or !took then return end
+		if !TFA.BO3GiveAchievement then return end
+
+		local ply = dmginfo:GetAttacker()
+		if !IsValid(ply) or !ply:IsPlayer() or !ply:HasPerk("cherry") or ply.bo3cherryachv then return end
+
+		if !ply.CherryKills then ply.CherryKills = 0 end
+		ply.CherryKills = ply.CherryKills + 1
+
+		if ply.CherryKills < 12 then return end
+
+		TFA.BO3GiveAchievement("A Burst of Flavor", "vgui/overlay/achievment/cherry.png", ply, 1)
+		ply.bo3cherryachv = true
+	end)
+end
 
 if CLIENT then
 	local zmhud_icon_headshot = Material("nz_moo/icons/hud_headshoticon.png", "smooth unlitgeneric")
@@ -1002,7 +1062,7 @@ if CLIENT then
 		render.UpdateFullScreenDepthTexture()
 		blur_mat:SetTexture("$BASETEXTURE", render.GetScreenEffectTexture())
 		blur_mat:SetTexture("$DEPTHTEXTURE", render.GetResolvedFullFrameDepth())
-		blur_mat:SetFloat("$size", fac * 4)
+		blur_mat:SetFloat("$size", fac*4)
 		blur_mat:SetFloat("$focus", 1)
 		blur_mat:SetFloat("$focusradius", 10*fac)
 		render.SetMaterial(blur_mat)
@@ -1060,7 +1120,7 @@ if CLIENT then
 			end
 		elseif AGH_MY_EYES then
 			if THX_SOUND_FX > 0 then
-				THX_SOUND_FX = math.max(THX_SOUND_FX - FrameTime()*0.65, 0)
+				THX_SOUND_FX = math.max(THX_SOUND_FX - RealFrameTime()*0.65, 0)
 			end
 
 			easy_tab["$pp_colour_contrast"] = math.Remap(THX_SOUND_FX, 0, 1, 1, 1.5)
@@ -1077,7 +1137,12 @@ if CLIENT then
 				easy_tab["$pp_colour_contrast"] = 1
 				easy_tab["$pp_colour_colour"] = 0
 			end
-			MyDrawBokehDOF(math.Remap(THX_SOUND_FX, 0, 1, 0, 1.5))
+
+			if b_nochrome then
+				DrawBloom(1*(math.Clamp(1 - THX_SOUND_FX, 0, 1)), 1*THX_SOUND_FX, 8*THX_SOUND_FX, 8*THX_SOUND_FX, 2*THX_SOUND_FX, 1*THX_SOUND_FX, 1, 1, 1)
+			end
+
+			MyDrawBokehDOF(THX_SOUND_FX)
 		end
 
 		if !ply:ShouldDrawHUD() then return end
@@ -1086,7 +1151,7 @@ if CLIENT then
 		end
 
 		if ply:HasVultureStink() then
-			stinkfade = math.Approach(stinkfade, 1, FrameTime()*6)
+			stinkfade = math.Approach(stinkfade, 1, RealFrameTime()*6)
 		end
 
 		if stinkfade > 0 then
@@ -1100,7 +1165,7 @@ if CLIENT then
 			surface.SetMaterial(zmhud_overlay_stink)
 			surface.DrawTexturedRect(0, 0, ScrW(), ScrH())
 
-			stinkfade = math.max(stinkfade - math.min(FrameTime()*4, engine.TickInterval()*5), 0)
+			stinkfade = math.max(stinkfade - math.min(RealFrameTime()*4, engine.TickInterval()*5), 0)
 		end
 
 		if ply:HasPerkBlur() then

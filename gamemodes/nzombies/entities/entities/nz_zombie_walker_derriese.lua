@@ -248,12 +248,27 @@ local SprintJumpSequences = {
 }
 
 local walksounds = {
-	Sound("nz_moo/zombies/vox/_classic/amb/amb_00.mp3"),
-	Sound("nz_moo/zombies/vox/_classic/amb/amb_01.mp3"),
-	Sound("nz_moo/zombies/vox/_classic/amb/amb_02.mp3"),
-	Sound("nz_moo/zombies/vox/_classic/amb/amb_03.mp3"),
-	Sound("nz_moo/zombies/vox/_classic/amb/amb_04.mp3"),
-	Sound("nz_moo/zombies/vox/_classic/amb/amb_05.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/amb/amb_00.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/amb/amb_01.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/amb/amb_02.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/amb/amb_03.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/amb/amb_04.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/amb/amb_05.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/amb/amb_06.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/amb/amb_07.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/amb/amb_08.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/amb/amb_09.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/amb/amb_10.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/amb/amb_11.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/amb/amb_12.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/amb/amb_13.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/amb/amb_14.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/amb/amb_15.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/amb/amb_16.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/amb/amb_17.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/amb/amb_18.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/amb/amb_19.mp3"),
+	Sound("nz_moo/zombies/vox/_proto/amb/amb_20.mp3"),
 }
 
 local runsounds = {
@@ -950,6 +965,8 @@ ENT.SequenceTables = {
 				--"nz_l4d_run_05",
 				--"nz_pb_zombie_sprint_v7",
 				--"nz_pb_zombie_sprint_v9",
+				"nz_base_zombie_sprint_w_object_4",
+				"nz_base_zombie_sprint_w_object_5",
 				"nz_supersprint_au1",
 				"nz_supersprint_au2",
 				"nz_supersprint_au3",

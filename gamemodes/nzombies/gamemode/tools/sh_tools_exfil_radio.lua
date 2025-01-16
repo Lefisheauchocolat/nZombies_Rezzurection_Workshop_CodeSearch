@@ -86,6 +86,14 @@ nzTools:CreateTool("exfilradioeditor", {
 			nzSettings:SetSimpleSetting("ExfilMusic", val)
 		end
 
+		local Row6_1 = DProperties:CreateRow("Config Settings", "Background Scene Music")
+		Row6_1:Setup("Generic")
+		Row6_1:SetValue(nzSettings:GetSimpleSetting("ExfilMusicEnd", "bo6/exfil/music_end.mp3"))
+		nzSettings:SyncValueToElement("ExfilMusicEnd", Row6_1)
+		Row6_1.DataChanged = function( s, val ) 
+			nzSettings:SetSimpleSetting("ExfilMusicEnd", val)
+		end
+
 		local Row7 = DProperties:CreateRow("Config Settings", "Spawn Boss")
 		Row7:Setup("Boolean")
 		Row7:SetValue(nzSettings:GetSimpleSetting("ExfilBossEnabled", true))
@@ -146,10 +154,20 @@ nzTools:CreateTool("exfilradioeditor", {
 			nzSettings:SetSimpleSetting("ExfilLiberty", tobool(val))
 		end
 
+		local Row13 = DProperties:CreateRow("Preview Anims", "Select Anim to look at nearest position")
+		Row13:Setup( "Combo" )
+		Row13:AddChoice("Exfil Fail (Liberty Falls if selected)", false)
+		Row13:AddChoice("Exfil Success (Any)", true)
+		Row13.DataChanged = function( _, val )
+			net.Start("nzPreviewExfilAnim")
+			net.WriteBool(val)
+			net.SendToServer()
+		end
+
 		local text = vgui.Create("DLabel", DProperties)
 		text:SetText("Tip: Place your position far away from walls to prevent bugs.\nYou can have only one radio on map!")
 		text:SetFont("Trebuchet18")
-		text:SetPos(0, 300)
+		text:SetPos(0, 360)
 		text:SetTextColor( Color(50, 50, 50) )
 		text:SetSize(400, 30)
 		text:CenterHorizontal()
@@ -158,7 +176,7 @@ nzTools:CreateTool("exfilradioeditor", {
 		local text = vgui.Create("DLabel", DProperties)
 		text:SetText("Exfil Module made by Hari")
 		text:SetFont("Trebuchet18")
-		text:SetPos(0, 400)
+		text:SetPos(0, 420)
 		text:SetTextColor( Color(50, 50, 50) )
 		text:SetSize(400, 30)
 		text:CenterHorizontal()

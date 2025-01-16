@@ -5,64 +5,12 @@ util.AddNetworkString("nZr.DACutscene")
 nZr_Death_Animations_LastPosition = Vector(0,0,0)
 nZr_Death_Animations_Positions = nZr_Death_Animations_Positions or {}
 nZr_Death_Animations_Allow = false
-nZr_Death_Animations_Effects = {
-    ["Zombies"] = {
-        ["death_%s_solo_1"] = {time = 5.43, model = "models/bo6/exfil/zombie_anims.mdl", eff = {[0] = "pistol_solo_1", [0.8] = "sound", [2.8] = "new_rhand"}},
-        ["death_%s_solo_2"] = {time = 4.76, model = "models/bo6/exfil/zombie_anims.mdl", eff = {[0.4] = "sound", [4] = "new_neck_bite"}},
-        ["death_%s_solo_3"] = {time = 4.13, model = "models/bo6/exfil/zombie_anims.mdl", eff = {[0.4] = "sound", [3.4] = "new_neck_bite"}},
-        ["death_%s_solo_4"] = {time = 5.63, model = "models/bo6/exfil/zombie_anims.mdl", eff = {[0.6] = "sound", [1.4] = "new_rfoot", [2.2] = "new_lhand", [3.2] = "new_neck_bite"}},
-        ["death_%s_duo_1"] = {time = 4.8, model = "models/bo6/exfil/zombie_anims.mdl", eff = {[0.4] = "sound", [3.6] = "new_neck_bite"}},
-        ["death_%s_duo_2"] = {time = 4.73, model = "models/bo6/exfil/zombie_anims.mdl", eff = {[0.4] = "sound"}},
-        ["death_%s_duo_4"] = {time = 5.86, model = "models/bo6/exfil/zombie_anims.mdl", eff = {[0.2] = "sound", [0.4] = "new_rforearm", [0.5] = "fear", [3.8] = "new_rforearm_gib", [3.9] = "pain"}},
-        ["death_%s_duo_5"] = {time = 9, model = "models/bo6/exfil/zombie_anims.mdl", eff = {[0.4] = "sound", [1.7] = "new_rforearm", [1.8] = "fear", [5.4] = "new_rforearm_gib", [5.5] = "pain"}},
-    },
-    ["Disciple"] = {
-        ["mwz_da_%s_disciple"] = {time = 3.7, model = "models/bo6/hari/da/disciple.mdl", eff = {[0.2] = "touch", [0.4] = "disciple_blast", [0.6] = "fear", [1.8] = "fear", [3.2] = "bonebreak", [3.7] = "drop"}},
-    },
-    ["NovaCrawler"] = {
-        ["mwz_da_%s_novacrawler"] = {time = 6.6, model = "models/bo6/hari/da/novacrawler.mdl", eff = {[0.5] = "fear", [1.5] = "touch", [2.1] = "rleg_bite", [2.2] = "fear", [2.8] = "drop", [4.1] = "touch", [4.5] = "rhand_bite", [4.6] = "pain", [5.5] = "neck_bite", [6] = "drop"}},
-    },
-    ["Mangler"] = {
-        ["mwz_da_%s_mangler_t10"] = {time = 7.6, model = "models/bo6/hari/da/mangler.mdl", eff = {[0] = "sound", [2.1] = "slash_spine_blood", [6.1] = "mangler_ready", [7.3] = "mangler_shot"}},
-    },
-    ["Mangler_jup"] = {
-        ["mwz_da_%s_mangler_t10"] = {time = 7.6, model = "models/bo6/hari/da/mangler_jup.mdl", eff = {[0] = "sound", [2.1] = "slash_spine_blood", [6.1] = "mangler_ready", [7.3] = "mangler_shot"}},
-    },
-    ["Mangler_t10"] = {
-        ["mwz_da_%s_mangler_t10"] = {time = 7.6, model = "models/bo6/hari/da/mangler_t10.mdl", eff = {[0] = "sound", [2.1] = "slash_spine_blood", [6.1] = "mangler_ready", [7.3] = "mangler_shot"}},
-    },
-    ["Hellhound"] = {
-        ["mwz_da_%s_dog"] = {time = 8.6, model = "models/bo6/hari/da/dog.mdl", eff = {[0.2] = "dog_bark", [0.8] = "drop", [1] = "fear", [1.6] = "touch", [2.2] = "dog_attack", [2.8] = "neck_bite", [2.9] = "pain", [5.1] = "touch", [6.8] = "dog_attack", [7.4] = "headblow", [7.9] = "drop"}},
-    },
-    ["Mimic"] = {
-        ["mwz_da_%s_mimic"] = {time = 6, model = "models/bo6/hari/da/mimic.mdl", eff = {[0.6] = "drop", [1] = "fear", [1.8] = "touch", [2.5] = "touch", [3] = "fear", [4.5] = "legblow", [4.6] = "pain", [5.5] = "drop"}},
-    },
-}
-nZr_Death_Animations_Classes = {
-    ["nz_zombie_special_disciple"] = "Disciple",
-    ["nz_zombie_special_nova"] = "NovaCrawler",
-    ["nz_zombie_special_nova_bomber"] = "NovaCrawler",
-    ["nz_zombie_special_nova_electric"] = "NovaCrawler",
-    ["nz_zombie_special_nova_moon"] = "NovaCrawler",
-    ["nz_zombie_special_raz"] = "Mangler",
-    ["nz_zombie_special_raz_jup"] = "Mangler_jup",
-    ["nz_zombie_special_raz_t10"] = "Mangler_t10",
-    ["nz_zombie_boss_raz"] = "Mangler",
-    ["nz_zombie_boss_raz_jup"] = "Mangler_jup",
-    ["nz_zombie_boss_raz_t10"] = "Mangler_t10",
-    ["nz_zombie_special_dog"] = "Hellhound",
-    ["nz_zombie_special_dog_zhd"] = "Hellhound",
-    ["nz_zombie_special_dog_gas"] = "Hellhound",
-    ["nz_zombie_special_dog_fire"] = "Hellhound",
-    ["nz_zombie_special_dog_jup"] = "Hellhound",
-    ["nz_zombie_special_mimic"] = "Mimic",
-}
 
 local function nZr_UpdatePositions()
     local datab = ents.FindByClass("bo6_deathanim_point")
     local ptab = {}
     for _, ent in pairs(datab) do
-        table.insert(ptab, ent:GetPos())
+        table.insert(ptab, {ent:GetPos(), ent:GetAngles()})
     end
     nZr_Death_Animations_Positions = ptab
 end
@@ -77,7 +25,44 @@ local function nZr_ChangeGameOverDelay()
     end)
 end
 
+net.Receive("nzPreviewDeathAnim", function(len, ply)
+    local str = net.ReadString()
+    nZr_DeathAnimation_PreviewCutscene(str, ply)
+end)
+function nZr_DeathAnimation_PreviewCutscene(type, ply)
+    nZr_UpdatePositions()
+
+    if #nZr_Death_Animations_Positions == 0 then
+        ply:ChatPrint("[ERROR] No Death Animation positions on map!") 
+        return
+    end
+
+    if type == nil or type == "" then
+        type = "Zombies | death_%s_solo_1" 
+    end
+    local stab = string.Split(type, " | ")
+    local type, sel = stab[1], stab[2]
+    local tab = nZr_Death_Animations_Effects[type]
+    local zmodel = tab[sel].model
+
+    ply:SendLua([[
+        RunConsoleCommand("cl_drawhud", 0)
+        RunConsoleCommand("stopsound")
+        LocalPlayer():ScreenFade(SCREENFADE.IN, color_black, 1, 0.1)
+    ]])
+    
+    local data, anim = tab[sel], stab[2]
+    net.Start("nZr.DACutscene")
+    net.WriteString(anim)
+    net.WriteTable(data)
+    net.WriteTable(nZr_Death_Animations_Positions)
+    net.WriteTable({zmodel, nzFuncs:GetZombieMapModel(false)})
+    net.Send(ply)
+end
+
 function nZr_DeathAnimation_Cutscene(type)
+    nZr_UpdatePositions()
+
     if #nZr_Death_Animations_Positions == 0 then
         print("[ERROR] No Death Animation positions on map!") 
         return 0
@@ -122,9 +107,6 @@ local function nZr_DA_Try()
             nzRound:Lose()
             timer.Remove("NZRoundThink")
             nzRound:Freeze(false)
-            if nzSettings:GetSimpleSetting("DeathAnim_Laugh", false) then
-                nzSounds:Play("Laugh")
-            end
         end)
         timer.Simple(0.01, function()
             nzRound:SetZombiesMax(0)

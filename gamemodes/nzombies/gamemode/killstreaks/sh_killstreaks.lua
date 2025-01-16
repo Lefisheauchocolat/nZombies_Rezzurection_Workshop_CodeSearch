@@ -138,6 +138,19 @@ nzKillstreak.List = {
         end,
     },
 }
+nzKillstreak.ModsList = {
+    ["Napalm"] = {
+        desc = ".",
+        icon = Material("bo6/hud/plate.png"),
+        check = function(ply)
+            return true
+        end,
+        buy = function(ply)
+
+        end,
+    },
+}
+
 nzKillstreak.ClassToIcon = {
     ["bo6_killstreak_cannon"] = Material("bo6/hud/pistol.png", "mips"),
     ["bo6_killstreak_ldbr"] = Material("bo6/hud/ldbr.png", "mips"),

@@ -791,13 +791,6 @@ nzChatCommand.Add("/removenukedspawn", SERVER, function(ply, text)
 	end
 end, false, "Removes the spawn point for Nuketown Perks.")
 
-nzChatCommand.Add("/nolag", SERVER, function(ply, text)
-	if IsValid(ply) and ply:IsAdmin() and nzMapping.Settings.gamemodeentities then
-		nzMapping.Settings.gamemodeentities = true
-		nzMapping:LoadMapSettings(nzMapping.Settings)
-	end
-end, false, "Toggles off a bunch of shit to reduce lag")
-
 nzChatCommand.Add("/gotogocamera", SERVER, function(ply, text)
 	if IsValid(ply) and ply:IsAdmin() and nzRound:InState(ROUND_CREATE) and nzMapping.Settings.gocamerastart and text[1] and nzMapping.Settings.gocamerastart[tonumber(text[1])] then
 		ply:SetPos(nzMapping.Settings.gocamerastart[tonumber(text[1])])

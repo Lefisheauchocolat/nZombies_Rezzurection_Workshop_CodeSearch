@@ -329,6 +329,7 @@ nzRound:AddZombieType("Call of the Dead", 			"nz_zombie_walker_cotd", {})
 nzRound:AddZombieType("Cheaple", 					"nz_zombie_walker_cheaple", {}) 
 nzRound:AddZombieType("Crusader Zombies", 			"nz_zombie_walker_origins_templar", {}) 
 nzRound:AddZombieType("Crusader Zombies(Classic)", 	"nz_zombie_walker_origins_templar_classic", {}) 
+nzRound:AddZombieType("Cyborg Zombies", 			"nz_zombie_walker_cyborg", {}) 
 nzRound:AddZombieType("Das Herrenhaus", 			"nz_zombie_walker_haus", {}) 
 nzRound:AddZombieType("Deadbolt", 					"nz_zombie_walker_jup", {}) 
 nzRound:AddZombieType("Deadbolt(Charred)", 			"nz_zombie_walker_jup_charred", {}) 
@@ -337,6 +338,7 @@ nzRound:AddZombieType("Der Eisendrache", 			"nz_zombie_walker_eisendrache", {})
 nzRound:AddZombieType("Der Riese", 					"nz_zombie_walker_derriese", {}) 
 nzRound:AddZombieType("Der Riese(Enhanced)", 		"nz_zombie_walker_derriese_enhanced", {}) 
 nzRound:AddZombieType("Der Riese(WWII)", 			"nz_zombie_walker_derriese_wwii", {}) 
+nzRound:AddZombieType("Der Riese(Nacht Vox)", 		"nz_zombie_walker_derriese_pro", {}) 
 nzRound:AddZombieType("Dead of the Night", 			"nz_zombie_walker_mansion", {}) 
 nzRound:AddZombieType("Die Machine", 				"nz_zombie_walker_diemachine", {}) 
 nzRound:AddZombieType("Die Rise", 					"nz_zombie_walker_dierise", {}) 
@@ -711,6 +713,29 @@ end) -- No round func or end func
 nzRound:AddSpecialRoundType("Toxic Hazmat Zombies(CoD Online)", {
 	specialTypes = {
 		["nz_zombie_special_toxic_hazmat_codol"] = {chance = 100}
+	},
+		specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.15, 2) end, -- Dynamically change spawn speed depending on player count
+		specialCountMod = function(original) return math.floor(original * 0.5) end, -- Modify the count
+	},
+	function(dog) -- We want to modify health
+		local round = nzRound:GetNumber()
+		if round == -1 then
+			dog:SetHealth(math.random(50,250))
+		else
+			local hp = 75
+			for i = 1, nzRound:GetNumber() do 
+			hp = hp * 1.1
+			if hp > 2000 then
+				hp = 2000
+			end
+		end
+		dog:SetHealth(hp)
+	end
+end) -- No round func or end func
+
+nzRound:AddSpecialRoundType("Suiciders", {
+	specialTypes = {
+		["nz_zombie_special_za_suicider"] = {chance = 100}
 	},
 		specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.15, 2) end, -- Dynamically change spawn speed depending on player count
 		specialCountMod = function(original) return math.floor(original * 0.5) end, -- Modify the count
@@ -1151,6 +1176,29 @@ end) -- No round func or end func
 nzRound:AddSpecialRoundType("Hellhounds", {
 	specialTypes = {
 		["nz_zombie_special_dog"] = {chance = 100}
+	},												-- Moo Mark. Changed this cause the numbers were way too low and resulted in spamming of dogs.
+	specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.5, 2) end, -- Dynamically change spawn speed depending on player count
+	specialCountMod = function() return math.Clamp(nzRound:GetNumber() * #player.GetAllPlaying(), 6, 24) end, -- Modify the count
+}, function(dog) -- We want to modify health
+	local round = nzRound:GetNumber()
+	if round == -1 then
+		dog:SetHealth(math.random(120, 1200))
+	else
+		local hp = 50
+		for i=1,nzRound:GetNumber() do 
+			hp = hp * 1.10
+		end
+		if hp <= 400 then
+			dog:SetHealth(hp)
+		else
+			dog:SetHealth(400)
+		end
+	end
+end) -- No round func or end func
+
+nzRound:AddSpecialRoundType("Cyborg Hounds", {
+	specialTypes = {
+		["nz_zombie_special_dog_cyborg"] = {chance = 100}
 	},												-- Moo Mark. Changed this cause the numbers were way too low and resulted in spamming of dogs.
 	specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.5, 2) end, -- Dynamically change spawn speed depending on player count
 	specialCountMod = function() return math.Clamp(nzRound:GetNumber() * #player.GetAllPlaying(), 6, 24) end, -- Modify the count

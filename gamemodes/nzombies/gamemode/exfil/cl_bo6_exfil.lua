@@ -38,6 +38,7 @@ local exfilIconAv = Material("bo6/exfil/icon_radio.png", "mips")
 local exfilBg = Material("bo6/exfil/exfil_bg.png")
 local exfilBg2 = Material("bo6/exfil/exfil_bg2.png")
 local exfilBg_mes = Material("bo6/exfil/exfil_bg_message.png")
+local darkScreenMat = Material("bo6/da/dark.png")
 
 surface.CreateFont("BO6_Exfil96", {
     font = "KairosSansW06-CondMedium",
@@ -179,17 +180,22 @@ end)
 
 local currentSound
 
-local function playRandomMusic()
+local function playConfigMusic(is_other)
     if currentSound then
         currentSound:Stop()
         currentSound = nil
     end
 
     local song = "sound/"..nzSettings:GetSimpleSetting("ExfilMusic", "bo6/exfil/music.mp3")
+    if is_other == true then
+        song = "sound/"..nzSettings:GetSimpleSetting("ExfilMusicEnd", "bo6/exfil/music_end.mp3")
+    end
     sound.PlayFile(song, "noblock", function(soundChannel, errID, errName)
         if IsValid(soundChannel) then
-            currentSound = soundChannel
-            currentSound:SetVolume(1)
+            soundChannel:SetVolume(1)
+            if is_other != true then
+                currentSound = soundChannel
+            end
         end
     end)
 end
@@ -197,9 +203,9 @@ end
 local delay = 0
 hook.Add("Think", "BO6CheckPlayMusic", function()
     if delay-CurTime() > 0 then return end
-    delay = CurTime()+1
+    delay = CurTime()+0.1
     if hudActive and not IsValid(currentSound) then
-        playRandomMusic()
+        playConfigMusic()
     elseif not hudActive and IsValid(currentSound) then
         currentSound:Stop()
         currentSound = nil
@@ -396,6 +402,12 @@ local function CreateTimedScene(modelsTable, soundTable, sceneDuration, onFinish
         end)
     end
 
+    hook.Add("HUDPaint", "TimedSceneCameraHUD", function()
+        surface.SetDrawColor(255, 255, 255)
+        surface.SetMaterial(darkScreenMat)
+        surface.DrawTexturedRect(0, 0, ScrW(), ScrH())
+    end)
+
     timer.Simple(sceneDuration, function()
         for _, model in pairs(spawnedModels) do
             if IsValid(model) then
@@ -403,6 +415,7 @@ local function CreateTimedScene(modelsTable, soundTable, sceneDuration, onFinish
             end
         end
 
+        hook.Remove("HUDPaint", "TimedSceneCameraHUD")
         hook.Remove("CalcView", "TimedSceneCameraView")
         hook.Remove("Think", "TimedSceneAnimationUpdate")
 
@@ -496,9 +509,11 @@ local function NewCallFailScene(main_heli_pos, main_heli_ang)
         },
         8.62,--2.96 --3.26 --2.4
         function()
-            if nzSettings:GetSimpleSetting("DeathAnim_Laugh", false) then
-                nzSounds:Play("Laugh")
-            end
+            timer.Simple(1, function()
+                if nzSettings:GetSimpleSetting("DeathAnim_Laugh", false) then
+                    surface.PlaySound(")"..nzSounds:GetSound("Laugh"))
+                end
+            end)
         end
     )
     local h, ha = spawnedModels["Heli"], modelAnimations["Heli"]
@@ -583,7 +598,7 @@ local function NewCallFailScene(main_heli_pos, main_heli_ang)
         end)
     end)
     timer.Simple(8.5, function()
-        LocalPlayer():ScreenFade(SCREENFADE.OUT, color_black, 0.1, 5)
+        LocalPlayer():ScreenFade(SCREENFADE.OUT, color_black, 0.1, 7.5)
     end)
     timer.Simple(13.5, function()
         RunConsoleCommand("cl_drawhud", "1")
@@ -607,7 +622,7 @@ local function NewCallFailLibertyScene(main_heli_pos, main_heli_ang)
         10.6,
         function()
             if nzSettings:GetSimpleSetting("DeathAnim_Laugh", false) then
-                nzSounds:Play("Laugh")
+                surface.PlaySound(")"..nzSounds:GetSound("Laugh"))
             end
         end
     )
@@ -758,7 +773,7 @@ local function NewCallSuccessScene(main_heli_pos, main_heli_ang)
     for i=1,4 do
         timer.Simple(2.4+(i/10), function()
             muzzleflash(wep2)
-            if i == 1 then
+            if i == 4 then
                 local str = nzSettings:GetSimpleSetting("ExfilPilotType", "raptor")
                 if str == "blanchard" then
                     nzDialog:PlayCustomDialog("blanchardExfil_SuccessPilot")
@@ -818,6 +833,7 @@ net.Receive("nZr.ExfilCutscene", function()
     main_heli_ang = net.ReadAngle()
     zombieModels = net.ReadTable()
 
+    playConfigMusic(true)
     LocalPlayer():ScreenFade(SCREENFADE.IN, color_black, 1, 2)
     RunConsoleCommand("cl_drawhud", "0")
     timer.Simple(2, function()

@@ -56,6 +56,8 @@ ENT.InteractCheckRange 		= 45 				-- Limits the range on how far the zombies can
 ENT.ResistWW 				= false 			-- Decided if the nextbot can resist Wonder Weapons or not.
 ENT.WWResistDamage 			= 0.5 				-- Decides how much damage the nextbot should scale Wonder Weapon damage by.
 
+ENT.BloodType 				= "Human" 			-- What kind of blood should the zombies have. Currently has: Human, Robot
+
 --WORK IN PROGRESS
 --ENT.IsNZAlly 				= false 			-- Decides if the nextbot is considered friendly or not.
 
@@ -65,6 +67,19 @@ ENT.WalkSpeed 		= 100
 ENT.Acceleration 	= 700
 ENT.Deceleration 	= 900
 ENT.Gravity 		= 1000
+
+ENT.Blood = {
+	["Human"] = {
+		DismemberFX 		= "ins_blood_dismember_limb",
+		HeadGibFX 			= "ins_blood_impact_headshot",
+		ExplodeFX 			= "zmb_monster_explosion",
+	},
+	["Robot"] = {
+		DismemberFX 		= "zmb_cyborg_dismember_limb",
+		HeadGibFX 			= "zmb_cybord_impact_headshot",
+		ExplodeFX 			= "zmb_cyborg_hound_explosion",
+	},
+}
 
 --The Accessors will be partially shared, but should only be used serverside
 AccessorFunc( ENT, "fWalkSpeed", "WalkSpeed", FORCE_NUMBER)
@@ -836,8 +851,8 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 	end
 
 	if e == "base_ranged_rip" then
-		ParticleEffectAttach("ins_blood_dismember_limb", 4, self, 5)
-		self:EmitSound("nz_moo/zombies/gibs/gib_0"..math.random(0,3)..".mp3", 100, math.random(95,105))
+		ParticleEffectAttach(self.Blood[self.BloodType].DismemberFX, 4, self, 5)
+		self:EmitSound(self.GibSounds[math.random(#self.GibSounds)], 100, math.random(95,105))
 	end
 	if e == "base_ranged_throw" then
 		self:EmitSound("nz_moo/zombies/fly/attack/gut_throw/throw/zmb_ai_meat_throw_00"..math.random(0,3)..".mp3", 95)
@@ -870,7 +885,7 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 		self.PropGut:SetAngles(self:GetAngles(larmfx_tag))
 		self.PropGut:Spawn()
 
-		ParticleEffect("ins_blood_impact_headshot",self:GetBonePosition(larmfx_tag),self:GetAngles(),nil) 
+		ParticleEffect(self.Blood[self.BloodType].HeadGibFX,self:GetBonePosition(larmfx_tag),self:GetAngles(),nil) 
 	end
 	if e == "base_ranged_throw_left" then
 		self:EmitSound("nz_moo/zombies/fly/attack/gut_throw/throw/zmb_ai_meat_throw_0"..math.random(0,3)..".mp3", 95)
@@ -904,7 +919,7 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 		self.PropGut:SetAngles(self:GetAngles(rarmfx_tag))
 		self.PropGut:Spawn()
 
-		ParticleEffect("ins_blood_impact_headshot",self:GetBonePosition(rarmfx_tag),self:GetAngles(),nil) 
+		ParticleEffect(self.Blood[self.BloodType].HeadGibFX,self:GetBonePosition(rarmfx_tag),self:GetAngles(),nil) 
 	end
 	if e == "base_ranged_throw_right" then
 		self:EmitSound("nz_moo/zombies/fly/attack/gut_throw/throw/zmb_ai_meat_throw_0"..math.random(0,3)..".mp3", 95)
@@ -937,17 +952,17 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 	end
 	if e == "anim_catalyst_blood" then
 		for i = 1, 5 do 
-			ParticleEffect("ins_blood_impact_headshot",self:WorldSpaceCenter(),self:GetAngles(),nil) 
+			ParticleEffect(self.Blood[self.BloodType].HeadGibFX,self:WorldSpaceCenter(),self:GetAngles(),nil) 
 		end
-		self:EmitSound("nz_moo/zombies/gibs/gib_0"..math.random(3)..".mp3",100)
-		self:EmitSound("nz_moo/zombies/gibs/head/_og/zombie_head_0"..math.random(0,2)..".mp3", 100, math.random(95,105))
+		self:EmitSound(self.GibSounds[math.random(#self.GibSounds)],100)
+		self:EmitSound(self.HeadGibSounds[math.random(#self.HeadGibSounds)], 100, math.random(95,105))
 	end
 	if e == "anim_catalyst_bloodsplosion" then
 		for i = 1, 5 do 
-			ParticleEffect("ins_blood_impact_headshot",self:WorldSpaceCenter(),self:GetAngles(),nil) 
+			ParticleEffect(self.Blood[self.BloodType].HeadGibFX,self:WorldSpaceCenter(),self:GetAngles(),nil) 
 		end
-		self:EmitSound("nz_moo/zombies/gibs/gib_0"..math.random(3)..".mp3",100)
-		self:EmitSound("nz_moo/zombies/gibs/head/_og/zombie_head_0"..math.random(0,2)..".mp3", 100, math.random(95,105))
+		self:EmitSound(self.GibSounds[math.random(#self.GibSounds)],100)
+		self:EmitSound(self.HeadGibSounds[math.random(#self.HeadGibSounds)], 100, math.random(95,105))
 	end
 	if e == "bodyfall_light" then
 		self:EmitSound(self.BodyfallLightSounds[math.random(#self.BodyfallLightSounds)], 85, math.random(95,105))
@@ -2686,7 +2701,7 @@ function ENT:OnThink()
 		end
 
 		if self.nextbleedtick and self.nextbleedtick < CurTime() then
-			ParticleEffectAttach("ins_blood_impact_headshot", 4, self, 10)
+			ParticleEffectAttach(self.Blood[self.BloodType].HeadGibFX, 4, self, 10)
 
 			self.nextbleedtick = CurTime() + math.Rand(0.15, 0.4)
 			self.bleedtickcount = self.bleedtickcount + 1
@@ -3146,8 +3161,8 @@ if SERVER then
 			})
 
 			if not self.MarkedForDeath and self.CanBleed then
-				self:EmitSound("nz_moo/zombies/gibs/gib_0"..math.random(3)..".mp3",100)
-				ParticleEffectAttach("ins_blood_dismember_limb", 4, self, 5)
+				self:EmitSound(self.GibSounds[math.random(#self.GibSounds)],100)
+				ParticleEffectAttach(self.Blood[self.BloodType].DismemberFX, 4, self, 5)
 			end
 		end
 		self:OnGib(1)
@@ -3183,8 +3198,8 @@ if SERVER then
 			})
 
 			if not self.MarkedForDeath and self.CanBleed then
-				self:EmitSound("nz_moo/zombies/gibs/gib_0"..math.random(3)..".mp3",100)
-				ParticleEffectAttach("ins_blood_dismember_limb", 4, self, 6)
+				self:EmitSound(self.GibSounds[math.random(#self.GibSounds)],100)
+				ParticleEffectAttach(self.Blood[self.BloodType].DismemberFX, 4, self, 6)
 			end
 		end
 		self:OnGib(2)
@@ -3206,8 +3221,8 @@ if SERVER then
 			})
 
 			if not self.MarkedForDeath and self.CanBleed then
-				self:EmitSound("nz_moo/zombies/gibs/gib_0"..math.random(3)..".mp3",100)
-				ParticleEffectAttach("ins_blood_dismember_limb", 4, self, 7)
+				self:EmitSound(self.GibSounds[math.random(#self.GibSounds)],100)
+				ParticleEffectAttach(self.Blood[self.BloodType].DismemberFX, 4, self, 7)
 			end
 		end
 		self:OnGib(3)
@@ -3229,8 +3244,8 @@ if SERVER then
 			})
 
 			if not self.MarkedForDeath and self.CanBleed then
-				self:EmitSound("nz_moo/zombies/gibs/gib_0"..math.random(3)..".mp3",100)
-				ParticleEffectAttach("ins_blood_dismember_limb", 4, self, 8)
+				self:EmitSound(self.GibSounds[math.random(#self.GibSounds)],100)
+				ParticleEffectAttach(self.Blood[self.BloodType].DismemberFX, 4, self, 8)
 			end
 		end
 		self:OnGib(4)
@@ -3352,9 +3367,9 @@ if SERVER then
 			if self.CanBleed then
 				local neck = self:LookupBone("j_neck")
 
-				self:EmitSound("nz_moo/zombies/gibs/head/_og/zombie_head_0"..math.random(0,2)..".mp3", 100, math.random(95,105))
+				self:EmitSound(self.HeadGibSounds[math.random(#self.HeadGibSounds)], 100, math.random(95,105))
 				--self:EmitSound("nz_moo/zombies/gibs/death_nohead/death_nohead_0"..math.random(2)..".mp3", 85, math.random(95,105))
-				ParticleEffectAttach("ins_blood_impact_headshot", 4, self, 10)
+				ParticleEffectAttach(self.Blood[self.BloodType].HeadGibFX, 4, self, 10)
 
 				--[[if neck then
 					self.GibStumpHead = ents.Create("nz_prop_effect_attachment")
@@ -3482,6 +3497,11 @@ if SERVER then
 		self.Dying = true
 
 		local damagetype = dmginfo:GetDamageType()
+		local damageforce = dmginfo:GetDamageForce()
+		local damagetotal = dmginfo:GetDamage()
+
+		-- I was literally watching a decino video on how Doom's enemy AI worked, and he mentioned how the health determines if the enemy should gib or not.
+		local doom = self:GetMaxHealth() - (self:GetMaxHealth() * 2)
 
 		self:PostDeath(dmginfo)
 
@@ -3489,11 +3509,6 @@ if SERVER then
 			self:DissolveEffect()
 		end
 
-		if damagetype == DMG_ALWAYSGIB then
-			self:EmitSound(self.BloodExplodeSounds[math.random(#self.BloodExplodeSounds)], SNDLVL_GUNFIRE, math.random(95,105))
-			ParticleEffect("zmb_monster_explosion", self:GetPos() + Vector(0,0,45), Angle(0,0,0), nil) 
-			self:Remove(dmginfo)
-		end
 
 		if damagetype == DMG_MISSILEDEFENSE or damagetype == DMG_ENERGYBEAM then
 			if self.LaunchSounds then
@@ -3505,6 +3520,14 @@ if SERVER then
 		if damagetype == DMG_REMOVENORAGDOLL then
 			self:Remove(dmginfo)
 		end
+		
+		-- Doom logic and high force can cause them to evaporate.
+		if damagetype == DMG_ALWAYSGIB --[[or (self:RagdollForceTest(dmginfo:GetDamageForce()) and self:Health() <= doom)]] then
+			self:EmitSound(self.BloodExplodeSounds[math.random(#self.BloodExplodeSounds)], SNDLVL_GUNFIRE, math.random(95,105))
+			ParticleEffect(self.Blood[self.BloodType].ExplodeFX, self:GetPos() + Vector(0,0,45), Angle(0,0,0), nil) 
+			self:Remove(dmginfo)
+		end
+
 		if IsValid(self.Target) and self.Target.BHBomb and !self.IsMooSpecial then
 			if self.DeathSounds then
 				self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(self.MinSoundPitch, self.MaxSoundPitch), 1, 2)
@@ -4283,7 +4306,7 @@ if SERVER then
 				
 				self.loco:SetVelocity(result/0.5)
 
-				local hasledge = self.Big_Jump_area_end:HasAttributes(NAV_MESH_OBSTACLE_TOP)
+				local hasledge = self.Big_Jump_area_end:HasAttributes(NAV_MESH_OBSTACLE_TOP) and !self:GetCrawler()
 
 				if self:GetPos().z >= math.max(self.Big_Jump_area_end:GetCenter().z,self.Big_Jump_area_start:GetCenter().z) + (self:OBBMaxs().z*0.5) and (!hasledge or !self:HasSequence(seq)) 
 				or self:GetPos().z >= math.max(self.Big_Jump_area_end:GetCenter().z,self.Big_Jump_area_start:GetCenter().z) - (self:OBBMaxs().z*0.1) and hasledge and self:HasSequence(seq) and self.Big_Jump_area_ledge_small
@@ -4300,7 +4323,7 @@ if SERVER then
 				local z_point = self.Big_Jump_area_end:GetCenter().z + (self:OBBMaxs().z*0.25)
 
 				local z_pointledge = self.Big_Jump_area_end:GetCenter().z + (self:OBBMaxs().z*0.11)
-				local hasledge = self.Big_Jump_area_end:HasAttributes(NAV_MESH_OBSTACLE_TOP)
+				local hasledge = self.Big_Jump_area_end:HasAttributes(NAV_MESH_OBSTACLE_TOP) and !self:GetCrawler()
 
 				local calc1 = xy_point.x * (((xy_point.x - self:GetPos().x))/xy_point.x)
 				local calc2 = xy_point.y * (((xy_point.y - self:GetPos().y))/xy_point.y)
@@ -5904,7 +5927,7 @@ function ENT:PlaySequenceAndMove(seq, options, callback)
 
 				--if tr.Hit and tr.Entity:IsPlayer() and self:CollisionInWorld(tr.Entity:GetPos(), MASK_ALL, false) then self:SolidMaskDuringEvent(MASK_NPCSOLID_BRUSHONLY) end
 
-				if (self.Big_Jump_area_ledge == "reached" and self.TraversalAnim) or (self:GetIsBusy() and (self.TraversalAnim or tr.HitNoDraw)) or (!tr.Hit and qtr.Hit) then
+				if (self.Big_Jump_area_ledge == "reached" and !tr.Hit) or (self:GetIsBusy() and (self.TraversalAnim or tr.HitNoDraw)) or (!tr.Hit and qtr.Hit) then
 					if not options.gravity then
 						previousPos = previousPos + vec * self:GetModelScale()
 						self:SetPos(previousPos)
@@ -6806,6 +6829,19 @@ ENT.WaterFootstepsSounds = {
 	Sound("player/footsteps/slosh2.wav"),
 	Sound("player/footsteps/slosh3.wav"),
 	Sound("player/footsteps/slosh4.wav"),
+}
+
+ENT.GibSounds = {
+	Sound("nz_moo/zombies/gibs/gib_00.mp3"),
+	Sound("nz_moo/zombies/gibs/gib_01.mp3"),
+	Sound("nz_moo/zombies/gibs/gib_02.mp3"),
+	Sound("nz_moo/zombies/gibs/gib_03.mp3"),
+}
+
+ENT.HeadGibSounds = {
+	Sound("nz_moo/zombies/gibs/head/_og/zombie_head_00.mp3"),
+	Sound("nz_moo/zombies/gibs/head/_og/zombie_head_01.mp3"),
+	Sound("nz_moo/zombies/gibs/head/_og/zombie_head_02.mp3"),
 }
 
 ENT.NormalWalkFootstepsSounds = {

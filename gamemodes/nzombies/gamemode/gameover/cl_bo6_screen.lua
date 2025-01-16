@@ -81,9 +81,14 @@ local function open_game_over(endtype)
     frame:SetDraggable(false)
     frame:ShowCloseButton(false)
     frame.Paint = function(self, w, h)
-        surface.SetDrawColor(150, 150, 150, 255)
-        surface.SetMaterial(bg)
-        surface.DrawTexturedRect(0, 0, w, h)
+        if nzSettings:GetSimpleSetting("BO6_GO_Alpha", false) then
+            surface.SetDrawColor(0, 0, 0, 175)
+            surface.DrawRect(0, 0, w, h)
+        else
+            surface.SetDrawColor(150, 150, 150, 255)
+            surface.SetMaterial(bg)
+            surface.DrawTexturedRect(0, 0, w, h)
+        end
         FindAndHidePanelWithFont()
     end
 

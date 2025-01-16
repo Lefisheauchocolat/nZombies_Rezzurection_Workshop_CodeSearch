@@ -127,7 +127,7 @@ function ENT:Explode(ent)
 
         for k, v in pairs(ents.FindInSphere(pos, 50)) do
             local expdamage = DamageInfo()
-            expdamage:SetDamageType(DMG_ENERGYBEAM)
+            expdamage:SetDamageType(DMG_GENERIC)
             expdamage:SetAttacker(self)
             expdamage:SetDamage(dmg)
             expdamage:SetDamageForce(v:GetUp()*5000 + (v:GetPos() - self:GetPos()):GetNormalized() * 10000)

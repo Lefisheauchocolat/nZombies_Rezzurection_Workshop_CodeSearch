@@ -485,7 +485,6 @@ hook.Add("WeaponEquip", "nzWeaponPickupString", function(wep, ply)
 	end
 end)
 
-
 local cvar_respawnonplayers = GetConVar("nz_difficulty_respawn_on_players")
 
 local function GetClearPaths(ply, pos, tiles)
@@ -548,6 +547,7 @@ function PLAYER:MoveToSpawn(dontuseplayers)
 
 	local availableSpawns = {}
 	local finalpos = spawns[math.random(#spawns)]:GetPos()
+	local finalang = self:GetAngles()
 
 	-- Find all available spawn points
 	for _, spawn in ipairs(spawns) do
@@ -567,6 +567,7 @@ function PLAYER:MoveToSpawn(dontuseplayers)
 
 	for _, spawn in RandomPairs(availableSpawns) do
 		finalpos = spawn:GetPos()
+		finalang = spawn:GetAngles()
 		if spawn:GetPreferred() then break end
 	end
 
@@ -579,6 +580,7 @@ function PLAYER:MoveToSpawn(dontuseplayers)
 		elseif not table.IsEmpty(spawns) then
 			for _, ply in RandomPairs(spawns) do
 				finalpos = ply:GetPos()
+				finalang = Angle(0,math.random(-180,180),0)
 				if !ply:GetNotDowned() then break end
 				//prefer respawning on downed players :)
 			end
@@ -598,6 +600,8 @@ function PLAYER:MoveToSpawn(dontuseplayers)
 	end
 
 	self:SetPos(finalpos + vector_up)
+	self:SetAngles(Angle(0,finalang[2],0))
+	self:SetEyeAngles(Angle(0,finalang[2],0))
 
 	return finalpos
 end

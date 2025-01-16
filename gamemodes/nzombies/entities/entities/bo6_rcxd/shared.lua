@@ -28,13 +28,14 @@ if SERVER then
     end
 
     function ENT:Initialize()
-        self:SetModel("models/bo6/ks/rc-xd.mdl")
+        self:SetModel("models/hari/props/rcxd.mdl")
         self:PhysicsInit(SOLID_VPHYSICS)
         self:SetSolid(SOLID_VPHYSICS)
         self:GetPhysicsObject():EnableMotion(true)
         self:SetUseType(SIMPLE_USE)
         self:SetTargetPriority(TARGET_PRIORITY_ALWAYS)
         self:SetCollisionGroup(COLLISION_GROUP_PASSABLE_DOOR)
+        self:SetModelScale(1.5)
 
         timer.Simple(45, function()
             if !IsValid(self) then return end

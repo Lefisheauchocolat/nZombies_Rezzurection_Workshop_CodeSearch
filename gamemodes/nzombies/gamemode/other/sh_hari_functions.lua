@@ -96,3 +96,6 @@ function nzFuncs:TransformModelData(base, to)
         to:SetBodygroup(i, base:GetBodygroup(i))
     end
 end
+
+RunConsoleCommand("sv_tfa_bullet_doordestruction", "0") 
+RunConsoleCommand("sv_tfa_melee_doordestruction", "0")

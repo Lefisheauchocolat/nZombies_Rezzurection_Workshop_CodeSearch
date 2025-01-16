@@ -255,6 +255,7 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.antipowerupchance = data.antipowerupchance or 40
 	nzMapping.Settings.antipowerupstart = data.antipowerupstart or 2
 	nzMapping.Settings.antipowerupdelay = data.antipowerupdelay or 4
+
 	nzMapping.Settings.poweruproundbased = tobool(data.poweruproundbased)
 	nzMapping.Settings.maxpowerupdrops = data.maxpowerupdrops or 4
 	if data.poweruprounds then
@@ -383,7 +384,7 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.typewritertext = data.typewritertext or "Berlin, Germany;Wittenau Sanatorium;September, 1945"
 	nzMapping.Settings.typewriterdelay = data.typewriterdelay or 0.125
 	nzMapping.Settings.typewriterlinedelay = data.typewriterlinedelay or 1.5
-	nzMapping.Settings.typewriteroffset = data.typewriteroffset or 420
+	nzMapping.Settings.typewriteroffset = data.typewriteroffset or 435
 
 	nzMapping.Settings.gamebegintext = data.gamebegintext or "Round"
 	nzMapping.Settings.blurpoweron = tobool(data.blurpoweron)
@@ -402,6 +403,10 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.perkmachinetype = data.perkmachinetype or "Classic"
 	nzMapping.Settings.PAPtype = data.PAPtype or "Original"
 	nzMapping.Settings.PAPcamo = data.PAPcamo or "nz_classic"
+
+	nzMapping.Settings.skyintro = tobool(data.skyintro)
+	nzMapping.Settings.skyintrotime = data.skyintrotime and tonumber(data.skyintrotime) or 1.4
+	nzMapping.Settings.skyintroheight = data.skyintroheight and tonumber(data.skyintroheight) or 6000
 
 	-- Font --
 	nzMapping.Settings.mainfont = (data.mainfont) or "Black Ops 1"

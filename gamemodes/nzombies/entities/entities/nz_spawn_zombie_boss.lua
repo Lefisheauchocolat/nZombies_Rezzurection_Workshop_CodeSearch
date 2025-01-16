@@ -16,6 +16,8 @@ function ENT:Initialize()
 	self:SetZombiesToSpawn(0)
 	self:SetNextSpawn(CurTime())
 	
+	self.NextUse = CurTime() + 1
+
     if CLIENT then
         self:SetLOD(8)
     end
