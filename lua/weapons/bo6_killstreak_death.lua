@@ -378,6 +378,12 @@ end
 
 function SWEP:Think() 
 	if CLIENT then return end
+	if not self.CantUseClip then
+		if self:Clip1() == 0 then
+			self:SetClip1(self.Primary.ClipSize)
+		end
+		self.CantUseClip = true
+	end
 	if self:Clip1() <= 0 and not self.DropM then
 		self.DropM = true
 		local ow = self.Owner
@@ -401,12 +407,12 @@ function SWEP:Think()
 				p:SetAngleVelocity(VectorRand(-512,512))
 			end
 			SafeRemoveEntityDelayed(w, 15)
-
+			
 			timer.Simple(0, function()
 				if !IsValid(ow) or !IsValid(self) then return end
 				ow:SetActiveWeapon(nil)
 				self:StopSound("TFA_BO3_M134.SpinLoop")
-				self:Remove()
+				SafeRemoveEntityDelayed(self, 0.01)
 				ow:SetUsingSpecialWeapon(false)
 				ow:SelectWeapon(wep)
 			end)

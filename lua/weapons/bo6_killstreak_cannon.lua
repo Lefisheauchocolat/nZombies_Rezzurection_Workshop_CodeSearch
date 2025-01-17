@@ -51,7 +51,7 @@ SWEP.DisableBurstFire = true --Only auto/single?
 SWEP.OnlyBurstFire = false --No auto, only burst/single?
 --Ammo Related
 SWEP.Primary.ClipSize = 10 -- This is the size of a clip
-SWEP.Primary.DefaultClip = 10 -- This is the number of bullets the gun gives you, counting a clip as defined directly above.
+SWEP.Primary.DefaultClip = 999 -- This is the number of bullets the gun gives you, counting a clip as defined directly above.
 SWEP.Primary.Ammo = "StriderMinigun" -- What kind of ammo.  Options, besides custom, include pistol, 357, smg1, ar2, buckshot, slam, SniperPenetratedRound, and AirboatGun.
 SWEP.Primary.AmmoConsumption = 1 --Ammo consumed per shot
 --Pistol, buckshot, and slam like to ricochet. Use AirboatGun for a light metal peircing shotgun pellets
@@ -231,6 +231,12 @@ SWEP.AttachmentExclusions = {}
 
 function SWEP:Think() 
 	if CLIENT then return end
+	if not self.CantUseClip then
+		if self:Clip1() == 0 then
+			self:SetClip1(self.Primary.ClipSize)
+		end
+		self.CantUseClip = true
+	end
 	if self:Clip1() <= 0 then
 		local ow = self.Owner
 		if IsValid(ow) then
