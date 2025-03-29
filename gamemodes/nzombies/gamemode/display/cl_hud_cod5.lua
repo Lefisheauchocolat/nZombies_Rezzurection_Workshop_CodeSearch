@@ -47,6 +47,11 @@ local nz_healthbarstyle = GetConVar("nz_hud_health_style")
 local nz_bleedoutstyle = GetConVar("nz_hud_bleedout_style")
 local nz_bleedouttime = GetConVar("nz_downtime")
 
+local function GetPerkColor(perk)
+	local perkData = nzPerks:Get(perk)
+	return perkData and perkData.color or color_white
+end
+
 local color_white_50 = Color(255, 255, 255, 50)
 local color_white_100 = Color(255, 255, 255, 100)
 local color_white_150 = Color(255, 255, 255, 150)
@@ -1094,7 +1099,7 @@ local function PerksMMOHud_cod5()
 		surface.DrawTexturedRect(w - 355*scale - (40*traycount*scale), h - 94*scale, 35*scale, 35*scale)
 
 		if ply:HasUpgrade(v) and mmohud.border and ply:GetNW2Float(tostring(mmohud.upgrade), 0) < curtime then
-			surface.SetDrawColor(color_gold)
+			surface.SetDrawColor(GetPerkColor(perk))
 			surface.SetMaterial(GetPerkFrameMaterial(true))
 			surface.DrawTexturedRect(w - 355*scale - (40*traycount*scale), h - 94*scale, 35*scale, 35*scale)
 		end
@@ -1218,7 +1223,7 @@ local function PerksHud_cod5()
 		surface.DrawTexturedRect(w + num*(size + 12)*scale - fuckset*scale, h - (210 + fuckset)*scale - (64*row)*scale, 52*pulse*scale, 52*pulse*scale)
 
 		if ply:HasUpgrade(perk) then
-			surface.SetDrawColor(color_gold)
+			surface.SetDrawColor(GetPerkColor(perk))
 			surface.SetMaterial(GetPerkFrameMaterial())
 			surface.DrawTexturedRect(w + num*(size + 12)*scale - fuckset*scale, h - (210 + fuckset)*scale - (64*row)*scale, 52*pulse*scale, 52*pulse*scale)
 		end

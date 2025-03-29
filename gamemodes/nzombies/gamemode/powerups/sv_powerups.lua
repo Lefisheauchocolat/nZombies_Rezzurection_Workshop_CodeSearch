@@ -50,7 +50,7 @@ function nzPowerUps:Nuke(pos, nopoints, noeffect, instant)
 	end
 
 	for _, ent in nzLevel.GetZombieArray() do
-		if IsValid(ent) and ent:IsValidZombie() and !ent.IsTurned and ent:Alive() then
+		if IsValid(ent) and ent:IsValidZombie() and !ent.IsTurned and !ent.IsENVZombie and ent:IsAlive() then
 			ent:OnNuke() -- Call this function on the zombies so special enemies can react if coded.
 
 			if !ent.NZBossType and !ent.IsMiniBoss and !ent.IsMooBossZombie then

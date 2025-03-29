@@ -14,6 +14,7 @@ function ENT:SetupDataTables()
 	self:NetworkVar( "Bool", 0, "HasPlanks" )
 	self:NetworkVar( "Bool", 1, "TriggerJumps" )
 	self:NetworkVar( "Bool", 2, "PlayerCollision" )
+	self:NetworkVar( "Bool", 3, "AmbientSounds" )
 	self:NetworkVar( "Int", 1, "BoardType" )
 	self:NetworkVar( "Int", 2, "Prop" )
 	self:NetworkVar( "Int", 3, "JumpType" )
@@ -469,6 +470,13 @@ if CLIENT then
 			self:SetBodygroup(0,1)
 			self:SetSubMaterial(0, "invisible")
 		end
+
+
+		if (!self.Draw_SFX or !IsValid(self.Draw_SFX)) and self:GetAmbientSounds() then
+			self.Draw_SFX = "nz_moo/barricade/zmb_spawn_walla_mix.wav"
+
+			self:EmitSound(self.Draw_SFX, 65, 100, 1, 3)
+		end
 	end
 else
 	local player = player
@@ -524,6 +532,10 @@ else
 		self:NextThink(CurTime())
 		return true
 	end
+end
+
+function ENT:OnRemove()
+	self:StopSound("nz_moo/barricade/zmb_spawn_walla_mix.wav")
 end
 
 hook.Add("PhysgunDrop", "UpdatePositions", function()

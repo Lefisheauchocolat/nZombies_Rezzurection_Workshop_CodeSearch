@@ -40,12 +40,15 @@ nzTools:CreateTool("arsenaleditor", {
 			return data
 		end
 
-		local Row1 = DProperties:CreateRow("Config Settings", "Ammo Mod Salvage Cost")
-		Row1:Setup("Generic")
-		Row1:SetValue(nzSettings:GetSimpleSetting("ArsenalSalvageCost", 500))
-		nzSettings:SyncValueToElement("ArsenalSalvageCost", Row1)
-		Row1.DataChanged = function( _, val ) 
-			nzSettings:SetSimpleSetting("ArsenalSalvageCost", tonumber(val) or 500)
+		for k, tab in pairs(nzAATs.Data) do
+			local name = tab.name
+			local Row1 = DProperties:CreateRow("Config Settings", name.." Salvage Cost")
+			Row1:Setup("Generic")
+			Row1:SetValue(nzSettings:GetSimpleSetting("ArsenalSalvageCost"..k, 500))
+			nzSettings:SyncValueToElement("ArsenalSalvageCost"..k, Row1)
+			Row1.DataChanged = function( _, val ) 
+				nzSettings:SetSimpleSetting("ArsenalSalvageCost"..k, tonumber(val) or 500)
+			end
 		end
 
 		local text = vgui.Create("DLabel", DProperties)

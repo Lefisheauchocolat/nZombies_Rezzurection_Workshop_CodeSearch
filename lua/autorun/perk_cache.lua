@@ -292,6 +292,187 @@ sound.Add({
 	sound = 			"perks/complex/cap.mp3"
 })
 
+--Now i KNOW its not a PERK but why create an entire new autorun for it?
+-- Armor Plate
+
+sound.Add({
+	name = 			"Latte_Armor.Open",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	pitch = 		{90,110},
+	sound = 			{ "plate/open.wav", "plate/open2.wav", "plate/open3.wav", "plate/open4.wav", "plate/open5.wav" }   
+})
+
+sound.Add({
+	name = 			"Latte_Armor.Insert",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	pitch = 		{90,110},
+	sound = 			{ "plate/insert.wav", "plate/insert2.wav", "plate/insert3.wav", "plate/insert4.wav", "plate/insert5.wav", "plate/insert6.wav"  }   
+})
+
+-- Bo1 Radio
+
+sound.Add({
+	name = 			"Latte_Radio.On",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			"bo1_radio/fly_radio_on.wav"
+})
+
+sound.Add({
+	name = 			"Latte_Radio.Off",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			"bo1_radio/fly_radio_off.wav"
+})
+
+-- BO1 RCXD Controller
+
+sound.Add({
+	name = 			"Latte_RCXD.Extend",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			"bo1_rcxd/controller/fly_antenna_extend.wav"
+})
+
+-- MW2 Laptop Control Unit Thing
+
+sound.Add({
+	name = 			"Latte_CU.Open",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			"mw2_laptop/pullout.wav"
+})
+
+sound.Add({
+	name = 			"Latte_CU.Close",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			"mw2_laptop/putaway.wav"
+})
+
+-- Combat Stim
+
+sound.Add({
+	name = 			"Perks_Stim.Cap_Off",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			"perks/stim/cap_off.wav"
+})
+
+sound.Add({
+	name = 			"Perks_Stim.In",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			"perks/stim/in_2.wav"
+})
+
+sound.Add({
+	name = 			"Perks_Stim.Inject",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			"perks/stim/inject.wav"
+})
+
+sound.Add({
+	name = 			"Perks_Stim.Open",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			"perks/stim/open.wav"
+})
+
+sound.Add({
+	name = 			"Perks_Stim.Prep",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			"perks/stim/prep.wav"
+})
+
+sound.Add({
+	name = 			"Perks_Stim.Raise",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			"perks/stim/raise.wav"
+})
+
+-- Stalker 2 Bottle
+
+sound.Add( {
+    name = "Perks_Stalker2.Liquid",
+    channel = CHAN_BODY,
+    volume = 0.5,
+    level = 65,
+    pitch = {95, 100},
+    sound = {
+        "perks/stalker/drink/SFX_Vodka_Liquid_01.mp3",
+		"perks/stalker/drink/SFX_Vodka_Liquid_02.mp3",
+		"perks/stalker/drink/SFX_Vodka_Liquid_03.mp3",
+		"perks/stalker/drink/SFX_Vodka_Liquid_04.mp3",
+		"perks/stalker/drink/SFX_Vodka_Liquid_05.mp3",
+		"perks/stalker/drink/SFX_Vodka_Liquid_06.mp3",
+		"perks/stalker/drink/SFX_Vodka_Liquid_07.mp3",
+		"perks/stalker/drink/SFX_Vodka_Liquid_08.mp3",
+    }
+} )
+
+sound.Add( {
+    name = "Perks_Stalker2.ClothGeneric",
+    channel = CHAN_STATIC,
+    volume = 0.4,
+    level = 65,
+    pitch = {95, 100},
+    sound = {
+        "perks/stalker/cloth/short/SFX_PlayerClothes_01.mp3",
+		"perks/stalker/cloth/short/SFX_PlayerClothes_02.mp3",
+		"perks/stalker/cloth/short/SFX_PlayerClothes_03.mp3",
+		"perks/stalker/cloth/short/SFX_PlayerClothes_04.mp3",
+		"perks/stalker/cloth/short/SFX_PlayerClothes_05.mp3",
+		"perks/stalker/cloth/short/SFX_PlayerClothes_06.mp3",
+		"perks/stalker/cloth/short/SFX_PlayerClothes_07.mp3",
+		"perks/stalker/cloth/short/SFX_PlayerClothes_08.mp3",
+		"perks/stalker/cloth/short/SFX_PlayerClothes_09.mp3",
+    }
+} )
+
+sound.Add( {
+    name = "Perks_Stalker2.Open",
+    channel = CHAN_WEAPON,
+    volume = 1.0,
+    level = 65,
+    pitch = {95, 100},
+    sound = {
+        "perks/stalker/drink/SFX_Consumables_BeerOpen.mp3",
+    }
+} )
+sound.Add( {
+    name = "Perks_Stalker2.Cap",
+    channel = CHAN_WEAPON,
+    volume = 1.0,
+    level = 65,
+    pitch = {95, 100},
+    sound = {
+        "perks/stalker/drink/SFX_Consumables_Beer_CapOff.mp3",
+    }
+} )
+
+sound.Add( {
+    name = "Perks_Stalker2.Drink",
+    channel = CHAN_WEAPON,
+    volume = 1.0,
+    level = 65,
+    pitch = {95, 100},
+    sound = {
+		"perks/stalker/drink/SFX_Consumables_Common_Drink_02.mp3",
+		"perks/stalker/drink/SFX_Consumables_Common_Drink_03.mp3",
+		"perks/stalker/drink/SFX_Consumables_Common_Drink_04.mp3",
+		"perks/stalker/drink/SFX_Consumables_Common_Drink_05.mp3",
+		"perks/stalker/drink/SFX_Consumables_Common_Drink_06.mp3",
+		"perks/stalker/drink/SFX_Consumables_Common_Drink_07.mp3",
+		"perks/stalker/drink/SFX_Consumables_Common_Drink_08.mp3",
+    }
+} )
+
 if nzombies then
     hook.Add("InitPostEntity", "latte_perks", function()
 	nzSpecialWeapons:AddDisplay("tfa_perk_can", false, function(wep)
@@ -309,6 +490,9 @@ if nzombies then
 	nzSpecialWeapons:AddDisplay("tfa_bo1_bottle", false, function(wep)
             return SERVER and (wep.nzDeployTime + (wep:GetOwner():HasUpgrade("speed") and 1.65 or 3.2)) < CurTime()
         end)
+	nzSpecialWeapons:AddDisplay("tfa_waw_bottle", false, function(wep)
+            return SERVER and (wep.nzDeployTime + (wep:GetOwner():HasUpgrade("speed") and 1.65 or 3.2)) < CurTime()
+        end)
 	nzSpecialWeapons:AddDisplay("tfa_bo2_bottle", false, function(wep)
             return SERVER and (wep.nzDeployTime + (wep:GetOwner():HasUpgrade("speed") and 1.65 or 3.2)) < CurTime()
         end)
@@ -324,10 +508,17 @@ if nzombies then
 	nzSpecialWeapons:AddDisplay("tfa_rd_bottle", false, function(wep)
             return SERVER and (wep.nzDeployTime + (wep:GetOwner():HasUpgrade("speed") and 1.8 or 3.2)) < CurTime()
         end)
+	nzSpecialWeapons:AddDisplay("tfa_perk_stim", false, function(wep)
+            return SERVER and (wep.nzDeployTime + (wep:GetOwner():HasUpgrade("speed") and 0.8 or 1.6)) < CurTime()
+        end)
+	nzSpecialWeapons:AddDisplay("tfa_stalker_bottle", false, function(wep)
+            return SERVER and (wep.nzDeployTime + (wep:GetOwner():HasUpgrade("speed") and 2.3 or 3)) < CurTime()
+        end)
 	nzSpecialWeapons:AddDisplay("tfa_t7c_bottle", false, function(wep)
             return SERVER and (wep.nzDeployTime + (wep:GetOwner():HasUpgrade("speed") and 1.8 or 3.2)) < CurTime()
         end)
     end)
+
 
     hook.Add("PostGamemodeLoaded", "latte_perk_materials", function()
         nzPerks:RegisterBottle("tfa_perk_can", "ColdWarPerkCan", {
@@ -382,6 +573,21 @@ if nzombies then
 		}, "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
 
         nzPerks:RegisterBottle("tfa_t7c_bottle", "T7ComplexBottle", {
+        	[0] = "models/nz/perks/bo3/metal_",
+    		[1] = "models/nz/perks/bo3/bottle_",
+    		[2] = "models/nz/perks/bo3/logo_"
+		}, "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
+
+        nzPerks:RegisterBottle("tfa_waw_bottle", "WaWBottle", {
+            [0] = "models/nz/perks/waw/bottle_in_",
+            [1] = "models/nz/perks/waw/bottle_out_"
+        }, "models/nzr/2024/perks/waw/world/wm_t4_perk_bottle.mdl", Vector(10,0,50), Angle(0,90,0))
+
+        nzPerks:RegisterBottle("tfa_perk_stim", "PerkStim", {
+            [0] = "models/nz/perks/stim/stim_",
+        }, "models/nzr/2024/perks/waw/world/wm_t4_perk_bottle.mdl", Vector(10,0,50), Angle(0,90,0))
+
+        nzPerks:RegisterBottle("tfa_stalker_bottle", "StalkerBottle", {
         	[0] = "models/nz/perks/bo3/metal_",
     		[1] = "models/nz/perks/bo3/bottle_",
     		[2] = "models/nz/perks/bo3/logo_"

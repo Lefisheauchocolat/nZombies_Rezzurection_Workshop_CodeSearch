@@ -1415,7 +1415,7 @@ nzPowerUps:NewPowerUp("timewarp", {
 
 		for _, zed in nzLevel.GetZombieArray() do
 			if not IsValid(zed) then continue end
-			if zed:IsValidZombie() and !(zed.NZBossType or zed.IsMooBossZombie) and (!zed.IsMooSpecial or zed.IsMooSpecial and !zed.MooSpecialZombie) and zed:Alive() then
+			if zed:IsValidZombie() and !(zed.NZBossType or zed.IsMooBossZombie) and (!zed.IsMooSpecial or zed.IsMooSpecial and !zed.MooSpecialZombie) and zed:IsAlive() then
 				zed:SetRunSpeed(200)
 				zed:SpeedChanged()
 				zed:Retarget()

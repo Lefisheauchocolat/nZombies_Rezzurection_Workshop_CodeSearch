@@ -15,7 +15,7 @@ if CLIENT then
 	function ENT:Draw()
 		self:DrawModel()
 
-		if self.RedEyes and self:Alive() and !self:GetDecapitated() then
+		if self.RedEyes and self:IsAlive() and !self:GetDecapitated() then
 			self:DrawEyeGlow() 
 		end
 		if self:GetHelmet() then
@@ -82,7 +82,7 @@ if CLIENT then
 	end
 
 	function ENT:EffectsAndSounds()
-		if self:Alive() then
+		if self:IsAlive() then
 			-- Credit: FlamingFox for Code and fighting the PVS monster -- 
 			if !IsValid(self) then return end
 			if !self.Draw_FX or !IsValid(self.Draw_FX) then -- PVS will no longer eat the particle effect.
@@ -315,6 +315,8 @@ function ENT:StatsInitialize()
 			self:SetMaxHealth(nzRound:GetNumber() * 950 + (1000 * count))
 		end
 
+		self.CanCutoff = true
+
 		self.HelmetHP = self:GetMaxHealth() * 0.5
 
 		self.SpawnProtection = true -- Zero Health Zombies tend to be created right as they spawn.
@@ -393,7 +395,7 @@ function ENT:AI()
 	local target = self:GetTarget()
 	if IsValid(target) and target:IsPlayer() then
 
-		if !self:Alive() or self:GetIsBusy() then return end -- Not allowed to do anything.
+		if !self:IsAlive() or self:GetIsBusy() then return end -- Not allowed to do anything.
 
 		-- FLAMETHROWER
 		if !self:GetSpecialAnimation() and !self:IsAttackBlocked() and self:TargetInRange(250) then
@@ -511,7 +513,7 @@ function ENT:OnInjured( dmgInfo )
 					"j_faceplate",
 				})
 				self:EmitSound("enemies/bosses/newpanzer/mechz_faceplate.ogg",511, 100)
-				if !self:Alive() then return end
+				if !self:IsAlive() then return end
 				self:DoSpecialAnimation("nz_soldat_pain_faceplate")
 				angering = true
 			else
@@ -730,7 +732,7 @@ function ENT:IsValidTarget( ent )
 
 		-- Turned Zombie Targetting
 		if self.IsTurned then
-			return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooBossZombie and ent:Alive() 
+			return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooBossZombie and ent:IsAlive() 
 		end
 	
 		return IsValid(ent) and ent:GetTargetPriority() ~= TARGET_PRIORITY_NONE and ent:GetTargetPriority() ~= TARGET_PRIORITY_MONSTERINTERACT and ent:GetTargetPriority() ~= TARGET_PRIORITY_FUNNY -- This is really funny.

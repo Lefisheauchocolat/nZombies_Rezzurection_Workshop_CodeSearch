@@ -214,7 +214,11 @@ function nZr_Exfil_Stop(is_success)
     hook.Call("OnExfilScene", nil, is_success)
     if is_success then
         nZr_Exfil_Cutscene(true, nZr_Exfil_Position, nZr_Exfil_Angles)
-        timer.Simple(13, function()
+        local time = 13
+        if nzSettings:GetSimpleSetting("ExfilLibertySuccess", false) then
+            time = 16.43
+        end
+        timer.Simple(time, function()
             nZr_Exfil_RadioActive = true
             nZr_ChangeGameOverDelay()
             nzRound:Win(nil, nil, nzMapping.Settings.gameovertime+5)

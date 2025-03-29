@@ -429,16 +429,20 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 		self:DoJumpAttackDamage()
 	end
 	if e == "spit" then
-		self:EmitSound("character/alien/vocals/spitter/spitter_acid_fadeout2.wav", 500)
-		local larmfx_tag = self:LookupBone("XenosRunnerRig_Neck_01SHJnt")
-		self.SpitBall = ents.Create("xeno_spitter_proj")
-		self.SpitBall:SetPos(self:GetBonePosition(larmfx_tag))
-		self.SpitBall:SetOwner(self:GetOwner())
-		self.SpitBall:Spawn()
-		local phys = self.SpitBall:GetPhysicsObject()
-        local target = self:GetTarget()
-        if IsValid(phys) and IsValid(target) then
-            phys:SetVelocity(self.SpitBall:getvel(target:GetPos() + Vector(0,0,10), self:EyePos(), 0.55))
-        end
+		self:Retarget()
+
+		local target = self:GetTarget()
+
+		if IsValid(target) then
+			self:EmitSound("character/alien/vocals/spitter/spitter_acid_fadeout2.wav", 500)
+
+			local bonetag = self:GetBonePosition(self:LookupBone("XenosRunnerRig_Neck_01SHJnt"))
+
+			ParticleEffect("spit_impact_yellow", bonetag, Angle(0,0,0), nil) 
+			self.Goop = ents.Create("nz_proj_alien_scorpion_shot")
+			self.Goop:SetPos(bonetag)
+			self.Goop:Spawn()
+			self.Goop:Launch(((target:EyePos() - Vector(0,0,7)) - self.Goop:GetPos()):GetNormalized())
+		end
 	end
 end

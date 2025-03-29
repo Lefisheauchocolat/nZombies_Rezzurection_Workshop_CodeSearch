@@ -34,6 +34,7 @@ if SERVER then
         self:SetSolid(SOLID_VPHYSICS)
         self:GetPhysicsObject():EnableMotion(false)
         self:SetUseType(SIMPLE_USE)
+        self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
     end
 
     function ENT:Use(ply)
@@ -47,19 +48,6 @@ else
 
     function ENT:Draw()
         self:DrawModel()
-
-        local add = -20*math.sin(CurTime())
-
-        local oh_god_what_the_fuck = self:GetPos():DistToSqr(LocalPlayer():EyePos()) < drawdistance
-        if oh_god_what_the_fuck then
-            local angle = EyeAngles()
-            angle:RotateAroundAxis( angle:Up(), -90 )
-            angle:RotateAroundAxis( angle:Forward(), 90 )
-            cam.Start3D2D(self:GetPos() + Vector(0,0,80), angle, size)
-                draw.SimpleText("CRAFTING TABLE", "BO6_Exfil32", 0, 40+add, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-                draw.SimpleText("(Press E to open menu)", "BO6_Exfil12", 0, 55+add, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-            cam.End3D2D()
-        end
     end
     
     local function We(x)

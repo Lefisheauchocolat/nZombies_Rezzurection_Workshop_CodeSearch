@@ -688,17 +688,11 @@ ENT.BehindSounds = {
 }
 
 ENT.CustomWalkFootstepsSounds = {
-	Sound("nz_moo/zombies/vox/_cyborg/steps/giant_demoman_step_01.mp3"),
-	Sound("nz_moo/zombies/vox/_cyborg/steps/giant_demoman_step_02.mp3"),
-	Sound("nz_moo/zombies/vox/_cyborg/steps/giant_demoman_step_03.mp3"),
-	Sound("nz_moo/zombies/vox/_cyborg/steps/giant_demoman_step_04.mp3"),
+	Sound("nz_moo/zombies/vox/_cyborg/steps/zmb_zombie_nt_vocals_land.mp3"),
 }
 
 ENT.CustomRunFootstepsSounds = {
-	Sound("nz_moo/zombies/vox/_cyborg/steps/giant_demoman_step_01.mp3"),
-	Sound("nz_moo/zombies/vox/_cyborg/steps/giant_demoman_step_02.mp3"),
-	Sound("nz_moo/zombies/vox/_cyborg/steps/giant_demoman_step_03.mp3"),
-	Sound("nz_moo/zombies/vox/_cyborg/steps/giant_demoman_step_04.mp3"),
+	Sound("nz_moo/zombies/vox/_cyborg/steps/zmb_zombie_nt_vocals_land.mp3"),
 }
 
 ENT.CustomMeleeWhooshSounds = {

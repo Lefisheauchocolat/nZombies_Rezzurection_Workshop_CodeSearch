@@ -20,7 +20,7 @@ if CLIENT then
 		self:EffectsAndSounds()
 	end
 	function ENT:EffectsAndSounds()
-		if self:Alive() then
+		if self:IsAlive() then
 			-- Credit: FlamingFox for Code and fighting the PVS monster -- 
 			if !IsValid(self) then return end
 			local color = nzMapping.Settings.zombieeyecolor

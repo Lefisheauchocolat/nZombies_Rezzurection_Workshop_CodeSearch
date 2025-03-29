@@ -338,7 +338,7 @@ nzGum:RegisterGum("anywhere_but_here", {
 			damage:SetDamageType(DMG_MISSILEDEFENSE)
 
 			for k, ent in pairs(ents.FindInSphere(ply:WorldSpaceCenter(), 150)) do
-				if ent.Alive and ent:Alive() and (ent:IsValidZombie() or ent.IsMooZombie) and !(ent.NZBossType or ent.IsMooBossZombie) then
+				if ent.IsAlive and ent:IsAlive() and (ent:IsValidZombie() or ent.IsMooZombie) and !(ent.NZBossType or ent.IsMooBossZombie) then
 					damage:SetDamage(75)
 					damage:SetDamagePosition(ent:WorldSpaceCenter())
 					ent:TakeDamageInfo(damage)
@@ -622,7 +622,7 @@ nzGum:RegisterGum("crawl_space", {
 		if not IsValid(ply) then return end
 
 		for k, v in nzLevel.GetZombieArray() do
-			if IsValid(v) and v:Alive() and v:Health() > 0 and v:IsValidZombie() and !v:GetCrawler() and !v.IsMooSpecial then
+			if IsValid(v) and v:IsAlive() and v:Health() > 0 and v:IsValidZombie() and !v:GetCrawler() and !v.IsMooSpecial then
 				v:GibLegR()
 				v:GibLegL()
 			end
@@ -1666,7 +1666,7 @@ nzGum:RegisterGum("stumbler", {
 			for k, v in RandomPairs(ents.FindInSphere(ply:GetPos(), 300)) do
 				if v:IsValidZombie() and v.PainSequences and v:VisibleVec(ply:EyePos()) then
 					if v.Target and IsValid(v.Target) and v.Target:EntIndex() ~= index then continue end
-					if !v:Alive() then continue end
+					if !v:IsAlive() then continue end
 					if v:GetSpecialAnimation() or
 					v:GetCrawler() or v:GetIsBusy() or
 					v.ShouldCrawl or v.IsBeingStunned or

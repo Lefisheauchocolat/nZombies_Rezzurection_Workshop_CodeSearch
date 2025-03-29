@@ -14,7 +14,7 @@ if CLIENT then
 	local eyeglow =  Material("nz/zlight")
 	function ENT:Draw() //Runs every frame
 		self:DrawModel()
-		if self:Alive() then
+		if self:IsAlive() then
 			self:DrawEyeGlow()
 		end
 
@@ -399,7 +399,7 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 
 
 	if e == "pull_plank" then
-		if IsValid(self) and self:Alive() then
+		if IsValid(self) and self:IsAlive() then
 			if IsValid(self.BarricadePlankPull) and IsValid(self.Barricade) then
 				self.Barricade:RemovePlank(self.BarricadePlankPull)
 			end

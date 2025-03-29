@@ -483,6 +483,7 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.badattacks = data.badattacks or false
 	nzMapping.Settings.dmgincrease = data.dmgincrease or false
 	nzMapping.Settings.stumbling = data.stumbling == nil and true or data.stumbling
+	nzMapping.Settings.supertaunting = data.supertaunting == nil and false or data.supertaunting
 
 	NZZombiesMaxAllowed = nzMapping.Settings.startingspawns
 

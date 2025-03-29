@@ -25,7 +25,11 @@ local function DisplayCharacterDialog(name, iconPath, soundPath, color)
     else
         activeDialog.icon = nil
     end
+    local duration = math.min(SoundDuration(soundPath)+1, 15)
     activeDialog.endTime = CurTime() + math.max(#text/12, 2)
+    if duration > 2 then
+        activeDialog.endTime = CurTime() + duration
+    end
     activeDialog.color = color
     if soundPath then
         if isstring(ply.LastDialogPath) then
@@ -34,6 +38,10 @@ local function DisplayCharacterDialog(name, iconPath, soundPath, color)
         ply.LastDialogPath = soundPath
         ply:EmitSound(soundPath)
     end
+end
+
+function nzDialog:ClearCustomDialog(name)
+    voiceOvers[name] = nil
 end
 
 function nzDialog:AddCustomDialog(name, path, dialog, char, icon, clr)
@@ -54,6 +62,10 @@ function nzDialog:PlayCustomDialog(voiceover)
             DisplayCharacterDialog(tab2[2], tab2[3], tab2[1], tab2[4] or Color(60,165,255))
         end
     end
+end
+
+function nzDialog:HideDialog()
+    activeDialog.endTime = 0
 end
 
 hook.Add("HUDPaint", "BO6DrawCharacterDialog", function()

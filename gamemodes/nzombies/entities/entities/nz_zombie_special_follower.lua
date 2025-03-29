@@ -17,11 +17,11 @@ if CLIENT then
 		self:DrawModel()
 		self:PostDraw()
 
-		if self.RedEyes == true and self:Alive() and !self:GetDecapitated() and !self:GetMooSpecial() and !self.IsMooSpecial then
+		if self.RedEyes == true and self:IsAlive() and !self:GetDecapitated() and !self:GetMooSpecial() and !self.IsMooSpecial then
 			self:DrawEyeGlow() 
 		end
 
-		if self:WaterBuff() and !self:BomberBuff() and self:Alive() then
+		if self:WaterBuff() and !self:BomberBuff() and self:IsAlive() then
 			local elight = DynamicLight( self:EntIndex(), true )
 			if ( elight ) then
 				local bone = self:LookupBone("j_spineupper")
@@ -38,7 +38,7 @@ if CLIENT then
 				elight.style = 0
 				elight.noworld = true
 			end
-		elseif self:BomberBuff() and !self:WaterBuff() and self:Alive() then
+		elseif self:BomberBuff() and !self:WaterBuff() and self:IsAlive() then
 			local elight = DynamicLight( self:EntIndex(), true )
 			if ( elight ) then
 				local bone = self:LookupBone("j_spineupper")
@@ -55,7 +55,7 @@ if CLIENT then
 				elight.style = 0
 				elight.noworld = true
 			end
-		elseif self:WaterBuff() and self:BomberBuff() and self:Alive() then
+		elseif self:WaterBuff() and self:BomberBuff() and self:IsAlive() then
 			local elight = DynamicLight( self:EntIndex(), true )
 			if ( elight ) then
 				local bone = self:LookupBone("j_spineupper")
@@ -533,7 +533,7 @@ function ENT:IsValidTarget( ent )
 	
 	-- Turned Zombie Targetting
 	if self.IsTurned then
-		return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooBossZombie and ent:Alive() 
+		return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooBossZombie and ent:IsAlive() 
 	end
 	
 	return IsValid(ent) and ent:GetTargetPriority() ~= TARGET_PRIORITY_NONE and ent:GetTargetPriority() ~= TARGET_PRIORITY_MONSTERINTERACT and ent:GetTargetPriority() ~= TARGET_PRIORITY_SPECIAL and ent:GetTargetPriority() ~= TARGET_PRIORITY_FUNNY

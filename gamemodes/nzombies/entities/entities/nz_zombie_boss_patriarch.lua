@@ -372,7 +372,7 @@ end
 function ENT:StartMusic()
 	local found = false
 	for k, v in pairs(ents.FindByClass("nz_zombie_boss_patriarch")) do
-		if IsValid(v) and !found and !v.Dying and v:Alive() then
+		if IsValid(v) and !found and !v.Dying and v:IsAlive() then
 			found = true
 			v:EmitSound("nz_moo/zombies/vox/mute_00.wav", 1, 1, 1, -1)
 			v:EmitSound(v.PattyMusic[math.random(#v.PattyMusic)], 577, 100, 1, -1)

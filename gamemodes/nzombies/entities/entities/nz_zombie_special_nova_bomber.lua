@@ -33,7 +33,7 @@ if CLIENT then
 		self:EffectsAndSounds()
 	end
 	function ENT:EffectsAndSounds()
-		if self:Alive() then
+		if self:IsAlive() then
 			-- Credit: FlamingFox for Code and fighting the PVS monster -- 
 			if !IsValid(self) then return end
 			if (!self.Draw_FX or !self.Draw_FX:IsValid()) then
@@ -422,7 +422,7 @@ if SERVER then
 				self:SolidMaskDuringEvent(MASK_PLAYERSOLID, collision)
 				self:PlaySequenceAndMove("nz_quad_knockdown_faceup")
 				self:PlaySequenceAndMove("nz_quad_getup_faceup")
-				if !self:GetSpecialShouldDie() and IsValid(self) and self:Alive() then
+				if !self:GetSpecialShouldDie() and IsValid(self) and self:IsAlive() then
 					self:CollideWhenPossible()
 					self:SetSpecialAnimation(false)
 				end
@@ -447,7 +447,7 @@ if SERVER then
 
 	function ENT:ZombieStatusEffects()
 		if CurTime() > self.LastStatusUpdate then
-			if self.IsTurned or !self:Alive() then return end
+			if self.IsTurned or !self:IsAlive() then return end
 
 			if self:GetSpecialAnimation() and !self.CanCancelSpecial then return end
 			if self.BO3IsSlipping and self:BO3IsSlipping() then
@@ -459,7 +459,7 @@ if SERVER then
 					self:SolidMaskDuringEvent(MASK_PLAYERSOLID, collision)
 					self:PlaySequenceAndMove("nz_quad_knockdown_facedown")
 					self:PlaySequenceAndMove("nz_quad_getup_facedown")
-					if !self:GetSpecialShouldDie() and IsValid(self) and self:Alive() then
+					if !self:GetSpecialShouldDie() and IsValid(self) and self:IsAlive() then
 						self:CollideWhenPossible()
 						self:SetSpecialAnimation(false)
 					end
@@ -496,7 +496,7 @@ function ENT:IsValidTarget( ent )
 
 	-- Turned Zombie Targetting
 	if self.IsTurned or self.TargetZobies then
-		return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooSpecial and ent:Alive() 
+		return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooSpecial and ent:IsAlive() 
 	end
 	
 	return IsValid(ent) and ent:GetTargetPriority() ~= TARGET_PRIORITY_NONE and ent:GetTargetPriority() ~= TARGET_PRIORITY_MONSTERINTERACT and ent:GetTargetPriority() ~= TARGET_PRIORITY_FUNNY -- This is really funny.

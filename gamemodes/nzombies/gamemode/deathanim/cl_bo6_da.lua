@@ -120,6 +120,8 @@ local function CreateTimedScene(modelsTable, effectsTable, sceneDuration, onFini
                         surface.PlaySound("bo6/da/duo/duo_1.mp3")
                     elseif anim == "death_zombie_duo_21" then
                         surface.PlaySound("bo6/da/duo/duo_2.mp3")
+                    elseif anim == "death_zombie_duo_31" then
+                        surface.PlaySound("bo6/da/duo/duo_3.mp3")
                     elseif anim == "death_zombie_duo_41" then
                         surface.PlaySound("bo6/da/duo/duo_4.mp3")
                     elseif anim == "death_zombie_duo_51" then
@@ -132,6 +134,8 @@ local function CreateTimedScene(modelsTable, effectsTable, sceneDuration, onFini
                         surface.PlaySound("bo6/da/other/amalgam.mp3")
                     elseif anim == "mwz_da_zombie_ghoul" then
                         surface.PlaySound("bo6/da/other/ghoul.mp3")
+                    elseif anim == "mwz_da_zombie_mimic" then
+                        surface.PlaySound("bo6/da/other/mimic.mp3")
                     elseif anim == "mwz_da_zombie_parasite1" then
                         surface.PlaySound("bo6/da/other/parasite.mp3")
                     elseif anim == "mwz_da_zombie_vermin_1" then
@@ -148,7 +152,7 @@ local function CreateTimedScene(modelsTable, effectsTable, sceneDuration, onFini
                     zent.Mouth2:SetControlPoint(2, Vector(color.r/255, color.g/255, color.b/255))
                     zent.Mouth3:SetControlPoint(2, Vector(color.r/255, color.g/255, color.b/255))
                 elseif type == "pistol_in_hand" then
-                    local model = "models/weapons/w_pist_p228.mdl"
+                    local model = "models/bo6/wep/w_pist_p228.mdl"
                     local lpos = Vector(0.75,0.75,-2.2)
                     local wep = ents.CreateClientside("base_anim")
                     local attach = ent:GetAttachment(ent:LookupAttachment("anim_attachment_RH"))
@@ -164,6 +168,50 @@ local function CreateTimedScene(modelsTable, effectsTable, sceneDuration, onFini
                         spawnedModels["pistol"] = wep
                     else
                         wep:Remove()
+                    end
+                elseif type == "human_rifle_hand" then
+                    SafeRemoveEntity(spawnedModels["rifle_human"])
+                    local lpos = Vector(10,2,-4)
+                    local wep = ents.CreateClientside("base_anim")
+                    local attach = zent:GetAttachment(zent:LookupAttachment("anim_attachment_RH"))
+                    wep:SetModel("models/bo6/wep/w_rif_m4a1.mdl")
+                    wep:Spawn()
+                    wep:SetPos(Vector(0,0,-9999))
+                    wep:SetAngles(attach.Ang)
+                    wep:SetParent(zent, zent:LookupAttachment("anim_attachment_RH"))
+                    wep:SetLocalAngles(Angle(0,15,0))
+                    wep:SetLocalPos(lpos)
+                    spawnedModels["rifle_human"] = wep
+                elseif type == "human_rifle_chest" then
+                    SafeRemoveEntity(spawnedModels["rifle_human"])
+                    local lpos = Vector(8,0,-14)
+                    local wep = ents.CreateClientside("base_anim")
+                    local attach = zent:GetAttachment(zent:LookupAttachment("chest"))
+                    wep:SetModel("models/bo6/wep/w_rif_m4a1.mdl")
+                    wep:Spawn()
+                    wep:SetPos(Vector(0,0,-9999))
+                    wep:SetAngles(attach.Ang)
+                    wep:SetParent(zent, zent:LookupAttachment("chest"))
+                    wep:SetLocalAngles(Angle(0,70,0))
+                    wep:SetLocalPos(lpos)
+                    spawnedModels["rifle_human"] = wep
+                elseif type == "human_rifle_fire" then
+                    local p = spawnedModels["rifle_human"]
+                    for i=1,3 do
+                        timer.Simple(i/9, function()
+                            if !IsValid(p) then return end
+                            local attach = p:GetAttachment(p:LookupAttachment("muzzle"))
+                            if attach then
+                                ParticleEffectAttach("ins_muzzleflash_makarov_3rd", PATTACH_POINT_FOLLOW, p, p:LookupAttachment("muzzle"))
+                            end
+                            nzEffects:ApplyDamageEffect(3)
+                            LocalPlayer():EmitSound("bo6/da/other/rifle.wav", 0, math.random(80,110))
+                            local ef = EffectData()
+                            local pos, ang = ent:GetBonePosition(ent:LookupBone("ValveBiped.Bip01_Head1"))
+                            ef:SetOrigin(pos-ang:Right()*1)
+                            util.Effect("BloodImpact", ef)
+                            decalBlood(pos, 20)
+                        end)
                     end
                 elseif type == "pistol_muzzle" then
                     local p = spawnedModels["pistol"]
@@ -192,7 +240,7 @@ local function CreateTimedScene(modelsTable, effectsTable, sceneDuration, onFini
                         end
                     end
                 elseif type == "pistol_vermin_1" then
-                    local prop = ClientsideModel("models/weapons/w_pist_p228.mdl")
+                    local prop = ClientsideModel("models/bo6/wep/w_pist_p228.mdl")
                     prop:SetPos(ent:GetPos()-ent:GetRight()*140+ent:GetForward()*10+Vector(0,0,0.5))
                     prop:SetAngles(ent:GetAngles()+Angle(0,math.random(0,360),90))
                     SafeRemoveEntityDelayed(prop, 5)
@@ -214,6 +262,26 @@ local function CreateTimedScene(modelsTable, effectsTable, sceneDuration, onFini
                 elseif type == "new_spine4" then
                     ParticleEffectAttach("ins_blood_impact_headshot", PATTACH_POINT_FOLLOW, ent, math.random(2,3))
                     nzEffects:ApplyDamageEffect(1)
+                elseif type == "new_mimic_spine4" then
+                    ParticleEffectAttach("ins_blood_dismember_limb", PATTACH_POINT_FOLLOW, zent, 1)
+                    for i=1,4 do
+                        timer.Simple(i/1, function()
+                            if !IsValid(zent) then return end
+                            ParticleEffectAttach("ins_blood_dismember_limb", PATTACH_POINT_FOLLOW, zent, 1)
+                            ParticleEffectAttach("ins_blood_impact_headshot", PATTACH_POINT_FOLLOW, zent, 1)
+                        end)
+                        timer.Simple(i-1, function()
+                            if !IsValid(zent) then return end
+                            for i=1,5 do
+                                decalBlood(zent:GetAttachment(1).Pos, 100)
+                            end
+                            if i == 4 then
+                                nzEffects:ApplyDamageEffect(4)
+                            else
+                                nzEffects:ApplyDamageEffect(3)
+                            end
+                        end)
+                    end
                 elseif type == "lhand_gib" then
                     ParticleEffectAttach("ins_blood_dismember_limb", PATTACH_POINT_FOLLOW, zent, 12)
                     for i=1,10 do
@@ -232,17 +300,15 @@ local function CreateTimedScene(modelsTable, effectsTable, sceneDuration, onFini
                         end)
                     end
                 elseif type == "new_rforearm_gib" then
-                    ParticleEffectAttach("ins_blood_dismember_limb", PATTACH_POINT_FOLLOW, ent, 6)
                     for i=1,30 do
-                        if math.random(1,5) == 1 then
-                            timer.Simple(i/10, function()
-                                if !IsValid(ent) then return end
-                                ParticleEffectAttach("ins_blood_dismember_limb", PATTACH_POINT_FOLLOW, ent, 3)
-                            end)
-                        end
                         timer.Simple(i/10, function()
                             if !IsValid(ent) then return end
-                            decalBlood(ent:GetAttachment(6).Pos, 100)
+                            local att = ent:GetAttachment(4)
+                            local pos = att.Pos
+                            local e = EffectData()
+                            e:SetOrigin(pos)
+                            util.Effect("bo6_da_pool", e)
+                            ParticleEffectAttach("ins_blood_impact_headshot", PATTACH_POINT_FOLLOW, ent, 6)
                         end)
                     end
                     nzEffects:ApplyDamageEffect(3)
@@ -278,7 +344,7 @@ local function CreateTimedScene(modelsTable, effectsTable, sceneDuration, onFini
                     end)
                     nzEffects:ApplyDamageEffect(1)
                 elseif type == "pistol_solo_1" then
-                    local prop = ClientsideModel("models/weapons/w_pist_p228.mdl")
+                    local prop = ClientsideModel("models/bo6/wep/w_pist_p228.mdl")
                     prop:SetPos(ent:GetPos()-ent:GetRight()*16+ent:GetForward()*36+Vector(0,0,2))
                     prop:SetAngles(ent:GetAngles()+Angle(0,math.random(0,360),90))
                     SafeRemoveEntityDelayed(prop, 5)
@@ -388,13 +454,12 @@ local function CreateTimedScene(modelsTable, effectsTable, sceneDuration, onFini
                     nzEffects:ApplyDamageEffect(1)
                     playRandomSound("bo6/da/bite")
                 elseif type == "slash_spine_blood" then
-                    for i=1,100 do
-                        timer.Simple(i/20, function()
+                    for i=1,25 do
+                        timer.Simple(i/5, function()
                             if !IsValid(ent) then return end
-                            local ef = EffectData()
-                            local pos, ang = ent:GetBonePosition(ent:LookupBone("ValveBiped.Bip01_Spine2"))
-                            ef:SetOrigin(pos-ang:Right()*8)
-                            util.Effect("BloodImpact", ef)
+                            local pos, ang = ent:GetBonePosition(ent:LookupBone("ValveBiped.Bip01_Spine"))
+                            ang.x = ang.x + 90
+                            ParticleEffect("ins_blood_impact_headshot", pos, ang, ent)
                             decalBlood(pos, 20)
                         end)
                     end
@@ -471,7 +536,7 @@ local function CreateTimedScene(modelsTable, effectsTable, sceneDuration, onFini
     end)
 end
 
-local function DeathCutscene(anim, data, tabpos, zmodels)
+local function DeathCutscene(anim, data, tabpos, zmodels, mapmodels)
     local zmodel = zmodels[1]
     local zanimmodel = "models/bo6/hari/da_anims.mdl"
     local panimmodel = "models/bo6/hari/da_anims_human.mdl"
@@ -483,8 +548,12 @@ local function DeathCutscene(anim, data, tabpos, zmodels)
     end
     if zmodel == "models/moo/_codz_ports/t5/hellhound/moo_codz_t5_devildoggo.mdl" or zmodel == "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_dog.mdl" or zmodel == "models/moo/_codz_ports/t8/escape/moo_codz_t8_devildoggo.mdl" then
         zmodel = "models/moo/_codz_ports/t9/gold/moo_codz_t9_firehazarddog.mdl"
-    elseif zmodel == "models/moo/_codz_ports/t9/tungsten/moo_codz_t9_abomination.mdl" or zmodel == "models/moo/_codz_ports/t10/zm/moo_codz_t10_zmb_abomination.mdl" then
+    elseif anim == "mwz_da_%s_abom" then
         zmodel = "models/bo6/hari/da/abom.mdl"
+    elseif anim == "mwz_da_%s_mimic" then
+        zmodel = "models/bo6/hari/da/mimic.mdl"
+    elseif anim == "mwz_da_%s_ghoul" then
+        zmodel = "models/bo6/hari/da/ghoul.mdl"
     end
     local main_pos, main_ang = nil, Angle(0,math.random(0,360),0)
     local closestDistance = math.huge
@@ -511,6 +580,11 @@ local function DeathCutscene(anim, data, tabpos, zmodels)
         table.insert(atab, {name = "zombie2", model = zanimmodel, position = main_pos, angle = main_ang, animation = string.format(anim, "zombie").."2"})
         table.insert(atab, {name = "zombie3", model = zanimmodel, position = main_pos, angle = main_ang, animation = string.format(anim, "zombie").."3"})
     end
+    if anim == "mwz_da_%s_mimic" then
+        table.insert(atab, {name = "zombie_mimic1", model = "models/bo6/exfil/zombie_anims.mdl", position = main_pos, angle = main_ang, animation = "death_zombie_mimic_1"})
+        table.insert(atab, {name = "zombie_mimic2", model = "models/bo6/exfil/zombie_anims.mdl", position = main_pos, angle = main_ang, animation = "death_zombie_mimic_2"})
+        table.insert(atab, {name = "zombie_mimic3", model = "models/bo6/exfil/zombie_anims.mdl", position = main_pos, angle = main_ang, animation = "death_zombie_mimic_3"})
+    end
     table.insert(atab, {name = "zombie", model = zanimmodel, position = main_pos, angle = main_ang, animation = string.format(anim, "zombie")..add1})
     CreateTimedScene(
         atab,
@@ -520,8 +594,8 @@ local function DeathCutscene(anim, data, tabpos, zmodels)
             print("Scene finished!")
         end
     )
-    timer.Simple(0.1, function()
-        surface.PlaySound("nz_moo/mysterybox/coldwar/zmb_magic_box_land.mp3")
+    timer.Simple(0.01, function()
+        surface.PlaySound("bo6/da/start.mp3")
         local ent = spawnedModels["player"]
         if IsValid(ent) then
             ent:SetNoDraw(true)
@@ -553,6 +627,19 @@ local function DeathCutscene(anim, data, tabpos, zmodels)
             model:SetParent(ent)
             table.insert(spawnedModels, model)
         end
+
+        for i=1,3 do
+            local ent = spawnedModels["zombie_mimic"..i]
+            local tab = table.Random(mapmodels)
+            if IsValid(ent) and tab.Model then
+                ent:SetNoDraw(true)
+                local model = ClientsideModel(tab.Model)
+                model:SetPos(ent:GetPos())
+                model:AddEffects(1)
+                model:SetParent(ent)
+                table.insert(spawnedModels, model)
+            end
+        end
     end)
     timer.Simple(data.time-0.1, function()
         LocalPlayer():ScreenFade(SCREENFADE.OUT, color_black, 0.05, 5)
@@ -572,5 +659,6 @@ net.Receive("nZr.DACutscene", function()
     local data = net.ReadTable()
     local vecs = net.ReadTable()
     local models = net.ReadTable()
-    DeathCutscene(str, data, vecs, models)
+    local mmodels = net.ReadTable()
+    DeathCutscene(str, data, vecs, models, mmodels)
 end)

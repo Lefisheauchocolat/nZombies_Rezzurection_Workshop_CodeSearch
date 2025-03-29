@@ -175,6 +175,11 @@ local nz_mapfont = GetConVar("nz_hud_use_mapfont")
 local nz_bleedoutstyle = GetConVar("nz_hud_bleedout_style")
 local nz_bleedouttime = GetConVar("nz_downtime")
 
+local function GetPerkColor(perk)
+	local perkData = nzPerks:Get(perk)
+	return perkData and perkData.color or color_white
+end
+
 local color_white_50 = Color(255, 255, 255, 50)
 local color_white_100 = Color(255, 255, 255, 100)
 local color_white_150 = Color(255, 255, 255, 150)
@@ -1333,7 +1338,7 @@ local function PerksMMOHud()
 		surface.DrawTexturedRect(w - 235*scale - (40*traycount*scale), h - 220*scale, 35*scale, 35*scale)
 
 		if ply:HasUpgrade(v) and mmohud.border and ply:GetNW2Float(tostring(mmohud.upgrade), 0) < curtime then
-			surface.SetDrawColor(color_gold)
+			surface.SetDrawColor(GetPerkColor(perk))
 			surface.SetMaterial(GetPerkFrameMaterial(true))
 			surface.DrawTexturedRect(w - 235*scale - (40*traycount*scale), h - 220*scale, 35*scale, 35*scale)
 		end
@@ -1433,7 +1438,7 @@ local function DeathHud()
 	if ply:HasPerk("death") then
 		for i, ent in nzLevel.GetZombieArray() do
 			if not IsValid(ent) then continue end
-			if ent:IsValidZombie() and ent:Alive() then
+			if ent:IsValidZombie() and ent:IsAlive() then
 				if pos:DistToSqr(ent:GetPos()) > range then continue end
 				local dir = ply:EyeAngles():Forward()
 				local facing = (pos - ent:GetPos()):GetNormalized()
@@ -1446,7 +1451,7 @@ local function DeathHud()
 
 		for i, ent in nzLevel.GetZombieBossArray() do
 			if not IsValid(ent) then continue end
-			if ent:IsValidZombie() and ent:Alive() then
+			if ent:IsValidZombie() and ent:IsAlive() then
 				local dir = ply:EyeAngles():Forward()
 				local facing = (pos - ent:GetPos()):GetNormalized()
 
@@ -1806,7 +1811,7 @@ local function PerksHud()
 		surface.DrawTexturedRect(w + num*(size + 6)*pscale - fuckset*pscale, h - (75 + fuckset)*pscale - (64*row)*pscale, 50*pulse*pscale, 50*pulse*pscale)
 
 		if ply:HasUpgrade(perk) then
-			surface.SetDrawColor(color_gold)
+			surface.SetDrawColor(GetPerkColor(perk))
 			surface.SetMaterial(GetPerkFrameMaterial())
 			surface.DrawTexturedRect(w + num*(size + 6)*pscale - fuckset*pscale, h - (75 + fuckset)*pscale - (64*row)*pscale, 50*pulse*pscale, 50*pulse*pscale)
 		end

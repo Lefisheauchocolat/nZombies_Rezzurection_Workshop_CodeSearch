@@ -31,6 +31,7 @@ function ENT:SetupDataTables()
 	self:NetworkVar("Int", 1, "ActiveRound")
 	self:NetworkVar("Int", 3, "TotalSpawns")
 	self:NetworkVar("Int", 4, "AliveAmount")
+	self:NetworkVar("Int", 5, "RoundCooldown")
 	--self:NetworkVar("Int", 5, "SpeedOverride")
 end
 
@@ -59,7 +60,9 @@ function ENT:Initialize()
 	self.MiscSpawns = {}
 
 	self.TotalSpawns = 0
+	self.NextRound = 0
 	self.MarkRound = false
+	self.MarkedRound = 0
 
 	self.CurrentSpawnType = "nil"
 	self:UpdateSpawnType()
@@ -203,7 +206,8 @@ function ENT:Think()
 							if v:GetClass() == self:GetClass() then
 								if !v:GetMasterSpawn() 
 									and (v.link == nil or nzDoors:IsLinkOpened(v.link) or nzDoors:IsLinkOpened(v.link2) or nzDoors:IsLinkOpened(v.link3) ) 
-									and (nzElec:IsOn() and v:GetActiveRound() == -1 or nzRound:GetNumber() >= v:GetActiveRound() and v:GetActiveRound() ~= -1) then
+									and (nzElec:IsOn() and v:GetActiveRound() == -1 or nzRound:GetNumber() >= v:GetActiveRound() and v:GetActiveRound() ~= -1) 
+									--[[and (self:GetRoundCooldown() == 0 or nzRound:GetNumber() == self.NextRound and self:GetRoundCooldown ~= 0)]] then
 
 									if nzMapping.Settings.navgroupbased == 1 then
 										for k2, v2 in pairs(plys) do
@@ -391,6 +395,7 @@ function ENT:ChanceExtraEnemySpawn()
 
 			if spawn:GetActiveRound() == -1 and nzElec:IsOn() and !spawn.MarkRound then
 				spawn.MarkRound = true
+				spawn.MarkedRound = rnd
 				active = rnd
 			end
 			
@@ -438,12 +443,23 @@ function ENT:ChanceExtraEnemySpawn()
 	end
 end
 
-hook.Add("OnRoundStart", "ResetTotalSpawns", function()
+hook.Add("OnRoundStart", "ResetTotalSpawnsAndCooldown", function()
 	for k,v in nzLevel.GetZombieSpawnArray() do
 		v.TotalSpawns = 0
 		if nzRound:GetNumber() == 1 then
 			v.MarkRound = false
 		end
+
+		--[[if v:GetRoundCooldown() ~= 0 then
+			if v:GetActiveRound() == -1 and nzElec:IsOn() then
+
+			elseif nzRound:GetNumber() >= v:GetActiveRound() and v:GetActiveRound() ~= -1 then
+
+			end
+		end]]
+
+		--[[if (nzElec:IsOn() and v:GetActiveRound() == -1 or nzRound:GetNumber() >= v:GetActiveRound() and v:GetActiveRound() ~= -1) then
+		end]]
 	end
 end)
 
@@ -473,34 +489,34 @@ if CLIENT then
 			angle:RotateAroundAxis( angle:Up(), -90 )
 			angle:RotateAroundAxis( angle:Forward(), 90 )
 			cam.Start3D2D(self:GetPos() + Vector(0,0,80), angle, size)
-				if self.GetLink then
+				if self.GetLink and !self:GetMasterSpawn() then
 					draw.SimpleText("Link: "..self:GetLink().."", displayfont, 0, 0, ourcolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				end
-				if self.GetLink2 then
+				if self.GetLink2 and !self:GetMasterSpawn() then
 					draw.SimpleText("Link2: "..self:GetLink2().."", displayfont, 0, -15, ourcolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				end
-				if self.GetLink3 then
+				if self.GetLink3 and !self:GetMasterSpawn() then
 					draw.SimpleText("Link3: "..self:GetLink3().."", displayfont, 0, -30, ourcolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				end
-				if self.CurrentSpawnType then
+				if self.CurrentSpawnType and !self:GetMasterSpawn() then
 					draw.SimpleText("Spawn Type: "..self.CurrentSpawnType.."", displayfont, 0, -45, ourcolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				end
 				if self.GetMasterSpawn and self:GetMasterSpawn() then
 					draw.SimpleText("Master Spawn", displayfont, 0, -60, ourcolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				end
-				if self.GetZombieType then
+				if self.GetZombieType and !self:GetMasterSpawn() then
 					draw.SimpleText("Type: "..self:GetZombieType().."", displayfont, 0, -75, ourcolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				end
-				if self.GetActiveRound then
+				if self.GetActiveRound and !self:GetMasterSpawn() then
 					draw.SimpleText("Round: "..self:GetActiveRound().."", displayfont, 0, -90, ourcolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				end
-				if self.GetSpawnChance then
+				if self.GetSpawnChance and !self:GetMasterSpawn() then
 					draw.SimpleText("Chance: "..self:GetSpawnChance().."", displayfont, 0, -105, ourcolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				end
-				if self.GetTotalSpawns then
+				if self.GetTotalSpawns and !self:GetMasterSpawn() then
 					draw.SimpleText("Total Spawns: "..self:GetTotalSpawns().."", displayfont, 0, -120, ourcolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				end
-				if self.GetAliveAmount then
+				if self.GetAliveAmount and !self:GetMasterSpawn() then
 					draw.SimpleText("Alive Cap: "..self:GetAliveAmount().."", displayfont, 0, -135, ourcolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				end
 				--[[if self.GetSpeedOverride and self:GetSpeedOverride() then

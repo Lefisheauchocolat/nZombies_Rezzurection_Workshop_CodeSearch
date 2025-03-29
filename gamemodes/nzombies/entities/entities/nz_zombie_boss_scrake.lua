@@ -15,7 +15,7 @@ if CLIENT then
 		self:EffectsAndSounds()
 	end
 	function ENT:EffectsAndSounds()
-		if self:Alive() then
+		if self:IsAlive() then
 			-- Credit: FlamingFox for Code and fighting the PVS monster -- 
 			if !IsValid(self) then return end
 			if (!self.Draw_FX or !IsValid(self.Draw_FX)) then
@@ -243,7 +243,7 @@ function ENT:IsValidTarget( ent )
 	if !ent then return false end
 
 	-- Turned Zombie Targetting
-	if self.IsTurned then return IsValid(ent) and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooSpecial and ent:Alive() end
+	if self.IsTurned then return IsValid(ent) and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooSpecial and ent:IsAlive() end
 	
 	return IsValid(ent) and ent:GetTargetPriority() ~= TARGET_PRIORITY_NONE and ent:GetTargetPriority() ~= TARGET_PRIORITY_MONSTERINTERACT and ent:GetTargetPriority() ~= TARGET_PRIORITY_SPECIAL and ent:GetTargetPriority() ~= TARGET_PRIORITY_FUNNY
 	-- Won't go for special targets (Monkeys), but still MAX, ALWAYS and so on

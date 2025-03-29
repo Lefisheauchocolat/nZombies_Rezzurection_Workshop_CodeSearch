@@ -1,7 +1,12 @@
 -- bo3 down animations ported by Wavy
+-- vmanip bo3 crawl animations ported by latte
 -- coded by wavy & latte w/ help from ghostlymoo
 
 local downedPlayers = {}
+
+if CLIENT then
+    CreateClientConVar("nz_vmanip_crawl", "1", true, false, "Enable or disable VManip crawling animations")
+end
 
 //hack fix for players disconnecting while down, PlayerDisconnect is not shared
 hook.Add("EntityRemoved", "nzDownedAnimationFix", function(ply, fullUpdate)
@@ -22,6 +27,13 @@ hook.Add("CalcMainActivity", "nzDownedAnimation", function(ply, vel)
 
 	if notdowned and stored ~= nil then
 		downedPlayers[ply:EntIndex()] = nil
+
+        if CLIENT then
+            VManip:QuitHolding("crawl_forward")
+            VManip:QuitHolding("crawl_back")
+            VManip:QuitHolding("crawl_left")
+            VManip:QuitHolding("crawl_right")
+        end
 
 		local seq, dur = ply:LookupSequence("bo3_revived")
 		ply:SetPlaybackRate(1)
@@ -57,6 +69,7 @@ hook.Add("CalcMainActivity", "nzDownedAnimation", function(ply, vel)
 	end
 end)
 
+
 local cyclex, cycley = 0.6, 0.65
 hook.Add("UpdateAnimation", "nzDownedAnimation", function(ply, vel, seqspeed)
 	local notdowned = ply:GetNotDowned()
@@ -66,7 +79,6 @@ hook.Add("UpdateAnimation", "nzDownedAnimation", function(ply, vel, seqspeed)
 
 	if not notdowned then
 		local movement = 0
-
 		local len = vel:Length2D()
 		if len > 1 then
 			movement = len / seqspeed
@@ -78,6 +90,44 @@ hook.Add("UpdateAnimation", "nzDownedAnimation", function(ply, vel, seqspeed)
 		end
 
 		ply:SetPlaybackRate(1)
+
+        if CLIENT then
+        	if GetConVar("nz_vmanip_crawl"):GetInt() == 1 then
+            local angle, angle2 = vel:Angle(), ply:GetAngles()
+            local ydif = math.abs(math.NormalizeAngle(angle.y - angle2.y))
+            local xdif = math.NormalizeAngle(angle.y - angle2.y)
+            
+            if ply == LocalPlayer() then
+	            if len < 1 then
+	                VManip:QuitHolding("crawl_forward")
+	                VManip:QuitHolding("crawl_back")
+	                VManip:QuitHolding("crawl_left")
+	                VManip:QuitHolding("crawl_right")
+	            elseif ydif < 45 then
+	                VManip:QuitHolding("crawl_back")
+	                VManip:QuitHolding("crawl_left")
+	                VManip:QuitHolding("crawl_right")
+	                VManip:PlayAnim("crawl_forward")
+	            elseif ydif > 135 then
+	                VManip:QuitHolding("crawl_forward")
+	                VManip:QuitHolding("crawl_left")
+	                VManip:QuitHolding("crawl_right")
+	                VManip:PlayAnim("crawl_back")
+	            elseif xdif > 0 then
+	                VManip:QuitHolding("crawl_forward")
+	                VManip:QuitHolding("crawl_back")
+	                VManip:QuitHolding("crawl_left")
+	                VManip:PlayAnim("crawl_right")
+	            else
+	                VManip:QuitHolding("crawl_forward")
+	                VManip:QuitHolding("crawl_back")
+	                VManip:QuitHolding("crawl_right")
+	                VManip:PlayAnim("crawl_left")
+	            end
+	        end
+	    end
+	end
+
 		return true
 	end
 end)

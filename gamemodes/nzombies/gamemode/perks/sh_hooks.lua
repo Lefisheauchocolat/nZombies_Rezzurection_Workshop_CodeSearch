@@ -1245,7 +1245,7 @@ if CLIENT then
 
 		for i, ent in nzLevel.GetZombieArray() do
 			if not IsValid(ent) then continue end
-			if ent:IsValidZombie() and ent:Alive() and ent:GetCreationTime() + engine.TickInterval() < CurTime() then
+			if ent:IsValidZombie() and ent:IsAlive() and ent:GetCreationTime() + engine.TickInterval() < CurTime() then
 				local epos = ent:GetPos()
 				local dist = pos:DistToSqr(epos)
 				if dist > range then continue end
@@ -1294,7 +1294,7 @@ if CLIENT then
 		local ent = ply:GetKnifingTarget()
 		if not IsValid(ent) then return end
 
-		if ent:IsValidZombie() and ent:Alive() then
+		if ent:IsValidZombie() and ent:IsAlive() then
 			local render_ang = EyeAngles()
 			render_ang:RotateAroundAxis(render_ang:Right(), 90)
 			render_ang:RotateAroundAxis(-render_ang:Up(), 90)

@@ -49,7 +49,7 @@ if CLIENT then
 	end
 
 	function ENT:PostDraw()
-		if self:Alive() then
+		if self:IsAlive() then
 			if (!self.Draw_FX or !IsValid(self.Draw_FX)) then
 				self.Draw_FX = CreateParticleSystem(self, "doom_hellunit_aura", PATTACH_POINT_FOLLOW, 1)
 			end

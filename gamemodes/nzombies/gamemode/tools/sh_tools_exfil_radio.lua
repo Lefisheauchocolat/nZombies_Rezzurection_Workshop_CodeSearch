@@ -123,14 +123,17 @@ nzTools:CreateTool("exfilradioeditor", {
 		Row10:AddChoice("1. Terminus - Raptor One", "raptor")
 		Row10:AddChoice("2. Liberty Falls - Blanchard & Exfil Pilot", "blanchard")
 		Row10:AddChoice("3. Citadelle Des Morts - Strauss & Raptor One", "citadelle")
-		Row10:AddChoice("4. No VOX - Custom Model", "none")
+		Row10:AddChoice("4. The Tomb - Strauss & Raptor One", "tomb")
+		Row10:AddChoice("5. No VOX - Custom Model", "none")
 		local str = nzSettings:GetSimpleSetting("ExfilPilotType", "raptor")
 		if str == "blanchard" then
 			Row10:SetSelected(2)
 		elseif str == "citadelle" then
 			Row10:SetSelected(3)
-		elseif str == "none" then
+		elseif str == "tomb" then
 			Row10:SetSelected(4)
+		elseif str == "none" then
+			Row10:SetSelected(5)
 		else
 			Row10:SetSelected(1)
 		end
@@ -146,7 +149,7 @@ nzTools:CreateTool("exfilradioeditor", {
 			nzSettings:SetSimpleSetting("ExfilCustomPilotModel", val)
 		end
 
-		local Row12 = DProperties:CreateRow("Config Settings", "Enable Liberty Falls Exfil Fail Animation?")
+		local Row12 = DProperties:CreateRow("Config Settings", "Enable Liberty Falls Exfil Fail Anim?")
 		Row12:Setup("Boolean")
 		Row12:SetValue(nzSettings:GetSimpleSetting("ExfilLiberty", false))
 		nzSettings:SyncValueToElement("ExfilLiberty", Row12)
@@ -154,10 +157,18 @@ nzTools:CreateTool("exfilradioeditor", {
 			nzSettings:SetSimpleSetting("ExfilLiberty", tobool(val))
 		end
 
+		local Row12_2 = DProperties:CreateRow("Config Settings", "Enable Liberty Falls Exfil Success Anim?")
+		Row12_2:Setup("Boolean")
+		Row12_2:SetValue(nzSettings:GetSimpleSetting("ExfilLibertySuccess", false))
+		nzSettings:SyncValueToElement("ExfilLibertySuccess", Row12_2)
+		Row12_2.DataChanged = function( _, val ) 
+			nzSettings:SetSimpleSetting("ExfilLibertySuccess", tobool(val))
+		end
+
 		local Row13 = DProperties:CreateRow("Preview Anims", "Select Anim to look at nearest position")
 		Row13:Setup( "Combo" )
-		Row13:AddChoice("Exfil Fail (Liberty Falls if selected)", false)
-		Row13:AddChoice("Exfil Success (Any)", true)
+		Row13:AddChoice("Exfil Fail", false)
+		Row13:AddChoice("Exfil Success", true)
 		Row13.DataChanged = function( _, val )
 			net.Start("nzPreviewExfilAnim")
 			net.WriteBool(val)
@@ -165,11 +176,11 @@ nzTools:CreateTool("exfilradioeditor", {
 		end
 
 		local text = vgui.Create("DLabel", DProperties)
-		text:SetText("Tip: Place your position far away from walls to prevent bugs.\nYou can have only one radio on map!")
-		text:SetFont("Trebuchet18")
-		text:SetPos(0, 360)
+		text:SetText("Tips:\nPlace your position far away from walls to prevent clip bugs.\nIf you will use custom end music then best duration is 15 seconds.\nYou can have only one radio on map!")
+		text:SetFont("Default")
+		text:SetPos(0, 355)
 		text:SetTextColor( Color(50, 50, 50) )
-		text:SetSize(400, 30)
+		text:SetSize(400, 60)
 		text:CenterHorizontal()
 		text:SetWrap(true)
 

@@ -14,7 +14,7 @@ if CLIENT then
 	local eyeglow =  Material("nz/zlight")
 	function ENT:Draw() //Runs every frame
 		self:DrawModel()
-		if self.RedEyes and self:Alive() and !self:GetDecapitated() then
+		if self.RedEyes and self:IsAlive() and !self:GetDecapitated() then
 			self:DrawEyeGlow()
 			self:DrawSpotLight()
 		end
@@ -584,7 +584,7 @@ function ENT:DirectorCalm()
 end
 
 function ENT:Sound()
-	if self:GetAttacking() or !self:Alive() or self:GetDecapitated() then return end
+	if self:GetAttacking() or !self:IsAlive() or self:GetDecapitated() then return end
 
 	local vol = 577
 

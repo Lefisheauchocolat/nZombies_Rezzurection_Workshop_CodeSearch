@@ -81,6 +81,13 @@ function ENT:Initialize(...)
     if self.HasTrail then
         self:CreateRocketTrail()
     end
+    
+    --[[
+    timer.Simple(0, function()
+        if IsValid(self) then
+            self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+        end
+    end)]]
 end
 
 function ENT:Think()

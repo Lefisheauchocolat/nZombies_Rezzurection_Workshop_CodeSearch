@@ -715,6 +715,7 @@ nzMapping:AddSaveModule("BreakEntry", {
 				prop = v:GetProp() or 0,
 				jumptype = v:GetJumpType() or 0,
 				plycollision = v:GetPlayerCollision(),
+				ambsnds = v:GetAmbientSounds(),
 			})
 		end
 		return break_entry
@@ -724,7 +725,8 @@ nzMapping:AddSaveModule("BreakEntry", {
 			if not v.prop then v.prop = 0 end 
 			if not v.jumptype then v.jumptype = 0 end
 			if v.plycollision == nil then v.plycollision = true end
-			nzMapping:BreakEntry(v.pos, v.angle, v.planks, v.jump, v.boardtype, v.prop, v.jumptype, v.plycollision)
+			if v.ambsnds == nil then v.ambsnds = false end
+			nzMapping:BreakEntry(v.pos, v.angle, v.planks, v.jump, v.boardtype, v.prop, v.jumptype, v.plycollision, v.ambsnds)
 		end
 	end,
 	cleanents = {

@@ -46,6 +46,7 @@ nzTools:CreateTool("wallbuy", {
 		valz["Row1"] = tostring(data.class)
 		valz["Row2"] = tonumber(data.price)
 		valz["Row4"] = tobool(data.showmodel)
+		valz["name"] = tostring(data.name) or "Select" //cheating to store swep name
 
 		local DProperties = vgui.Create( "DProperties", frame )
 		DProperties:SetSize( 400, 200 )
@@ -56,42 +57,74 @@ nzTools:CreateTool("wallbuy", {
 				data.class = tostring(valz["Row1"])
 				data.price = tonumber(valz["Row2"])
 				data.showmodel = tobool(valz["Row4"])
+				data.name = tostring(valz["name"])
 			else
 				ErrorNoHalt("NZ: This weapon class is not valid!")
 			end
 			return data
 		end
-		
+
 		function DProperties.UpdateData(data)
 			nzTools:SendData(data, "wallbuy")
 		end
 
-		local Row1 = DProperties:CreateRow("Options", "Select Weapon Class")
+		local Row1 = DProperties:CreateRow("Options", "Select Weapon")
 		local Row3 = DProperties:CreateRow("Options", "Weapon Class")
 		local Row2 = DProperties:CreateRow("Options", "Price")
 		local Row4 = DProperties:CreateRow("Options", "Show Model")
 
-		Row1:Setup( "Combo" )
-		for k, v in pairs(weapons.GetList()) do
-			if !v.NZTotalBlacklist then
-				if v.Category and v.Category != "" then
-					Row1:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName or v.ClassName, v.ClassName, false)
-				else
-					Row1:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, false)
-				end
+		local wepentry = vgui.Create("DButton", Row1)
+		wepentry:SetPos(173, 0)
+		wepentry:SetSize(210, 20)
+		wepentry:SetText(valz["name"] or "Weapon ...")
+		wepentry.DoClick = function(panel, index, value)
+			nzTools:OpenWeaponSelectMenu(Row1, Row1)
+		end
+
+		Row1:Setup("Generic")
+		Row1.Think = function(self)
+			if nzTools.WeaponSelectMenu and self:IsEnabled() then
+				self:SetEnabled(false)
+			end
+			if !self:IsEnabled() and !nzTools.WeaponSelectMenu then
+				self:SetEnabled(true)
 			end
 		end
-		Row1.DataChanged = function( _, val ) valz["Row1"] = val DProperties.UpdateData(DProperties.CompileData()) Row3:SetValue(valz["Row1"]) end
+		Row1.DoClick = function()
+			if Row1.optionData then
+				valz["Row1"] = Row1.optionData
+				Row3:SetValue(valz["Row1"])
 
-		
+				local wepdata = weapons.Get(Row1.optionData)
+				if wepdata and IsValid(wepentry) then
+					local special = wepdata.NZSpecialCategory and " ("..wepdata.NZSpecialCategory..")" or ""
+					wepentry:SetText((wepdata.PrintName or wepdata.ClassName)..special)
+					valz["name"] = wepentry:GetText()
+				end
+
+				DProperties.UpdateData(DProperties.CompileData())
+			end
+		end
+
 		Row3:Setup("Generic")
 		Row3:SetValue(valz["Row1"])
-		Row3.DataChanged = function( _, val ) valz["Row1"] = val DProperties.UpdateData(DProperties.CompileData()) end
+		Row3.DataChanged = function( _, val )
+			valz["Row1"] = val
+
+			local wepdata = weapons.Get(val)
+			if wepdata and wepdata.Base and IsValid(wepentry) then
+				local special = wepdata.NZSpecialCategory and " ("..wepdata.NZSpecialCategory..")" or ""
+				wepentry:SetText((wepdata.PrintName or wepdata.ClassName)..special)
+				valz["name"] = wepentry:GetText()
+			end
+
+			DProperties.UpdateData(DProperties.CompileData())
+		end
 		Row3:SetToolTip("use this instead of scrolling through the list.")
 
-		Row2:Setup( "Integer" )
+		Row2:Setup( "Generic" )
 		Row2:SetValue( valz["Row2"] )
-		Row2.DataChanged = function( _, val ) valz["Row2"] = val DProperties.UpdateData(DProperties.CompileData()) end
+		Row2.DataChanged = function( _, val ) valz["Row2"] = math.Round(tonumber(val)) DProperties.UpdateData(DProperties.CompileData()) end
 
 		Row4:Setup("Boolean")
 		Row4:SetValue(valz["Row4"])
@@ -101,9 +134,10 @@ nzTools:CreateTool("wallbuy", {
 		return DProperties
 	end,
 	defaultdata = {
-		class = "weapon_class",
+		class = "weapon_stunstick",
 		price = 500,
 		showmodel = false,
+		name = "Select",
 	}
 })
 

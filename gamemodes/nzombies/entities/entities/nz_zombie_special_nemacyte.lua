@@ -190,7 +190,7 @@ function ENT:OnPathTimeOut()
 						self:PlaySequenceAndWait("NS_Munch", 1, self.FaceEnemy)
 						self:PlaySequenceAndWait("NS_Munch", 1, self.FaceEnemy)
 						self:PlaySequenceAndWait("NS_Munch", 1, self.FaceEnemy)
-						if self:Alive() and self:GetTarget():Alive()  then 
+						if self:IsAlive() and self:GetTarget():Alive()  then 
 		self.racist = false
 		self.eating  = false
 		self:GetTarget():Kill()

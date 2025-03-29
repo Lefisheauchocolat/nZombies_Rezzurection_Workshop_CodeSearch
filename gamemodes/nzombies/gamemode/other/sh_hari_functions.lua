@@ -92,6 +92,7 @@ function nzFuncs:TransformModelData(base, to)
     to:SetModel(base:GetModel())
     to:SetColor(base:GetColor())
     to:SetSkin(base:GetSkin())
+    to:SetFlexScale(0.6)
     for i = 0, base:GetNumBodyGroups() - 1 do
         to:SetBodygroup(i, base:GetBodygroup(i))
     end

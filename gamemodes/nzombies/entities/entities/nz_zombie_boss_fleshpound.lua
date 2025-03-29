@@ -227,7 +227,7 @@ function ENT:IsValidTarget( ent )
 end
 
 function ENT:PostTookDamage(dmginfo)
-	if !self:Alive() then return end
+	if !self:IsAlive() then return end
 	local attacker = dmginfo:GetAttacker()
 	
 	if IsValid(attacker) and attacker:IsPlayer() and !self.ManIsMad and !self:GetSpecialAnimation() and !self.Calming then

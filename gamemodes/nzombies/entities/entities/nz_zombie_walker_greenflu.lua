@@ -1017,7 +1017,7 @@ ENT.TauntSounds = {
 }
 
 function ENT:Sound()
-	if self:GetAttacking() or !self:Alive() or self:GetDecapitated() then return end
+	if self:GetAttacking() or !self:IsAlive() or self:GetDecapitated() then return end
 
 	local vol = 80
 
@@ -1078,94 +1078,6 @@ function ENT:ProneLeapAttack()
 		self.IsProneLeaping = false
 		self:SetSpecialAnimation(false)
 	end)
-end
-
-function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how sad I am that I didn't know about this sooner.
-	if e == "step_right_small" or e == "step_left_small" then
-		if self.CustomWalkFootstepsSounds then
-			self:EmitSound(self.CustomWalkFootstepsSounds[math.random(#self.CustomWalkFootstepsSounds)], 70)
-		else
-			self:EmitSound("CoDZ_Zombie.StepWalk")
-		end
-	end
-	if e == "step_right_large" or e == "step_left_large" then
-		if self.CustomRunFootstepsSounds then
-			self:EmitSound(self.CustomRunFootstepsSounds[math.random(#self.CustomRunFootstepsSounds)], 70)
-		else
-			self:EmitSound("CoDZ_Zombie.StepRun")
-		end
-	end
-	if e == "crawl_hand" then
-		if self.CustomCrawlImpactSounds then
-			self:EmitSound(self.CrawlImpactSounds[math.random(#self.CrawlImpactSounds)], 70)
-		else
-			self:EmitSound("CoDZ_Zombie.StepCrawl")
-		end
-	end
-	if e == "melee" or e == "melee_heavy" then
-		if self:BomberBuff() and self.GasAttack then
-			self:EmitSound(self.GasAttack[math.random(#self.GasAttack)], 100, math.random(95, 105), 1, 2)
-		else
-			if self.AttackSounds then
-				self:EmitSound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(85, 105), 1, 2)
-			end
-		end
-		if e == "melee_heavy" then
-			self.HeavyAttack = true
-		end
-		self:DoAttackDamage()
-	end
-	if e == "generic_taunt" then
-		if self.TauntSounds then
-			self:EmitSound(self.TauntSounds[math.random(#self.TauntSounds)], 100, math.random(98, 102), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		end
-	end
-	if e == "special_taunt" then
-		if self.TauntSounds then
-			self:EmitSound("nz_moo/zombies/vox/_l4d/taunt/mega_mob_incoming.mp3", 100, math.random(98, 102), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		end
-	end
-	if e == "pull_plank" then
-		if IsValid(self) and self:Alive() then
-			if IsValid(self.BarricadePlankPull) and IsValid(self.Barricade) then
-				self.Barricade:RemovePlank(self.BarricadePlankPull)
-			end
-		end
-	end
-	if e == "base_ranged_rip" then
-		ParticleEffectAttach("ins_blood_dismember_limb", 4, self, 5)
-		self:EmitSound("nz_moo/zombies/gibs/gib_0"..math.random(0,3)..".mp3", 100, math.random(95,105))
-		self:EmitSound("nz_moo/zombies/gibs/head/head_explosion_0"..math.random(4)..".mp3", 65, math.random(95,105))
-	end
-	if e == "base_ranged_throw" then
-		self:EmitSound("nz_moo/zombies/fly/attack/whoosh/zmb_attack_med_0"..math.random(0,2)..".mp3", 95)
-
-		local larmfx_tag = self:LookupBone("j_wrist_le")
-
-		self.Guts = ents.Create("nz_gib")
-		self.Guts:SetPos(self:GetBonePosition(larmfx_tag))
-		self.Guts:Spawn()
-
-		local phys = self.Guts:GetPhysicsObject()
-		local target = self:GetTarget()
-		local movementdir
-		if IsValid(phys) and IsValid(target) then
-			phys:SetVelocity(self.Guts:getvel(target:EyePos() - Vector(0,0,7), self:EyePos(), 0.95))
-		end
-	end
-	if e == "death_ragdoll" then
-		self:BecomeRagdoll(DamageInfo())
-	end
-	if e == "start_traverse" then
-		--print("starttraverse")
-		self.TraversalAnim = true
-	end
-	if e == "finish_traverse" then
-		--print("finishtraverse")
-		self.TraversalAnim = false
-	end
 end
 
 -- Franshish :)

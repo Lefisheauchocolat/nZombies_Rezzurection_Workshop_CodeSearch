@@ -334,7 +334,7 @@ nzPerks:NewPerk("revive", {
 	price 			= 1500,
 	upgradeprice 	= 4500, 
 	mmohud 			= {style = "count", count = "nz.SoloReviveCount", countdown = true, solo = true},
-	desc 			= "Revive yourself in solo. Revive others faster in CO-OP. Faster health faster.",
+	desc 			= "Revive yourself in solo. Revive others faster in CO-OP. Faster health regen.",
 	desc2 			= "Become invincibile on successful revive. Revive on the move.",
 	color 			= Color(35, 35, 255),
 	material 		= 13,
@@ -724,7 +724,8 @@ nzPerks:NewPerk("gin", {
 		ply:SetMaxPerks(ply:GetMaxPerks() + 2)
 	end,
 	lostfunc = function(self, ply)
-		ply:SetMaxPerks(ply:GetMaxPerks() - 2)
+		local cvar_maxperks = GetConVar("nz_difficulty_perks_max")
+		ply:SetMaxPerks(math.max(ply:GetMaxPerks() - 2, cvar_maxperks:GetInt()))
 	end,
 	upgradefunc = function(self, ply)
 		if ply:IsListenServerHost() and #player.GetAllPlaying() <= 1 then
@@ -738,11 +739,11 @@ nzPerks:NewPerk("gin", {
 	end,
 	lostupgradefunc = function(self, ply)
 		if ply:IsListenServerHost() and #player.GetAllPlaying() <= 1 then
-			ply:SetMaxPerks(ply:GetMaxPerks() - 1)
+			local cvar_maxperks = GetConVar("nz_difficulty_perks_max")
+			ply:SetMaxPerks(math.max(ply:GetMaxPerks() - 1, cvar_maxperks:GetInt()))
 		else
 			local cvar_maxperks = GetConVar("nz_difficulty_perks_max")
 			cvar_maxperks:SetInt(cvar_maxperks:GetInt() - 1)
-
 			nzPerks:DecreaseAllPlayersMaxPerks(1, ply)
 		end
 	end,

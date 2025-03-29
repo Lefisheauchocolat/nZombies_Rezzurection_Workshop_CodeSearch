@@ -16,7 +16,7 @@ if CLIENT then
 	function ENT:PostDraw()
 		self:EffectsAndSounds()
 
-		if self:Alive() then
+		if self:IsAlive() then
 		local elight = DynamicLight( self:EntIndex(), true )
 			if ( elight ) then
 				local bone = self:LookupBone("j_spineupper")
@@ -36,7 +36,7 @@ if CLIENT then
 		end
 	end
 	function ENT:EffectsAndSounds()
-		if self:Alive() then
+		if self:IsAlive() then
 			-- Credit: FlamingFox for Code and fighting the PVS monster -- 
 			if !IsValid(self) then return end
 			if (!self.Draw_FX or !self.Draw_FX:IsValid()) then
@@ -128,59 +128,6 @@ ENT.BarricadeTearSequences = {
 	"nz_legacy_door_tear_low",
 	"nz_legacy_door_tear_left",
 	"nz_legacy_door_tear_right",
-}
-
-local SlowClimbUp36 = {
-	"nz_traverse_climbup36"
-}
-local SlowClimbUp48 = {
-	"nz_traverse_climbup48"
-}
-local SlowClimbUp72 = {
-	"nz_traverse_climbup72"
-}
-local SlowClimbUp96 = {
-	"nz_traverse_climbup96"
-}
-local SlowClimbUp128 = {
-	"nz_traverse_climbup128",
-	"nz_l4d_traverse_climbup132_01",
-	"nz_l4d_traverse_climbup132_02",
-	"nz_l4d_traverse_climbup132_03",
-}
-local SlowClimbUp160 = {
-	"nz_traverse_climbup160",
-	"nz_l4d_traverse_climbup156_01",
-	"nz_l4d_traverse_climbup156_02",
-	"nz_l4d_traverse_climbup156_03",
-}
-local FastClimbUp36 = {
-	"nz_traverse_fast_climbup36",
-	"nz_l4d_traverse_climbup36_01",
-	"nz_l4d_traverse_climbup36_02",
-	"nz_l4d_traverse_climbup36_03",
-}
-local FastClimbUp48 = {
-	"nz_traverse_fast_climbup48",
-	"nz_l4d_traverse_climbup48_01",
-	"nz_l4d_traverse_climbup48_02",
-	"nz_l4d_traverse_climbup48_03",
-	"nz_l4d_traverse_climbup48_04",
-}
-local FastClimbUp72 = {
-	"nz_traverse_fast_climbup72",
-	"nz_l4d_traverse_climbup72_01",
-	"nz_l4d_traverse_climbup72_02",
-	"nz_l4d_traverse_climbup72_03",
-}
-local FastClimbUp96 = {
-	"nz_traverse_fast_climbup96",
-	"nz_l4d_traverse_climbup96_01",
-	"nz_l4d_traverse_climbup96_02",
-	"nz_l4d_traverse_climbup96_03",
-}
-local ClimbUp200 = {
-	"nz_traverse_climbup200"
 }
 
 local AttackSequences = {
@@ -337,14 +284,6 @@ ENT.SequenceTables = {
 			AttackSequences = {AttackSequences},
 			StandAttackSequences = {AttackSequences},
 			CrawlAttackSequences = {CrawlAttackSequences},
-
-			Climb36 = {SlowClimbUp36},
-			Climb48 = {SlowClimbUp48},
-			Climb72 = {SlowClimbUp72},
-			Climb96 = {SlowClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
 
 			JumpSequences = {SprintJumpSequences},
 			CrawlJumpSequences = {CrawlJumpSequences},

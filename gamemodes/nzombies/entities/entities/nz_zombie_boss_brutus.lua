@@ -404,7 +404,7 @@ end
 function ENT:AI()
 	local target = self.Target
 
-	if !self:Alive() then return end
+	if !self:IsAlive() then return end
 
 	-- Ground Slam Attack
 	if CurTime() > self.SlamCooldown and !self:IsAttackBlocked() and IsValid(target) and target:IsPlayer() and self:TargetInRange(150) and !self.HasHelmet then

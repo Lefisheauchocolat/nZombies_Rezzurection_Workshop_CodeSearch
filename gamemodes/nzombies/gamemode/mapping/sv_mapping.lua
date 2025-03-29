@@ -899,7 +899,7 @@ function nzMapping:PerkMachine(pos, ang, data, ply, fizzprice)
 	end
 end
 
-function nzMapping:BreakEntry(pos, ang, planks, jump, boardtype, prop, jumptype, plycollision, ply)
+function nzMapping:BreakEntry(pos, ang, planks, jump, boardtype, prop, jumptype, plycollision, ambsnds, ply)
 	local planks = planks
 	if planks == nil then planks = true else planks = tobool(planks) end
 	local jump = jump
@@ -908,6 +908,7 @@ function nzMapping:BreakEntry(pos, ang, planks, jump, boardtype, prop, jumptype,
 	if boardtype == nil then boardtype = 1 else boardtype = boardtype end
 	local plycollision = plycollision
 	if plycollision == nil then plycollision = false else plycollision = tobool(plycollision) end
+	if ambsnds == nil then ambsnds = false else ambsnds = tobool(ambsnds) end
 
 	local entry = ents.Create( "breakable_entry" )
 	entry:SetPos( pos )
@@ -919,6 +920,7 @@ function nzMapping:BreakEntry(pos, ang, planks, jump, boardtype, prop, jumptype,
 	entry:SetProp( prop )
 	entry:SetJumpType( jumptype )
 	entry:SetPlayerCollision( plycollision )
+	entry:SetAmbientSounds( ambsnds )
 
 	entry:Spawn()
 	entry:PhysicsInit( SOLID_VPHYSICS )

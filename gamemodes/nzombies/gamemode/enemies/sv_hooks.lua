@@ -213,7 +213,7 @@ function nzEnemies:OnEnemyKilled(enemy, attacker, dmginfo, hitgroup)
 
 							local zombies = {}
 							for k, v in nzLevel.GetZombieArray() do
-								if IsValid(v) and v:Alive() and v:Health() > 0 and attacker:VisibleVec(v:EyePos()) then
+								if IsValid(v) and v:IsAlive() and v:Health() > 0 and attacker:VisibleVec(v:EyePos()) then
 									table.insert(zombies, v)
 								end
 							end
@@ -306,7 +306,7 @@ local invalid_ammo = {
 function GM:EntityTakeDamage(zombie, dmginfo)
 	if zombie:IsPlayer() and dmginfo:IsDamageType(DMG_SLOWBURN) then return true end
 	if zombie:GetClass() == "whoswho_downed_clone" then return true end
-	if zombie.Alive and zombie:Health() <= 0 and zombie:Alive() and meleetypes[dmginfo:GetDamageType()] then zombie:Remove() end //failsafe for 0 health enemies (THAT DOESNT FUCKING WORK :DDDDDDDD)
+	--if zombie.Alive and zombie:Health() <= 0 and zombie:Alive() and meleetypes[dmginfo:GetDamageType()] then zombie:Remove() end //failsafe for 0 health enemies (THAT DOESNT FUCKING WORK :DDDDDDDD)
 	--if zombie.Alive and zombie:Health() <= 0 /*and zombie:Alive()*/ then zombie:Kill(dmginfo) end
 	 -- Trying out stuff that doesn't use this dusty ass kill function.
 

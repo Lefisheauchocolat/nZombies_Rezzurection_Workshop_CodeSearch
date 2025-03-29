@@ -249,7 +249,7 @@ function ENT:OnSpawn()
 	effectData:SetEntity(nil)
 	util.Effect("panzer_spawn_tp", effectData)
 
-	self:SetCollisionBounds(Vector(-16,-16, 0), Vector(16, 16, 72))
+	self:SetCollisionBounds(Vector(-14,-14, 0), Vector(14, 14, 72))
 	self:SetSurroundingBounds(Vector(-28, -28, 0), Vector(28, 28, 90))
 		
 	self:SolidMaskDuringEvent(MASK_SOLID_BRUSHONLY)
@@ -318,7 +318,7 @@ function ENT:PostAttack()
 end
 
 function ENT:PostTookDamage(dmginfo)
-	if !self:Alive() then return end
+	if !self:IsAlive() then return end
 	
 	if CurTime() > self.PainSoundCooldown then
 		self:EmitSound(self.ShotPainSounds[math.random(#self.ShotPainSounds)], 100, 100, 1, 2)
@@ -336,7 +336,7 @@ function ENT:AI()
 		self:EmitSound(self.SpawnStingSounds[math.random(#self.SpawnStingSounds)], 577)
 	end
 	
-	if IsValid(target) and target:IsPlayer() and self:TargetInRange(1000) and !self:TargetInRange(250) and !self:IsAttackBlocked() then
+	if IsValid(target) and target:IsPlayer() and self:TargetInRange(1000) and !self:TargetInRange(250) and !self:IsAttackBlocked() and !self:GetJumping() then
 
 		if CurTime() > self.ManIsMadCooldown and !self.ManIsMad and !self.IsTurned and math.random(100) <= 50 then
 
@@ -385,7 +385,7 @@ function ENT:IsValidTarget( ent )
 	
 	-- Turned Zombie Targetting
 	if self.IsTurned then
-		return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooBossZombie and ent:Alive() 
+		return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooBossZombie and ent:IsAlive() 
 	end
 	
 	return IsValid(ent) and ent:GetTargetPriority() ~= TARGET_PRIORITY_NONE and ent:GetTargetPriority() ~= TARGET_PRIORITY_MONSTERINTERACT and ent:GetTargetPriority() ~= TARGET_PRIORITY_SPECIAL and ent:GetTargetPriority() ~= TARGET_PRIORITY_FUNNY

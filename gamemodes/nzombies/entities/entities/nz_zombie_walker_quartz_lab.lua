@@ -21,6 +21,7 @@ ENT.RedEyes = true
 
 ENT.Models = {
 	{Model = "models/moo/_codz_ports/t10/zm/terminus/moo_codz_t10_zmb_zombie_labtest_thin.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t10/zm/terminus/moo_codz_t10_zmb_zombie_labtest_thin_tent.mdl", Skin = 0, Bodygroups = {0,0}},
 	{Model = "models/moo/_codz_ports/t10/zm/terminus/moo_codz_t10_zmb_zombie_labtest_heavy.mdl", Skin = 0, Bodygroups = {0,0}},
 
 }
@@ -462,7 +463,10 @@ ENT.SequenceTables = {
 				"nz_walk_au15",
 				"nz_walk_au20",
 				"nz_walk_au21",
+				"nz_s4_3arc_walk_au_v22",
 				"nz_walk_au23",
+				"nz_s4_3arc_walk_au_v24",
+				"nz_s4_3arc_walk_au_v25",
 				--"nz_walk_au_goose", -- This is the goosestep walk aka marching anim that german soldier zombies use.
 				--"nz_legacy_walk_dazed",
 				--"nz_legacy_jap_walk_v1",
@@ -754,9 +758,10 @@ ENT.SequenceTables = {
 				"nz_t9_base_sprint_ad_v01",
 				"nz_t9_base_sprint_ad_v02",
 				"nz_t9_base_sprint_ad_v05",
-				"nz_s4_3arc_sprint_ad_v21",
-				"nz_s4_3arc_sprint_ad_v22",
+				"nz_t9_base_sprint_ad_v21",
+				"nz_t9_base_sprint_ad_v22",
 				"nz_t9_base_sprint_ad_v23",
+				"nz_t9_base_sprint_ad_v24",
 				"nz_sprint_ad3",
 				"nz_sprint_ad4",
 				--"nz_fast_sprint_v1",

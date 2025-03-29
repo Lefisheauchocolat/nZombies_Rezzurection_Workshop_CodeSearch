@@ -11,7 +11,8 @@ if CLIENT then
 		if not IsValid(wep) then return end
 
 		if wep.NZCamoBlacklist then return end
-
+		//if wep.NZSpecialCategory then return end
+		//if not wep.IsTFAWeapon then return end
 		if not wep:HasNZModifier("pap") then
 			if wep.TPaPOverrideMat then
 				wep:SetSubMaterial()
@@ -48,16 +49,24 @@ if CLIENT then
 	end)
 
 	hook.Add("PreDrawViewModel", "nzCamos.Draw", function(vm, ply, wep)
-		if not cvar_papcamo:GetBool() then return end
 		if not IsValid(vm) or not IsValid(wep) or not IsValid(ply) then return end
-		if not wep:HasNZModifier("pap") then return end
-
-		local viewmodel = wep:GetWeaponViewModel()
-		if not nzCamos.ViewmodelsToUpdate[viewmodel] then return end
-		nzCamos.ViewmodelsToUpdate[viewmodel] = nil
+		if not cvar_papcamo:GetBool() then return end
 
 		if wep.NZCamoBlacklist then return end
-		if wep.NZSpecialCategory then return end
+		if wep.NZSpecialCategory then
+			vm:SetSubMaterial()
+			return
+		end
+		/*if not wep.IsTFAWeapon then
+			vm:SetSubMaterial()
+			return
+		end*/
+		if not wep:HasNZModifier("pap") then
+			if wep.PaPOverrideMat then
+				vm:SetSubMaterial()
+			end
+			return
+		end
 		if not cvar_papcamoww:GetBool() and wep.NZWonderWeapon then return end
 
 		if !wep.nzPaPCamo and wep:GetNW2String("nzPaPCamo", "") == "" then return end

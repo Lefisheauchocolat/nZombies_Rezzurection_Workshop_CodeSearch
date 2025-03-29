@@ -43,6 +43,9 @@ nzTools:CreateTool("humanspawner", {
 		valz["Row7"] = data.followNearestPlayer
 		valz["Row8"] = data.flag
 		valz["Row9"] = data.isDeathAnim
+		valz["Row10"] = data.flag2
+		valz["Row11"] = data.flag3
+		valz["Row12"] = data.chance
 
 		local DProperties = vgui.Create( "DProperties", frame )
 		DProperties:SetSize( 480, 450 )
@@ -57,6 +60,9 @@ nzTools:CreateTool("humanspawner", {
 			data.followNearestPlayer = valz["Row7"]
 			data.flag = valz["Row8"]
 			data.isDeathAnim = valz["Row9"]
+			data.flag2 = valz["Row10"]
+			data.flag3 = valz["Row11"]
+			data.chance = valz["Row12"]
 			return data
 		end
 		function DProperties.UpdateData(data)
@@ -118,8 +124,16 @@ nzTools:CreateTool("humanspawner", {
 			valz["Row7"] = val 
 			DProperties.UpdateData(DProperties.CompileData())
 		end
+		
+		local Row9 = DProperties:CreateRow("Position Settings", "Is Death Animation?")
+		Row9:Setup("Boolean")
+		Row9:SetValue(valz["Row9"])
+		Row9.DataChanged = function( _, val ) 
+			valz["Row9"] = val 
+			DProperties.UpdateData(DProperties.CompileData())
+		end
 
-		local Row8 = DProperties:CreateRow("Position Settings", "Flag")
+		local Row8 = DProperties:CreateRow("Position Settings", "Door Flag 1")
 		Row8:Setup("Generic")
 		Row8:SetValue(valz["Row8"])
 		Row8.DataChanged = function( _, val ) 
@@ -127,11 +141,27 @@ nzTools:CreateTool("humanspawner", {
 			DProperties.UpdateData(DProperties.CompileData())
 		end
 
-		local Row9 = DProperties:CreateRow("Position Settings", "Is Death Animation?")
-		Row9:Setup("Boolean")
-		Row9:SetValue(valz["Row9"])
-		Row9.DataChanged = function( _, val ) 
-			valz["Row9"] = val 
+		local Row10 = DProperties:CreateRow("Position Settings", "Door Flag 2")
+		Row10:Setup("Generic")
+		Row10:SetValue(valz["Row10"])
+		Row10.DataChanged = function( _, val ) 
+			valz["Row10"] = val 
+			DProperties.UpdateData(DProperties.CompileData())
+		end
+
+		local Row11 = DProperties:CreateRow("Position Settings", "Door Flag 3")
+		Row11:Setup("Generic")
+		Row11:SetValue(valz["Row11"])
+		Row11.DataChanged = function( _, val ) 
+			valz["Row11"] = val 
+			DProperties.UpdateData(DProperties.CompileData())
+		end
+
+		local Row12 = DProperties:CreateRow("Position Settings", "Spawn Chance")
+		Row12:Setup("Generic")
+		Row12:SetValue(valz["Row12"])
+		Row12.DataChanged = function( _, val ) 
+			valz["Row12"] = val 
 			DProperties.UpdateData(DProperties.CompileData())
 		end
 
@@ -160,11 +190,14 @@ nzTools:CreateTool("humanspawner", {
 		baseModel = "",
 		hp = 100,
 		weaponClass = "weapon_smg1",
-		hostileToPlayer = true,
+		hostileToPlayer = false,
 		noTargetToZombies = false,
 		followNearestPlayer = false,
 		flag = "",
 		isDeathAnim = false,
+		flag2 = "",
+		flag3 = "",
+		chance = "100",
 	},
 })
 

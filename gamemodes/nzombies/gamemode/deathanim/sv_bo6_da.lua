@@ -5,6 +5,7 @@ util.AddNetworkString("nZr.DACutscene")
 nZr_Death_Animations_LastPosition = Vector(0,0,0)
 nZr_Death_Animations_Positions = nZr_Death_Animations_Positions or {}
 nZr_Death_Animations_Allow = false
+nZr_Death_Animations_Active = false
 
 local function nZr_UpdatePositions()
     local datab = ents.FindByClass("bo6_deathanim_point")
@@ -44,6 +45,9 @@ function nZr_DeathAnimation_PreviewCutscene(type, ply)
     local type, sel = stab[1], stab[2]
     local tab = nZr_Death_Animations_Effects[type]
     local zmodel = tab[sel].model
+    if type == "Humans" then
+        zmodel = "models/player/arctic.mdl"
+    end
 
     ply:SendLua([[
         RunConsoleCommand("cl_drawhud", 0)
@@ -57,6 +61,7 @@ function nZr_DeathAnimation_PreviewCutscene(type, ply)
     net.WriteTable(data)
     net.WriteTable(nZr_Death_Animations_Positions)
     net.WriteTable({zmodel, nzFuncs:GetZombieMapModel(false)})
+    net.WriteTable(nzFuncs:GetZombieMapModel(true))
     net.Send(ply)
 end
 
@@ -80,6 +85,7 @@ function nZr_DeathAnimation_Cutscene(type)
         net.WriteTable(data)
         net.WriteTable(nZr_Death_Animations_Positions)
         net.WriteTable({nzFuncs:GetZombieMapModel(false, ply), nzFuncs:GetZombieMapModel(false)})
+        net.WriteTable(nzFuncs:GetZombieMapModel(true))
         net.Send(ply)
     end
 
@@ -87,12 +93,25 @@ function nZr_DeathAnimation_Cutscene(type)
 end
 
 local function nZr_DA_Try()
+    if nZr_Death_Animations_Active then return end
     nZr_Death_Animations_Allow = false
+    nZr_Death_Animations_Active = true
     local type = ""
     if isvector(nZr_Death_Animations_LastPosition) then
-        for _, ent in pairs(ents.FindInSphere(nZr_Death_Animations_LastPosition, 400)) do
+        local tab = ents.FindInSphere(nZr_Death_Animations_LastPosition, 400)
+        table.Shuffle(tab)
+        for _, ent in pairs(tab) do
             if nZr_Death_Animations_Classes[ent:GetClass()] then
                 type = nZr_Death_Animations_Classes[ent:GetClass()]
+                for _, ply in pairs(player.GetAll()) do
+                    ply.LastDamageZombieModel = ent:GetModel()
+                end
+                break
+            end
+        end
+        for _, ent in pairs(tab) do
+            if ent:IsNPC() and IsValid(ent:GetActiveWeapon()) and ent:Disposition(player.GetAll()[1]) == D_HT then
+                type = "Humans"
                 for _, ply in pairs(player.GetAll()) do
                     ply.LastDamageZombieModel = ent:GetModel()
                 end
@@ -107,13 +126,15 @@ local function nZr_DA_Try()
             nzRound:Lose()
             timer.Remove("NZRoundThink")
             nzRound:Freeze(false)
+            nZr_Death_Animations_Active = false
+            nZr_Death_Animations_Allow = false
         end)
         timer.Simple(0.01, function()
             nzRound:SetZombiesMax(0)
             nzRound:SetZombiesToSpawn(0)
             nzRound:SetZombiesKilled(0)
             for k, v in pairs(ents.GetAll()) do
-                if v:IsNextBot() then
+                if v:IsNextBot() or v:IsNPC() then
                     v:Remove()
                 end
             end
@@ -123,7 +144,7 @@ end
 
 local think_delay = 0
 hook.Add("PlayerDowned", "nZr_DA_Logic", function(ply)
-    local allowed = #nZr_Death_Animations_Positions > 0 and nzSettings:GetSimpleSetting("DeathAnim_Enable", true) and !isvector(nZr_Exfil_Position) and #player.GetAllPlayingAndAlive() == 0 and nzRound:GetState() == ROUND_PROG
+    local allowed = #nZr_Death_Animations_Positions > 0 and nzSettings:GetSimpleSetting("DeathAnim_Enable", true) and !isvector(nZr_Exfil_Position) and #player.GetAllPlayingAndAlive() == 0 and nzRound:GetState() == ROUND_PROG and !nZr_Death_Animations_Allow
     if allowed then
         think_delay = CurTime()+2
         nZr_Death_Animations_Allow = true
@@ -146,8 +167,17 @@ hook.Add("PlayerDowned", "nZr_DA_Logic", function(ply)
     end
 end)
 
+local function isAlivePlayers()
+	for _, ply in pairs(player.GetAll()) do
+		if ply:Alive() then
+            return true
+		end
+	end
+	return false
+end
+
 hook.Add("OnGameBegin", "nZr_DA_LoadPos", nZr_UpdatePositions)
 hook.Add("Think", "nZr_DA_Logic", function()
-    if !nZr_Death_Animations_Allow or think_delay > CurTime() then return end
+    if !nZr_Death_Animations_Allow or think_delay > CurTime() or !isAlivePlayers() then return end
     nZr_DA_Try()
 end)

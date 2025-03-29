@@ -42,7 +42,7 @@ if CLIENT then
 	end
 
 	function ENT:EffectsAndSounds()
-		if self:Alive() then
+		if self:IsAlive() then
 			-- Credit: FlamingFox for Code and fighting the PVS monster -- 
 			if !IsValid(self) then return end
 			if !self.Draw_FX or !IsValid(self.Draw_FX) then
@@ -327,7 +327,7 @@ function ENT:Explode(dmg, suicide)
                 if v == self then continue end
                 if v:EntIndex() == self:EntIndex() then continue end
                 if v:Health() <= 0 then continue end
-                if !v:Alive() then continue end
+                if !v:IsAlive() then continue end
                 local damage = DamageInfo()
                 damage:SetAttacker(self)
                 damage:SetDamageType(DMG_MISSILEDEFENSE)
@@ -351,7 +351,7 @@ end
 
 function ENT:ZombieStatusEffects()
 	if CurTime() > self.LastStatusUpdate then
-		if !self:Alive() then return end
+		if !self:IsAlive() then return end
 		if self:GetSpecialAnimation() then return end
 
 		if self.IsAATTurned and self:IsAATTurned() then
@@ -441,7 +441,7 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 		self.TraversalAnim = false
 	end
 	if e == "pull_plank" then
-		if IsValid(self) and self:Alive() then
+		if IsValid(self) and self:IsAlive() then
 			if IsValid(self.BarricadePlankPull) and IsValid(self.Barricade) then
 				self.Barricade:RemovePlank(self.BarricadePlankPull)
 			end

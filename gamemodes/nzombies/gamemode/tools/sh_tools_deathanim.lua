@@ -71,7 +71,7 @@ nzTools:CreateTool("deathanimpos", {
 		local text = vgui.Create("DLabel", DProperties)
 		text:SetText("Tip: Place your position away from walls to prevent bugs.\nThe cutscene starts at a random angle.\n\nList of supported special enemies:")
 		text:SetFont("Trebuchet18")
-		text:SetPos(0, 160)
+		text:SetPos(0, 150)
 		text:SetTextColor( Color(50, 50, 50) )
 		text:SetSize(400, 100)
 		text:CenterHorizontal()
@@ -82,7 +82,8 @@ nzTools:CreateTool("deathanimpos", {
 		- Disciple        - Mangler           - Nova Crawler
 		- Hellhound       - Plaguehound       - Mimic
 		- Brutus     	  - Abomination       - Vermin
-		- Parasite        - Doppelghast       - Amalgam]])
+		- Parasite        - Doppelghast       - Amalgam
+		- Humans]])
 		text:SetFont("Trebuchet18")
 		text:SetPos(0, 90)
 		text:SetTextColor( Color(200, 50, 50) )

@@ -12,7 +12,7 @@ if CLIENT then
 		self:DrawModel()
 		self:PostDraw()
 
-		if self:WaterBuff() and !self:BomberBuff() and self:Alive() then
+		if self:WaterBuff() and !self:BomberBuff() and self:IsAlive() then
 			local elight = DynamicLight( self:EntIndex(), true )
 			if ( elight ) then
 				local bone = self:LookupBone("j_spineupper")
@@ -29,7 +29,7 @@ if CLIENT then
 				elight.style = 0
 				elight.noworld = true
 			end
-		elseif self:BomberBuff() and !self:WaterBuff() and self:Alive() then
+		elseif self:BomberBuff() and !self:WaterBuff() and self:IsAlive() then
 			local elight = DynamicLight( self:EntIndex(), true )
 			if ( elight ) then
 				local bone = self:LookupBone("j_spineupper")
@@ -46,7 +46,7 @@ if CLIENT then
 				elight.style = 0
 				elight.noworld = true
 			end
-		elseif self:WaterBuff() and self:BomberBuff() and self:Alive() then
+		elseif self:WaterBuff() and self:BomberBuff() and self:IsAlive() then
 			local elight = DynamicLight( self:EntIndex(), true )
 			if ( elight ) then
 				local bone = self:LookupBone("j_spineupper")
@@ -855,7 +855,7 @@ function ENT:AI()
 	end
 
 	-- Pounce Attack
-	if self:GetCrawler() and self.IsStalking and IsValid(target) and !target.MonkeyBomb and !target.BHBomb and !self:IsAttackBlocked() and math.random(100) <= 75 then
+	if self:GetCrawler() and !self:GetJumping() and self.IsStalking and IsValid(target) and !target.MonkeyBomb and !target.BHBomb and !self:IsAttackBlocked() and !nzPowerUps:IsPowerupActive("timewarp") and math.random(100) <= 75 then
 		if self:TargetInRange(350) and !self:TargetInRange(125) then
 			self:TempBehaveThread(function(self)
 				--if !self:SequenceHasSpace("nz_base_hunter_attack_lunge_high") then return end
@@ -970,7 +970,7 @@ if SERVER then
 			if CurTime() > self.LastStun then -- The code here is kinda bad tbh, and in turn it does weird shit because of it.
 				-- Moo Mark 7/17/23: Alright... We're gonna try again.
 				if self.Dying then return end
-				if !self:Alive() then return end
+				if !self:IsAlive() then return end
 				if dmginfo:IsDamageType(DMG_MISSILEDEFENSE) 
 					or self:GetSpecialAnimation() 
 					or self:GetCrawler() 

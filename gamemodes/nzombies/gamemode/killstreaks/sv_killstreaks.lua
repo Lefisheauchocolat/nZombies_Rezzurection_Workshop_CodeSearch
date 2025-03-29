@@ -263,11 +263,7 @@ hook.Add("KeyPress", "nzrKillstreaks_Mangler", function(ply, key)
                         if ent:Health() > 0 and !ent:IsPlayer() then
                             ent:EmitSound("physics/flesh/flesh_impact_hard"..math.random(1,6)..".wav", 70, math.random(80,110))
                             ent:EmitSound("physics/flesh/flesh_squishy_impact_hard"..math.random(1,4)..".wav", 70, math.random(80,110))
-                            if string.match(ent:GetClass(), "_boss") then
-                                ent:TakeDamage(10000, ply)
-                            else
-                                ent:TakeDamage(math.max(10000+(2500*nzRound:GetNumber()), 10000), ply)
-                            end
+                            ent:TakeDamage(math.max(10000+(2500*nzRound:GetNumber()), 10000), ply)
                         end
                     end
                 end)

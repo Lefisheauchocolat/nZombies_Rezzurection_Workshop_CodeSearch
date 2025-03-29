@@ -14,11 +14,11 @@ if CLIENT then
 		self:DrawModel()
 		self:PostDraw()
 
-		if self.RedEyes == true and self:Alive() and !self:GetDecapitated() then
+		if self.RedEyes == true and self:IsAlive() and !self:GetDecapitated() then
 			self:DrawEyeGlow() 
 		end
 
-		if self:WaterBuff() and !self:BomberBuff() and self:Alive() then
+		if self:WaterBuff() and !self:BomberBuff() and self:IsAlive() then
 			local elight = DynamicLight( self:EntIndex(), true )
 			if ( elight ) then
 				local bone = self:LookupBone("j_spineupper")
@@ -35,7 +35,7 @@ if CLIENT then
 				elight.style = 0
 				elight.noworld = true
 			end
-		elseif self:BomberBuff() and !self:WaterBuff() and self:Alive() then
+		elseif self:BomberBuff() and !self:WaterBuff() and self:IsAlive() then
 			local elight = DynamicLight( self:EntIndex(), true )
 			if ( elight ) then
 				local bone = self:LookupBone("j_spineupper")
@@ -52,7 +52,7 @@ if CLIENT then
 				elight.style = 0
 				elight.noworld = true
 			end
-		elseif self:WaterBuff() and self:BomberBuff() and self:Alive() then
+		elseif self:WaterBuff() and self:BomberBuff() and self:IsAlive() then
 			local elight = DynamicLight( self:EntIndex(), true )
 			if ( elight ) then
 				local bone = self:LookupBone("j_spineupper")
@@ -613,7 +613,7 @@ function ENT:OnNuke()
 end
 
 function ENT:OnInjured(dmginfo)
-	if !self:Alive() then return end
+	if !self:IsAlive() then return end
 
 	local hitpos = dmginfo:GetDamagePosition()
 	local hitgroup = util.QuickTrace(dmginfo:GetDamagePosition(), dmginfo:GetDamagePosition()).HitGroup
@@ -626,7 +626,7 @@ function ENT:OnInjured(dmginfo)
 		self.ShouldSpeedup = true
 	end
 
-	dmginfo:ScaleDamage(0.25)
+	dmginfo:ScaleDamage(0.45)
 end
 
 function ENT:CustomAnimEvent(a,b,c,d,e) 
@@ -666,7 +666,7 @@ function ENT:CustomAnimEvent(a,b,c,d,e)
 	                if v == self then continue end
 	                if v:EntIndex() == self:EntIndex() then continue end
 	                if v:Health() <= 0 then continue end
-	                if !v:Alive() then continue end
+	                if !v:IsAlive() then continue end
 
 	                local seq = v.ThunderGunSequences[math.random(#v.ThunderGunSequences)]
 	                if v:HasSequence(seq) then

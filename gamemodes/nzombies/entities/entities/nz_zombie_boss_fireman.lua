@@ -15,7 +15,7 @@ if CLIENT then
 	function ENT:Draw()
 		self:DrawModel()
 
-		if self.RedEyes and self:Alive() then
+		if self.RedEyes and self:IsAlive() then
 			self:DrawEyeGlow() 
 		end
 		if GetConVar( "nz_zombie_debug" ):GetBool() then
@@ -406,7 +406,7 @@ function ENT:OnTargetInAttackRange()
 end
 
 function ENT:AI()
-	if !self:Alive() then return end
+	if !self:IsAlive() then return end
 	if IsValid(self:GetTarget()) then
 		if self:Health() <= self:GetMaxHealth() / 2 and !self.Enraged then
 			self.Enraged = true
@@ -437,7 +437,7 @@ function ENT:AI()
 end
 
 function ENT:PostTookDamage(dmginfo) 
-	if !self:Alive() then return end
+	if !self:IsAlive() then return end
 
 	local dmgtype = dmginfo:GetDamageType()
 
@@ -606,7 +606,7 @@ function ENT:IsValidTarget( ent )
 	
 	-- Turned Zombie Targetting
 	if self.IsTurned then
-		return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooBossZombie and ent:Alive() 
+		return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooBossZombie and ent:IsAlive() 
 	end
 	
 	return IsValid(ent) and ent:GetTargetPriority() ~= TARGET_PRIORITY_NONE and ent:GetTargetPriority() ~= TARGET_PRIORITY_MONSTERINTERACT and ent:GetTargetPriority() ~= TARGET_PRIORITY_SPECIAL and ent:GetTargetPriority() ~= TARGET_PRIORITY_FUNNY

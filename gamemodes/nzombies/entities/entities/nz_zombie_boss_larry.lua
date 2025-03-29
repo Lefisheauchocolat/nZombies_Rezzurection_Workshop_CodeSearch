@@ -232,7 +232,7 @@ function ENT:OnPathTimeOut()
 						ParticleEffect("divider_slash2",succ,Angle(0,0,0),nil)
 						ParticleEffect("divider_slash3",succ,Angle(0,0,0),nil)
 						ParticleEffect("baby_dead",succ,Angle(0,0,0),nil)
-						if self:Alive() then -- Bitch don't you eat those cheeks from beyond the grave.
+						if self:IsAlive() then -- Bitch don't you eat those cheeks from beyond the grave.
 							target:Kill() -- CHEEEEEEKSSSSSSSS
 						end
 					end

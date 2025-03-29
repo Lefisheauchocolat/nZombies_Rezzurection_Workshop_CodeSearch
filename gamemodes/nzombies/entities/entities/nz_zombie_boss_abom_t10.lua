@@ -15,7 +15,7 @@ end
 
 if CLIENT then 
 	function ENT:PostDraw()
-		if self:Alive() then
+		if self:IsAlive() then
 			if !IsValid(self) then return end
 			local color = Color(95,10,255)
 			if (!self.Draw_FX or !IsValid(self.Draw_FX)) and (self:GetOpenMidHead() or self:GetOpenLeftHead() or self:GetOpenRightHead()) then
@@ -705,7 +705,7 @@ function ENT:ZombieGestureSequences()
 end
 
 function ENT:OnInjured(dmginfo)
-	if !self:Alive() then return end
+	if !self:IsAlive() then return end
 
 	local hitpos = dmginfo:GetDamagePosition()
 	local hitgroup = util.QuickTrace(dmginfo:GetDamagePosition(), dmginfo:GetDamagePosition()).HitGroup
@@ -981,7 +981,7 @@ function ENT:IsValidTarget( ent )
 
 	-- Turned Zombie Targetting
 	if self.IsTurned then
-		return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooBossZombie and ent:Alive() 
+		return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooBossZombie and ent:IsAlive() 
 	end
 	
 	return IsValid(ent) and ent:GetTargetPriority() ~= TARGET_PRIORITY_NONE and ent:GetTargetPriority() ~= TARGET_PRIORITY_MONSTERINTERACT and ent:GetTargetPriority() ~= TARGET_PRIORITY_SPECIAL and ent:GetTargetPriority() ~= TARGET_PRIORITY_FUNNY

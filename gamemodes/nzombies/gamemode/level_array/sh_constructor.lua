@@ -1,33 +1,34 @@
 
 nzLevel = nzLevel or AddNZModule("Level")
 
-nzLevel.TriggerCache = {}
-nzLevel.ToggleCache = {}
-nzLevel.ZombieCache = {}
-nzLevel.ZBossCache = {}
-nzLevel.ShieldCache = {}
-nzLevel.CreativeCache = {}
-nzLevel.VultureCache = {}
-nzLevel.BarricadeCache = {}
-nzLevel.JumpTravCache = {}
-nzLevel.TargetCache = {}
-nzLevel.HudEntityCache = {}
-nzLevel.BrutusEntityCache = {}
-nzLevel.GrenadeCache = {}
-nzLevel.SpecialGrenadeCache = {}
-nzLevel.PowerUpsCache = {}
+nzLevel.TriggerCache = nzLevel.TriggerCache or {}
+nzLevel.ToggleCache = nzLevel.ToggleCache or {}
+nzLevel.ZombieCache = nzLevel.ZombieCache or {}
+nzLevel.ZBossCache = nzLevel.ZBossCache or {}
+nzLevel.ShieldCache = nzLevel.ShieldCache or {}
+nzLevel.CreativeCache = nzLevel.CreativeCache or {}
+nzLevel.VultureCache = nzLevel.VultureCache or {}
+nzLevel.BarricadeCache = nzLevel.BarricadeCache or {}
+nzLevel.JumpTravCache = nzLevel.JumpTravCache or {}
+nzLevel.TargetCache = nzLevel.TargetCache or {}
+nzLevel.HudEntityCache = nzLevel.HudEntityCache or {}
+nzLevel.BrutusEntityCache = nzLevel.BrutusEntityCache or {}
+nzLevel.GrenadeCache = nzLevel.GrenadeCache or {}
+nzLevel.SpecialGrenadeCache = nzLevel.SpecialGrenadeCache or {}
+nzLevel.PowerUpsCache = nzLevel.PowerUpsCache or {}
 
-nzLevel.HudEntityClass = {}
-nzLevel.BrutusEntityClass = {}
-nzLevel.ToggleClass = {}
-nzLevel.ShieldClass = {}
-nzLevel.GrenadeClass = {}
-nzLevel.SpecialGrenadeClass = {}
+nzLevel.HudEntityClass = nzLevel.HudEntityClass or {}
+nzLevel.BrutusEntityClass = nzLevel.BrutusEntityClass or {}
+nzLevel.ToggleClass = nzLevel.ToggleClass or {}
+nzLevel.ShieldClass = nzLevel.ShieldClass or {}
+nzLevel.GrenadeClass = nzLevel.GrenadeClass or {}
+nzLevel.SpecialGrenadeClass = nzLevel.SpecialGrenadeClass or {}
 
-nzLevel.PSpawnCache = {}
-nzLevel.ZSpawnCache = {}
-nzLevel.ESpawnCache = {}
-nzLevel.SSpawnCache = {}
+nzLevel.PSpawnCache = nzLevel.PSpawnCache or {}
+nzLevel.ZSpawnCache = nzLevel.ZSpawnCache or {}
+nzLevel.ESpawnCache = nzLevel.ESpawnCache or {}
+nzLevel.SSpawnCache = nzLevel.SSpawnCache or {}
+nzLevel.ENVSpawnCache = nzLevel.ENVSpawnCache or {}
 
 local inext = ipairs({})
 
@@ -55,6 +56,10 @@ local sspawnerclasses = {
 	["nz_spawn_zombie_special"] = true,
 }
 
+local envspawnerclasses = {
+	["nz_spawn_zombie_vign"] = true,
+}
+
 local barricadeclasses = {
 	["breakable_entry"] = true,
 }
@@ -62,117 +67,6 @@ local barricadeclasses = {
 local scripttriggers = {
 	["nz_script_triggerzone"] = true,
 }
-
-function nzLevel:RebuildSENTCache()
-	for class, ent in pairs(scripted_ents.GetList()) do
-		if ent.t.NZThrowIcon or ent.t.NZNadeRethrow then
-			nzLevel.HudEntityClass[class] = true
-		end
-		if ent.t.bIsShield then
-			nzLevel.ShieldClass[class] = true
-		end
-		if (ent.t.TurnOff and ent.t.TurnOn) then
-			nzLevel.ToggleClass[class] = true
-		end
-		if ent.t.BrutusDestructable then
-			nzLevel.BrutusEntityClass[class] = true
-		end
-	end
-end
-
-function nzLevel:RebuildSWEPCache()
-	for k, wep in pairs(weapons.GetList()) do
-		if wep.Primary and wep.NZSpecialCategory then
-			local projectile = wep.Primary.Projectile or wep.Primary.Round or wep.ProjectileEntity
-			if nzLevel and projectile and wep.NZSpecialCategory == "grenade" then
-				nzLevel.GrenadeClass[projectile] = true
-			end
-
-			local projectile = wep.Primary.Projectile or wep.Primary.Round or wep.ProjectileEntity
-			if nzLevel and projectile and wep.NZSpecialCategory == "specialgrenade" then
-				nzLevel.SpecialGrenadeClass[projectile] = true
-			end
-		end
-		if SERVER and wep.NZWonderWeapon then
-			nzWeps:AddWonderWeapon(wep.ClassName)
-		end
-	end
-end
-
-function nzLevel:RebuildENTCache()
-	for k, ent in pairs(ents.GetAll()) do
-		if not IsValid(ent) then continue end
-
-		local class = ent:GetClass()
-
-		timer.Simple(engine.TickInterval(), function()
-			if not IsValid(ent) then return end
-			if ent:IsValidZombie() then
-				if ent.NZBossType or string.find(class, "zombie_boss") then
-					table.insert(nzLevel.ZBossCache, ent)
-				else
-					table.insert(nzLevel.ZombieCache, ent)
-				end
-			end
-		end)
-
-		if ent:IsPlayer() and ent:GetTargetPriority() > 0 then
-			table.insert(nzLevel.TargetCache, ent)
-		end
-
-		if nzLevel.HudEntityClass[class] then
-			table.insert(nzLevel.HudEntityCache, ent)
-		end
-		if nzLevel.ShieldClass[class] then
-			table.insert(nzLevel.ShieldCache, ent)
-		end
-		if nzLevel.ToggleClass[class] then
-			table.insert(nzLevel.ToggleCache, ent)
-		end
-		if nzLevel.BrutusEntityClass[class] then
-			table.insert(nzLevel.BrutusEntityCache, ent)
-		end
-		if nzPerks and nzPerks.VultureClass[class] then
-			table.insert(nzLevel.VultureCache, ent)
-		end
-
-		if class == "drop_powerup" then
-			table.insert(nzLevel.PowerUpsCache, ent)
-		end
-		if class == "jumptrav_block" then
-			table.insert(nzLevel.JumpTravCache, ent)
-		end
-		if class == "player_spawns" then
-			table.insert(nzLevel.PSpawnCache, ent)
-		end
-
-		if scripttriggers[class] then
-			table.insert(nzLevel.TriggerCache, ent)
-		end
-		if barricadeclasses[class] then
-			table.insert(nzLevel.BarricadeCache, ent)
-		end
-		if zspawnerclasses[class] then
-			table.insert(nzLevel.ZSpawnCache, ent)
-		end
-		if espawnerclasses[class] then
-			table.insert(nzLevel.ESpawnCache, ent)
-		end
-		if sspawnerclasses[class] then
-			table.insert(nzLevel.SSpawnCache, ent)
-		end
-	end
-end
-
-//these will do nothing on first run, but are here for when you edit code
-//and the gamemode needs to rebuild tables
-//only runs if in singleplayer or hosting a listen server
-
-if game.SinglePlayer() or (IsValid(Entity(1)) and Entity(1):IsListenServerHost()) then
-	nzLevel:RebuildSENTCache()
-	nzLevel:RebuildSWEPCache()
-	nzLevel:RebuildENTCache()
-end
 
 hook.Add("PreRegisterSENT", "nzLevel.SHENT", function(ent, class)
 	if ent.NZThrowIcon or ent.NZNadeRethrow then
@@ -192,13 +86,13 @@ end)
 hook.Add("OnEntityCreated", "nzLevel.Iterator", function(ent)
 	local class = ent:GetClass()
 
-	if SERVER and ent:IsValidZombie() then
+	if SERVER and ent:IsValidZombie() and !ent.IsENVZombie then
 		SetGlobal2Int("AliveZombies", GetGlobal2Int("AliveZombies", 0) + 1)
 	end
 
 	timer.Simple(engine.TickInterval(), function()
 		if not IsValid(ent) then return end
-		if ent:IsValidZombie() then
+		if ent:IsValidZombie() and !ent.IsENVZombie then
 			if ent.NZBossType or string.find(class, "zombie_boss") then
 				table.insert(nzLevel.ZBossCache, ent)
 			else
@@ -282,6 +176,9 @@ hook.Add("OnEntityCreated", "nzLevel.Iterator", function(ent)
 		end
 		if sspawnerclasses[class] then
 			table.insert(nzLevel.SSpawnCache, ent)
+		end
+		if envspawnerclasses[class] then
+			table.insert(nzLevel.ENVSpawnCache, ent)
 		end
 	end
 end)
@@ -425,6 +322,14 @@ hook.Add("EntityRemoved", "nzLevel.Iterator", function(ent)
 			end
 		end
 	end
+	if envspawnerclasses[class] then
+		for i = 1, #nzLevel.ENVSpawnCache do
+			if nzLevel.ENVSpawnCache[i] == ent then
+				table.remove(nzLevel.ENVSpawnCache, i)
+				break
+			end
+		end
+	end
 
 	if scripttriggers[class] then
 		for i = 1, #nzLevel.TriggerCache do
@@ -501,6 +406,10 @@ end
 
 function nzLevel.GetSpecialSpawnArray()
 	return inext, nzLevel.SSpawnCache, 0
+end
+
+function nzLevel.GetVignetteSpawnArray()
+	return inext, nzLevel.ENVSpawnCache, 0
 end
 
 function nzLevel.GetTurnOnTurnOffArray()

@@ -100,9 +100,19 @@ function ENT:Update()
 			self:SetModel("models/perks/machines/wonder/vending_wunderfizz.mdl")
 		end
 
-		local idle = self:LookupSequence("idle")
-		self:SetCycle(0)
-		self:ResetSequence(idle)
+		if self:GetActive() then
+			local idle = self:LookupSequence("idle")
+			if idle > 0 then
+				self:SetCycle(0)
+				self:ResetSequence(idle)
+			end
+		else
+			local turnoff, dur = self:LookupSequence("turn_off")
+			if turnoff > 0 then
+				self:ResetSequence(turnoff)
+				self:SetCycle(1)
+			end
+		end
 	end
 	self:StopSound("nz_moo/perkacolas/hum_loop.wav", 65, 100, 1, 3)
 	self.MaxUses = math.random(nzMapping.Settings.minfizzuses or 4, nzMapping.Settings.maxfizzuses or 7)
@@ -115,10 +125,13 @@ function ENT:TurnOn()
 	end
 
 	local turnon, dur = self:LookupSequence("turn_on")
-	self:SetCycle(0)
-	self:ResetSequence(turnon)
+	if turnon > 0 then
+		self:SetCycle(0)
+		self:ResetSequence(turnon)
+	end
 	self.GoIdle = CurTime() + dur -- Delay when to go idle (after turn on animation)
 	self:EmitSound("nz_moo/perks/wonderfizz/ball_drop.mp3", 100)
+	self.TimesUsed = 0
 	self.MaxUses = math.random(nzMapping.Settings.minfizzuses or 4, nzMapping.Settings.maxfizzuses or 7)
 end
 
@@ -130,7 +143,10 @@ function ENT:TurnOff(spawn)
 	end
 
 	local turnoff, dur = self:LookupSequence("turn_off")
-	self:ResetSequence(turnoff)
+	if turnoff > 0 then
+		self:ResetSequence(turnoff)
+	end
+	self.TimesUsed = 0
 	self.GoIdle = nil
 	self:EmitSound("nz_moo/perks/wonderfizz/rand_perk_mach_leave.mp3", 100)
 	if spawn then self:SetCycle(1) else self:SetCycle(0) end
@@ -239,7 +255,7 @@ function ENT:Use(activator, caller)
 					return true
 				end)
 			end
-		elseif !self.Bottle:GetWinding() and !self:GetIsTeddy() and (activator == self:GetUser() or self:GetSharing()) then
+		elseif !self.Bottle:GetWinding() and !self:GetIsTeddy() and (activator == self:GetUser() or (self:GetSharing() and #activator:GetPerks() < activator:GetMaxPerks())) then
 			activator.NextUse = CurTime() + 0.25
 			if #activator:GetPerks() >= activator:GetMaxPerks() then
 				activator:PrintMessage(HUD_PRINTTALK, "[NZ] You have outsmarted the system.")
@@ -293,11 +309,12 @@ end
 
 function ENT:MoveLocation()
 	if (#ents.FindByClass("wunderfizz_machine") == 1) then return end -- NO! Don't move if there's nowhere to go
+
 	self:TurnOff()
 	self:SetPerkID("")
 	self:SetUser(nil)
 	self:SetIsTeddy(false)
-	
+
 	local tbl = {}
 	for k,v in pairs(ents.FindByClass("wunderfizz_machine")) do
 		if !v:IsOn() and v != self then

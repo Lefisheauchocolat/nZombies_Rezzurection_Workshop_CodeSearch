@@ -197,7 +197,11 @@ if SERVER then
             self:EmitSound("ambient/levels/citadel/weapon_disintegrate2.wav", 70, math.random(90,120))
             for _, ent in pairs(ents.FindInSphere(self:GetPos(), 180)) do
                 if ent:IsNextBot() then
-                    ent:TakeDamage(ent:Health(), self.Player or self)
+                    if string.match(ent:GetClass(), "_walker_") then
+                        ent:TakeDamage(ent:Health(), self.Player or self)
+                    else
+                        ent:TakeDamage(250, self.Player or self)
+                    end
                 end
             end
         end

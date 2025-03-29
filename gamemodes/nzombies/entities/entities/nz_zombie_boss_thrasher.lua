@@ -6,8 +6,6 @@ ENT.PrintName = "Thrasher"
 ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 
---Girly weak ass bitch
-
 function ENT:InitDataTables()
 	self:NetworkVar("Entity", 	5, "CurrentZombie")
 	self:NetworkVar("Entity", 	6, "CurrentPlayer")
@@ -18,7 +16,7 @@ if CLIENT then
 	local eyeglow =  Material("nz/zlight")
 	function ENT:Draw() //Runs every frame
 		self:DrawModel()
-		if self.RedEyes and self:Alive() and !self:GetDecapitated() then
+		if self.RedEyes and self:IsAlive() and !self:GetDecapitated() then
 			self:DrawEyeGlow() 
 		end
 		if GetConVar( "nz_zombie_debug" ):GetBool() then
@@ -32,7 +30,7 @@ if CLIENT then
 	end
 
 	function ENT:EffectsAndSounds()
-		if self:Alive() then
+		if self:IsAlive() then
 			-- Credit: FlamingFox for Code and fighting the PVS monster -- 
 			if !IsValid(self) then return end
 			if self:GetIsEnraged() and (!self.Draw_FX or !IsValid(self.Draw_FX)) then
@@ -72,7 +70,7 @@ if CLIENT then
 		local ply = LocalPlayer()
 
 		-- If they are equal, hide the thrasher from the client(victim)
-		if self:Alive() and IsValid(currentply) and IsValid(ply) then
+		if self:IsAlive() and IsValid(currentply) and IsValid(ply) then
 			if currentply:IsPlayer() and currentply == ply then
 				self:SetNoDraw(true)
 			else
@@ -285,6 +283,24 @@ ENT.SporeExplodeSounds = {
 	Sound("nz_moo/zombies/vox/_margwa/head_explo/margwa_head_explo_3.mp3"),
 }
 
+ENT.CustomMeleeWhooshSounds = {
+	Sound("nz_moo/zombies/vox/_thrasher/swing/swing_00.mp3"),
+	Sound("nz_moo/zombies/vox/_thrasher/swing/swing_01.mp3"),
+	Sound("nz_moo/zombies/vox/_thrasher/swing/swing_02.mp3"),
+	Sound("nz_moo/zombies/vox/_thrasher/swing/swing_03.mp3"),
+	Sound("nz_moo/zombies/vox/_thrasher/swing/swing_04.mp3"),
+	Sound("nz_moo/zombies/vox/_thrasher/swing/swing_05.mp3"),
+	Sound("nz_moo/zombies/vox/_thrasher/swing/swing_06.mp3"),
+	Sound("nz_moo/zombies/vox/_thrasher/swing/swing_07.mp3"),
+}
+
+ENT.ExplodeSWTSounds = {
+	Sound("nz_moo/zombies/vox/_margwa/head_explo/margwa_head_explo_0.mp3"),
+	Sound("nz_moo/zombies/vox/_margwa/head_explo/margwa_head_explo_1.mp3"),
+	Sound("nz_moo/zombies/vox/_margwa/head_explo/margwa_head_explo_2.mp3"),
+	Sound("nz_moo/zombies/vox/_margwa/head_explo/margwa_head_explo_3.mp3"),
+}
+
 function ENT:StatsInitialize()
 	if SERVER then
 		local count = #player.GetAllPlaying()
@@ -313,9 +329,7 @@ function ENT:StatsInitialize()
 		self.ChestSpore = true
 		self.BackSpore = true
 
-		self.LegSporeHp = self:Health() / 10
-		self.ChestSporeHp = self:Health() / 10
-		self.BackSporeHp = self:Health() / 10
+		self.RegenCount = 0
 
 		self:SetCurrentZombie(nil)
 		self:SetCurrentPlayer(nil)
@@ -364,9 +378,18 @@ end
 function ENT:PerformDeath(dmgInfo)	
 	self.Dying = true
 
+	if self.ChestSpore then
+		self:PopChestSporeEffect()
+	elseif self.LegSpore then
+		self:PopLegSporeEffect()
+	elseif self.BackSpore then
+		self:PopBackSporeEffect()
+	end
+
 	if self:GetSpecialAnimation() then
 		self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
 		if IsValid(self) then
+			self:EmitSound(self.ExplodeSWTSounds[math.random(#self.ExplodeSWTSounds)], SNDLVL_GUNFIRE, math.random(95,105))
 			ParticleEffect("bo3_margwa_death",self:LocalToWorld(Vector(0,0,0)),Angle(0,0,0),nil)
 			self:Remove()
 		end
@@ -405,7 +428,7 @@ function ENT:AI()
 	end
 
 	-- SPORE REGENERATION
-	if self.SporeCount ~= 0 and CurTime() > self.RegenCooldown then
+	if self.SporeCount ~= 0 and CurTime() > self.RegenCooldown and self.RegenCount < 3 then
 		for k,v in nzLevel.GetZombieArray() do
 			if IsValid(v) and !v:GetSpecialAnimation() and v.IsMooZombie and !v.IsMooSpecial and v ~= self then
 				if self:GetRangeTo( v:GetPos() ) < 85 then
@@ -504,7 +527,7 @@ function ENT:AI()
 
 			self:FaceTowards(v:GetPos())
 			self:DoSpecialAnimation("nz_thrasher_eat", 1)
-			if IsValid(self) and self:Alive() then
+			if IsValid(self) and self:IsAlive() then
 				if !v:GetNotDowned() and !v:NZIsThrasherVictim() then
 					--v:Kill()
 					v:SetCollisionGroup(COLLISION_GROUP_IN_VEHICLE)
@@ -514,15 +537,6 @@ function ENT:AI()
 			end
 		end
 	end
-
-	-- Wander
-	--[[if IsValid(self:GetCurrentPlayer()) then
-		self:ResetMovementSequence()
-		self:MoveToPos(self:GetPos() + Vector(math.random(-512, 512), math.random(-512, 512), 0), {
-			repath = 3,
-			maxage = 5
-		})
-	end]]
 end
 
 function ENT:OnThink()
@@ -536,8 +550,6 @@ function ENT:OnThink()
 
 	if IsValid(victim) and victim:Alive() then
 		victim:NZThrasherVictim(0.5, victim)
-		--victim:SetPos(self:EyePos()) -- This is by far the worst thing I've ever done.
-		--victim:SetPos(LerpVector( 0.15, victim:GetPos(), self:EyePos() ))
 	elseif IsValid(victim) and !victim:Alive() then
 		victim:SetParent(nil)
 		self:SetCurrentPlayer(nil)
@@ -545,29 +557,43 @@ function ENT:OnThink()
 end
 
 function ENT:RegenSpore()
+	-- Thrasher can only gain a spore back up to 3 times
+
+	local healththreshold1 = self:GetMaxHealth() * 0.85
+	local healththreshold2 = self:GetMaxHealth() * 0.45
+	local hpgained = false
+
+	self.RegenCount = self.RegenCount + 1
 	self.SporeCount = self.SporeCount - 1
+
+	-- Health just goes back up to previous threshold
+	if self:Health() < healththreshold2 and !hpgained then 
+		self:SetHealth(healththreshold2) 
+		hpgained = true
+	elseif self:Health() < healththreshold1 and !hpgained then
+		self:SetHealth(healththreshold1)
+		hpgained = true
+	end
+
 	if !self.LegSpore then
 		self.LegSpore = true
-		self.LegSporeHp = 3500 / 10
 		self:ManipulateBoneScale(self:LookupBone("tag_spore_leg"), Vector(1,1,1))
 		return
 	end
 	if !self.ChestSpore then
 		self.ChestSpore = true
-		self.ChestSporeHp = 3500 / 10
 		self:ManipulateBoneScale(self:LookupBone("tag_spore_chest"), Vector(1,1,1))
 		return
 	end
 	if !self.BackSpore then
 		self.BackSpore = true
-		self.BackSporeHp = 3500 / 10
 		self:ManipulateBoneScale(self:LookupBone("tag_spore_back"), Vector(1,1,1))
 		return
 	end
 end
 
 function ENT:OnInjured(dmginfo)
-	if !self:Alive() then return end
+	if !self:IsAlive() then return end
 
 	local hitpos = dmginfo:GetDamagePosition()
 	local hitgroup = util.QuickTrace(dmginfo:GetDamagePosition(), dmginfo:GetDamagePosition()).HitGroup
@@ -585,113 +611,164 @@ function ENT:OnInjured(dmginfo)
 	local back = self:LookupBone("tag_spore_back")
 	local backpos = self:GetBonePosition(back)
 
-	if hitpos:DistToSqr(legpos) < 20^2 and self.LegSpore and CurTime() > self.IFrames then
-		if self.LegSporeHp > 0 then
-			self:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], 95, math.random(95,105))
-			attacker:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], SNDLVL_GUNFIRE, math.random(95,105))
-			self.LegSporeHp = self.LegSporeHp - damage
-		else
-			self.IFrames = CurTime() + 2
-			self.EnrageTime = 0
-			self.LegSpore = false
-			self.SporeCount = self.SporeCount + 1
+	local healththreshold1 = self:GetMaxHealth() * 0.65
+	local healththreshold2 = self:GetMaxHealth() * 0.35
 
-			self:ManipulateBoneScale(leg, Vector(0.00001,0.00001,0.00001))
-			self:EmitSound(self.SporeExplodeSounds[math.random(#self.SporeExplodeSounds)], 511)
-
-    		if IsValid(attacker) then
-    			attacker:GivePoints(50)
-    		end
-    		timer.Simple(engine.TickInterval(), function()
-				if self.SporeCount >= 3 then
-					self:OnKilled(dmginfo)
-				else
-					self:TempBehaveThread(function(self)
-						self:SetSpecialAnimation(true)
-						self:SolidMaskDuringEvent(MASK_PLAYERSOLID, collision)
-						self:PlaySequenceAndMove("nz_thrasher_stunned_v2", {gravity = true})
-						self:CollideWhenPossible()
-						self:SetSpecialAnimation(false) -- Stops them from going back to idle.
-					end)
-				end
-			end)
+	if CurTime() > self.IFrames then
+		if self:Health() <= healththreshold1 and self.SporeCount == 0 then
+			self:TestChestSpore(dmginfo)
+			self:TestLegSpore(dmginfo)
+			self:TestBackSpore(dmginfo)
+		elseif self:Health() <= healththreshold2 and self.SporeCount == 1 then
+			self:TestChestSpore(dmginfo)
+			self:TestLegSpore(dmginfo)
+			self:TestBackSpore(dmginfo)
 		end
 	end
 
-	if hitpos:DistToSqr(chestpos) < 20^2 and self.ChestSpore and CurTime() > self.IFrames then
-		if self.ChestSporeHp > 0 then
-			self:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], 95, math.random(95,105))
-			attacker:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], SNDLVL_GUNFIRE, math.random(95,105))
-			self.ChestSporeHp = self.ChestSporeHp - damage
-		else
-			self.IFrames = CurTime() + 2
-			self.EnrageTime = 0
-			self.ChestSpore = false
-			self.SporeCount = self.SporeCount + 1
-
-			self:ManipulateBoneScale(chest, Vector(0.00001,0.00001,0.00001))
-			ParticleEffect("bo3_thrasher_blood",chestpos, Angle(0,0,0), nil)
-			self:EmitSound(self.SporeExplodeSounds[math.random(#self.SporeExplodeSounds)], 511)
-
-    		if IsValid(attacker) then
-    			attacker:GivePoints(50)
-    		end
-    		timer.Simple(engine.TickInterval(), function()
-				if self.SporeCount >= 3 then
-					self:OnKilled(dmginfo)
-				else
-					self:TempBehaveThread(function(self)
-						self:SetSpecialAnimation(true)
-						self:SolidMaskDuringEvent(MASK_PLAYERSOLID, collision)
-						self:PlaySequenceAndMove("nz_thrasher_stunned_v1", {gravity = true})
-						self:CollideWhenPossible()
-						self:SetSpecialAnimation(false) -- Stops them from going back to idle.
-					end)
-				end
-			end)
-		end
-	end
-
-	if hitpos:DistToSqr(backpos) < 20^2 and self.BackSpore and CurTime() > self.IFrames then
-		if self.BackSporeHp > 0 then
-			self:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], 95, math.random(95,105))
-			attacker:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], SNDLVL_GUNFIRE, math.random(95,105))
-			self.BackSporeHp = self.BackSporeHp - damage
-		else
-			self.IFrames = CurTime() + 2
-			self.EnrageTime = 0
-			self.BackSpore = false
-			self.SporeCount = self.SporeCount + 1
-
-			self:ManipulateBoneScale(back, Vector(0.00001,0.00001,0.00001))
-			ParticleEffect("bo3_thrasher_blood",backpos, Angle(0,0,0), nil)
-			self:EmitSound(self.SporeExplodeSounds[math.random(#self.SporeExplodeSounds)], 511)
-
-    		if IsValid(attacker) then
-    			attacker:GivePoints(50)
-    		end
-    		timer.Simple(engine.TickInterval(), function()
-				if self.SporeCount >= 3 then
-					self:OnKilled(dmginfo)
-				else
-					self:TempBehaveThread(function(self)
-						self:SetSpecialAnimation(true)
-						self:SolidMaskDuringEvent(MASK_PLAYERSOLID, collision)
-						self:PlaySequenceAndMove("nz_thrasher_stunned_v3", {gravity = true})
-						self:CollideWhenPossible()
-						self:SetSpecialAnimation(false) -- Stops them from going back to idle.
-					end)
-				end
-			end)
-		end
+	if hitpos:DistToSqr(legpos) < 18^2 and self.LegSpore and CurTime() > self.IFrames then
+		self:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], 95, math.random(95,105))
+		attacker:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], SNDLVL_GUNFIRE, math.random(95,105))
+		dmginfo:ScaleDamage(0.85)
+	elseif hitpos:DistToSqr(chestpos) < 18^2 and self.ChestSpore and CurTime() > self.IFrames then
+		self:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], 95, math.random(95,105))
+		attacker:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], SNDLVL_GUNFIRE, math.random(95,105))
+		dmginfo:ScaleDamage(0.85)
+	elseif hitpos:DistToSqr(backpos) < 18^2 and self.BackSpore and CurTime() > self.IFrames then
+		self:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], 95, math.random(95,105))
+		attacker:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], SNDLVL_GUNFIRE, math.random(95,105))
+		dmginfo:ScaleDamage(0.85)
+	else
+		dmginfo:ScaleDamage(0.25)
 	end
 
 	if !self.Enraged and math.random(100) < 25 then -- Have a chance of becoming enraged from just being shot.
 		self.EnrageTime = 0
 	end
+end
 
-	dmginfo:ScaleDamage(0.25)
+function ENT:TestChestSpore(dmginfo)
+	local hitpos = dmginfo:GetDamagePosition()
+	local chest = self:LookupBone("tag_spore_chest")
+	local chestpos = self:GetBonePosition(chest)
+	if hitpos:DistToSqr(chestpos) < 20^2 and self.ChestSpore then
+		local attacker = dmginfo:GetAttacker()
 
+		self.RegenCooldown = CurTime() + 10
+		self.IFrames = CurTime() + 4
+		self.EnrageTime = 0
+		self.ChestSpore = false
+		self.SporeCount = self.SporeCount + 1
+
+		self:PopChestSporeEffect()
+
+    	if IsValid(attacker) then
+    		attacker:GivePoints(50)
+    	end
+    	timer.Simple(engine.TickInterval(), function()
+			if self.SporeCount <= 2 then
+				self:TempBehaveThread(function(self)
+					self:SetSpecialAnimation(true)
+					self:SolidMaskDuringEvent(MASK_PLAYERSOLID, collision)
+					self:PlaySequenceAndMove("nz_thrasher_stunned_v1", {gravity = true})
+					self:CollideWhenPossible()
+					self:SetSpecialAnimation(false) -- Stops them from going back to idle.
+				end)
+			end
+		end)
+	end
+end
+
+function ENT:TestLegSpore(dmginfo)
+	local hitpos = dmginfo:GetDamagePosition()
+	local leg = self:LookupBone("tag_spore_leg")
+	local legpos = self:GetBonePosition(leg)
+	if hitpos:DistToSqr(legpos) < 20^2 and self.LegSpore then
+		local attacker = dmginfo:GetAttacker()
+
+		self.RegenCooldown = CurTime() + 10
+		self.IFrames = CurTime() + 4
+		self.EnrageTime = 0
+		self.LegSpore = false
+		self.SporeCount = self.SporeCount + 1
+
+		self:PopLegSporeEffect()
+
+    	if IsValid(attacker) then
+    		attacker:GivePoints(50)
+    	end
+    	timer.Simple(engine.TickInterval(), function()
+			if self.SporeCount <= 2 then
+				self:TempBehaveThread(function(self)
+					self:SetSpecialAnimation(true)
+					self:SolidMaskDuringEvent(MASK_PLAYERSOLID, collision)
+					self:PlaySequenceAndMove("nz_thrasher_stunned_v2", {gravity = true})
+					self:CollideWhenPossible()
+					self:SetSpecialAnimation(false) -- Stops them from going back to idle.
+				end)
+			end
+		end)
+	end
+end
+
+function ENT:TestBackSpore(dmginfo)
+	local hitpos = dmginfo:GetDamagePosition()
+	local back = self:LookupBone("tag_spore_back")
+	local backpos = self:GetBonePosition(back)
+	if hitpos:DistToSqr(backpos) < 20^2 and self.BackSpore then
+		local attacker = dmginfo:GetAttacker()
+
+
+		self.RegenCooldown = CurTime() + 10
+		self.IFrames = CurTime() + 4
+		self.EnrageTime = 0
+		self.BackSpore = false
+		self.SporeCount = self.SporeCount + 1
+
+		self:PopBackSporeEffect()
+
+    	if IsValid(attacker) then
+    		attacker:GivePoints(50)
+    	end
+    	timer.Simple(engine.TickInterval(), function()
+			if self.SporeCount <= 2 then
+				self:TempBehaveThread(function(self)
+					self:SetSpecialAnimation(true)
+					self:SolidMaskDuringEvent(MASK_PLAYERSOLID, collision)
+					self:PlaySequenceAndMove("nz_thrasher_stunned_v3", {gravity = true})
+					self:CollideWhenPossible()
+					self:SetSpecialAnimation(false) -- Stops them from going back to idle.
+				end)
+			end
+		end)
+	end
+end
+
+function ENT:PopChestSporeEffect()
+	local chest = self:LookupBone("tag_spore_chest")
+	local chestpos = self:GetBonePosition(chest)
+
+	self:ManipulateBoneScale(chest, Vector(0.00001,0.00001,0.00001))
+	ParticleEffect("bo3_thrasher_blood",chestpos, Angle(0,0,0), nil)
+	self:EmitSound(self.SporeExplodeSounds[math.random(#self.SporeExplodeSounds)], 511)
+end
+
+function ENT:PopLegSporeEffect()
+	local leg = self:LookupBone("tag_spore_leg")
+	local legpos = self:GetBonePosition(leg)
+
+	self:ManipulateBoneScale(leg, Vector(0.00001,0.00001,0.00001))
+	ParticleEffect("bo3_thrasher_blood",legpos, Angle(0,0,0), nil)
+	self:EmitSound(self.SporeExplodeSounds[math.random(#self.SporeExplodeSounds)], 511)
+end
+
+function ENT:PopBackSporeEffect()
+	local back = self:LookupBone("tag_spore_back")
+	local backpos = self:GetBonePosition(back)
+
+	self:ManipulateBoneScale(back, Vector(0.00001,0.00001,0.00001))
+	ParticleEffect("bo3_thrasher_blood",backpos, Angle(0,0,0), nil)
+	self:EmitSound(self.SporeExplodeSounds[math.random(#self.SporeExplodeSounds)], 511)
 end
 
 function ENT:IsValidTarget( ent )
@@ -722,7 +799,13 @@ function ENT:CreateVinesOut()
 	vines:VinesOut()
 end
 
-function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how sad I am that I didn't know about this sooner.
+function ENT:CustomAnimEvent(a,b,c,d,e)
+
+	self.OverrideLsmall = true 		-- Overrides step_left_small
+	self.OverrideLLarge = true 		-- Overrides step_left_large
+	self.OverrideRsmall = true 		-- Overrides step_right_small
+	self.OverrideRLarge = true 		-- Overrides step_right_large
+
 	if e == "step_right_small" or e == "step_left_small" then
 		self:EmitSound(self.StompSounds[math.random(#self.StompSounds)], 80, math.random(95,105))
 		self:EmitSound("nz_moo/zombies/vox/_thrasher/fall_swt/fall_swt_0"..math.random(0,6)..".mp3", 80)
@@ -732,22 +815,6 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 		self:EmitSound(self.StompSounds[math.random(#self.StompSounds)], 80, math.random(95,105))
 		self:EmitSound("nz_moo/zombies/vox/_thrasher/fall_swt/fall_swt_0"..math.random(0,6)..".mp3", 80)
 		util.ScreenShake(self:GetPos(),1,1,0.2,450)
-	end
-	if e == "melee" or e == "melee_heavy" then
-		if self:BomberBuff() and self.GasAttack then
-			self:EmitSound(self.GasAttack[math.random(#self.GasAttack)], 100, math.random(95, 105), 1, 2)
-		else
-			if self.AttackSounds then
-				self:EmitSound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(85, 105), 1, 2)
-			end
-		end
-		if e == "melee_heavy" then
-			self.HeavyAttack = true
-		end
-		self:DoAttackDamage()
-	end
-	if e == "melee_whoosh" then
-		self:EmitSound("nz_moo/zombies/vox/_thrasher/swing/swing_0"..math.random(0,7)..".mp3", 90)
 	end
 	if e == "thrasher_fall" then
 		self:EmitSound("nz_moo/zombies/vox/_thrasher/fall/fall_0"..math.random(0,3)..".mp3", 90)
@@ -788,17 +855,10 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 	if e == "thrasher_explode" then
 		if IsValid(self) then
 
+			self:EmitSound(self.ExplodeSWTSounds[math.random(#self.ExplodeSWTSounds)], SNDLVL_GUNFIRE, math.random(95,105))
 			ParticleEffect("bo3_margwa_death",self:LocalToWorld(Vector(0,0,0)),Angle(0,0,0),nil)
 			self:Remove()
 		end
-	end
-	if e == "start_traverse" then
-		--print("starttraverse")
-		self.TraversalAnim = true
-	end
-	if e == "finish_traverse" then
-		--print("finishtraverse")
-		self.TraversalAnim = false
 	end
 end
 

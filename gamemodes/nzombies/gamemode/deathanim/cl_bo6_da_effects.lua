@@ -24,7 +24,14 @@ function nzEffects:ApplyDamageEffect(damageLevel, duration)
             size = 1024,
             motionBlur = 0.6,
             bloodAlwaysAlpha = 120,
-        }
+        },
+        [4] = {
+            count = math.random(28, 32),
+            size = 1200,
+            motionBlur = 0.7,
+            bloodAlwaysAlpha = 140,
+            cornerbottomright = true,
+        },
     }
 
     local config = damageConfig[damageLevel]
@@ -33,6 +40,9 @@ function nzEffects:ApplyDamageEffect(damageLevel, duration)
     local positions = {}
     for i = 1, config.count do
         table.insert(positions, {x = math.random(0, ScrW()), y = math.random(0, ScrH()), yaw = math.random(0,360), mat = Material("bo6/da/shot"..math.random(1,4)..".png")})
+    end
+    if config.cornerbottomright then
+        table.insert(positions, {alpha = 250, x = math.random(ScrW()-We(750), ScrW()-We(800)), y = math.random(ScrW()-He(1000), ScrW()-He(1100)), yaw = math.random(-20,20), mat = Material("bo6/da/bigshot.png")})
     end
     local alpha = 0
     local mainalpha = 1
@@ -61,9 +71,13 @@ function nzEffects:ApplyDamageEffect(damageLevel, duration)
         surface.DrawTexturedRect(0, 0, ScrW(), ScrH())
 
         for _, pos in ipairs(positions) do
-            surface.SetDrawColor(150, 150, 150, 200*mainalpha)
+            local al = 230*mainalpha
+            if pos.alpha then
+                al = pos.alpha*mainalpha
+            end
+            surface.SetDrawColor(150, 150, 150, al)
             surface.SetMaterial(pos.mat)
-            surface.DrawTexturedRectRotated(pos.x, pos.y, config.size, config.size, pos.yaw)
+            surface.DrawTexturedRectRotated(pos.x, pos.y, We(config.size), He(config.size), pos.yaw)
         end
     end)
 

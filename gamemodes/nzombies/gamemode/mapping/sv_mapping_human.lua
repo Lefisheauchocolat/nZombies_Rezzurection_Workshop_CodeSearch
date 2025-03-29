@@ -6,7 +6,6 @@ function nzMapping:HumanPos(pos, ang, data, ply)
 	p:SetPos(pos)
 	p:SetAngles(ang)
 	p:Spawn()
-	PrintTable(data)
 
 	if ply then
 		undo.Create("Human Spawner")

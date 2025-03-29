@@ -411,7 +411,7 @@ function ENT:UpdateModel()
 							if planknumber ~= nil then
 								if !self:GetCrawler() then
 									self:PlaySequenceAndWait("attack")
-									if IsValid(self) and self:Alive() then
+									if IsValid(self) and self:IsAlive() then
 										if IsValid(planktopull) then
 											barricade:RemovePlank(planktopull)
 										end
@@ -419,7 +419,7 @@ function ENT:UpdateModel()
 									self:PlaySequenceAndWait("attack")
 								else
 									self:PlaySequenceAndWait("attack")
-									if IsValid(self) and self:Alive() then
+									if IsValid(self) and self:IsAlive() then
 										if IsValid(planktopull) then
 											barricade:RemovePlank(planktopull)
 										end
@@ -429,7 +429,7 @@ function ENT:UpdateModel()
 							end
 						else
 							timer.Simple(dur/2, function() -- Moo Mark. This is very sinful but my dumbass can't think of anything else rn.
-								if IsValid(self) and self:Alive() and IsValid(planktopull) then -- This is just so the plank being pulled looks nicer and will look like the zombie is actually pulling that bitch.
+								if IsValid(self) and self:IsAlive() and IsValid(planktopull) then -- This is just so the plank being pulled looks nicer and will look like the zombie is actually pulling that bitch.
 									barricade:RemovePlank(planktopull)
 								end
 							end)

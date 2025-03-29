@@ -37,7 +37,7 @@ if CLIENT then
 	end
 
 	function ENT:EffectsAndSounds()
-		if self:Alive() then
+		if self:IsAlive() then
 			-- Credit: FlamingFox for Code and fighting the PVS monster -- 
 			if !IsValid(self) then return end
 			if !self.Draw_FX or !IsValid(self.Draw_FX) then
@@ -330,7 +330,7 @@ function ENT:HandleAnimEvent(a,b,c,d,e)
 		self:DoAttackDamage()
 	end
 	if e == "pull_plank" then
-		if IsValid(self) and self:Alive() then
+		if IsValid(self) and self:IsAlive() then
 			if IsValid(self.BarricadePlankPull) and IsValid(self.Barricade) then
 				self.Barricade:RemovePlank(self.BarricadePlankPull)
 			end

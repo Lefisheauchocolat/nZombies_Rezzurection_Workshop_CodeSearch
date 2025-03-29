@@ -4,7 +4,6 @@ if SERVER then
 	util.AddNetworkString( "nzCamos.Generate3p" )
 	util.AddNetworkString( "nzCamos.SyncFix3p" )
 	util.AddNetworkString( "nzCamos.Request" )
-	util.AddNetworkString( "nzCamos.Update" )
 
 	local load_queue_3p_sv = {}
 	local load_queue_sv = {}
@@ -65,12 +64,6 @@ if SERVER then
 		if !queued_weapons[wep] then
 			queued_weapons[wep] = true
 		end
-	end
-
-	function nzCamos:UpdatePlayerViewmodel(ply, model)
-		net.Start("nzCamos.Update")
-			net.WriteString(model)
-		net.Send(ply)
 	end
 
 	hook.Add("SetupMove", "nzCamos.SyncCamos", function( ply, _, cmd )
@@ -150,23 +143,10 @@ if SERVER then
 		local wep = net.ReadEntity()
 		if not IsValid(wep) then return end
 		nzCamos:GenerateCamo(ply, wep)
-		nzCamos:UpdatePlayerViewmodel(ply, wep:GetWeaponViewModel())
 	end)
 end
 
 if CLIENT then
-	local cvar_papcamo = GetConVar("nz_papcamo")
-
-	net.Receive("nzCamos.Update", function(len, ply)
-		if not cvar_papcamo:GetBool() then return end
-		local model = net.ReadString()
-		nzCamos:UpdatePlayerViewmodel(ply, model)
-	end)
-
-	function nzCamos:UpdatePlayerViewmodel(ply, model)
-		nzCamos.ViewmodelsToUpdate[model] = true
-	end
-
 	local developer = GetConVar("developer")
 
 	local function IsGoodMaterial(name)
@@ -191,16 +171,11 @@ if CLIENT then
 		}
 
 		local bannedflagval = {
-			[2097152] = true, //$translucent
-			[256] = true, //$alphatest
-			[128] = true, //$additive
-			[64] = true, //$selfillum
-			[4] = true, //$no_draw
-		}
-
-		local bannedshader = {
-			["UnlitGeneric"] = true,
-			["UnlitTwoTexture"] = true,
+			[2097152] = true,
+			[256] = true,
+			[128] = true,
+			[64] = true,
+			[4] = true,
 		}
 
 		for k, v in pairs(mat:GetKeyValues()) do
@@ -217,7 +192,7 @@ if CLIENT then
 			end*/
 		end
 
-		if bannedshader[mat:GetShader()] then
+		if mat:GetShader() == "UnlitGeneric" then
 			return false
 		end
 
@@ -427,7 +402,6 @@ if CLIENT then
 					end
 
 					Generate3pCamo(wep, data.welements)
-
 					load_queue_3p[ply][k] = nil
 					if table.IsEmpty(load_queue_3p[ply]) then
 						load_queue_3p[ply] = nil
@@ -447,8 +421,6 @@ if CLIENT then
 					end
 
 					GenerateCamo(wep, data.velements)
-					nzCamos:UpdatePlayerViewmodel(ply, wep:GetWeaponViewModel())
-
 					load_queue_cl[ply][k] = nil
 					if table.IsEmpty(load_queue_cl[ply]) then
 						load_queue_cl[ply] = nil

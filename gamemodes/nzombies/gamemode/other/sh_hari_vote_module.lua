@@ -13,6 +13,7 @@ if SERVER then
     local requiredVotes = 0
     local successCallback = nil
     local totalPlayers = 0
+    nzVotes.CurrentVotes = 0
 
     local function sndplaycl(path)
         BroadcastLua([[
@@ -29,6 +30,7 @@ if SERVER then
         votes = {}
         requiredVotes = math.Round(totalPlayers*required) or 1
         successCallback = onSuccess
+        nzVotes.CurrentVotes = 0
     
         net.Start("nZr.HariVoteStart")
         net.WriteString(text)
@@ -40,7 +42,11 @@ if SERVER then
         end)
     end
     
+    local stop_many_votes = false
     function nzVotes:EndVote(success)
+        if stop_many_votes then return end
+        stop_many_votes = true 
+
         if success then
             sndplaycl("bo6/vote/accepted.mp3")
         else
@@ -48,6 +54,8 @@ if SERVER then
         end
         timer.Simple(5, function()
             activeVote = false
+            nzVotes.CurrentVotes = 0
+            stop_many_votes = false
         end)
         timer.Remove("VoteTimeout")
     
@@ -59,14 +67,15 @@ if SERVER then
             timer.Simple(2, successCallback)
         end
     end
-    
-    net.Receive("nZr.HariVoteResponse", function(len, ply)
+
+    function nzVotes:VotePlayer(ply, vote)
         if not activeVote then return end
-        local vote = net.ReadBool()
 
         if votes[ply] == nil then
             votes[ply] = vote
             if !ply:Alive() then return end
+
+            nzVotes.CurrentVotes = table.Count(votes)
     
             local yesVotes = 0
             local noVotes = 0
@@ -85,6 +94,11 @@ if SERVER then
                 nzVotes:EndVote(false)
             end
         end
+    end
+    
+    net.Receive("nZr.HariVoteResponse", function(len, ply)
+        local bool = net.ReadBool()
+        nzVotes:VotePlayer(ply, bool)
     end)   
 else
     local voteBg = Material("bo6/other/vote_bg.png")
@@ -149,7 +163,7 @@ else
     
     net.Receive("nZr.HariVoteResult", function()
         voteResult = net.ReadBool()
-        timer.Simple(5, function()
+        timer.Simple(4.9, function()
             voteActive = false
         end)
     end)

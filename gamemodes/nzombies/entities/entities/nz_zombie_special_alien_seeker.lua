@@ -513,7 +513,7 @@ function ENT:OnInjured(dmginfo)
 		--[[ STUMBLING/STUN ]]--
 		if CurTime() > self.LastStun then
 			if self.Dying then return end
-			if !self:Alive() then return end
+			if !self:IsAlive() then return end
 			if dmginfo:IsDamageType(DMG_MISSILEDEFENSE) 
 				or self:GetSpecialAnimation() 
 				or self:GetIsBusy() 

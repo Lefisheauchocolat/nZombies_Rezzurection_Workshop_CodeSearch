@@ -23,8 +23,8 @@ ENT.RedEyes = true
 ENT.Models = {
 	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_male_merc_1.mdl", Skin = 0, Bodygroups = {0,0}},
 	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_male_merc_2.mdl", Skin = 0, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_male_merc_1.mdl", Skin = 0, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_male_merc_2.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_male_merc_3.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_male_merc_4.mdl", Skin = 0, Bodygroups = {0,0}},
 
 	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_charred_male.mdl", Skin = 0, Bodygroups = {0,0}},
 	{Model = "models/moo/_codz_ports/t10/jup/moo_codz_jup_base_charred_female.mdl", Skin = 0, Bodygroups = {0,0}},
@@ -128,59 +128,6 @@ local CrawlAttackSequences = {
 local CrawlJumpSequences = {
 	{seq = "nz_barricade_crawl_1"},
 	{seq = "nz_barricade_crawl_2"},
-}
-
-local SlowClimbUp36 = {
-	"nz_traverse_climbup36"
-}
-local SlowClimbUp48 = {
-	"nz_traverse_climbup48"
-}
-local SlowClimbUp72 = {
-	"nz_traverse_climbup72"
-}
-local SlowClimbUp96 = {
-	"nz_traverse_climbup96"
-}
-local SlowClimbUp128 = {
-	"nz_traverse_climbup128",
-	"nz_l4d_traverse_climbup132_01",
-	"nz_l4d_traverse_climbup132_02",
-	"nz_l4d_traverse_climbup132_03",
-}
-local SlowClimbUp160 = {
-	"nz_traverse_climbup160",
-	"nz_l4d_traverse_climbup156_01",
-	"nz_l4d_traverse_climbup156_02",
-	"nz_l4d_traverse_climbup156_03",
-}
-local FastClimbUp36 = {
-	"nz_traverse_fast_climbup36",
-	"nz_l4d_traverse_climbup36_01",
-	"nz_l4d_traverse_climbup36_02",
-	"nz_l4d_traverse_climbup36_03",
-}
-local FastClimbUp48 = {
-	"nz_traverse_fast_climbup48",
-	"nz_l4d_traverse_climbup48_01",
-	"nz_l4d_traverse_climbup48_02",
-	"nz_l4d_traverse_climbup48_03",
-	"nz_l4d_traverse_climbup48_04",
-}
-local FastClimbUp72 = {
-	"nz_traverse_fast_climbup72",
-	"nz_l4d_traverse_climbup72_01",
-	"nz_l4d_traverse_climbup72_02",
-	"nz_l4d_traverse_climbup72_03",
-}
-local FastClimbUp96 = {
-	"nz_traverse_fast_climbup96",
-	"nz_l4d_traverse_climbup96_01",
-	"nz_l4d_traverse_climbup96_02",
-	"nz_l4d_traverse_climbup96_03",
-}
-local ClimbUp200 = {
-	"nz_traverse_climbup200"
 }
 
 local AttackSequences = {
@@ -468,14 +415,6 @@ ENT.SequenceTables = {
 			JumpSequences = {JumpSequences},
 			CrawlJumpSequences = {CrawlJumpSequences},
 
-			Climb36 = {SlowClimbUp36},
-			Climb48 = {SlowClimbUp48},
-			Climb72 = {SlowClimbUp72},
-			Climb96 = {SlowClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
-
 			PassiveSounds = {walksounds},
 		},
 		{
@@ -496,7 +435,10 @@ ENT.SequenceTables = {
 				"nz_walk_au15",
 				"nz_walk_au20",
 				"nz_walk_au21",
+				"nz_s4_3arc_walk_au_v22",
 				"nz_walk_au23",
+				"nz_s4_3arc_walk_au_v24",
+				"nz_s4_3arc_walk_au_v25",
 				--"nz_walk_au_goose", -- This is the goosestep walk aka marching anim that german soldier zombies use.
 				--"nz_legacy_walk_dazed",
 				--"nz_legacy_jap_walk_v1",
@@ -564,14 +506,6 @@ ENT.SequenceTables = {
 
 			JumpSequences = {JumpSequences},
 			CrawlJumpSequences = {CrawlJumpSequences},
-
-			Climb36 = {SlowClimbUp36},
-			Climb48 = {SlowClimbUp48},
-			Climb72 = {SlowClimbUp72},
-			Climb96 = {SlowClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
 
 			PassiveSounds = {walksounds},
 		}
@@ -668,14 +602,6 @@ ENT.SequenceTables = {
 			JumpSequences = {RunJumpSequences},
 			CrawlJumpSequences = {CrawlJumpSequences},
 
-			Climb36 = {SlowClimbUp36},
-			Climb48 = {SlowClimbUp48},
-			Climb72 = {SlowClimbUp72},
-			Climb96 = {SlowClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
-
 			PassiveSounds = {runsounds},
 		},
 		{
@@ -768,14 +694,6 @@ ENT.SequenceTables = {
 			JumpSequences = {RunJumpSequences},
 			CrawlJumpSequences = {CrawlJumpSequences},
 
-			Climb36 = {SlowClimbUp36},
-			Climb48 = {SlowClimbUp48},
-			Climb72 = {SlowClimbUp72},
-			Climb96 = {SlowClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
-
 			PassiveSounds = {runsounds},
 		}
 	}},
@@ -791,6 +709,7 @@ ENT.SequenceTables = {
 				"nz_s4_3arc_sprint_ad_v21",
 				"nz_s4_3arc_sprint_ad_v22",
 				"nz_t9_base_sprint_ad_v23",
+				"nz_t9_base_sprint_ad_v24",
 				"nz_sprint_ad3",
 				"nz_sprint_ad4",
 				--"nz_fast_sprint_v1",
@@ -857,14 +776,6 @@ ENT.SequenceTables = {
 
 			JumpSequences = {SprintJumpSequences},
 			CrawlJumpSequences = {CrawlJumpSequences},
-
-			Climb36 = {FastClimbUp36},
-			Climb48 = {FastClimbUp48},
-			Climb72 = {FastClimbUp72},
-			Climb96 = {FastClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
 
 			PassiveSounds = {runsounds},
 		},
@@ -945,14 +856,6 @@ ENT.SequenceTables = {
 
 			JumpSequences = {SprintJumpSequences},
 			CrawlJumpSequences = {CrawlJumpSequences},
-
-			Climb36 = {FastClimbUp36},
-			Climb48 = {FastClimbUp48},
-			Climb72 = {FastClimbUp72},
-			Climb96 = {FastClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
 
 			PassiveSounds = {runsounds},
 		}
@@ -1036,14 +939,6 @@ ENT.SequenceTables = {
 			JumpSequences = {SprintJumpSequences},
 			CrawlJumpSequences = {CrawlJumpSequences},
 
-			Climb36 = {FastClimbUp36},
-			Climb48 = {FastClimbUp48},
-			Climb72 = {FastClimbUp72},
-			Climb96 = {FastClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
-
 			PassiveSounds = {runsounds},
 		},
 		{
@@ -1122,14 +1017,6 @@ ENT.SequenceTables = {
 			JumpSequences = {SprintJumpSequences},
 			CrawlJumpSequences = {CrawlJumpSequences},
 
-			Climb36 = {FastClimbUp36},
-			Climb48 = {FastClimbUp48},
-			Climb72 = {FastClimbUp72},
-			Climb96 = {FastClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
-
 			PassiveSounds = {runsounds},
 		}
 	}}
@@ -1146,7 +1033,6 @@ ENT.TauntSequences = {
 	"nz_taunt_v8",
 	"nz_taunt_v9"
 }
-ENT.IdleSequence = "nz_idle_ad"
 
 ENT.DeathSounds = {
 	Sound("nz_moo/zombies/vox/_2k20/death/zmb_vox_death_01.mp3"),

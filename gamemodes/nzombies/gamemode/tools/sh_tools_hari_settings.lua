@@ -37,6 +37,16 @@ nzTools:CreateTool("harimapsettings", {
 
 		--GAME OVER SCREEN SETTINGS-------------------------------------------------------------------
 
+		local Row2 = DProperties:CreateRow("Other Settings", "Use start pistol when downed?")
+		Row2:Setup("Boolean")
+		Row2:SetValue(nzSettings:GetSimpleSetting("nzrOnlyPistolDowned", false))
+		nzSettings:SyncValueToElement("nzrOnlyPistolDowned", Row2)
+		Row2.DataChanged = function( _, val ) 
+			nzSettings:SetSimpleSetting("nzrOnlyPistolDowned", tobool(val))
+		end
+
+		--GAME OVER SCREEN SETTINGS-------------------------------------------------------------------
+
 		local Row1 = DProperties:CreateRow("Game Over Screen Settings", "Enable Black Ops 6 Game Over Screen?")
 		Row1:Setup("Boolean")
 		Row1:SetValue(nzSettings:GetSimpleSetting("BO6_GO", false))

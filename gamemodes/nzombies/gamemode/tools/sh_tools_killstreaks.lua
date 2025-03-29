@@ -35,11 +35,26 @@ nzTools:CreateTool("killstreakeditor", {
 		return true
 	end,
 	interface = function(frame, data)
+		local valz = {}
+		valz["Row1"] = data.path
+
 		local DProperties = vgui.Create( "DProperties", frame )
 		DProperties:SetSize( 480, 450 )
 		DProperties:SetPos( 10, 10 )
 		function DProperties.CompileData()
+			data.path = valz["Row1"]
 			return data
+		end
+		function DProperties.UpdateData(data)
+			nzTools:SendData(data, "killstreakeditor")
+		end
+
+		local Row1 = DProperties:CreateRow("Position Settings", "Path Name")
+		Row1:Setup("Generic")
+		Row1:SetValue("default")
+		Row1.DataChanged = function( _, val ) 
+			valz["Row1"] = val 
+			DProperties.UpdateData(DProperties.CompileData())
 		end
 
 		local text = vgui.Create("DLabel", DProperties)
@@ -62,7 +77,9 @@ nzTools:CreateTool("killstreakeditor", {
 
 		return DProperties
 	end,
-	defaultdata = {},
+	defaultdata = {
+		path = "default",
+	},
 })
 
 if SERVER then	

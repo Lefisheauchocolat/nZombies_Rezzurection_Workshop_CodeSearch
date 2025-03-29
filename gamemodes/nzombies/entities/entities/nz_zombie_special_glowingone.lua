@@ -316,7 +316,7 @@ function ENT:OnInjured(dmginfo)
 		if CurTime() > self.LastStun then -- The code here is kinda bad tbh, and in turn it does weird shit because of it.
 			-- Moo Mark 7/17/23: Alright... We're gonna try again.
 			if self.Dying then return end
-			if !self:Alive() then return end
+			if !self:IsAlive() then return end
 			if dmginfo:IsDamageType(DMG_MISSILEDEFENSE) 
 				or self:GetSpecialAnimation() 
 				or self:GetIsBusy() 

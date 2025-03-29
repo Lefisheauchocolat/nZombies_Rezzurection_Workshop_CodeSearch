@@ -191,7 +191,7 @@ hook.Add("SetupMove", "dive_to_prone", function(ply, mv, cmd)
 					for k, v in pairs(ents.FindInSphere(ply:GetPos(), 270)) do
 						if v:IsValidZombie() then
 							if v.PainSequences then
-								if !v:Alive() then continue end
+								if !v:IsAlive() then continue end
 								if v:GetSpecialAnimation() or
 								v:GetCrawler() or v:GetIsBusy() or
 								v.ShouldCrawl or v.IsBeingStunned or

@@ -15,7 +15,7 @@ end
 
 if CLIENT then 
 	function ENT:PostDraw()
-		if self:Alive() then
+		if self:IsAlive() then
 			if !IsValid(self) then return end
 			local color = Color(255,210,0)
 
@@ -269,6 +269,8 @@ function ENT:StatsInitialize()
 			end
 		end
 
+		self.CanCutoff = true
+
 		self.ElementalAttackCooldown = CurTime() + 5
 
 		self.MidHeadHP = self:Health() * 0.15
@@ -410,7 +412,7 @@ end
 function ENT:AI()
 	local target = self:GetTarget()
 
-	if !self:Alive() or self:GetIsBusy() or self.PanzerDGLifted and self:PanzerDGLifted() then return end -- Not allowed to do anything.
+	if !self:IsAlive() or self:GetIsBusy() or self.PanzerDGLifted and self:PanzerDGLifted() then return end -- Not allowed to do anything.
 
 	-- ELEMENTAL ATTACK
 	if self:TargetInRange(750) and !self:IsAttackBlocked() and CurTime() > self.ElementalAttackCooldown and self:GetElementalType() ~= "Normal" then
@@ -535,7 +537,7 @@ function ENT:ZombieGestureSequences()
 end
 
 function ENT:OnInjured(dmginfo)
-	if !self:Alive() then return end
+	if !self:IsAlive() then return end
 
 	local hitpos = dmginfo:GetDamagePosition()
 	local hitgroup = util.QuickTrace(dmginfo:GetDamagePosition(), dmginfo:GetDamagePosition()).HitGroup
@@ -855,7 +857,7 @@ function ENT:CustomAnimEvent(a,b,c,d,e)
 
 		for k,v in nzLevel.GetZombieArray() do
 			if v:GetRangeTo(self:GetPos()) < 150 then
-				if v:Alive() and v.IsMooZombie and !v.IsMooSpecial and !v.IsMooBossZombie and !v.IsMiniBoss then
+				if v:IsAlive() and v.IsMooZombie and !v.IsMooSpecial and !v.IsMooBossZombie and !v.IsMiniBoss then
 					v:SetShadowBuff(true)
 					if v:GetCrawler() then
 						v:DoSpecialAnimation(self.CrawlSparkySequences[math.random(#self.CrawlSparkySequences)])

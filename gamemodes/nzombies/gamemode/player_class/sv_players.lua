@@ -350,35 +350,7 @@ hook.Add("PlayerDowned", "nzPlayerDown", function(ply)
 	end
 end)
 
-local lastuse = 0
 hook.Add("PlayerPostThink", "nzStatsRestePlayer", function(ply)
-	local wep = ply:GetActiveWeapon()
-	if IsValid(wep) and (wep:GetCreationTime() + 1) < CurTime() and wep.Base then
-		if !ply.LastWeaponViewmodel or (wep:GetWeaponViewModel() ~= ply.LastWeaponViewmodel) then
-			ply.LastWeaponViewmodel = wep:GetWeaponViewModel()
-			if wep:HasNZModifier("pap") then
-				wep.ViewmodelUpdatedTime = CurTime()
-				local wannaseehellonearth = "fuck_it_we_ball"..wep:EntIndex()
-				hook.Add("Think", wannaseehellonearth, function()
-					if not IsValid(wep) or !wep.ViewmodelUpdatedTime then
-						hook.Remove("Think", wannaseehellonearth)
-						return
-					end
-					if wep.ViewmodelUpdatedTime + engine.TickInterval() > CurTime() then return end
-
-					hook.Remove("Think", wannaseehellonearth)
-					if not IsValid(ply) then return end
-
-					local wep2 = ply:GetActiveWeapon()
-					if not IsValid(wep2) then return end
-					if ply.LastWeaponViewmodel ~= wep2:GetWeaponViewModel() then return end
-
-					nzCamos:UpdatePlayerViewmodel(ply, ply.LastWeaponViewmodel)
-				end)
-			end
-		end
-	end
-
 	if ply:HasPerk("banana") then
 		if ply:GetNW2Float("nz.BananaDelay", 0) < CurTime() and ply:GetNW2Int("nz.BananaCount", 0) < (ply:HasUpgrade("banana") and 9 or 7) then
 			if !ply.NZBananaRegenDelay then

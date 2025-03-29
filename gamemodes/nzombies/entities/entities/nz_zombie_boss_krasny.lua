@@ -20,11 +20,11 @@ if CLIENT then
 	function ENT:Draw()
 		self:DrawModel()
 
-		if self.RedEyes and self:Alive() and !self:GetDecapitated() then
+		if self.RedEyes and self:IsAlive() and !self:GetDecapitated() then
 			self:DrawEyeGlow() 
 		end	
 
-		if self:Alive() and self:GetHelmet() then
+		if self:IsAlive() and self:GetHelmet() then
 			self:DrawLight()
 		end
 
@@ -46,7 +46,7 @@ if CLIENT then
 	end
 
 	function ENT:EffectsAndSounds()
-		if self:Alive() then
+		if self:IsAlive() then
 			-- Credit: FlamingFox for Code and fighting the PVS monster -- 
 			if !IsValid(self) then return end
 			if (!self.Draw_FX or !IsValid(self.Draw_FX)) and self:GetHelmet() then -- PVS will no longer eat the particle effect.
@@ -503,7 +503,7 @@ function ENT:AI()
 	local target = self:GetTarget()
 	if IsValid(target) and target:IsPlayer() then
 
-		if !self:Alive() or self:GetIsBusy() or self.PanzerDGLifted and self:PanzerDGLifted() then return end -- Not allowed to do anything.
+		if !self:IsAlive() or self:GetIsBusy() or self.PanzerDGLifted and self:PanzerDGLifted() then return end -- Not allowed to do anything.
 
 		-- ENRAGE
 		if angering and !self.Enraged then
@@ -1078,7 +1078,7 @@ function ENT:IsValidTarget( ent )
 	
 	-- Turned Zombie Targetting
 	if self.IsTurned then
-		return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooBossZombie and ent:Alive() 
+		return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooBossZombie and ent:IsAlive() 
 	end
 	
 	return IsValid(ent) and ent:GetTargetPriority() ~= TARGET_PRIORITY_NONE and ent:GetTargetPriority() ~= TARGET_PRIORITY_MONSTERINTERACT and ent:GetTargetPriority() ~= TARGET_PRIORITY_SPECIAL and ent:GetTargetPriority() ~= TARGET_PRIORITY_FUNNY

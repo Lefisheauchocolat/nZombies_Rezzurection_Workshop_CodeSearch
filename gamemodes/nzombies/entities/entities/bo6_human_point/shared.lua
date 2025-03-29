@@ -64,7 +64,7 @@ if CLIENT then
 			local angle = EyeAngles()
 			angle:RotateAroundAxis( angle:Up(), -90 )
 			angle:RotateAroundAxis( angle:Forward(), 90 )
-			cam.Start3D2D(self:GetPos() + Vector(0,0,80), angle, size)
+			cam.Start3D2D(self:GetPos() + Vector(0,0,92), angle, size)
 				draw.SimpleText("Human Spawner", displayfont, 0, -120, self:GetColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				draw.SimpleText("Class: "..data.baseClass, displayfont, 0, -100, Color(220,220,220), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				draw.SimpleText("Model: "..data.baseModel, displayfont, 0, -85, Color(220,220,220), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
@@ -73,8 +73,11 @@ if CLIENT then
 				draw.SimpleText("Is Enemy: "..(data.hostileToPlayer == 1 and "True" or "False"), displayfont, 0, -40, Color(220,220,220), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				draw.SimpleText("Invisible for Zombies: "..(data.noTargetToZombies == 1 and "True" or "False"), displayfont, 0, -25, Color(220,220,220), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				draw.SimpleText("Follow Nearest Player: "..(data.followNearestPlayer == 1 and "True" or "False"), displayfont, 0, -10, Color(220,220,220), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-				draw.SimpleText("Flag: "..data.flag, displayfont, 0, 5, Color(220,220,220), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-				draw.SimpleText("Is Death Animation: "..(data.isDeathAnim == 1 and "True" or "False"), displayfont, 0, 20, Color(220,220,220), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				draw.SimpleText("Is Death Animation: "..(data.isDeathAnim == 1 and "True" or "False"), displayfont, 0, 5, Color(220,220,220), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				draw.SimpleText("Flag: "..(data.flag or ""), displayfont, 0, 20, Color(220,220,220), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				draw.SimpleText("Flag2: "..(data.flag2 or ""), displayfont, 0, 35, Color(200,200,200), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				draw.SimpleText("Flag3: "..(data.flag3 or ""), displayfont, 0, 50, Color(200,200,200), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				draw.SimpleText("Chance: "..(data.chance or "100"), displayfont, 0, 64, Color(200,200,200), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 			cam.End3D2D()
 		end
 	end

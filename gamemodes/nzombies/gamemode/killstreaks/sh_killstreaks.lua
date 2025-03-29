@@ -72,7 +72,7 @@ nzKillstreak.List = {
         end,
     },
     ["Death Machine"] = {
-        cost = 1500,
+        cost = 2250,
         desc = "Deadly machine gun with high damage rounds that suppress enemies in the line of fire.",
         icon = Material("bo6/hud/death.png"),
         check = function(ply)

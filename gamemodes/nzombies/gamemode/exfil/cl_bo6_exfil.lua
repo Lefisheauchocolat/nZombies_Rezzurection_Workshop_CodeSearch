@@ -163,7 +163,7 @@ hook.Add("HUDPaint", "DrawExfilTaskHUD", function()
     surface.DrawTexturedRect(timeBarX, timeBarY, timeBarW, timeBarH)
 
     draw.SimpleText("Time Remaining", "BO6_Exfil24", timeBarX + We(10), timeBarY + He(5), Color(255, 200, 0, 255*alp), TEXT_ALIGN_LEFT)
-    draw.SimpleText(string.ToMinutesSeconds(timeRemaining), "BO6_Exfil24", timeBarX + timeBarW - We(10), timeBarY + He(5), Color(255, 200, 0, 255*alp), TEXT_ALIGN_RIGHT)
+    draw.SimpleText(string.ToMinutesSeconds(timeRemaining+1), "BO6_Exfil24", timeBarX + timeBarW - We(10), timeBarY + He(5), Color(255, 200, 0, 255*alp), TEXT_ALIGN_RIGHT)
 end)
 
 net.Receive("nZr.ExfilTimer", function()
@@ -357,6 +357,9 @@ local function CreateTimedScene(modelsTable, soundTable, sceneDuration, onFinish
                 num = 2
             elseif cam:GetSequenceName(cam:GetSequence()) == "exfil_cam_fail_3" then
                 num = 2
+            elseif cam:GetSequenceName(cam:GetSequence()) == "exfil_cam_success_liberty_1" then
+                num = 2
+                cfov = 40
             elseif cam:GetSequenceName(cam:GetSequence()) == "exfil_cam_success_1" then
                 num = 2
             elseif cam:GetSequenceName(cam:GetSequence()) == "exfil_cam_success_2" then
@@ -450,10 +453,10 @@ local function newanim(ent, tab, dur, anim)
 end
 
 local function connectweapon(ent, type)
-    local model = "models/weapons/w_pist_p228.mdl"
+    local model = "models/bo6/wep/w_pist_p228.mdl"
     local lpos = Vector(2,0,-3)
     if type == "rifle" then
-        model = "models/weapons/w_rif_m4a1.mdl"
+        model = "models/bo6/wep/w_rif_m4a1.mdl"
         lpos = Vector(8,0,-3.5)
     end
     local wep = ents.CreateClientside("base_anim")
@@ -527,10 +530,10 @@ local function NewCallFailScene(main_heli_pos, main_heli_ang)
     bonemerge(table.Random(zombieModels).Model, z1)
     bonemerge(table.Random(zombieModels).Model, z2)
     bonemerge(table.Random(zombieModels).Model, z3)
-    local mpath = "models/bo6zm_raptor1.mdl"
+    local mpath = "models/hari/bo6zm_raptor1.mdl"
     local str = nzSettings:GetSimpleSetting("ExfilPilotType", "raptor")
     if str == "blanchard" then
-        mpath = "models/bo6zm_pilot.mdl"
+        mpath = "models/hari/bo6zm_pilot.mdl"
     elseif str == "none" then
         mpath = nzSettings:GetSimpleSetting("ExfilCustomPilotModel", "models/player/riot.mdl")
     end
@@ -773,11 +776,9 @@ local function NewCallSuccessScene(main_heli_pos, main_heli_ang)
     for i=1,4 do
         timer.Simple(2.4+(i/10), function()
             muzzleflash(wep2)
-            if i == 4 then
-                local str = nzSettings:GetSimpleSetting("ExfilPilotType", "raptor")
-                if str == "blanchard" then
-                    nzDialog:PlayCustomDialog("blanchardExfil_SuccessPilot")
-                end
+            local str = nzSettings:GetSimpleSetting("ExfilPilotType", "raptor")
+            if i == 4 and str == "blanchard" then
+                nzDialog:PlayCustomDialog("blanchardExfil_SuccessPilot")
             end
         end)
     end
@@ -827,6 +828,195 @@ local function NewCallSuccessScene(main_heli_pos, main_heli_ang)
     end)
 end
 
+local function NewCallLibertySuccessScene(main_heli_pos, main_heli_ang)
+    local tab = GetPlayerTable(4)
+    local effpath = "bo6/exfil/effects/exfil_success_liberty.mp3"
+    if #tab > 1 then
+        effpath = "bo6/exfil/effects/exfil_success_liberty_duo.mp3"
+    end
+    CreateTimedScene(
+        {
+            {name = "Heli", model = "models/bo6/exfil/veh/new/heli.mdl", position = main_heli_pos, angle = main_heli_ang, animation = "exfil_success_liberty_1"},
+            {name = "Zombie1", model = "models/bo6/exfil/zombie_anims.mdl", position = main_heli_pos, angle = main_heli_ang, animation = "exfil_success_liberty_zombie1_1"},
+            {name = "Zombie2", model = "models/bo6/exfil/zombie_anims.mdl", position = main_heli_pos, angle = main_heli_ang, animation = "exfil_success_liberty_zombie1_2"},
+            {name = "Zombie3", model = "models/bo6/exfil/zombie_anims.mdl", position = main_heli_pos, angle = main_heli_ang, animation = "exfil_success_liberty_zombie1_3"},
+            {name = "Zombie4", model = "models/bo6/exfil/zombie_anims.mdl", position = main_heli_pos, angle = main_heli_ang, animation = "exfil_success_liberty_zombie1_4"},
+            {name = "Player1", model = "models/bo6/exfil/human_anims.mdl", position = main_heli_pos, angle = main_heli_ang, animation = "exfil_success_liberty_player1_1"},
+            {name = "Player2", model = "models/bo6/exfil/human_anims.mdl", position = main_heli_pos, angle = main_heli_ang, animation = "exfil_success_liberty_player1_2"},
+            {name = "Player3", model = "models/bo6/exfil/human_anims.mdl", position = main_heli_pos, angle = main_heli_ang, animation = "exfil_success_liberty_player1_3"},
+            {name = "Player4", model = "models/bo6/exfil/human_anims.mdl", position = main_heli_pos, angle = main_heli_ang, animation = "exfil_success_liberty_player1_4"},
+            {name = "Camera", model = "models/bo6/exfil/cutscene_camera.mdl", position = main_heli_pos, angle = main_heli_ang, animation = "exfil_cam_success_liberty_1"},
+        },
+        {
+            [0] = effpath,
+        },
+        15.26,--6.36 --3.2 --5.7
+        function()
+            --print("Scene finished!")
+        end
+    )
+    local h, ha = spawnedModels["Heli"], modelAnimations["Heli"]
+    local z1, z1a = spawnedModels["Zombie1"], modelAnimations["Zombie1"]
+    local z2, z2a = spawnedModels["Zombie2"], modelAnimations["Zombie2"]
+    local z3, z3a = spawnedModels["Zombie3"], modelAnimations["Zombie3"]
+    local z4, z4a = spawnedModels["Zombie4"], modelAnimations["Zombie4"]
+    local p1, pa1 = spawnedModels["Player1"], modelAnimations["Player1"]
+    local p2, pa2 = spawnedModels["Player2"], modelAnimations["Player2"]
+    local p3, pa3 = spawnedModels["Player3"], modelAnimations["Player3"]
+    local p4, pa4 = spawnedModels["Player4"], modelAnimations["Player4"]
+    local c, ca = spawnedModels["Camera"], modelAnimations["Camera"]
+
+    local wep = connectweapon(p1, "rifle")
+    local wep2 = connectweapon(p2, "rifle")
+    local wep3 = connectweapon(p3, "rifle")
+    local wep4 = connectweapon(p4, "rifle")
+
+    if IsValid(tab[1]) then
+        local bm = bonemerge(tab[1]:GetModel(), p1)
+        nzFuncs:TransformModelData(tab[1], bm)
+    else
+        p1:SetNoDraw(true)
+        wep:SetNoDraw(true)
+    end
+    if IsValid(tab[2]) then
+        local bm = bonemerge(tab[2]:GetModel(), p2)
+        nzFuncs:TransformModelData(tab[2], bm)
+    else
+        p2:SetNoDraw(true)
+        wep2:SetNoDraw(true)
+    end
+    if IsValid(tab[3]) then
+        local bm = bonemerge(tab[3]:GetModel(), p3)
+        nzFuncs:TransformModelData(tab[3], bm)
+    else
+        p3:SetNoDraw(true)
+        wep3:SetNoDraw(true)
+    end
+    if IsValid(tab[4]) then
+        local bm = bonemerge(tab[4]:GetModel(), p4)
+        nzFuncs:TransformModelData(tab[4], bm)
+    else
+        p4:SetNoDraw(true)
+        wep4:SetNoDraw(true)
+    end
+    bonemerge("models/bo6/exfil/veh/new/heli.mdl", h)
+    local bz1 = bonemerge(table.Random(zombieModels).Model, z1)
+    local bz2 = bonemerge(table.Random(zombieModels).Model, z2)
+    local bz3 = bonemerge(table.Random(zombieModels).Model, z3)
+    local bz4 = bonemerge(table.Random(zombieModels).Model, z4)
+
+    for i=1,30 do
+        timer.Simple((i/5), function()
+            local effectdata = EffectData()
+            effectdata:SetOrigin(main_heli_pos)
+            util.Effect("bo6_heli_dust", effectdata)
+        end)
+    end
+
+    for i=1,3 do
+        timer.Simple((i/10), function()
+            muzzleflash(wep)
+            ParticleEffectAttach("ins_blood_impact_headshot", PATTACH_POINT_FOLLOW, z4, z4:LookupAttachment("chest_fx_tag"))
+        end)
+    end
+    for i=1,3 do
+        timer.Simple(1.1+(i/10), function()
+            muzzleflash(wep2)
+        end)
+    end
+    for i=1,3 do
+        timer.Simple(1.3+(i/10), function()
+            muzzleflash(wep)
+            ParticleEffectAttach("ins_blood_impact_headshot", PATTACH_POINT_FOLLOW, z1, z1:LookupAttachment("chest_fx_tag"))
+        end)
+    end
+    for i=1,3 do
+        timer.Simple(1.9+(i/10), function()
+            muzzleflash(wep2)
+        end)
+    end
+    for i=1,3 do
+        timer.Simple(3.2+(i/10), function()
+            muzzleflash(wep2)
+        end)
+    end
+    for i=1,2 do
+        timer.Simple(4.2+(i/10), function()
+            muzzleflash(wep)
+        end)
+    end
+    for i=1,3 do
+        timer.Simple(5.7+(i/10), function()
+            muzzleflash(wep2)
+        end)
+    end
+    for i=1,4 do
+        timer.Simple(4.7+(i/10), function()
+            muzzleflash(wep)
+            ParticleEffectAttach("ins_blood_impact_headshot", PATTACH_POINT_FOLLOW, z2, z2:LookupAttachment("chest_fx_tag"))
+            local str = nzSettings:GetSimpleSetting("ExfilPilotType", "raptor")
+            if i == 4 and str == "blanchard" then
+                nzDialog:PlayCustomDialog("blanchardExfil_SuccessPilot")
+            end
+        end)
+    end
+    for i=1,2 do
+        timer.Simple(7.4+(i*0.8), function()
+            ParticleEffectAttach("ins_blood_impact_headshot", PATTACH_POINT_FOLLOW, z3, z3:LookupAttachment("chest_fx_tag"))
+        end)
+    end
+
+    hook.Add("Think", h, function()
+        local dlight = DynamicLight(LocalPlayer():EntIndex())
+        if dlight and IsValid(h) then
+            dlight.pos = h:GetAttachment(1).Pos+h:GetAttachment(1).Ang:Up()*64+h:GetAttachment(1).Ang:Forward()*16
+            dlight.r = 200
+            dlight.g = 20
+            dlight.b = 20
+            dlight.brightness = 2
+            dlight.decay = 1000
+            dlight.size = 256
+            dlight.dietime = CurTime() + 1
+        end
+    end)
+
+    timer.Simple(6.36, function()
+        z1:Remove()
+        z2:Remove()
+        z4:Remove()
+        bz1:Remove()
+        bz2:Remove()
+        bz4:Remove()
+
+        newanim(h, ha, 3.2, "exfil_success_2")
+        newanim(c, ca, 3.2, "exfil_cam_success_2")
+        newanim(z3, z3a, 3.2, "exfil_success_zombie2_2")
+        newanim(p1, pa1, 3.2, "exfil_success_player2_1")
+        newanim(p2, pa2, 3.2, "exfil_success_player2_2")
+        newanim(p3, pa3, 3.2, "exfil_success_player2_3")
+        newanim(p4, pa4, 3.2, "exfil_success_player2_4")
+        timer.Simple(3.2, function()
+            nzDialog:PlayCustomDialog(nzSettings:GetSimpleSetting("ExfilPilotType", "raptor").."Exfil_Success")
+            newanim(h, ha, 5.7, "exfil_success_3")
+            newanim(c, ca, 5.7, "exfil_cam_success_3")
+            newanim(z3, z3a, 5.7, "exfil_success_zombie3_2")
+            newanim(p1, pa1, 5.7, "exfil_success_player3_1")
+            newanim(p2, pa2, 5.7, "exfil_success_player3_2")
+            newanim(p3, pa3, 5.7, "exfil_success_player3_3")
+            newanim(p4, pa4, 5.7, "exfil_success_player3_4")
+            timer.Simple(2, function()
+                z3:Remove()
+            end)
+        end)
+    end)
+    timer.Simple(14.43, function()
+        LocalPlayer():ScreenFade(SCREENFADE.OUT, color_black, 0.1, 5)
+    end)
+    timer.Simple(19.43, function()
+        RunConsoleCommand("cl_drawhud", "1")
+    end)
+end
+
 net.Receive("nZr.ExfilCutscene", function()
     local bool = net.ReadBool()
     main_heli_pos = net.ReadVector()
@@ -838,7 +1028,11 @@ net.Receive("nZr.ExfilCutscene", function()
     RunConsoleCommand("cl_drawhud", "0")
     timer.Simple(2, function()
         if bool then
-            NewCallSuccessScene(main_heli_pos, main_heli_ang)
+            if nzSettings:GetSimpleSetting("ExfilLibertySuccess", false) then
+                NewCallLibertySuccessScene(main_heli_pos, main_heli_ang)
+            else
+                NewCallSuccessScene(main_heli_pos, main_heli_ang)
+            end
         else
             if nzSettings:GetSimpleSetting("ExfilLiberty", false) then
                 NewCallFailLibertyScene(main_heli_pos, main_heli_ang)

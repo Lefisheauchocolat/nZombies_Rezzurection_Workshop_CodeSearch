@@ -181,7 +181,7 @@ function ENT:OnRemove()
 
 	if SERVER and nzombies then
 		for k, v in pairs(self.TornadoEnts) do
-			if IsValid(v) and v:IsValidZombie() and v:Alive() then
+			if IsValid(v) and v:IsValidZombie() and v:IsAlive() then
 				local status = v:GetNWEntity("BO4.TornadoLogic")
 				if IsValid(status) and status.statusEnd > CurTime() then
 					status.statusEnd = CurTime()

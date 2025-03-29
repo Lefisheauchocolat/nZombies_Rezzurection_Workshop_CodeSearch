@@ -650,7 +650,7 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
         end
 	end
 	if e == "pull_plank" then
-		if IsValid(self) and self:Alive() then
+		if IsValid(self) and self:IsAlive() then
 			if IsValid(self.BarricadePlankPull) and IsValid(self.Barricade) then
 				self.Barricade:RemovePlank(self.BarricadePlankPull)
 			end

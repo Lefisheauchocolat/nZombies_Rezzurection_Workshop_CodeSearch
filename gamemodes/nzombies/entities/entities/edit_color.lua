@@ -37,9 +37,9 @@ function ENT:Initialize()
 	
 	-- Recreate the fog controller. I think nZ removes this in it's creation of the Fog Hooks, but this is needed so the FarZ can be modified.
 	if SERVER then
-		if !IsValid(ents.FindByClass("env_fog_controller")) then
-			self.FogController = ents.Create("env_fog_controller")
-		end
+
+		self.FogController = ents.Create("env_fog_controller")
+		print(self.FogController)
 	end
 end
 
@@ -136,7 +136,6 @@ function ENT:SetupDataTables()
 		else
 			local fogCntrl = ents.FindByClass( "env_fog_controller" )[ 1 ];
 			if ( !IsValid( fogCntrl ) ) then return end
-
 			self:SetFogStart( fogCntrl:GetInternalVariable( "fogstart" ) )
 			self:SetFogEnd( fogCntrl:GetInternalVariable( "fogend" ) )
 			self:SetDensity( fogCntrl:GetInternalVariable( "fogmaxdensity" ) )
@@ -178,9 +177,9 @@ end
 function ENT:Think()
 
 	if SERVER then 
-		if IsValid(ents.FindByClass("env_fog_controller")) then
-			for k, v in pairs(ents.FindByClass("env_fog_controller")) do
-				v:SetKeyValue("farz", self:GetClipPlane())
+		for k, v in pairs(ents.FindByClass("env_fog_controller")) do
+			if IsValid(v) then
+				v:Fire("SetFarZ", self:GetClipPlane(), 0, nil, nil)
 			end
 		end
 	end

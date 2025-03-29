@@ -26,7 +26,8 @@ end
 local function UpdateClientModel(ply)
     if not IsValid(ply) or not ply:IsPlayer() then return end
 
-    if legs_convar:GetBool() and not ply:GetNotDowned() and ply:Alive() and !ply:ShouldDrawLocalPlayer() then
+    local allowwep = IsValid(ply:GetActiveWeapon()) and ply:GetActiveWeapon():GetClass() != "tfa_zomdeath" or !IsValid(ply:GetActiveWeapon())
+    if legs_convar:GetBool() and not ply:GetNotDowned() and ply:Alive() and !ply:ShouldDrawLocalPlayer() and allowwep then
         if not IsValid(ply.clientModel) then
             ply.clientModel = ClientsideModel(ply:GetModel(), RENDERGROUP_OPAQUE)
         end

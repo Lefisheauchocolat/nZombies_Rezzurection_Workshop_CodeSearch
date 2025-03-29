@@ -15,7 +15,7 @@ if CLIENT then
 	function ENT:PostDraw()
 		self:EffectsAndSounds()
 
-		if self:Alive() then
+		if self:IsAlive() then
 		local elight = DynamicLight( self:EntIndex(), true )
 			if ( elight ) then
 				local bone = self:LookupBone("j_spineupper")
@@ -35,7 +35,7 @@ if CLIENT then
 		end
 	end
 	function ENT:EffectsAndSounds()
-		if self:Alive() then
+		if self:IsAlive() then
 			-- Credit: FlamingFox for Code and fighting the PVS monster -- 
 			if !IsValid(self) then return end
 			if (!self.Play_SFX or !IsValid(self.Play_SFX)) then

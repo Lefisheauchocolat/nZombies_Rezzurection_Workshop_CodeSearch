@@ -63,6 +63,10 @@ local function open_game_over(endtype)
     local gametype = "STANDARD"
     if nzMapping.Settings.timedgame == 1 then
         gametype = "TIMED"
+    elseif nzSettings:GetSimpleSetting("nzee_mode", 0) == 1 then
+        gametype = "DIRECTED"
+    elseif nzSettings:GetSimpleSetting("nzee_mode", 0) == 2 then
+        gametype = "SURVIVAL"
     end
     local text = nzSettings:GetSimpleSetting("BO6_GO_LoseTitle", "ELIMINATED")
     local bg = gameoverBg

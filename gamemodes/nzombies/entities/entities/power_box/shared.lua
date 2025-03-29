@@ -8,6 +8,14 @@ ENT.Contact			= ""
 ENT.Purpose			= ""
 ENT.Instructions	= ""
 
+if CLIENT then
+    include("cl_powerbox.lua")
+end
+
+if SERVER then
+    util.AddNetworkString("PowerBox_UseAnim")
+end
+
 function ENT:SetupDataTables()
 	self:NetworkVar("Bool", 0, "Switch")
 	self:NetworkVar("Bool", 1, "Limited")
@@ -114,8 +122,16 @@ function ENT:Use( activator )
 	local onanim = self:LookupSequence("on")
 	local offanim = self:LookupSequence("off")
 
+	if SERVER then
+	    net.Start("PowerBox_UseAnim")
+	    net.Send(activator)
+	end
+
 	if self:GetActivationType() == 0 or self:GetActivationType() == 1 and self.ShotSwitch then
 		if ( !activator:IsPlayer() ) then return end
+		if SERVER then
+		    util.AddNetworkString("PowerBox_UseAnim")
+		end
 		if nzRound:InState(ROUND_CREATE) and activator:IsInCreative() then
 			if self.NextUse and self.NextUse > CurTime() then return end
 			self.NextUse = CurTime() + 2

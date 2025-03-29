@@ -38,20 +38,11 @@ nzTools:CreateTool("exfilzoneeditor", {
 		DProperties:SetPos( 10, 10 )
 
 		local text = vgui.Create("DLabel", DProperties)
-		text:SetText("You can find config settings for exfil in radio placer.")
+		text:SetText("You can find config settings and tips for exfil in radio placer.")
 		text:SetFont("DermaLarge")
 		text:SetPos(0, 100)
 		text:SetTextColor( Color(150, 50, 50) )
 		text:SetSize(400, 60)
-		text:CenterHorizontal()
-		text:SetWrap(true)
-
-		local text = vgui.Create("DLabel", DProperties)
-		text:SetText("Tip: Place your position far away from walls to prevent bugs.\nYou can have many exfil zones on map!")
-		text:SetFont("Trebuchet18")
-		text:SetPos(0, 260)
-		text:SetTextColor( Color(50, 50, 50) )
-		text:SetSize(400, 30)
 		text:CenterHorizontal()
 		text:SetWrap(true)
 

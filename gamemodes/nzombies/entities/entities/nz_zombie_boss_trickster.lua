@@ -15,7 +15,7 @@ if CLIENT then
 	function ENT:DrawEyeGlow() end
 
 	function ENT:EffectsAndSounds()
-		if self:Alive() then
+		if self:IsAlive() then
 			-- Credit: FlamingFox for Code and fighting the PVS monster -- 
 			if !IsValid(self) then return end
 			if !self.Draw_FX or !IsValid(self.Draw_FX) then -- PVS will no longer eat the particle effect.
@@ -401,14 +401,14 @@ function ENT:OnInjured(dmginfo)
 	if self.HasLMask and self:Health() <= hp * 0.25 then
 		self.HasLMask = false
 		self:BreakMask(1)
-		if !self:GetSpecialAnimation() and self:Alive() and !self.Dying then
+		if !self:GetSpecialAnimation() and self:IsAlive() and !self.Dying then
 			self:BeginTeleport(true)
 		end
 	end
 	if self.HasRMask and self:Health() <= hp * 0.75 then
 		self.HasRMask = false
 		self:BreakMask(2)
-		if !self:GetSpecialAnimation() and self:Alive() and !self.Dying then
+		if !self:GetSpecialAnimation() and self:IsAlive() and !self.Dying then
 			self:BeginTeleport(true)
 		end
 	end

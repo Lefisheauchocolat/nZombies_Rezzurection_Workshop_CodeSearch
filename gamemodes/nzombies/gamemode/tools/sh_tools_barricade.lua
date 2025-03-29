@@ -7,10 +7,10 @@ nzTools:CreateTool("barricade", {
 	PrimaryAttack = function(wep, ply, tr, data)
 		local ent = tr.Entity
 		if IsValid(ent) and ent:GetClass() == "breakable_entry" then
-			nzMapping:BreakEntry(ent:GetPos(), ent:GetAngles(), data.planks, data.jump, data.boardtype, data.prop, data.jumptype, data.plycollision, ply)
+			nzMapping:BreakEntry(ent:GetPos(), ent:GetAngles(), data.planks, data.jump, data.boardtype, data.prop, data.jumptype, data.plycollision, data.ambsnds, ply)
 			ent:Remove()
 		else
-			nzMapping:BreakEntry(tr.HitPos + Vector(0,0,0), Angle(0,(tr.HitPos - ply:GetPos()):Angle()[2],0), data.planks, data.jump, data.boardtype, data.prop, data.jumptype, data.plycollision, ply)
+			nzMapping:BreakEntry(tr.HitPos + Vector(0,0,0), Angle(0,(tr.HitPos - ply:GetPos()):Angle()[2],0), data.planks, data.jump, data.boardtype, data.prop, data.jumptype, data.plycollision, data.ambsnds, ply)
 		end
 	end,
 	SecondaryAttack = function(wep, ply, tr, data)
@@ -43,18 +43,20 @@ nzTools:CreateTool("barricade", {
 		valz["Row4"] = data.prop
 		valz["Row5"] = data.jumptype
 		valz["Row6"] = data.plycollision
+		valz["Row7"] = data.ambsnds
 
 		local DProperties = vgui.Create( "DProperties", frame )
 		DProperties:SetSize( 480, 450 )
 		DProperties:SetPos( 10, 10 )
 		
 		function DProperties.CompileData()
-			data.planks = valz["Row1"]
-			data.jump = valz["Row2"]
-			data.boardtype = valz["Row3"]
-			data.prop = valz["Row4"]
-			data.jumptype = valz["Row5"]
-			data.plycollision = valz["Row6"]
+			data.planks 		= valz["Row1"]
+			data.jump 			= valz["Row2"]
+			data.boardtype 		= valz["Row3"]
+			data.prop 			= valz["Row4"]
+			data.jumptype 		= valz["Row5"]
+			data.plycollision 	= valz["Row6"]
+			data.ambsnds 		= valz["Row7"]
 
 			--PrintTable(data)
 			
@@ -118,6 +120,11 @@ nzTools:CreateTool("barricade", {
 		Row6:SetValue( valz["Row6"] )
 		Row6.DataChanged = function( _, val ) valz["Row6"] = val DProperties.UpdateData(DProperties.CompileData()) end
 		
+		local Row7 = DProperties:CreateRow( "Misc", "Ambient Sounds" )
+		Row7:Setup( "Boolean" )
+		Row7:SetValue( valz["Row7"] )
+		Row7.DataChanged = function( _, val ) valz["Row7"] = val DProperties.UpdateData(DProperties.CompileData()) end
+		
 
 		return DProperties
 	end,
@@ -128,5 +135,6 @@ nzTools:CreateTool("barricade", {
 		prop = 0,
 		jumptype = 0,
 		plycollision = 1,
+		ambsnds = 0,
 	}
 })

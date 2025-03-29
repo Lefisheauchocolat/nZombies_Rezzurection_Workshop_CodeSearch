@@ -16,9 +16,4 @@ if SERVER then
         self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
         self:SetNWString("OutlineType", "salvage")
     end
-
-    function ENT:Think()
-        local ang = self:GetAngles()
-        self:SetAngles(Angle(0,ang.y,0))
-    end
 end

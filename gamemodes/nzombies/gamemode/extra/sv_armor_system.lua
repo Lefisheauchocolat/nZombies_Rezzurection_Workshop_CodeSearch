@@ -12,8 +12,7 @@ function nzArmor:SpawnPlate(pos)
 end
 
 function nzArmor:UsePlate(ply)
-    if ply:GetUsingSpecialWeapon() or ply:GetNWInt("ArmorPlates") <= 0 or ply:Armor() >= nzSettings:GetSimpleSetting("BO6_Armor_Tier"..(ply.ArmorType or 1).."HP", 150*(ply.ArmorType or 1)) then return end
-    ply:SetUsingSpecialWeapon(true)
+    if !nzSettings:GetSimpleSetting("BO6_Armor", false) or ply:GetUsingSpecialWeapon() or ply:GetNWInt("ArmorPlates") <= 0 or ply:Armor() >= nzSettings:GetSimpleSetting("BO6_Armor_Tier"..(ply.ArmorType or 1).."HP", 150*(ply.ArmorType or 1)) then return end
     ply:Give("bo6_armorplate_use")
 end
 
@@ -38,6 +37,7 @@ end)
 hook.Add("PlayerPostThink", "nzrArmorSystem", function(ply)
     if !ply:Alive() or !nzSettings:GetSimpleSetting("BO6_Armor", false) then return end
     local type = ply.ArmorType or 1
+    ply:SetNWInt("ArmorType", ply.ArmorType)
     local max = nzSettings:GetSimpleSetting("BO6_Armor_Tier"..type.."HP", 150*type)
     if ply:Armor() > max then
         ply:SetArmor(max)
@@ -45,7 +45,7 @@ hook.Add("PlayerPostThink", "nzrArmorSystem", function(ply)
         ply:SetArmor(1)
     end
 
-    for _, v in pairs(ents.FindInSphere(ply:GetPos(), 32)) do
+    for _, v in pairs(ents.FindInSphere(ply:GetPos(), 50)) do
         if v:GetClass() == "bo6_armorplate" and ply:GetNWInt("ArmorPlates") < nzSettings:GetSimpleSetting("BO6_Armor_MaxPlates", 3) then
             v:Remove()
             ply:SetNWInt("ArmorPlates", ply:GetNWInt("ArmorPlates")+1)

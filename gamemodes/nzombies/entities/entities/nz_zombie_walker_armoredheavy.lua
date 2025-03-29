@@ -155,7 +155,7 @@ if SERVER then
 		if !self.SpawnProtection and !self.IsMooSpecial and self.CanGib then
 
 			--[[ CRAWLER CREATION FROM DAMAGE ]]--
-			if (self:CrawlerDamageTest(dmginfo)) and self:Alive() then
+			if (self:CrawlerDamageTest(dmginfo)) and self:IsAlive() then
 				local lleg = self:LookupBone("j_ball_le")
 				local rleg = self:LookupBone("j_ball_ri")
 
@@ -189,7 +189,7 @@ if SERVER then
 			if CurTime() > self.LastStun then -- The code here is kinda bad tbh, and in turn it does weird shit because of it.
 				-- Moo Mark 7/17/23: Alright... We're gonna try again.
 				if self.Dying then return end
-				if !self:Alive() then return end
+				if !self:IsAlive() then return end
 				if dmginfo:IsDamageType(DMG_MISSILEDEFENSE) 
 					or self:GetSpecialAnimation() 
 					or self:GetCrawler() 

@@ -512,7 +512,7 @@ function ENT:PostTookDamage(dmginfo)
 		local hitgroup = util.QuickTrace(dmginfo:GetDamagePosition(), dmginfo:GetDamagePosition()).HitGroup
 		local hitforce = dmginfo:GetDamageForce()
 
-		if self:GibForceTest(hitforce) and hitgroup == HITGROUP_STOMACH and !self.ManIsMad and self:Alive() then
+		if self:GibForceTest(hitforce) and hitgroup == HITGROUP_STOMACH and !self.ManIsMad and self:IsAlive() then
 			if self.Injury ~= "none" then return end
 			if self.Treasure then return end
 			if !IsValid(self:GetBoomDevice()) then return end

@@ -18,7 +18,7 @@ function ENT:Think()
 
 	local mins, maxs = p:GetCollisionBounds()
 	for _, ent in pairs(ents.FindInBox(p:LocalToWorld(mins) + self:GetForward()*16, p:LocalToWorld(maxs) - self:GetForward()*48)) do
-		if ent:IsValidZombie() and ent:Alive() and !ent.MarkedBySecurity and (ent.Barricade and !ent.Big_Jump_area_start) then
+		if ent:IsValidZombie() and ent:IsAlive() and !ent.MarkedBySecurity and (ent.Barricade and !ent.Big_Jump_area_start) then
 			local barricade = ent.Barricade
 			if IsValid(barricade) and barricade:GetTriggerJumps() and ent.TriggerBarricadeJump then
 				if !ent:GetSpecialAnimation() or !ent:GetIsBusy() then
@@ -33,7 +33,7 @@ function ENT:Think()
 
 			local ourname = "security_lazytimer"..ent:EntIndex()
 			timer.Create(ourname, engine.TickInterval(), 0, function()
-				if not IsValid(ent) or not ent:Alive() then 
+				if not IsValid(ent) or not ent:IsAlive() then 
 					if timer.Exists(ourname) then
 						timer.Remove(ourname)
 					end

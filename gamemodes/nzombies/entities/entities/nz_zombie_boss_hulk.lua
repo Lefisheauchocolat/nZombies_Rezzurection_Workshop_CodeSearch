@@ -351,11 +351,13 @@ function ENT:StatsInitialize()
 		end
 
 		-- Now using because the timeout no longer pauses nextbot movements.
-		self:SetRunSpeed(nzRound:GetNumber() >= 35 and 155 or 71) -- could be useful later, but the tanks supersprint is so fast he constantly times out lol
+		self:SetRunSpeed(nzRound:GetNumber() >= 35 and math.random(71,200) or 71) -- could be useful later, but the tanks supersprint is so fast he constantly times out lol
 		--self:SetRunSpeed(71)
 		self:SetCollisionBounds(Vector(-15,-15, 0), Vector(15, 15, 72))			-- Nextbots Collision Box(Mainly for interacting with the world.)
 		self:SetSurroundingBounds(Vector(-40, -40, 0), Vector(40, 40, 90)) 	-- Nextbots Surrounding Bounds(For Hitbox detection.)
 		
+		self.CanCutoff = true
+
 		self.SmashCooldown = CurTime() + 4
 		self.CanSmash = false
 		self.Smashing = false
@@ -398,7 +400,7 @@ function ENT:OnSpawn()
 end
 
 function ENT:OnTakeDamage(dmginfo)
-	if !self:Alive() then return end
+	if !self:IsAlive() then return end
 	if resist[dmginfo:GetDamageType()] then
 		dmginfo:ScaleDamage(0.2)
 	end
@@ -522,7 +524,7 @@ end
 function ENT:StartMusic()
 	local found = false
 	for k, v in pairs(ents.FindByClass("nz_zombie_boss_hulk")) do
-		if IsValid(v) and !found and !v.Dying and v:Alive() then
+		if IsValid(v) and !found and !v.Dying and v:IsAlive() then
 			found = true
 			v:EmitSound("nz_moo/zombies/vox/mute_00.wav", 1, 1, 1, -1)
 			v:EmitSound(v.TankMusic[math.random(#v.TankMusic)], 577, 100, 1, -1)

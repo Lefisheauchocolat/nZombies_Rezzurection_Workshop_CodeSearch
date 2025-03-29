@@ -15,13 +15,13 @@ if CLIENT then
 	local eyeglow =  Material("nz/zlight")
 	function ENT:Draw() //Runs every frame
 		self:DrawModel()
-		if self:Alive() then
+		if self:IsAlive() then
 			self:DrawEyeGlow()
 		end
 
 		self:EffectsAndSounds()
 
-		if self:Alive() then
+		if self:IsAlive() then
 			local elight = DynamicLight( self:EntIndex(), true )
 			if ( elight ) then
 				local bone = self:LookupBone("j_spineupper")
@@ -46,7 +46,7 @@ if CLIENT then
 	end
 
 	function ENT:EffectsAndSounds()
-		if self:Alive() then
+		if self:IsAlive() then
 			-- Credit: FlamingFox for Code and fighting the PVS monster -- 
 			if !IsValid(self) then return end
 			if !self.Draw_FX or !IsValid(self.Draw_FX) then -- PVS will no longer eat the particle effect.
@@ -521,7 +521,7 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 		end
 	end
 	if e == "pull_plank" then
-		if IsValid(self) and self:Alive() then
+		if IsValid(self) and self:IsAlive() then
 			if IsValid(self.BarricadePlankPull) and IsValid(self.Barricade) then
 				self.Barricade:RemovePlank(self.BarricadePlankPull)
 			end

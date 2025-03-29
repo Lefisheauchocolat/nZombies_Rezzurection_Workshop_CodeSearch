@@ -141,7 +141,7 @@ function ENT:Think()
 			for k, v in pairs(killtrigger) do
 				if v:IsValidZombie() then
 					if string.find(v:GetClass(), "zombie_boss") then continue end
-					if v.Alive and not v:Alive() then continue end
+					if v.IsAlive and not v:IsAlive() then continue end
 					if v.NZBossType or v.IsMooBossZombie or v.IsMiniBoss then continue end
 
 					self:InflictDamage(v)

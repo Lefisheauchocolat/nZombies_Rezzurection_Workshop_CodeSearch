@@ -43,7 +43,7 @@ function ENT:StartTouch(ent)
 	if ent:IsPlayer() and !table.HasValue(self.PlayersInside, ent) then
 		table.insert(self.PlayersInside, ent)
 	end
-	if ent:IsValidZombie() and ent:Alive() and !table.HasValue(self.ZombiesInside, ent) then
+	if ent:IsValidZombie() and ent:IsAlive() and !table.HasValue(self.ZombiesInside, ent) then
 		table.insert(self.ZombiesInside, ent)
 	end
 end
@@ -123,7 +123,7 @@ function ENT:Think()
 		for k, v in ipairs(self.ZombiesInside) do
 			if !IsValid(v) then self.ZombiesInside[k] = nil continue end
 
-			if !v:Alive() then
+			if !v:IsAlive() then
 				self:EndTouch(v)
 			else
 				if self:GetRespawnZombie() == true then

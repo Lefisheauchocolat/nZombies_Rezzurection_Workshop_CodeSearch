@@ -27,7 +27,7 @@ if CLIENT then
 	function ENT:Draw() //Runs every frame
 		self:DrawModel()
 		self:PostDraw()
-		if self.RedEyes == true and self:Alive() and !self:GetDecapitated() then
+		if self.RedEyes == true and self:IsAlive() and !self:GetDecapitated() then
 			self:DrawEyeGlow() 
 		end
 
@@ -50,7 +50,7 @@ if CLIENT then
 			end
 		end
 
-		if self:Alive() then
+		if self:IsAlive() then
 			local col = nzMapping.Settings.zombieeyecolor
 			local elight = DynamicLight( self:EntIndex(), true )
 			if ( elight ) then
@@ -113,7 +113,7 @@ if CLIENT then
 		end
 	end
 	function ENT:EffectsAndSounds()
-		if self:Alive() then
+		if self:IsAlive() then
 			-- Credit: FlamingFox for Code and fighting the PVS monster -- 
 			if !IsValid(self) then return end
 			if (!self.Draw_FX or !self.Draw_FX:IsValid()) then
@@ -592,12 +592,12 @@ if SERVER then
 
 		-- Turned Zombie Targetting
 		if self.IsTurned or self.IsNZAlly then
-			return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooBossZombie and !ent.IsNZAlly and ent:Alive() 
+			return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooBossZombie and !ent.IsNZAlly and ent:IsAlive() 
 		end
 		
 		-- Zombie Targetting
 		if self.BuffZombies then
-			return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooBossZombie and !ent.IsMooSpecial and !ent.HasDiscipleBuff and !ent.IsNZAlly and !ent:IsPlayer() and ent:Alive() 
+			return IsValid(ent) and ent:GetTargetPriority() == TARGET_PRIORITY_MONSTERINTERACT and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooBossZombie and !ent.IsMooSpecial and !ent.HasDiscipleBuff and !ent.IsNZAlly and !ent:IsPlayer() and ent:IsAlive() 
 		end
 
 		return IsValid(ent) and ent:GetTargetPriority() ~= TARGET_PRIORITY_NONE and ent:GetTargetPriority() ~= TARGET_PRIORITY_MONSTERINTERACT and ent:GetTargetPriority() ~= TARGET_PRIORITY_FUNNY -- This is really funny.

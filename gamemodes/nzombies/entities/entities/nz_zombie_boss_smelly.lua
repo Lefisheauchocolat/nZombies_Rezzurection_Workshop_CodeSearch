@@ -287,7 +287,7 @@ function ENT:OnPathTimeOut()
 						ParticleEffect("divider_slash2",succ,Angle(0,0,0),nil)
 						ParticleEffect("divider_slash3",succ,Angle(0,0,0),nil)
 						ParticleEffect("baby_dead",succ,Angle(0,0,0),nil)
-						if self:Alive() then -- WAIT CROP DUST INSURANCE NOOOOOOOOOO
+						if self:IsAlive() then -- WAIT CROP DUST INSURANCE NOOOOOOOOOO
 							target:Kill() -- IM GONNA TURN YOU INTO POOP, AND SHIT YOU OUT
 						end
 					end

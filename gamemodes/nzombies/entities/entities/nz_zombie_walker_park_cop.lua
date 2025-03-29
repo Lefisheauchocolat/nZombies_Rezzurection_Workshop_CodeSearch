@@ -687,7 +687,7 @@ end
 
 
 function ENT:Sound()
-	if self:GetAttacking() or !self:Alive() or self:GetDecapitated() then return end
+	if self:GetAttacking() or !self:IsAlive() or self:GetDecapitated() then return end
 
 	local vol = 80
 

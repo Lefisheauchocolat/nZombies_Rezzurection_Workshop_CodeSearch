@@ -2,9 +2,10 @@
 
 nzHuman = nzHuman or {}
 
-function nzHuman:CreateNPC(pos, ang, data) --baseClass, baseModel, hp, weaponClass, hostileToPlayer, noTargetToZombies, followNearestPlayer, flag, isDeathAnim
+function nzHuman:CreateNPC(pos, ang, data) --baseClass, baseModel, hp, weaponClass, hostileToPlayer, noTargetToZombies, followNearestPlayer, flag, flag2, flag3, chance, isDeathAnim
     if !istable(data) then return end
     if !isvector(pos) then return end
+    if isnumber(tonumber(data.chance)) and math.random(1,100) > tonumber(data.chance) then return end
 
     local npc = ents.Create(data.baseClass != "" and data.baseClass or "npc_combine_s")
     if !IsValid(npc) then return end
@@ -16,9 +17,14 @@ function nzHuman:CreateNPC(pos, ang, data) --baseClass, baseModel, hp, weaponCla
         npc:SetTargetPriority(TARGET_PRIORITY_PLAYER)
     end
     npc.IsNZ = true
+    if npc:GetClass() == "npc_combine_s" then
+        npc:AddSpawnFlags(131072)
+    end
     npc:Spawn()
+    local mins, maxs = npc:GetCollisionBounds()
     if data.baseModel and data.baseModel != "" then
         npc:SetModel(data.baseModel)
+        npc:SetCollisionBounds(mins, maxs)
     end
     npc:SetMaxHealth(tonumber(data.hp) or 100)
     npc:SetHealth(npc:GetMaxHealth())
@@ -28,6 +34,7 @@ function nzHuman:CreateNPC(pos, ang, data) --baseClass, baseModel, hp, weaponCla
         npc:SetSquad("")
         npc:Fire("StopPatrolling")
     end
+    npc:Fire("GagEnable")
 
     if data.weaponClass and data.weaponClass != "" then
         npc:Give(data.weaponClass)
@@ -38,6 +45,7 @@ function nzHuman:CreateNPC(pos, ang, data) --baseClass, baseModel, hp, weaponCla
         npc:AddRelationship("player D_LI 99")
     end
     npc.hostileToPlayer = tobool(data.hostileToPlayer)
+    npc:Activate()
 
     if tobool(data.isDeathAnim) then
         local ent = ents.Create(nzRound:GetZombieType(nzMapping.Settings.zombietype))
@@ -62,6 +70,10 @@ hook.Add("EntityTakeDamage", "nzr_humanSystem", function(ent, dmg)
         dmg:SetDamage(0)
         return true
     end
+    if att:IsNPC() and ent:IsNPC() and att:Disposition(ent) == D_LI and ent:Disposition(att) == D_LI then
+        dmg:SetDamage(0)
+        return true
+    end
 end)
 
 hook.Add("OnNPCKilled", "nzr_humanSystem", function(npc, attacker, inflictor)
@@ -73,6 +85,9 @@ hook.Add("OnNPCKilled", "nzr_humanSystem", function(npc, attacker, inflictor)
 end)
 
 hook.Add("OnEntityCreated", "nzr_humanSystem", function(ent, dmg) --nzLevel.TargetCache
+    if ent:GetClass() == "weapon_frag" then
+        SafeRemoveEntity(ent)
+    end
     if ent:IsNextBot() then
         ent:AddFlags(FL_OBJECT)
     end
@@ -99,7 +114,7 @@ local function GetNearestPlayer(npc)
     local nearestPlayer = nil
     local shortestDistance = math.huge
 
-    for _, ply in ipairs(player.GetAll()) do
+    for _, ply in ipairs(player.GetHumans()) do
         if IsValid(ply) then
             local distance = npc:GetPos():DistToSqr(ply:GetPos())
             if distance < shortestDistance then
@@ -137,14 +152,19 @@ end)
 
 local function useSpawners(flag)
     for _, ent in pairs(ents.FindByClass("bo6_human_point")) do
-        if ent:GetData().flag == flag and (not ent.delaySpawn or ent.delaySpawn < CurTime()) then
-            ent.delaySpawn = CurTime()+0.1
+        local tab = ent:GetData()
+        local bool = tab.flag == flag or flag != "" and (tab.flag2 and tab.flag2 == flag or tab.flag3 and tab.flag3 == flag)
+        if bool and not ent.Activated then
+            ent.Activated = true
             nzHuman:CreateNPC(ent:GetPos(), ent:GetAngles(), ent:GetData())
         end
     end
 end
 
 hook.Add("OnGameBegin", "nzr_humanSystem", function()
+    for _, ent in pairs(ents.FindByClass("bo6_human_point")) do
+        ent.Activated = false
+    end
     useSpawners("")
 end)
 

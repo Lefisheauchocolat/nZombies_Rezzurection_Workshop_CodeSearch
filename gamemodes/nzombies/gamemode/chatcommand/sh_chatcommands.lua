@@ -16,6 +16,18 @@ concommand.Add("triggerpowerup", function(ply, cmd, args)
     end
 end)
 
+
+
+concommand.Add("propocalypse", function(ply, cmd, args)
+   -- if ply.IsSuperAdmin and ply:IsSuperAdmin() then
+      for _,ent in pairs(ents.GetAll()) do if nzMapping.MarkedProps[ent:MapCreationID()] then 
+	  ent:Remove()
+		end
+	  end
+	--end
+end)
+
+
 -- fixes
 
 nzChatCommand.Add("/fixme", SERVER, function(ply, text)
@@ -799,3 +811,16 @@ nzChatCommand.Add("/gotogocamera", SERVER, function(ply, text)
 		end
 	end
 end, false, "Teleporters player to given Game Over camera start.")
+
+nzChatCommand.Add("/fizzlist", SERVER, function(ply, text)
+    local fizzlist = nzMapping.Settings.wunderfizzperklist
+    local blockedperks = { pap = true, wunderfizz = true }
+
+    ply:ChatPrint("[NZ] Enabled Wunderfizz Perks:")
+    for perk, data in pairs(fizzlist) do
+        if data[1] and not blockedperks[perk] then
+            ply:ChatPrint(" - " .. perk)
+        end
+    end
+
+end, true, "Shows all enabled perks in the wunderfizz.")

@@ -252,6 +252,9 @@ function ENT:StatsInitialize()
 		self.StunCoolDown = CurTime() + 1
 
 		self.Trail = nil
+		
+		self.CanCutoff = true
+
 	end
 end
 

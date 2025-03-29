@@ -518,6 +518,8 @@ function ENT:StatsInitialize()
 			end
 		end
 
+		self.CanCutoff = true
+
 		self.NextShoot = CurTime() + 3
 		self.ArmCannon = true
 		self.UsingArmCannon = false

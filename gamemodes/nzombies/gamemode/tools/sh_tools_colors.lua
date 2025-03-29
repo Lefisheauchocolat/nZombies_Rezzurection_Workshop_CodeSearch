@@ -227,6 +227,7 @@ nzTools:CreateTool("colorsettings", {
 			presets:AddChoice("Deep Orange")
 			presets:AddChoice("Afton")
 			presets:AddChoice("Loonicity")
+			presets:AddChoice("Infinite Warfare")
 			presets.OnSelect = function(self, index, value)
 				if (value == "Richtofen") then
 					colorChoose:SetColor(Color(0, 255, 255))
@@ -247,7 +248,9 @@ nzTools:CreateTool("colorsettings", {
 				elseif (value == "Afton") then
 					colorChoose:SetColor(Color(182, 231, 35))	
 				elseif (value == "Loonicity") then
-					colorChoose:SetColor(Color(188, 21, 85))							
+					colorChoose:SetColor(Color(188, 21, 85))	
+				elseif (value == "Infinite Warfare") then
+					colorChoose:SetColor(Color(255, 200, 0))							
 				elseif (value == "Warden") then
 					colorChoose:SetColor(Color(255, 0, 0))	
 				end

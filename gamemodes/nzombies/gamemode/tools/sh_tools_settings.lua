@@ -1,7 +1,3 @@
-if CLIENT then
-	include("contenticon.lua")
-end
-
 nzTools:CreateTool("settings", {
 	displayname = "Map Settings",
 	desc = "Use the Tool Interface and press Submit to save changes",
@@ -78,6 +74,7 @@ nzTools:CreateTool("settings", {
 		valz["Row51"] = data.navgroupbased or false
 		valz["Row52"] = data.sidestepping or false
 		valz["ZStumbling"] = data.stumbling == nil and true or data.stumbling
+		valz["ZSTaunts"] = data.supertaunting == nil and false or data.supertaunting
 		valz["Row54"] = data.badattacks or false
 		valz["DmgIncrease"] = data.dmgincrease or false
 		valz["ZStartSpeed"] = data.startspeed or 0
@@ -248,6 +245,8 @@ nzTools:CreateTool("settings", {
 		valz["ACRow5"] = data.acpreventboost == nil and true or tobool(data.acpreventboost)
 		valz["ACRow6"] = data.acpreventcjump == nil and false or tobool(data.acpreventcjump)
 		]]
+
+		local WeaponList = weapons.GetList()
 
 		if (ispanel(sndFilePanel)) then
 			sndFilePanel:Remove()
@@ -448,7 +447,7 @@ nzTools:CreateTool("settings", {
 			Row44:SetTooltip("Sets the global Pack-A-Punch camo")
 			
 			paparmsrow:Setup( "Combo" )
-			for k,v in pairs(weapons.GetList()) do
+			for k,v in pairs(WeaponList) do
 				if v.Category and v.Category == "nZombies Knuckles" then
 					paparmsrow:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, valz["PaP Arms"] == v.ClassName)
 				end
@@ -456,7 +455,7 @@ nzTools:CreateTool("settings", {
 			paparmsrow.DataChanged = function( _, val ) valz["PaP Arms"] = val valz["PaP Arms"] = val end
 
 			bottlerow:Setup( "Combo" )
-			for k,v in pairs(weapons.GetList()) do
+			for k,v in pairs(WeaponList) do
 				if v.Category and v.Category == "nZombies Bottles" then
 					bottlerow:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, valz["Bottle"] == v.ClassName)
 				end
@@ -464,7 +463,7 @@ nzTools:CreateTool("settings", {
 			bottlerow.DataChanged = function( _, val ) valz["Bottle"] = val valz["Bottle"] = val end
 
 			syretterow:Setup( "Combo" )
-			for k,v in pairs(weapons.GetList()) do
+			for k,v in pairs(WeaponList) do
 				if v.Category and v.Category == "nZombies Syrettes" then
 					syretterow:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, valz["Revive Syrette"] == v.ClassName)
 				end
@@ -630,7 +629,7 @@ nzTools:CreateTool("settings", {
 		Row58:SetTooltip("Enable for weapons to gain BO3-esque ammo mods when Pack-a-Punch'ed twice.")
 
 		deathmachinerow:Setup( "Combo" )
-		for k, v in pairs(weapons.GetList()) do
+		for k, v in pairs(WeaponList) do
 			if v.Category and v.Category == "nZombies Powerups" then
 				deathmachinerow:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, valz["Death Machine"] == v.ClassName)
 			end
@@ -638,7 +637,7 @@ nzTools:CreateTool("settings", {
 		deathmachinerow.DataChanged = function( _, val ) valz["Death Machine"] = val end
 
 		shieldrow:Setup( "Combo" )
-		for k, v in pairs(weapons.GetList()) do
+		for k, v in pairs(WeaponList) do
 			if v.ShieldEnabled and v.NZSpecialCategory == "shield" then
 				shieldrow:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, valz["Shield"] == v.ClassName)
 			end
@@ -1003,8 +1002,8 @@ nzTools:CreateTool("settings", {
 		local FlashlightFOV =	DProperties2:CreateRow("Miscellaneous", "Flashlight FOV")
 		local FlashlightFar =	DProperties2:CreateRow("Miscellaneous", "Flashlight Distance")
 
-		Row1:Setup( "Combo" )
-		for k,v in pairs(weapons.GetList()) do
+		Row1:Setup("Combo")
+		for k, v in pairs(WeaponList) do
 			if !v.NZTotalBlacklist then
 				if v.Category and v.Category != "" then
 					Row1:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName or v.ClassName, v.ClassName, valz["Row1"] == v.ClassName)
@@ -1013,27 +1012,43 @@ nzTools:CreateTool("settings", {
 				end
 			end
 		end
-		Row1.DataChanged = function( _, val ) valz["Row1"] = val end
 
-		Row1.DoClick = function( panel, index, value )
-			valz["Row1"] = OpenWeaponSelectMenu( )
+		Row1.Think = function(self)
+			if self.Inner:IsEditing() and self:IsEnabled() and nzTools.OpenWeaponSelectMenu then
+				nzTools:OpenWeaponSelectMenu(Row1, Row1)
+				vgui.GetHoveredPanel():CloseMenu()
+				self:SetEnabled(false)
+			end
+
+			if !self:IsEnabled() and !nzTools.WeaponSelectMenu then
+				self:SetEnabled(true)
+			end
 		end
 
+		Row1.DoClick = function()
+			if Row1.optionData then
+				valz["Row1"] = Row1.optionData
+				Row1.Inner:SetValue(valz["Row1"])
+			end
+		end
+
+		Row1.DataChanged = function( self, val ) valz["Row1"] = Row1.optionData or val end
+
 		kniferow:Setup( "Combo" )
-		for k,v in pairs(weapons.GetList()) do
+		for k,v in pairs(WeaponList) do
 			if v.Category and v.Category == "nZombies Knives" then
 				kniferow:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, valz["Knife"] == v.ClassName)
 			end
 		end
-		kniferow.DataChanged = function( _, val ) valz["Knife"] = val valz["Knife"] = val end
+		kniferow.DataChanged = function( _, val ) valz["Knife"] = val end
 
 		grenaderow:Setup( "Combo" )
-		for k,v in pairs(weapons.GetList()) do
+		for k,v in pairs(WeaponList) do
 			if v.Category and v.Category == "nZombies Grenades" then
 				grenaderow:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, valz["Grenade"] == v.ClassName)
 			end
 		end
-		grenaderow.DataChanged = function( _, val ) valz["Grenade"] = val valz["Grenade"] = val end
+		grenaderow.DataChanged = function( _, val ) valz["Grenade"] = val end
 
 		Row2:Setup("Generic")
 		Row2:SetValue( valz["Row2"] )
@@ -1328,6 +1343,12 @@ nzTools:CreateTool("settings", {
 		ZStumbling:SetValue( valz["ZStumbling"] )
 		ZStumbling.DataChanged = function( _, val ) valz["ZStumbling"] = val end
 		ZStumbling:SetTooltip("Disable this if you don't want zombies to stumble like in BO4 onward.")
+
+		local ZSTaunts = DProperties3:CreateRow( "Zombie Extras", "Zombie Super Taunts" )
+		ZSTaunts:Setup( "Boolean" )
+		ZSTaunts:SetValue( valz["ZSTaunts"] )
+		ZSTaunts.DataChanged = function( _, val ) valz["ZSTaunts"] = val end
+		ZSTaunts:SetTooltip("Zombies will play a special animation which allows them to speed up from walking speed.")
 		--[[-------------------------------------------------------------------------
 		Catalysts and ZCT and Burning
 		---------------------------------------------------------------------------]]
@@ -1546,6 +1567,7 @@ nzTools:CreateTool("settings", {
 			if !valz["Row52"] then data.sidestepping = false else data.sidestepping = valz["Row52"] end
 			if !valz["DmgIncrease"] then data.dmgincrease = false else data.dmgincrease = valz["DmgIncrease"] end
 			if valz["ZStumbling"] == nil then data.stumbling = true else data.stumbling = valz["ZStumbling"] end
+			if valz["ZSTaunts"] == nil then data.supertaunting = false else data.supertaunting = valz["ZSTaunts"] end
 			if !valz["ZStartSpeed"] then data.startspeed = 0 else data.startspeed = tonumber(valz["ZStartSpeed"]) end
 			if !valz["ZSpeedCap"] then data.speedcap = 300 else data.speedcap = tonumber(valz["ZSpeedCap"]) end
 			if !valz["Row54"] then data.badattacks = false else data.badattacks = valz["Row54"] end
@@ -1907,7 +1929,7 @@ nzTools:CreateTool("settings", {
 					end
 				end
 			else
-				for k,v in pairs(weapons.GetList()) do
+				for k,v in pairs(WeaponList) do
 					-- By default, add all weapons that have print names unless they are blacklisted
 					if v.PrintName and v.PrintName != "" and !nzConfig.WeaponBlackList[v.ClassName] and v.PrintName != "Scripted Weapon" and !v.NZPreventBox and !v.NZTotalBlacklist then
 						if v.Category and v.Category != "" then
@@ -1931,7 +1953,7 @@ nzTools:CreateTool("settings", {
 			wepentry:SetText( "Weapon ..." )
 
 			wepentry.DoClick = function( panel, index, value )
-				OpenWeaponSelectMenu( wepentry, wepadd )
+				nzTools:OpenWeaponSelectMenu(wepentry, wepadd, true)
 			end
 
 			wepadd:SetText( "Add" )
@@ -1967,7 +1989,7 @@ nzTools:CreateTool("settings", {
 				morecat:SetSize(150, 20)
 				morecat:SetPos(10, 30)
 				local cattbl = {}
-				for k,v in SortedPairsByMemberValue(weapons.GetList(), "PrintName") do
+				for k,v in SortedPairsByMemberValue(WeaponList, "PrintName") do
 					if v.Category and v.Category != "" then
 						if !cattbl[v.Category] then
 							morecat:AddChoice(v.Category, v.Category, false)
@@ -1984,7 +2006,7 @@ nzTools:CreateTool("settings", {
 				morecatadd.DoClick = function()
 					local cat = morecat:GetOptionData(morecat:GetSelectedID())
 					if cat and cat != "" then
-						for k,v in SortedPairsByMemberValue(weapons.GetList(), "PrintName") do
+						for k,v in SortedPairsByMemberValue(WeaponList, "PrintName") do
 							if v.Category and v.Category == cat and !nzConfig.WeaponBlackList[v.ClassName] and !v.NZPreventBox and !v.NZTotalBlacklist then
 								local special = v.NZSpecialCategory and " ("..v.NZSpecialCategory..")" or ""
 								InsertWeaponToList(v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, 10, v.ClassName.." ["..v.Category.."]"..special)
@@ -2023,7 +2045,7 @@ nzTools:CreateTool("settings", {
 				moreprefix:SetSize(150, 20)
 				moreprefix:SetPos(10, 60)
 				local prefixtbl = {}
-				for k,v in pairs(weapons.GetList()) do
+				for k,v in pairs(WeaponList) do
 					local prefix = string.sub(v.ClassName, 0, string.find(v.ClassName, "_"))
 					if prefix and !prefixtbl[prefix] then
 						moreprefix:AddChoice(prefix, prefix, false)
@@ -2039,7 +2061,7 @@ nzTools:CreateTool("settings", {
 				moreprefixadd.DoClick = function()
 					local prefix = moreprefix:GetOptionData(moreprefix:GetSelectedID())
 					if prefix and prefix != "" then
-						for k,v in SortedPairsByMemberValue(weapons.GetList(), "PrintName") do
+						for k,v in SortedPairsByMemberValue(WeaponList, "PrintName") do
 							local wepprefix = string.sub(v.ClassName, 0, string.find(v.ClassName, "_"))
 							if wepprefix and wepprefix == prefix and !nzConfig.WeaponBlackList[v.ClassName] and !v.NZPreventBox and !v.NZTotalBlacklist then
 								if v.Category and v.Category != "" then
@@ -2101,7 +2123,7 @@ nzTools:CreateTool("settings", {
 						weplist[k] = nil
 						numweplist = 0
 					end
-					for k,v in SortedPairsByMemberValue(weapons.GetList(), "PrintName") do
+					for k,v in SortedPairsByMemberValue(WeaponList, "PrintName") do
 						-- By default, add all weapons that have print names unless they are blacklisted
 						if v.PrintName and v.PrintName != "" and !nzConfig.WeaponBlackList[v.ClassName] and v.PrintName != "Scripted Weapon" and !v.NZPreventBox and !v.NZTotalBlacklist then
 							if v.Category and v.Category != "" then

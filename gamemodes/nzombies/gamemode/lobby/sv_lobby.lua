@@ -20,7 +20,7 @@ end
 
 function nzLobby:ChangeSkin(ply)
     local mdl = ply:GetInfo( "cl_playermodel" )
-    mdl = player_manager.TranslatePlayerModel(mdl) or models/player/combine_soldier.mdl
+    mdl = player_manager.TranslatePlayerModel(mdl) or "models/player/combine_soldier.mdl"
 	ply:SetModel(mdl)
 	
 	local col = ply:GetInfo( "cl_playercolor" )

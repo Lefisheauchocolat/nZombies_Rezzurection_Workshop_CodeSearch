@@ -19,11 +19,11 @@ if CLIENT then
 		self:DrawModel()
 		self:PostDraw()
 
-		if self.RedEyes == true and self:Alive() and !self:GetDecapitated() and !self:GetMooSpecial() and !self.IsMooSpecial then
+		if self.RedEyes == true and self:IsAlive() and !self:GetDecapitated() and !self:GetMooSpecial() and !self.IsMooSpecial then
 			self:DrawEyeGlow() 
 		end
 
-		if self:WaterBuff() and !self:BomberBuff() and self:Alive() then
+		if self:WaterBuff() and !self:BomberBuff() and self:IsAlive() then
 			local elight = DynamicLight( self:EntIndex(), true )
 			if ( elight ) then
 				local bone = self:LookupBone("j_spineupper")
@@ -40,7 +40,7 @@ if CLIENT then
 				elight.style = 0
 				elight.noworld = true
 			end
-		elseif self:BomberBuff() and !self:WaterBuff() and self:Alive() then
+		elseif self:BomberBuff() and !self:WaterBuff() and self:IsAlive() then
 			local elight = DynamicLight( self:EntIndex(), true )
 			if ( elight ) then
 				local bone = self:LookupBone("j_spineupper")
@@ -57,7 +57,7 @@ if CLIENT then
 				elight.style = 0
 				elight.noworld = true
 			end
-		elseif self:WaterBuff() and self:BomberBuff() and self:Alive() then
+		elseif self:WaterBuff() and self:BomberBuff() and self:IsAlive() then
 			local elight = DynamicLight( self:EntIndex(), true )
 			if ( elight ) then
 				local bone = self:LookupBone("j_spineupper")
@@ -999,14 +999,6 @@ ENT.SequenceTables = {
 			JumpSequences = {JumpSequences},
 			CrawlJumpSequences = {CrawlJumpSequences},
 
-			Climb36 = {SlowClimbUp36},
-			Climb48 = {SlowClimbUp48},
-			Climb72 = {SlowClimbUp72},
-			Climb96 = {SlowClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
-
 			PassiveSounds = {walksounds},
 		},
 	}},
@@ -1090,14 +1082,6 @@ ENT.SequenceTables = {
 
 			JumpSequences = {RunJumpSequences},
 			CrawlJumpSequences = {CrawlJumpSequences},
-
-			Climb36 = {SlowClimbUp36},
-			Climb48 = {SlowClimbUp48},
-			Climb72 = {SlowClimbUp72},
-			Climb96 = {SlowClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
 
 			PassiveSounds = {runsounds},
 		},
@@ -1186,14 +1170,6 @@ ENT.SequenceTables = {
 			JumpSequences = {SprintJumpSequences},
 			CrawlJumpSequences = {CrawlJumpSequences},
 
-			Climb36 = {FastClimbUp36},
-			Climb48 = {FastClimbUp48},
-			Climb72 = {FastClimbUp72},
-			Climb96 = {FastClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
-
 			PassiveSounds = {runsounds},
 		},
 	}},
@@ -1271,14 +1247,6 @@ ENT.SequenceTables = {
 
 			JumpSequences = {SprintJumpSequences},
 			CrawlJumpSequences = {CrawlJumpSequences},
-
-			Climb36 = {FastClimbUp36},
-			Climb48 = {FastClimbUp48},
-			Climb72 = {FastClimbUp72},
-			Climb96 = {FastClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
 
 			PassiveSounds = {runsounds},
 		},
@@ -1581,6 +1549,28 @@ ENT.CrawlerSounds = {
 	Sound("nz_moo/zombies/vox/_gen/gen_v2/zmb_vox_gen_sneakattack_busted_08.mp3"),
 	Sound("nz_moo/zombies/vox/_gen/gen_v2/zmb_vox_gen_sneakattack_busted_09.mp3"),
 	Sound("nz_moo/zombies/vox/_gen/gen_v2/zmb_vox_gen_sneakattack_busted_10.mp3"),
+
+	Sound("nz_moo/zombies/vox/_gen/gen2/zmb_vox_gen2_sneakattack_success_01.mp3"),
+	Sound("nz_moo/zombies/vox/_gen/gen2/zmb_vox_gen2_sneakattack_success_02.mp3"),
+	Sound("nz_moo/zombies/vox/_gen/gen2/zmb_vox_gen2_sneakattack_success_03.mp3"),
+	Sound("nz_moo/zombies/vox/_gen/gen2/zmb_vox_gen2_sneakattack_success_04.mp3"),
+	Sound("nz_moo/zombies/vox/_gen/gen2/zmb_vox_gen2_sneakattack_success_05.mp3"),
+	Sound("nz_moo/zombies/vox/_gen/gen2/zmb_vox_gen2_sneakattack_success_06.mp3"),
+	Sound("nz_moo/zombies/vox/_gen/gen2/zmb_vox_gen2_sneakattack_success_07.mp3"),
+	Sound("nz_moo/zombies/vox/_gen/gen2/zmb_vox_gen2_sneakattack_success_08.mp3"),
+	Sound("nz_moo/zombies/vox/_gen/gen2/zmb_vox_gen2_sneakattack_success_09.mp3"),
+	Sound("nz_moo/zombies/vox/_gen/gen2/zmb_vox_gen2_sneakattack_success_10.mp3"),
+
+	Sound("nz_moo/zombies/vox/_gen/gen_v2/zmb_vox_gen_sneakattack_success_01.mp3"),
+	Sound("nz_moo/zombies/vox/_gen/gen_v2/zmb_vox_gen_sneakattack_success_02.mp3"),
+	Sound("nz_moo/zombies/vox/_gen/gen_v2/zmb_vox_gen_sneakattack_success_03.mp3"),
+	Sound("nz_moo/zombies/vox/_gen/gen_v2/zmb_vox_gen_sneakattack_success_04.mp3"),
+	Sound("nz_moo/zombies/vox/_gen/gen_v2/zmb_vox_gen_sneakattack_success_05.mp3"),
+	Sound("nz_moo/zombies/vox/_gen/gen_v2/zmb_vox_gen_sneakattack_success_06.mp3"),
+	Sound("nz_moo/zombies/vox/_gen/gen_v2/zmb_vox_gen_sneakattack_success_07.mp3"),
+	Sound("nz_moo/zombies/vox/_gen/gen_v2/zmb_vox_gen_sneakattack_success_08.mp3"),
+	Sound("nz_moo/zombies/vox/_gen/gen_v2/zmb_vox_gen_sneakattack_success_09.mp3"),
+	Sound("nz_moo/zombies/vox/_gen/gen_v2/zmb_vox_gen_sneakattack_success_10.mp3"),
 }
 
 ENT.PainSounds = {

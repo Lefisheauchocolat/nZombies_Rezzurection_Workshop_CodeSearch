@@ -39,7 +39,7 @@ if CLIENT then
 		end
 	end
 	function ENT:PostDraw()
-		if self:Alive() and !self:GetIsHidden() then
+		if self:IsAlive() and !self:GetIsHidden() then
 			if !IsValid(self) then return end
 			self:SetMaterial("")
 			local color = nzMapping.Settings.zombieeyecolor
@@ -877,7 +877,7 @@ end
 
 
 function ENT:Sound()
-	if self:GetAttacking() or !self:Alive() or self:GetDecapitated() then return end
+	if self:GetAttacking() or !self:IsAlive() or self:GetDecapitated() then return end
 
 	local vol = self.SoundVolume
 

@@ -18,13 +18,13 @@ if SERVER then
         if !istable(tab) then return end
 
         local wep = ply:GetActiveWeapon()
-        if ply:GetNWInt('Salvage', 0) < nzSettings:GetSimpleSetting("ArsenalSalvageCost", 500) or IsValid(wep) and wep:GetNW2String("nzAATType") == ks then
+        if ply:GetNWInt('Salvage', 0) < nzSettings:GetSimpleSetting("ArsenalSalvageCost"..ks, 500) or IsValid(wep) and wep:GetNW2String("nzAATType") == ks then
             ply:SendLua([[surface.PlaySound("bo6/other/craft_no.wav")]]) 
             return 
         end
 
         if IsValid(wep) then
-            ply:SetNWInt('Salvage', ply:GetNWInt('Salvage')-nzSettings:GetSimpleSetting("ArsenalSalvageCost", 500))
+            ply:SetNWInt('Salvage', ply:GetNWInt('Salvage')-nzSettings:GetSimpleSetting("ArsenalSalvageCost"..ks, 500))
             ply:SendLua([[surface.PlaySound("bo6/other/craft_yes.wav")]]) 
             wep:SetNW2String("nzAATType", ks)
             ply.LastNZAATType = ks
@@ -121,7 +121,7 @@ else
                 surface.SetDrawColor(255,255,255)
                 surface.DrawTexturedRect(w/2-We(36),h-He(44),We(32),He(32))
     
-                draw.SimpleText(nzSettings:GetSimpleSetting("ArsenalSalvageCost", 500), "BO6_Exfil26", w/2, h-He(25), color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+                draw.SimpleText(nzSettings:GetSimpleSetting("ArsenalSalvageCost"..name, 500), "BO6_Exfil26", w/2, h-He(25), color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
 
                 if IsValid(ply:GetActiveWeapon()) and ply:GetActiveWeapon():GetNW2String("nzAATType") == name then
                     surface.SetDrawColor(0,0,0,200)
@@ -129,7 +129,7 @@ else
                     surface.SetDrawColor(200,200,200,200)
                     surface.DrawRect(0,0,w,He(24))
                     draw.SimpleText("SELECTED", "BO6_Exfil24", w/2, 0, Color(0,0,0), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
-                elseif ply:GetNWInt('Salvage') < nzSettings:GetSimpleSetting("ArsenalSalvageCost", 500) then
+                elseif ply:GetNWInt('Salvage') < nzSettings:GetSimpleSetting("ArsenalSalvageCost"..name, 500) then
                     surface.SetDrawColor(0,0,0,200)
                     surface.DrawRect(0,0,w,h)
                     surface.SetDrawColor(200,100,100,200)

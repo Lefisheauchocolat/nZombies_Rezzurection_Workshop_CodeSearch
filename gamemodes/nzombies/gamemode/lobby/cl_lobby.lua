@@ -12,6 +12,8 @@ local logoMat = Material("bo6/other/logo.png")
 local markMat = Material("vgui/menu_lobby_ready.png", "mips")
 local crossMat = Material("vgui/menu_lobby_not_ready.png", "mips")
 local lightMat = Material("bo6/other/light.png", "mips")
+local addBotMat = Material("bo6/other/bot_add.png", "")
+local removeBotMat = Material("bo6/other/bot_remove.png", "")
 local musicchannel = nil
 local lobbypanel = nil
 local animtab = {"nz_idles_f_crossedfront", "nz_idles_m_armsback", "nz_idles_m_armsfront", "nz_idles_m_hipleft", "nz_idles_m_hipright", "nz_idles_m_hips"}
@@ -309,6 +311,7 @@ local function open_lobby_menu()
     end)
     nzLobby:ClosePanels()
 
+    local have_bots = GetConVar("nz_bot_max") and LocalPlayer():IsSuperAdmin()
     local map_image_name = nzSettings:GetSimpleSetting("Lobby_MapImage", "bo6/other/default_map.jpg")
     local map_image = Material(map_image_name)
     local time_before_start = 0
@@ -390,6 +393,9 @@ local function open_lobby_menu()
 
         --players
         local height = 20
+        if have_bots then
+            height = 50
+        end
         local tab = player.GetAll()
         surface.SetDrawColor(10, 10, 10, 230)
         surface.DrawRect(We(1700), He(100), We(200), He(height+(40*#tab)))
@@ -649,6 +655,38 @@ local function open_lobby_menu()
         end
         but.OnCursorEntered = function()
             surface.PlaySound("nz_moo/effects/ui/slider_rear.mp3")
+        end
+
+        if have_bots then
+            local but = vgui.Create("DButton", frame)
+            but:SetText("")
+            but:SetSize(We(180), He(30))
+            but:SetPos(We(1710), He(110+(player.GetCount()*40)))
+            but.Paint = function(self, w, h)
+                but:SetPos(We(1710), He(110+(player.GetCount()*40)))
+                local mat = addBotMat
+                if player.GetCount() == game.MaxPlayers() or GetConVar("nz_bot_max") and nzGetBotCommand("nz_bot_max") == #player.GetBots() then
+                    mat = removeBotMat
+                end
+                if self:IsHovered() then
+                    surface.SetDrawColor(255,255,255)
+                    surface.SetMaterial(mat)
+                    surface.DrawTexturedRect(0,0,w,h)
+                else
+                    surface.SetDrawColor(200,200,200,200)
+                    surface.SetMaterial(mat)
+                    surface.DrawTexturedRect(0,0,w,h)
+                end
+            end
+
+            but.DoClick = function()
+                if nzLobby:CanStart() then return end
+                surface.PlaySound("nz_moo/effects/ui/2nd_click_rear.mp3")
+                nzLobby:BotEditor(frame)
+            end
+            but.OnCursorEntered = function()
+                surface.PlaySound("nz_moo/effects/ui/slider_rear.mp3")
+            end
         end
     end
 
@@ -1004,6 +1042,88 @@ function nzLobby:PlayerModelEditor(parent)
     window:MakePopup()
     window:Center()
     gui.EnableScreenClicker(true)  
+end
+
+local be_window = nil
+function nzLobby:BotEditor(fr)
+    if IsValid(be_window) then return end
+
+    local selectedModel = ""
+
+    local frame = vgui.Create("DFrame", fr)
+    frame:SetTitle("Bot Editor")
+    frame:SetSize(400, 650)
+    frame:Center()
+    frame:SetVisible(true)
+    frame:SetDraggable(true)
+    frame:ShowCloseButton(true)
+    frame:MakePopup()
+    frame.Paint = function(self, w, h)
+        draw.RoundedBox(8, 0, 0, w, h, Color(20, 20, 20, 240))
+        draw.RoundedBox(0, 0, 24, w, 2, Color(100, 100, 100, 255))
+    end
+    be_window = frame
+
+    local nameEntry = vgui.Create("DTextEntry", frame)
+    nameEntry:SetPos(20, 40)
+    nameEntry:SetSize(360, 30)
+    nameEntry:SetPlaceholderText("Leave it empty for random nick")
+    nameEntry:SetText("")
+
+    local label = vgui.Create("DLabel", frame)
+    label:SetPos(20, 80)
+    label:SetSize(360, 20)
+    label:SetText("Selected Model: "..selectedModel)
+    label.PaintOver = function(self,w,h)
+        label:SetText("Selected Model: "..selectedModel)
+    end
+
+    local modelPanel = vgui.Create("DScrollPanel", frame)
+    modelPanel:SetPos(20, 120)
+    modelPanel:SetSize(360, 350)
+
+    local iconLayout = vgui.Create("DIconLayout", modelPanel)
+    iconLayout:SetSize(360, 350)
+    iconLayout:SetSpaceY(5)
+    iconLayout:SetSpaceX(5)
+
+    local validModels = player_manager.AllValidModels()
+    for name, modelPath in pairs(validModels) do
+        local icon = iconLayout:Add("SpawnIcon")
+        icon:SetModel(modelPath)
+        icon:SetToolTip(name)
+        icon.DoClick = function()
+            selectedModel = modelPath
+            chat.AddText(Color(0, 255, 0), "Selected Model: ", modelPath)
+        end
+    end
+
+    local addBotButton = vgui.Create("DButton", frame)
+    addBotButton:SetPos(20, 490)
+    addBotButton:SetSize(360, 40)
+    addBotButton:SetText("Add Bot with Settings")
+    addBotButton.DoClick = function()
+        local botName = nameEntry:GetValue()
+        if selectedModel then
+            RunConsoleCommand("nz_add_bot", botName, selectedModel, "true")
+        end
+    end
+
+    local randomBotButton = vgui.Create("DButton", frame)
+    randomBotButton:SetPos(20, 540)
+    randomBotButton:SetSize(360, 40)
+    randomBotButton:SetText("Add Random Bot")
+    randomBotButton.DoClick = function()
+        RunConsoleCommand("nz_add_bot")
+    end
+
+    local randomBotButton = vgui.Create("DButton", frame)
+    randomBotButton:SetPos(20, 590)
+    randomBotButton:SetSize(360, 40)
+    randomBotButton:SetText("Kick Bots")
+    randomBotButton.DoClick = function()
+        RunConsoleCommand("leadbot_kick", "all")
+    end
 end
 
 concommand.Add("hari_lobby_close", function()

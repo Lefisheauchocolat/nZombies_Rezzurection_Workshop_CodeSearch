@@ -319,7 +319,7 @@ function ENT:IsValidTarget( ent )
 	if !ent then return false end
 
 	-- Turned Zombie Targetting
-	if self.IsTurned then return IsValid(ent) and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooSpecial and ent:Alive() end
+	if self.IsTurned then return IsValid(ent) and ent:IsValidZombie() and !ent.IsTurned and !ent.IsMooSpecial and ent:IsAlive() end
 	
 	return IsValid(ent) and ent:GetTargetPriority() ~= TARGET_PRIORITY_NONE and ent:GetTargetPriority() ~= TARGET_PRIORITY_MONSTERINTERACT and ent:GetTargetPriority() ~= TARGET_PRIORITY_SPECIAL and ent:GetTargetPriority() ~= TARGET_PRIORITY_FUNNY
 	-- Won't go for special targets (Monkeys), but still MAX, ALWAYS and so on
@@ -381,7 +381,7 @@ function ENT:HandleAnimEvent(a,b,c,d,e)
 		self:DoAttackDamage()
 	end
 	if e == "pull_plank" then
-		if IsValid(self) and self:Alive() then
+		if IsValid(self) and self:IsAlive() then
 			if IsValid(self.BarricadePlankPull) and IsValid(self.Barricade) then
 				self.Barricade:RemovePlank(self.BarricadePlankPull)
 			end
@@ -422,7 +422,7 @@ function ENT:Explode(dmg, suicide)
                 if v == self then continue end
                 if v:EntIndex() == self:EntIndex() then continue end
                 if v:Health() <= 0 then continue end
-                if !v:Alive() then continue end
+                if !v:IsAlive() then continue end
                 local damage = DamageInfo()
                 damage:SetAttacker(self)
                 damage:SetDamageType(DMG_SHOCK)

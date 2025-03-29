@@ -2,17 +2,16 @@
 nzCamos = nzCamos or AddNZModule("Camos")
 nzCamos.Data = nzCamos.Data or {}
 
-if CLIENT then
-	nzCamos.ViewmodelsToUpdate = {}
-end
-
 CreateClientConVar("nz_papcamo", 1, true, false, "Sets whether Pack-a-Punch applies a camo to viewmodels")
 CreateClientConVar("nz_papcamo_3p", 1, true, false, "Sets whether Pack-a-Punch applies a camo to worldmodels")
 CreateClientConVar("nz_papcamo_ww", 1, true, false, "Sets whether Pack-a-Punch applies a camo to wonder weapons")
 
 function nzCamos:RandomizeCamo(wep, lastcamo)
 	if not nzMapping.Settings.PAPcamo or not nzCamos:Get(nzMapping.Settings.PAPcamo) then
-		print('[NZ] current map setting Pack a Punch camo is invalid! please update in map settings!')
+		print('[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[')
+		print('Something has gone horribly wrong')
+		print('Please go inside map settings and press submit')
+		print(']]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]')
 		return
 	end
 

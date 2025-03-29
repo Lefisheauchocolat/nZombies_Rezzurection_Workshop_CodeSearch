@@ -392,16 +392,21 @@ nzRound:AddZombieType("Shangri-La", 				"nz_zombie_walker_shangrila", {})
 nzRound:AddZombieType("Shangri-La(Classic)", 		"nz_zombie_walker_shangrila_classic", {}) 
 nzRound:AddZombieType("Shi no Numa", 				"nz_zombie_walker_sumpf", {}) 
 nzRound:AddZombieType("Shi no Numa(Classic)", 		"nz_zombie_walker_sumpf_classic", {}) 
+nzRound:AddZombieType("Shi no Numa(Black Ops 1)", 	"nz_zombie_walker_sumpf_bo1", {}) 
 nzRound:AddZombieType("Spaceland Zombies",			"nz_zombie_walker_park", {})
 nzRound:AddZombieType("Spaceland Zombies(3arc)",	"nz_zombie_walker_park_3arc", {})
 nzRound:AddZombieType("Skeleton", 					"nz_zombie_walker_skeleton", {}) 
 nzRound:AddZombieType("Tag Der Toten", 				"nz_zombie_walker_orange", {}) 
 nzRound:AddZombieType("Terminus(Lab)", 				"nz_zombie_walker_quartz_lab", {})
 nzRound:AddZombieType("Terminus(Hazmat)", 			"nz_zombie_walker_quartz_hazmat", {}) 
+nzRound:AddZombieType("Terminus(Armored Heavy)", 	"nz_zombie_walker_quartz_armored_heavy", {}) 
+nzRound:AddZombieType("The Tomb", 					"nz_zombie_walker_opal_mummy", {})
 nzRound:AddZombieType("Tranzit", 					"nz_zombie_walker_greenrun", {}) 
 nzRound:AddZombieType("Vanguard Zombies", 			"nz_zombie_walker_griddy", {})
 nzRound:AddZombieType("Voyage of Despair", 			"nz_zombie_walker_titanic", {}) 
+nzRound:AddZombieType("W@W Russian Zombies", 		"nz_zombie_walker_waw_russians", {}) 
 nzRound:AddZombieType("WWII Zombies", 				"nz_zombie_walker_ww2", {})
+nzRound:AddZombieType("WWII Zombies(Summer Event)", "nz_zombie_walker_ww2_wet", {})
 nzRound:AddZombieType("WWII Zombies(3arc Styled)", 	"nz_zombie_walker_ww2_3arc", {})
 nzRound:AddZombieType("Xenomorph", 					"nz_zombie_walker_xeno", {}) 
 nzRound:AddZombieType("Zetsubou no Shima", 			"nz_zombie_walker_zetsubou", {}) 
@@ -411,6 +416,7 @@ nzRound:AddZombieType("Flood (Elite)", 				"nz_zombie_walker_floodelite3", {})
 nzRound:AddZombieType("Flood (Classic Marine)", 	"nz_zombie_walker_floodunsc", {}) 
 nzRound:AddZombieType("Flood (Marine)", 			"nz_zombie_walker_floodunsc3", {}) 
 nzRound:AddZombieType("Flood (Brute)", 				"nz_zombie_walker_floodbrute",   {}) 
+nzRound:AddZombieType("Shambler", 					"nz_zombie_walker_shambler",   {}) 
 
 function nzRound:GetZombieType(id)
 	if id == nil then 
@@ -1399,6 +1405,25 @@ nzRound:AddSpecialRoundType("Nova Crawlers", {
 	specialTypes = {
 		["nz_zombie_special_nova"] = {chance = 100},
 		["nz_zombie_special_nova_moon"] = {chance = 100},
+	},
+	specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.5, 2) end, -- Dynamically change spawn speed depending on player count
+	specialCountMod = function() return math.Clamp(nzRound:GetNumber() * #player.GetAllPlaying(), 6, 24) end, -- Modify the count
+}, function(dog) -- We want to modify health
+	local round = nzRound:GetNumber()
+	if round == -1 then
+		dog:SetHealth(math.random(120, 1200))
+	else
+	local hp = 40
+	for i=1,nzRound:GetNumber() do 
+	hp = hp* 1.1
+								end 
+		dog:SetHealth(hp)
+	end
+end) -- No round func or end func
+
+nzRound:AddSpecialRoundType("Devil Nova Crawlers", {
+	specialTypes = {
+		["nz_zombie_special_nova_fire"] = {chance = 100},
 	},
 	specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.5, 2) end, -- Dynamically change spawn speed depending on player count
 	specialCountMod = function() return math.Clamp(nzRound:GetNumber() * #player.GetAllPlaying(), 6, 24) end, -- Modify the count

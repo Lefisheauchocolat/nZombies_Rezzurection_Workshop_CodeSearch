@@ -19,7 +19,7 @@ if CLIENT then
 		self:EffectsAndSounds()
 	end
 	function ENT:EffectsAndSounds()
-		if self:Alive() then
+		if self:IsAlive() then
 			-- Credit: FlamingFox for Code and fighting the PVS monster -- 
 			if !IsValid(self) then return end
 			if (!self.Draw_FX or !self.Draw_FX:IsValid()) then
@@ -401,7 +401,7 @@ function ENT:AI()
 	end
 
 	-- Tongue
-	if CurTime() > self.TongueCooldown and !self.UsingTongue and self:TargetInRange(1250) and !self:TargetInRange(225) then
+	if CurTime() > self.TongueCooldown and !self.UsingTongue and self:TargetInRange(1250) and !self:TargetInRange(225) and !self:GetJumping() then
 		self:TryTongue(target)
 	end
 end
@@ -427,7 +427,7 @@ function ENT:TryTongue(target)
 		self.SpottedTarget = false
 			
 		self.KillTongue = CurTime() + 4
-		self.TongueCooldown = CurTime() + math.Rand(5.75, 7.14)
+		self.TongueCooldown = CurTime() + math.Rand(7.75, 11.14)
 	end)
 end
 
@@ -531,7 +531,7 @@ if SERVER then
 			if CurTime() > self.LastStun then -- The code here is kinda bad tbh, and in turn it does weird shit because of it.
 				-- Moo Mark 7/17/23: Alright... We're gonna try again.
 				if self.Dying then return end
-				if !self:Alive() then return end
+				if !self:IsAlive() then return end
 				if dmginfo:IsDamageType(DMG_MISSILEDEFENSE) 
 					or self:GetSpecialAnimation() 
 					or self:GetCrawler() 

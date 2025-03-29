@@ -21,14 +21,11 @@ if SERVER then
 			end
 
 			if !ply:GetNW2Bool("nzFullyConnected", false) then
+				player_manager.SetPlayerClass(ply, "player_ingame")
 				ply:SetNW2Bool("nzFullyConnected", true)
 				hook.Call("PlayerFullyInitialized", nil, ply)
 			end
 		end
-	end)
-
-	hook.Add("PlayerFullyInitialized", "SetPlayerClassInit", function(ply)
-		player_manager.SetPlayerClass( ply, "player_ingame" )
 	end)
 end
 

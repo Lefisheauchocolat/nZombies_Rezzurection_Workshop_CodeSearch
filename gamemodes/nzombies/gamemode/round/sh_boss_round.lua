@@ -789,6 +789,32 @@ nzRound:AddBossType("Tyrant", "nz_zombie_boss_tyrant", {
 	end,
 })
 
+nzRound:AddBossType("The Bogeyman", "nz_zombie_boss_bogeyman", {
+	specialspawn = false,
+	health = 12000,
+	scale = 1,
+	dmgmul = 1,
+	amountatonce = 1,
+	initalrnd = 4,
+	intermission = 4,
+	perplayer = 1,
+	maxperrnd = 1,
+	initfunc = function()
+	end,
+	spawnfunc = function(self)
+		--[[local data = nzRound:GetBossData(self.NZBossType)
+		local count = #player.GetAllPlaying()
+
+		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))]]
+	end,
+	deathfunc = function(self, killer, dmginfo, hitgroup)
+		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+			attacker:GivePoints(150) -- Give killer 500 points if not downed
+		end
+	end,
+})
+
 nzRound:AddBossType("Scrake", "nz_zombie_boss_scrake", {
 	specialspawn = false,
 	health = 500,
@@ -884,6 +910,29 @@ nzRound:AddBossType("Adolf", "nz_zombie_boss_hillturr", {
         end
     end,
 })
+
+nzRound:AddBossType("Panzerhund", "nz_zombie_boss_panzerhund", {
+    specialspawn = false,
+    health = 500,
+    scale = 300,
+    dmgmul = 0.75,
+	amountatonce = 2,
+	initalrnd = 7,
+	intermission = 3,
+	perplayer = 1,
+	maxperrnd = 5,
+    initfunc = function()
+    end,
+    spawnfunc = function(self)
+		--BroadcastLua("surface.PlaySound('nz/panzer/mech_alarm.wav')")
+    end,
+    deathfunc = function(self, killer, dmginfo, hitgroup)
+        if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+            attacker:GivePoints(150) -- Give killer 500 points if not downed
+        end
+    end,
+})
+
 nzRound:AddBossType("Panzer Soldat (Origins)", "nz_zombie_boss_panzer", {
     specialspawn = false,
     health = 700,
