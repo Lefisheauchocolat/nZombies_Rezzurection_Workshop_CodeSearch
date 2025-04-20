@@ -96,6 +96,7 @@ function ENT:UpdateSpawnType()
 		[16] = "Alcove Spawn 40",
 		[17] = "Alcove Spawn 56",
 		[18] = "Alcove Spawn 96",
+		[19] = "Riser(IW Style)",
 	}
 	self.CurrentSpawnType = types[self:GetSpawnType()]
 end

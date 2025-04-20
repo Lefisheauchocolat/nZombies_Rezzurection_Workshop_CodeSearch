@@ -9,9 +9,10 @@ ENT.Spawnable = true
 if CLIENT then return end -- Client doesn't really need anything beyond the basics
 
 ENT.SpeedBasedSequences = true
+ENT.IsMooZombie = true
 ENT.RedEyes = true
 
---my child you must gib
+
 
 ENT.Models = {
 	{Model = "models/enemies/wolfenstein/nz_shambler.mdl", Skin = 0, Bodygroups = {0,0}},
@@ -150,23 +151,15 @@ ENT.BehindSounds = {
 
 function ENT:StatsInitialize()
 	if SERVER then
-		if nzRound:GetNumber() == -1 then
-			self:SetRunSpeed( math.random(25, 220) )
-			self:SetHealth( math.random(100, 1500) )
+		local speeds = nzRound:GetZombieCoDSpeeds()
+		if speeds then
+			self:SetRunSpeed( nzMisc.WeightedRandom(speeds) + math.random(0,35) )
 		else
-			local speeds = nzRound:GetZombieCoDSpeeds()
-			if speeds then
-				self:SetRunSpeed( nzMisc.WeightedRandom(speeds) + math.random(0,35) )
-			else
-				self:SetRunSpeed( 100 )
-			end
-			self:SetHealth( nzRound:GetZombieHealth() or 75 )
+			self:SetRunSpeed( 100 )
 		end
-	end
-end
 
-function ENT:SpecialInit()
-	if CLIENT then
+		self:SetHealth( nzRound:GetZombieHealth() or 75 )
+		self.AttackDamage = nzRound:GetZombieDamage() or 50
 	end
 end
 
@@ -240,17 +233,13 @@ function ENT:OnSpawn()
 end
 
 function ENT:PerformDeath(dmgInfo)
-	if self:GetSpecialAnimation() then
+	
 		self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
 		if IsValid(self) then
 			self:EmitSound("enemies/zombies/former/explode"..math.random(1,3)..".ogg")
-	ParticleEffect("npc_gearsofwar_loc_lambent_former_explosion",self:GetPos() +self:OBBCenter(),Angle(0,0,0),nil)
+	ParticleEffect("bo3_annihilator_blood", self:GetPos(), angle_zero)
 			self:Remove()
 		end
-	else
-		self:PlaySound(self.DeathSounds[math.random(#self.DeathSounds)], 90, math.random(85, 105), 1, 2)
-		self:DoDeathAnimation(self.DeathSequences[math.random(#self.DeathSequences)])
-	end
 end
 
 function ENT:DoDeathAnimation(seq)
@@ -258,7 +247,7 @@ function ENT:DoDeathAnimation(seq)
 		self:PlaySequenceAndWait(seq)
 		if IsValid(self) then
 			self:EmitSound("enemies/zombies/former/explode"..math.random(1,3)..".ogg")
-	ParticleEffect("npc_gearsofwar_loc_lambent_former_explosion",self:GetPos() +self:OBBCenter(),Angle(0,0,0),nil)
+	ParticleEffect("bo3_annihilator_blood", self:GetPos(), angle_zero)
 			self:Remove()
 		end
 	end)
@@ -284,6 +273,15 @@ ENT.PainSounds = {
 	"nz_moo/zombies/vox/_zhd/pain/pain_15.mp3",
 	"nz_moo/zombies/vox/_zhd/pain/pain_16.mp3",
 }
+	
+function ENT:OnRemove()
+	self:StopSound("shambler/idle/idle_lp_01.wav")
+	self:StopSound("shambler/idle/idle_lp_02.wav")
+	self:StopSound("shambler/idle/idle_lp_03.wav")
+	self:StopSound("shambler/idle/idle_lp_04.wav")
+	self:StopSound("shambler/idle/idle_lp_05.wav")
+	self:StopSound("shambler/idle/idle_lp_06.wav")
+end
 
 if SERVER then
 

@@ -169,14 +169,9 @@ ENT.SequenceTables = {
 		{
 			SpawnSequence = {spawn},
 			MovementSequence = {
-				"nz_t9_base_player_sprint_v01",
-				"nz_t9_base_player_sprint_v02",
-				"nz_t9_base_player_sprint_v03",
-				"nz_t9_base_player_sprint_v04",
-				"nz_t9_base_player_sprint_v05",
-				"nz_t9_base_player_sprint_v06",
-				"nz_t9_base_player_sprint_v07",
-				"nz_t9_base_player_sprint_v08",
+				"nz_hazmat_sprint_01",
+				"nz_suicide_sprint_01",
+				"nz_supersprint_au12",
 			},
 			LowgMovementSequence = {
 				"nz_sprint_lowg_v1",
@@ -265,6 +260,58 @@ ENT.SpawnSounds = {
 }
 
 ENT.AttackSounds = {
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_01.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_02.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_03.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_04.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_05.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_06.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_07.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_08.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_09.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_10.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_11.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_12.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_13.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_14.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_15.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_16.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_17.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_18.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_19.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_20.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_21.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_22.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_23.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_24.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_25.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_26.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_27.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_28.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_29.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_30.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_31.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_32.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_33.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_34.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_35.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_36.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_37.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_38.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_39.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_40.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_41.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_42.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_43.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_44.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_45.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_46.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_47.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_48.mp3"),
+	Sound("nz_moo/zombies/vox/_za/normal/undead_vox_melee_49.mp3"),
+}
+
+ENT.ExplodeTellSounds = {
 	Sound("nz_moo/zombies/vox/_ZA/suicide/suicide_vox_final_scream_01.mp3"),
 	Sound("nz_moo/zombies/vox/_ZA/suicide/suicide_vox_final_scream_02.mp3"),
 	Sound("nz_moo/zombies/vox/_ZA/suicide/suicide_vox_final_scream_03.mp3"),
@@ -348,10 +395,10 @@ function ENT:CustomAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 		self:Explode(100, true)
 	end
 	if e == "anim_explosive_zombie_death_tell_quick" then
-		self:PlaySound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(85, 105), 1, 2)
+		self:PlaySound(self.ExplodeTellSounds[math.random(#self.ExplodeTellSounds)], 100, math.random(85, 105), 1, 2)
 	end
 	if e == "anim_explosive_zombie_death_tell_long" then
-		self:PlaySound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(85, 105), 1, 2)
+		self:PlaySound(self.ExplodeTellSounds[math.random(#self.ExplodeTellSounds)], 100, math.random(85, 105), 1, 2)
 	end
 	if e == "death_ragdoll" then
 		if IsValid(DamageInfo()) then

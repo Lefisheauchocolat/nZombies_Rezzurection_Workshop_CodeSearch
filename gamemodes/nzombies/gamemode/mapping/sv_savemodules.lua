@@ -584,16 +584,17 @@ nzMapping:AddSaveModule("RandomBoxSpawns", {
 		local randombox_spawn = {}
 		for _, v in pairs(ents.FindByClass("random_box_spawns")) do
 			table.insert(randombox_spawn, {
-			pos = v:GetPos(),
-			angle = v:GetAngles(),
-			spawn = v.PossibleSpawn,
+				pos = v:GetPos(),
+				angle = v:GetAngles(),
+				spawn = v.PossibleSpawn,
+				boxtype = v:GetBoxType(),
 			})
 		end
 		return randombox_spawn
 	end,
 	loadfunc = function(data)
 		for k,v in pairs(data) do
-			nzMapping:BoxSpawn(v.pos, v.angle, v.spawn)
+			nzMapping:BoxSpawn(v.pos, v.angle, v.spawn, v.boxtype)
 		end
 	end,
 	cleanents = {"random_box_spawns"},

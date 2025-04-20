@@ -15,7 +15,9 @@ function nzRandomBox.Spawn(exclude, first)
 	local rand = possible[ math.random( #possible ) ]
 
 	if rand != nil and !IsValid(rand.Box) then
-		local box = ents.Create( "random_box" )
+		rand:SpawnBox()
+		
+		--[[local box = ents.Create( "random_box" )
 		local pos = rand:GetPos()
 		local ang = rand:GetAngles()
 		
@@ -36,7 +38,7 @@ function nzRandomBox.Spawn(exclude, first)
 		if phys:IsValid() then
 			phys:EnableMotion(false)
 			phys:Sleep()
-		end
+		end]]
 	else
 		print("No random box spawns have been set.")
 	end

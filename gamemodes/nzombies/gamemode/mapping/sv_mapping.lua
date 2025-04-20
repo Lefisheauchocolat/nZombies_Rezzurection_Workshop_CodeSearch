@@ -662,10 +662,17 @@ function nzMapping:ZombieBlockSpawn(pos, ang, model, flags, ply)
 	return block
 end
 
-function nzMapping:BoxSpawn(pos, ang, spawn, ply)
+function nzMapping:BoxSpawn(pos, ang, spawn, boxtype, ply)
 	local box = ents.Create( "random_box_spawns" )
 	box:SetPos( pos )
 	box:SetAngles( ang )
+
+	if isstring(boxtype) then
+		box:SetBoxType(boxtype)
+	else
+		box:SetBoxType(tostring(nzMapping.Settings.boxtype))
+	end
+
 	box:Spawn()
 	box:PhysicsInit( SOLID_VPHYSICS )
 	box:SetCollisionGroup( COLLISION_GROUP_DEBRIS_TRIGGER )

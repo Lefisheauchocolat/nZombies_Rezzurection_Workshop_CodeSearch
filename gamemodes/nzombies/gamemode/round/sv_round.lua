@@ -446,6 +446,7 @@ function nzRound:ResetGame()
 		ply:SetTotalRevives(0) --Reset all player total revive
 		ply:SetTotalDowns(0) --Reset all player total down
 		ply:SetTotalKills(0) --Reset all player total kill
+		ply:SetTotalHeadshots(0) --Reset all player total headshoys
 	end
 
 	--Clean up powerups

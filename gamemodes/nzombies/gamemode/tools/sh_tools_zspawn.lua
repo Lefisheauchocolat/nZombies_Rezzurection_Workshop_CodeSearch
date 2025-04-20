@@ -165,6 +165,7 @@ nzTools:CreateTool("zspawn", {
 			Row7:AddChoice("Alcove Spawn 40"				,16)
 			Row7:AddChoice("Alcove Spawn 56"				,17)
 			Row7:AddChoice("Alcove Spawn 96"				,18)
+			Row7:AddChoice("Riser(IW Style)"				,19)
 			Row7.DataChanged = function( _, val ) valz["Row7"] = val DProperties.UpdateData(DProperties.CompileData()) end
 
 		local Row8 = DProperties:CreateRow("Settings", "Zombie Type")

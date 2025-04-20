@@ -387,6 +387,7 @@ ENT.SequenceTables = {
 				"nz_walk_ad23",
 				"nz_walk_ad24",
 				"nz_walk_ad25",
+				"nz_base_zombie_walk_dazed_v1",
 				--"nz_walk_au_goose",
 				--"nz_legacy_walk_dazed",
 				--"nz_legacy_jap_walk_v1",
@@ -487,6 +488,7 @@ ENT.SequenceTables = {
 				"nz_walk_au23",
 				"nz_s4_3arc_walk_au_v24",
 				"nz_s4_3arc_walk_au_v25",
+				"nz_base_zombie_walk_dazed_v1",
 				--"nz_walk_au_goose", -- This is the goosestep walk aka marching anim that german soldier zombies use.
 				--"nz_legacy_walk_dazed",
 				--"nz_legacy_jap_walk_v1",

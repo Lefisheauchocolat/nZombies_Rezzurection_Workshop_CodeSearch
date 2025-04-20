@@ -400,6 +400,8 @@ ENT.SequenceTables = {
 				"nz_t9_base_sprint_ad_v23",
 				"nz_t9_base_sprint_au_v22",
 				"nz_t9_base_sprint_au_v25",
+				
+				"nz_pb_zombie_sprint_v9",
 			},
 			LowgMovementSequence = {
 				"nz_sprint_lowg_v1",

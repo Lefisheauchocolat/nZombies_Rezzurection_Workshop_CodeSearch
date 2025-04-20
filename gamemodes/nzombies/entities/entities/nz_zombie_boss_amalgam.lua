@@ -18,9 +18,7 @@ end
 
 function ENT:FinishGrab()
 	if CLIENT then return end
-	--print("Finish")
 	if self:GetStop() then
-		--print("Stopped")
 		self.WaitForGrab = true
 	end
 end
@@ -124,6 +122,8 @@ if CLIENT then
 	end
 	return 
 end -- Client doesn't really need anything beyond the basics
+
+local util_traceline = util.TraceLine
 
 ENT.SpeedBasedSequences = true
 ENT.IsMooZombie = true
@@ -376,8 +376,8 @@ function ENT:StatsInitialize()
 			self:SetMaxHealth(10350)
 		else
 			if nzRound:InState( ROUND_PROG ) then
-				self:SetHealth(math.Clamp(nzRound:GetNumber() * 800 + (750 * count), 3500, 398700 * count))
-				self:SetMaxHealth(math.Clamp(nzRound:GetNumber() * 800 + (750 * count), 3500, 398700 * count))
+				self:SetHealth(math.Clamp(nzRound:GetNumber() * 750 + (750 * count), 3500, 398700 * count))
+				self:SetMaxHealth(math.Clamp(nzRound:GetNumber() * 750 + (750 * count), 3500, 398700 * count))
 			else
 				self:SetHealth(10350)
 				self:SetMaxHealth(10350)	
@@ -396,6 +396,7 @@ function ENT:StatsInitialize()
 
 		self.HeadCount = 0
 		self.RegenCooldown = CurTime() + 5
+		self.PerformedRegen = false
 
 		self.IFrames = CurTime() + 3
 
@@ -403,6 +404,7 @@ function ENT:StatsInitialize()
 
 		self.UsingGrab = false
 		self.WaitForGrab = false
+		self.GrabCooldown = CurTime() + math.Rand(3.75, 4.5)
 	end
 end
 
@@ -479,10 +481,11 @@ function ENT:AI()
 	end
 
 	-- Regen from Zombies
-	if self.SporeCount ~= 0 and CurTime() > self.RegenCooldown and self.RegenCount < 3 then
+	if self.HeadCount ~= 0 and CurTime() > self.RegenCooldown and self.RegenCount < 3 then
+		self.PerformedRegen = false
 		for k,v in nzLevel.GetZombieArray() do
 			if IsValid(v) and !v:GetSpecialAnimation() and v.IsMooZombie and !v.IsMooSpecial and v ~= self then
-				if self:GetRangeTo( v:GetPos() ) < 85 then
+				if self:GetRangeTo( v:GetPos() ) < 85 and !self.PerformedRegen then
 					local seq = "nz_base_amalgam_grab_release"
 					if self:SequenceHasSpace(seq) then
 						if !IsValid(v) then return end
@@ -494,6 +497,8 @@ function ENT:AI()
 
 						v:TakeDamageInfo(dmgInfo)
 
+						self.PerformedRegen = true
+						
 						self.RegenCooldown = CurTime() + 10
 						self:TempBehaveThread(function(self)
 
@@ -509,6 +514,11 @@ function ENT:AI()
 				end
 			end
 		end
+	end
+
+	-- Grab
+	if CurTime() > self.GrabCooldown and !self.UsingGrab and self:TargetInRange(1250) and !self:TargetInRange(225) and !self:GetJumping() then
+		self:TryArmGrab(target)
 	end
 
 	-- Knock normal zombies aside
@@ -602,15 +612,15 @@ function ENT:OnInjured(dmginfo)
 		end
 	end
 
-	if hitpos:DistToSqr(head1pos) < 11^2 and self:GetTopHead() and CurTime() > self.IFrames then
+	if hitpos:DistToSqr(head1pos) < 11.25^2 and self:GetTopHead() and CurTime() > self.IFrames then
 		self:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], 95, math.random(95,105))
 		attacker:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], SNDLVL_GUNFIRE, math.random(95,105))
 		dmginfo:ScaleDamage(1)
-	elseif hitpos:DistToSqr(head2pos) < 11^2 and self:GetMiddleHead() and CurTime() > self.IFrames then
+	elseif hitpos:DistToSqr(head2pos) < 11.25^2 and self:GetMiddleHead() and CurTime() > self.IFrames then
 		self:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], 95, math.random(95,105))
 		attacker:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], SNDLVL_GUNFIRE, math.random(95,105))
 		dmginfo:ScaleDamage(1)
-	elseif hitpos:DistToSqr(head3pos) < 11^2 and self:GetBottomHead() and CurTime() > self.IFrames then
+	elseif hitpos:DistToSqr(head3pos) < 11.25^2 and self:GetBottomHead() and CurTime() > self.IFrames then
 		self:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], 95, math.random(95,105))
 		attacker:EmitSound(self.WeakImpactSounds[math.random(#self.WeakImpactSounds)], SNDLVL_GUNFIRE, math.random(95,105))
 		dmginfo:ScaleDamage(1)
@@ -623,7 +633,7 @@ function ENT:TestHead1(dmginfo)
 	local hitpos = dmginfo:GetDamagePosition()
 	local head1 = self:LookupBone("bone_8333bcec2fc7db7")
 	local head1pos = self:GetAttachment(14).Pos
-	if hitpos:DistToSqr(head1pos) < 6.5^2 and self:GetTopHead() then
+	if hitpos:DistToSqr(head1pos) < 6.6^2 and self:GetTopHead() then
 		local attacker = dmginfo:GetAttacker()
 
 		self.RegenCooldown = CurTime() + 5
@@ -644,7 +654,7 @@ function ENT:TestHead2(dmginfo)
 	local hitpos = dmginfo:GetDamagePosition()
 	local head2 = self:LookupBone("bone_a5d66c82c8bb797")
 	local head2pos = self:GetAttachment(16).Pos
-	if hitpos:DistToSqr(head2pos) < 6.5^2 and self:GetMiddleHead() then
+	if hitpos:DistToSqr(head2pos) < 6.6^2 and self:GetMiddleHead() then
 		local attacker = dmginfo:GetAttacker()
 
 		self.RegenCooldown = CurTime() + 5
@@ -665,7 +675,7 @@ function ENT:TestHead3(dmginfo)
 	local hitpos = dmginfo:GetDamagePosition()
 	local head3 = self:LookupBone("bone_81cab2d35e92028")
 	local head3pos = self:GetAttachment(18).Pos
-	if hitpos:DistToSqr(head3pos) < 6.5^2 and self:GetBottomHead() then
+	if hitpos:DistToSqr(head3pos) < 6.6^2 and self:GetBottomHead() then
 		local attacker = dmginfo:GetAttacker()
 
 		self.RegenCooldown = CurTime() + 5
@@ -720,54 +730,118 @@ function ENT:IsValidTarget( ent )
 	return IsValid(ent) and ent:GetTargetPriority() ~= TARGET_PRIORITY_NONE and ent:GetTargetPriority() ~= TARGET_PRIORITY_MONSTERINTERACT and ent:GetTargetPriority() ~= TARGET_PRIORITY_SPECIAL and ent:GetTargetPriority() ~= TARGET_PRIORITY_FUNNY
 end
 
-function ENT:AttemptGrab(short)
-	local target = self:GetTarget()
-	local seq_in = "nz_base_amalgam_grab_long_in"
-	local seq_out = "nz_base_amalgam_grab_long_out"
-
+function ENT:TryArmGrab(target)
+	if self:IsAttackBlocked() then return end
+	if self:GetSpecialAnimation() then return end
 	if !IsValid(target) then return end
-	--if !self:CanGrab() then short = true end
 
-	if short then
-		seq_in = "nz_base_amalgam_grab_short_in"
-		seq_out = "nz_base_amalgam_grab_short_out"
+	self:TempBehaveThread(function(self)
+
+		local seq_in = "nz_base_amalgam_grab_long_in"
+		local seq_out = "nz_base_amalgam_grab_short_out"
+
+		if isvector(self.SniperPos) then self.SniperPos = nil end
+
+		self:FaceTowards(target:GetPos())
+
+		self.UsingGrab = true
+		self:SetSpecialAnimation(true)
+		self:PlaySequenceAndMove(seq_in, 1, self.FaceEnemy)
+		self:PlaySequenceAndMove(seq_out, 1, self.FaceEnemy)
+		self:SetSpecialAnimation(false)
+			
+		self.GrabCooldown = CurTime() + math.Rand(7.75, 11.14)
+	end)
+end
+
+
+function ENT:LaunchGrab()
+
+	if IsValid(self.GrabbyArm) then return end
+
+	local pos = self:GetAttachment(self:LookupAttachment("grab_attach")).Pos
+		
+	if IsValid(self.Target) and self.Target:IsPlayer() then
+		local tr = util_traceline({
+			start = self:EyePos(),
+			endpos = self.Target:EyePos(),
+			filter = self,
+			ignoreworld = false,
+		})
+		local b = tr.Entity
+
+		debugoverlay.Line(self:EyePos(), self.Target:EyePos(), 5, Color( 255, 255, 255 ), false)
+			
+		if tr.HitWorld then 
+			self.UsingGrab = false
+			self:SetSpecialAnimation(false)
+			return 
+		end
+
+		if IsValid(self.Target) then
+			self.GrabbyArm = ents.Create("nz_proj_amalgam_grab")
+			self.GrabbyArm:SetPos(pos)
+			self.GrabbyArm:Spawn()
+			self.GrabbyArm:SetAmalgam(self)
+			self.GrabbyArm:Launch(((self.Target:GetPos() + Vector(0,0,50) + self.Target:GetVelocity() * math.Clamp(self.Target:GetVelocity():Length2D(),0,0.15)) - self.GrabbyArm:GetPos()):GetNormalized())
+			
+			self:Stop()
+
+			self:SetBodygroup(1,1)
+		end
+	end
+end
+
+function ENT:OnThink()
+	-- The grab entity isn't valid anymore but bro is moving, force reset everything.
+	if !self:GetStop() and !IsValid(self.GrabbyArm) then
+		self.WaitForGrab = false
+		self.UsingGrab = false
+		self:SetBodygroup(1,0)
+	end
+	if self.WaitForGrab and self:GetStop() then
+		self:SetStop(false)
+
+		self.WaitForGrab = false
+		self.UsingGrab = false
+		self:SetBodygroup(1,0)
+	end
+	if self.UsingGrab and !IsValid(self.GrabbyArm) then
+		self:FinishGrab()
 	end
 
-	self.GrabCooldown = CurTime() + math.random(6,12)
-	self:SetUsingGrab(true)
-	self.ReleasePlayer = false
 
-	self:FaceTowards(target:GetPos())
-	self:TempBehaveThread(function(self)
-		self:SolidMaskDuringEvent(MASK_NPCSOLID_BRUSHONLY)
-		self:SetSpecialAnimation(true)
-		self:PlaySequenceAndMove(seq_in, 1)
-
-		local target = self.Target
-		local grabpos = self:GetAttachment(13).Pos
-
-		if IsValid(target) and target:IsPlayer() then
-			if !self:IsEntBlocked(target:GetPos(), grabpos) and grabpos:DistToSqr(target:GetPos()) < 210^2 then
-				self.GrabbedPlayer = true
-				self:SetCurrentPlayer(target)
-				target.MimicParent = self
-			end
+	-- Head Scales
+	local head1 = self:LookupBone("bone_8333bcec2fc7db7")
+	local head2 = self:LookupBone("bone_a5d66c82c8bb797")
+	local head3 = self:LookupBone("bone_81cab2d35e92028")
+	if self:GetManipulateBoneScale(head1) == Vector(1,1,1) then
+		if !self:GetTopHead() then
+			self:SetTopHead(true)
 		end
-
-		if self.GrabbedPlayer then
-			self:PlaySequenceAndMove(seq_out, 1)
-			self:PlaySequenceAndMove("nz_base_amalgam_grab_release", 1)
-			self.GrabbedPlayer = false
-		else
-			self:PlaySequenceAndMove(seq_out, 1)
-			self:PlaySequenceAndMove("nz_base_amalgam_grab_release", 1)
+	else
+		if self:GetTopHead() then
+			self:SetTopHead(false)
 		end
-
-		self:SetUsingGrab(false)
-		self:SetSpecialAnimation(false)
-		self:CollideWhenPossible()
-
-	end)
+	end
+	if self:GetManipulateBoneScale(head2) == Vector(1,1,1) then
+		if !self:GetMiddleHead() then
+			self:SetMiddleHead(true)
+		end
+	else
+		if self:GetMiddleHead() then
+			self:SetMiddleHead(false)
+		end
+	end
+	if self:GetManipulateBoneScale(head3) == Vector(1,1,1) then
+		if !self:GetBottomHead() then
+			self:SetBottomHead(true)
+		end
+	else
+		if self:GetBottomHead() then
+			self:SetBottomHead(false)
+		end
+	end
 end
 
 function ENT:OnNuke() 
@@ -799,27 +873,12 @@ function ENT:CustomAnimEvent(a,b,c,d,e)
 
 	if e == "amalgam_grab_launch" then
 		self:PlaySound(self.GrabSounds[math.random(#self.GrabSounds)], 90, math.random(85, 105), 1, 2)
-		self:EmitSound("nz_moo/zombies/vox/_amal/fly/fly_amal_grab_arm_retract_long.mp3", 80, math.random(95,105))
+		self:EmitSound("nz_moo/zombies/vox/_amal/fly/fly_amal_grab_arm_launch_01.mp3", 80, math.random(95,105))
+		self:LaunchGrab()
 	end
 
-	if e == "amalgam_grab_release_victim" then
-		self.ReleasePlayer = true
-	end
-end
-
-function ENT:OnThink()
-	if self.WaitForGrab and self:GetStop() then
-		self:SetStop(false)
-		self:SetSpecialAnimation(false)
-
-		self.WaitForGrab = false
-		self.UsingGrab = false
-	end
-	if self.UsingGrab and !IsValid(self.Grab) then
-		self:FinishGrab()
-	end
 end
 
 function ENT:OnRemove()
-	if IsValid(self.Grab) then self.Grab:Remove() end
+	if IsValid(self.GrabbyArm) then self.GrabbyArm:Remove() end
 end

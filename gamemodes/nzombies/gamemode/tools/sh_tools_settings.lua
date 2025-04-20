@@ -50,7 +50,7 @@ nzTools:CreateTool("settings", {
 		valz["Row15"] = data.zombietype or "Kino der Toten"
 		valz["Row16"] = data.hudtype or "Black Ops 1"
 		valz["Row18"] = data.perkmachinetype or "Classic"
-		valz["Row19"] = data.boxtype or "Original"
+		--valz["Row19"] = data.boxtype or "Original"
 		valz["Row33"] = data.mainfont or "Black Ops 1"
 		valz["Row34"] = data.smallfont or "Black Ops 1"
 		valz["Row35"] = data.mediumfont or "Black Ops 1"
@@ -79,6 +79,7 @@ nzTools:CreateTool("settings", {
 		valz["DmgIncrease"] = data.dmgincrease or false
 		valz["ZStartSpeed"] = data.startspeed or 0
 		valz["ZSpeedCap"] = data.speedcap or 300
+		valz["ZLastSprint"] = data.lastzombiesprint or 3
 		valz["Row56"] = data.zct or false
 		valz["Row57"] = data.mutated or false
 		valz["Row58"] = data.aats or 2
@@ -307,7 +308,7 @@ nzTools:CreateTool("settings", {
 			local Row60 = 			DProperties1:CreateRow("HUD Settings", "Perk Stats Icons")
 
 			local Row18 = 			DProperties1:CreateRow("Model Settings", "Perk Machines")
-			local Row19 = 			DProperties1:CreateRow("Model Settings", "Mystery Box")
+			--local Row19 = 			DProperties1:CreateRow("Model Settings", "Mystery Box")
 			local Row43 = 			DProperties1:CreateRow("Model Settings", "Pack-A-Punch")
 			local bottlerow = 		DProperties1:CreateRow("Model Settings", "Perk Bottle")
 			local syretterow = 		DProperties1:CreateRow("Model Settings", "Revive Syrette")
@@ -425,12 +426,12 @@ nzTools:CreateTool("settings", {
 			Row18.DataChanged = function( _, val ) valz["Row18"] = val end
 			Row18:SetTooltip("Sets the Perk Machines Appearance")
 
-			Row19:Setup( "Combo" )
+			--[[Row19:Setup( "Combo" )
 			for k, v in pairs(nzRound.BoxSkinData) do
 				Row19:AddChoice(k, k, k == valz["Row19"])
 			end
 			Row19.DataChanged = function( _, val ) valz["Row19"] = val end
-			Row19:SetTooltip("Sets the Mystery Box skin")
+			Row19:SetTooltip("Sets the Mystery Box skin")]]
 			
 			Row43:Setup( "Combo" )
 			for k,v in pairs(nzRound.PAPSelectData) do
@@ -579,15 +580,11 @@ nzTools:CreateTool("settings", {
 		DProperties:SetPos( 0, 0 )
 		sheet:AddSheet("Gameplay Settings", DProperties, "icon16/cog.png", false, false, "Set a list of general settings. The Easter Egg Song URL needs to be from Soundcloud.")
 
-		local Shmoovment =		DProperties:CreateRow("Map Functionality", "Movement System")
-		local Row132 = 			DProperties:CreateRow("Map Functionality", "Perk Loss On Down System")
 		local Row58 = 			DProperties:CreateRow("Map Functionality", "Alternate Ammo Type System")
-		local deathmachinerow = DProperties:CreateRow("Map Functionality", "Death Machine")
 		local shieldrow = 		DProperties:CreateRow("Map Functionality", "Shield")
 		local Row62 = 			DProperties:CreateRow("Map Functionality", "Solo Revives Count")
 		local Row123 = 			DProperties:CreateRow("Map Functionality", "Juggernog Health Bonus")
 		local Row42 = 			DProperties:CreateRow("Map Functionality", "Perk Upgrades")
-		local Row63 = 			DProperties:CreateRow("Map Functionality", "Perk Modifier Slot")
 		//local Row64 = 			DProperties:CreateRow("Map Functionality", "Lose All Perks on Down")
 		local CWPoints = 		DProperties:CreateRow("Map Functionality", "Cold War Points System")
 		local Row93 = 			DProperties:CreateRow("Map Functionality", "Special Grenade Upgrading")
@@ -596,55 +593,7 @@ nzTools:CreateTool("settings", {
 		local Row126 = 			DProperties:CreateRow("Map Functionality", "Random Teleports Use Player Spawns")
 		local Row127 = 			DProperties:CreateRow("Map Functionality", "Game Over Duration")
 		local Row128 = 			DProperties:CreateRow("Map Functionality", "Game Over Camera Delay")
-		local Row133 = 			DProperties:CreateRow("Map Functionality", "Bleedout Perk Count")
-		local gravityrow = 		DProperties:CreateRow("Map Functionality", "Gravity")
-
-		Shmoovment:Setup("Combo")
-		Shmoovment:AddChoice("None", 0, valz["Movement"] == 0)
-		Shmoovment:AddChoice("Sliding", 1, valz["Movement"] == 1)
-		Shmoovment:AddChoice("Diving", 2, valz["Movement"] == 2)
-		Shmoovment:AddChoice("Sliding + Diving", 3, valz["Movement"] == 3)
-		Shmoovment.DataChanged = function( _, val ) valz["Movement"] = val end
-		Shmoovment:SetTooltip("Enable additional movement abiltities for the config.")
-
-		Row132:Setup("Combo")
-		Row132:AddChoice("Lose all your perks", 0, valz["Row132"] == 0)
-		Row132:AddChoice("Keep half your perks", 1, valz["Row132"] == 1)
-		Row132:AddChoice("Bleedout half your perks", 3, valz["Row132"] == 3)
-		Row132:AddChoice("Bleedout all your perks", 4, valz["Row132"] == 4)
-		Row132:AddChoice("Bleedout a set amount of perks", 2, valz["Row132"] == 2)
-		Row132.DataChanged = function( _, val ) valz["Row132"] = val end
-		Row132:SetTooltip("Sets the functionality for how perks are lost when going down.")
-
-		Row133:Setup("Generic")
-		Row133:SetValue(valz["Row133"])
-		Row133.DataChanged = function( _, val ) valz["Row133"] = tonumber(val) end
-		Row133:SetTooltip("How many perks the player gets to keep when going down and using perk bleedout. (Default 3)")
-
-		Row58:Setup("Combo")
-		Row58:AddChoice("Disabled", 0, valz["Row58"] == 0)
-		Row58:AddChoice("Only when no SWEP:OnRePaP()", 1, valz["Row58"] == 1)
-		Row58:AddChoice("Always on (Default)", 2, valz["Row58"] == 2)
-		Row58.DataChanged = function( _, val ) valz["Row58"] = val valz["Row58"] = val end
-		Row58:SetTooltip("Enable for weapons to gain BO3-esque ammo mods when Pack-a-Punch'ed twice.")
-
-		deathmachinerow:Setup( "Combo" )
-		for k, v in pairs(WeaponList) do
-			if v.Category and v.Category == "nZombies Powerups" then
-				deathmachinerow:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, valz["Death Machine"] == v.ClassName)
-			end
-		end
-		deathmachinerow.DataChanged = function( _, val ) valz["Death Machine"] = val end
-
-		shieldrow:Setup( "Combo" )
-		for k, v in pairs(WeaponList) do
-			if v.ShieldEnabled and v.NZSpecialCategory == "shield" then
-				shieldrow:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, valz["Shield"] == v.ClassName)
-			end
-		end
-		shieldrow.DataChanged = function( _, val ) valz["Shield"] = val end
-		shieldrow:SetTooltip("Sets a shield to be given to the player through means such as, Victorious Tortoise's upgrade ability, the 'Shield Up' Gobblegum, and potentially other addons.")
-
+		
 		Row62:Setup("Generic")
 		Row62:SetValue(valz["Row62"])
 		Row62:SetTooltip("How many solo revives the player gets in singleplayer. (SET TO 0 TO DISABLE)")
@@ -655,11 +604,6 @@ nzTools:CreateTool("settings", {
 		Row42.DataChanged = function( _, val ) valz["Row42"] = val end
 		Row42:SetTooltip("Enable for perk upgrades to be purchasable on this config.")
 
-		Row63:Setup("Boolean")
-		Row63:SetValue(valz["Row63"])
-		Row63.DataChanged = function( _, val) valz["Row63"] = val end
-		Row63:SetTooltip("Enable for all players fourth perk always being upgraded (Default On).")
-
 		/*Row64:Setup("Boolean")
 		Row64:SetValue(valz["Row64"])
 		Row64.DataChanged = function( _, val) valz["Row64"] = val end
@@ -669,11 +613,6 @@ nzTools:CreateTool("settings", {
 		CWPoints:SetValue( valz["ColdWarPoints"] )
 		CWPoints.DataChanged = function( _, val ) valz["ColdWarPoints"] = val end
 		CWPoints:SetTooltip("Enable for CW styled points earning. (Only rewards points on kills)")
-
-		gravityrow:Setup("Generic")
-		gravityrow:SetValue(valz["Gravity"])
-		gravityrow.DataChanged = function( _, val ) valz["Gravity"] = tonumber(val) end
-		gravityrow:SetTooltip("Sets the gravity for the config. (Default 600)")
 
 		Row93:Setup("Boolean")
 		Row93:SetValue(valz["Row93"])
@@ -715,10 +654,23 @@ nzTools:CreateTool("settings", {
 		---------------------------------------------------------------------------]]
 		local Row76 = 			DProperties:CreateRow("Perk Slot Settings", "Starting Perk Slot Count")
 		local Row95 = 			DProperties:CreateRow("Perk Slot Settings", "Maximum Perk Slot Count")
+		local Row63 = 			DProperties:CreateRow("Perk Slot Settings", "Perk Modifier Slot")
 		local Row71 = 			DProperties:CreateRow("Perk Slot Settings", "Perk Slot Rewards")
 		local Row120 =			DProperties:CreateRow("Perk Slot Settings", "Perk Slot Reward Starting Round")
 		local Row121 =			DProperties:CreateRow("Perk Slot Settings", "Perk Slot Reward Round Interval")
 		local Row122 =			DProperties:CreateRow("Perk Slot Settings", "Perk Slot Reward Count")
+		local Row132 = 			DProperties:CreateRow("Perk Slot Settings", "Perk Loss On Down System")
+		local Row133 = 			DProperties:CreateRow("Perk Slot Settings", "Bleedout Perk Count")
+
+		Row63:Setup("Boolean")
+		Row63:SetValue(valz["Row63"])
+		Row63.DataChanged = function( _, val) valz["Row63"] = val end
+		Row63:SetTooltip("Enable for all players fourth perk always being upgraded (Default On).")
+
+		Row133:Setup("Generic")
+		Row133:SetValue(valz["Row133"])
+		Row133.DataChanged = function( _, val ) valz["Row133"] = tonumber(val) end
+		Row133:SetTooltip("How many perks the player gets to keep when going down and using perk bleedout. (Default 3)")
 
 		Row76:Setup("Generic")
 		Row76:SetValue(valz["Row76"])
@@ -749,6 +701,15 @@ nzTools:CreateTool("settings", {
 		Row122:SetValue(valz["Row122"])
 		Row122.DataChanged = function( _, val ) valz["Row122"] = tonumber(val) end
 		Row122:SetTooltip("How many perk slots to reward throughout the game, THIS INCLUDES THE STARTING PERK SLOT ROUND! (Default 2)")
+
+		Row132:Setup("Combo")
+		Row132:AddChoice("Lose all your perks", 0, valz["Row132"] == 0)
+		Row132:AddChoice("Keep half your perks", 1, valz["Row132"] == 1)
+		Row132:AddChoice("Bleedout half your perks", 3, valz["Row132"] == 3)
+		Row132:AddChoice("Bleedout all your perks", 4, valz["Row132"] == 4)
+		Row132:AddChoice("Bleedout a set amount of perks", 2, valz["Row132"] == 2)
+		Row132.DataChanged = function( _, val ) valz["Row132"] = val end
+		Row132:SetTooltip("Sets the functionality for how perks are lost when going down.")
 
 		--[[-------------------------------------------------------------------------
 		Round Settings
@@ -970,6 +931,7 @@ nzTools:CreateTool("settings", {
 		local kniferow = 		DProperties2:CreateRow("Player Loadout", "Starting Knife")
 		local grenaderow = 		DProperties2:CreateRow("Player Loadout", "Starting Grenade")
 		local Row2 = 			DProperties2:CreateRow("Player Loadout", "Starting Points")
+		local deathmachinerow = DProperties2:CreateRow("Player Loadout", "Death Machine")
 
 		local Row45 = 			DProperties2:CreateRow("Health Settings", "Base Health")
 		local Row72 = 			DProperties2:CreateRow("Health Settings", "Health Regen Delay")
@@ -982,6 +944,8 @@ nzTools:CreateTool("settings", {
 		local Row89 =			DProperties2:CreateRow("Stamina Settings", "Base Stamina")
 		local Row91 =			DProperties2:CreateRow("Stamina Settings", "Stamina Regen Delay")
 		local Row90 =			DProperties2:CreateRow("Stamina Settings", "Stamina Regen Amount")
+		local Shmoovment =		DProperties2:CreateRow("Stamina Settings", "Movement System")
+		local gravityrow = 		DProperties2:CreateRow("Stamina Settings", "Gravity")
 
 		local Row111 = 			DProperties2:CreateRow("Diving Settings", "Allow Weapons While Diving")
 		local Row112 = 			DProperties2:CreateRow("Diving Settings", "Allow Omnidirection Diving")
@@ -1001,6 +965,11 @@ nzTools:CreateTool("settings", {
 		local FlashlightRow =	DProperties2:CreateRow("Miscellaneous", "Player Flashlight")
 		local FlashlightFOV =	DProperties2:CreateRow("Miscellaneous", "Flashlight FOV")
 		local FlashlightFar =	DProperties2:CreateRow("Miscellaneous", "Flashlight Distance")
+
+		gravityrow:Setup("Generic")
+		gravityrow:SetValue(valz["Gravity"])
+		gravityrow.DataChanged = function( _, val ) valz["Gravity"] = tonumber(val) end
+		gravityrow:SetTooltip("Sets the gravity for the config. (Default 600)")
 
 		Row1:Setup("Combo")
 		for k, v in pairs(WeaponList) do
@@ -1122,6 +1091,38 @@ nzTools:CreateTool("settings", {
 		Row90:SetValue(valz["Row90"])
 		Row90.DataChanged = function( _, val ) valz["Row90"] = tonumber(val) end
 		Row90:SetTooltip("Amount of stamina regenerated. (Default 4.5)")
+
+		Shmoovment:Setup("Combo")
+		Shmoovment:AddChoice("None", 0, valz["Movement"] == 0)
+		Shmoovment:AddChoice("Sliding", 1, valz["Movement"] == 1)
+		Shmoovment:AddChoice("Diving", 2, valz["Movement"] == 2)
+		Shmoovment:AddChoice("Sliding + Diving", 3, valz["Movement"] == 3)
+		Shmoovment.DataChanged = function( _, val ) valz["Movement"] = val end
+		Shmoovment:SetTooltip("Enable additional movement abiltities for the config.")
+
+		Row58:Setup("Combo")
+		Row58:AddChoice("Disabled", 0, valz["Row58"] == 0)
+		Row58:AddChoice("Only when no SWEP:OnRePaP()", 1, valz["Row58"] == 1)
+		Row58:AddChoice("Always on (Default)", 2, valz["Row58"] == 2)
+		Row58.DataChanged = function( _, val ) valz["Row58"] = val valz["Row58"] = val end
+		Row58:SetTooltip("Enable for weapons to gain BO3-esque ammo mods when Pack-a-Punch'ed twice.")
+
+		deathmachinerow:Setup( "Combo" )
+		for k, v in pairs(WeaponList) do
+			if v.Category and v.Category == "nZombies Powerups" then
+				deathmachinerow:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, valz["Death Machine"] == v.ClassName)
+			end
+		end
+		deathmachinerow.DataChanged = function( _, val ) valz["Death Machine"] = val end
+
+		shieldrow:Setup( "Combo" )
+		for k, v in pairs(WeaponList) do
+			if v.ShieldEnabled and v.NZSpecialCategory == "shield" then
+				shieldrow:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, valz["Shield"] == v.ClassName)
+			end
+		end
+		shieldrow.DataChanged = function( _, val ) valz["Shield"] = val end
+		shieldrow:SetTooltip("Sets a shield to be given to the player through means such as, Victorious Tortoise's upgrade ability, the 'Shield Up' Gobblegum, and potentially other addons.")
 
 		Row91:Setup("Generic")
 		Row91:SetValue(valz["Row91"])
@@ -1319,6 +1320,12 @@ nzTools:CreateTool("settings", {
 		ZSpeedCap:SetValue( valz["ZSpeedCap"] )
 		ZSpeedCap:SetTooltip("Maximum Speed that zombies can reach.(They can still randomly gain up to 35 additional speed and bypass this cap.)")
 		ZSpeedCap.DataChanged = function( _, val ) valz["ZSpeedCap"] = tonumber(val) end
+			
+		local ZLastSprint = DProperties3:CreateRow("Zombie Progression", "Last Zombies Sprinting Amount")
+		ZLastSprint:Setup("Generic")
+		ZLastSprint:SetValue( valz["ZLastSprint"] )
+		ZLastSprint:SetTooltip("How many zombies have to be left in the round for them to start sprinting(Default: 3).)")
+		ZLastSprint.DataChanged = function( _, val ) valz["ZLastSprint"] = tonumber(val) end
 				
 		local DmgIncrease = DProperties3:CreateRow( "Zombie Extras", "Zombie Attack Damage Scaling" )
 		DmgIncrease:Setup( "Boolean" )
@@ -1543,7 +1550,7 @@ nzTools:CreateTool("settings", {
 			if !valz["Row15"] then data.zombietype = "Kino der Toten" else data.zombietype = valz["Row15"] end
 			if !valz["Row16"] then data.hudtype = "Black Ops 1" else data.hudtype = valz["Row16"] end
 			if valz["Row18"] == nil then data.perkmachinetype = "Classic" else data.perkmachinetype = tostring(valz["Row18"]) end
-			if !valz["Row19"] then data.boxtype = "Original" else data.boxtype = valz["Row19"] end
+			--if !valz["Row19"] then data.boxtype = nil else data.boxtype = valz["Row19"] end
 			if !valz["Row33"] then data.mainfont = "Black Ops 1" else data.mainfont = valz["Row33"] end
 			if !valz["Row34"] then data.smallfont = "Black Ops 1" else data.smallfont = valz["Row34"] end
 			if !valz["Row35"] then data.mediumfont = "Black Ops 1" else data.mediumfont = valz["Row35"] end
@@ -1570,6 +1577,7 @@ nzTools:CreateTool("settings", {
 			if valz["ZSTaunts"] == nil then data.supertaunting = false else data.supertaunting = valz["ZSTaunts"] end
 			if !valz["ZStartSpeed"] then data.startspeed = 0 else data.startspeed = tonumber(valz["ZStartSpeed"]) end
 			if !valz["ZSpeedCap"] then data.speedcap = 300 else data.speedcap = tonumber(valz["ZSpeedCap"]) end
+			if !valz["ZLastSprint"] then data.lastzombiesprint = 3 else data.lastzombiesprint = tonumber(valz["ZLastSprint"]) end
 			if !valz["Row54"] then data.badattacks = false else data.badattacks = valz["Row54"] end
 			if !valz["Row56"] then data.zct = false else data.zct = valz["Row56"] end
 			if !valz["Row57"] then data.mutated = false else data.mutated = valz["Row57"] end
@@ -3019,15 +3027,20 @@ end
 				["ToolTip"] = "Sound that plays during the Modern Warfare 3 Survival intro animation.",
 				["Bind"] = valz["SndRow47"]
 			},
-			--[[[10] = {
+			[15] = {
 				["Title"] = "Round Underscore Song",
 				["ToolTip"] = "Music that plays during normal rounds.(Can have multiple)",
-				["Bind"] = valz["SndRow32"]
+				["Bind"] = valz["SndRow48"]
 			},
-			[11] = {
+			[16] = {
 				["Title"] = "Special Round Underscore Song",
 				["ToolTip"] = "Music that plays during special rounds.(Can have multiple)",
-				["Bind"] = valz["SndRow33"]
+				["Bind"] = valz["SndRow49"]
+			},
+			--[[[17] = {
+				["Title"] = "Headshot Impact Sound",
+				["ToolTip"] = "Plays when you headshot a zombie.",
+				["Bind"] = valz["SndRow50"]
 			},]]
 		}
 

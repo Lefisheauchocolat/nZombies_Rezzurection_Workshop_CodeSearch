@@ -473,6 +473,23 @@ sound.Add( {
     }
 } )
 
+-- Renaissance bottle. yeah bo3 bottle but no glow and lower res textures. we're really doing that. 
+
+sound.Add({
+	name = 			"Perks_Ren.Burp",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			"perks/ren/belch.mp3"
+})
+
+sound.Add({
+	name = 			"Perks_Ren.Drink",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			"perks/ren/drink.mp3"
+})
+
+
 if nzombies then
     hook.Add("InitPostEntity", "latte_perks", function()
 	nzSpecialWeapons:AddDisplay("tfa_perk_can", false, function(wep)
@@ -516,6 +533,9 @@ if nzombies then
         end)
 	nzSpecialWeapons:AddDisplay("tfa_t7c_bottle", false, function(wep)
             return SERVER and (wep.nzDeployTime + (wep:GetOwner():HasUpgrade("speed") and 1.8 or 3.2)) < CurTime()
+        end)
+	nzSpecialWeapons:AddDisplay("tfa_ren_bottle", false, function(wep)
+            return SERVER and (wep.nzDeployTime + (wep:GetOwner():HasUpgrade("speed") and 1.65 or 3.2)) < CurTime()
         end)
     end)
 
@@ -590,6 +610,12 @@ if nzombies then
         nzPerks:RegisterBottle("tfa_stalker_bottle", "StalkerBottle", {
         	[0] = "models/nz/perks/bo3/metal_",
     		[1] = "models/nz/perks/bo3/bottle_",
+    		[2] = "models/nz/perks/bo3/logo_"
+		}, "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
+
+        nzPerks:RegisterBottle("tfa_ren_bottle", "RenaissanceBottle", {
+        	[0] = "models/nz/perks/bo3/metal_",
+    		[1] = "models/nz/perks/ren/liquid_",
     		[2] = "models/nz/perks/bo3/logo_"
 		}, "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
 

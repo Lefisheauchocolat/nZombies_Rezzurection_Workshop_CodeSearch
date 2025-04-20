@@ -19,17 +19,38 @@ ENT.IsMooZombie = true
 ENT.RedEyes = true
 
 ENT.Models = {
-	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_1stclass_male_b.mdl", Skin = 0, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_1stclass_male_c.mdl", Skin = 0, Bodygroups = {0,0}},
+	-- Males(1st Class)
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_1stclass_male_1_1.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_1stclass_male_1_2.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_1stclass_male_1_3.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_1stclass_male_2_1.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_1stclass_male_2_2.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_1stclass_male_2_3.mdl", Skin = 0, Bodygroups = {0,0}},
 
-	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_3rdclass_male_a.mdl", Skin = 0, Bodygroups = {0,0}},
-	
-	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_3rdclass_male_b.mdl", Skin = 0, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_3rdclass_male_b.mdl", Skin = 1, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_3rdclass_male_b.mdl", Skin = 2, Bodygroups = {0,0}},
+	-- Males(3rd Class)
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_3rdclass_male_1_1.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_3rdclass_male_1_2.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_3rdclass_male_1_3.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_3rdclass_male_2_1.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_3rdclass_male_2_2.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_3rdclass_male_2_3.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_3rdclass_male_3_1.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_3rdclass_male_3_2.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_3rdclass_male_3_3.mdl", Skin = 0, Bodygroups = {0,0}},
 
-	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_2ndclass_female_a.mdl", Skin = 0, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_2ndclass_female_b.mdl", Skin = 0, Bodygroups = {0,0}},
+	-- Females(2nd Class)
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_2ndclass_female_1_1.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_2ndclass_female_1_2.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_2ndclass_female_2_1.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_2ndclass_female_2_2.mdl", Skin = 0, Bodygroups = {0,0}},
+
+	-- Females(3rd Class)
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_3rdclass_female_1.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_3rdclass_female_1.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_3rdclass_female_1.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_3rdclass_female_1.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_3rdclass_female_1.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t8/mansion/moo_codz_t8_3rdclass_female_1.mdl", Skin = 0, Bodygroups = {0,0}},
 }
 
 local spawnslow = {"nz_spawn_ground_v1", "nz_spawn_ground_ad_v2", "nz_spawn_ground_v2", "nz_spawn_ground_v2_altb"}
@@ -1211,6 +1232,9 @@ function ENT:StatsInitialize()
 
 		self:SetHealth( nzRound:GetZombieHealth() or 75 )
 		self.AttackDamage = nzRound:GetZombieDamage() or 50
+
+		-- Gonna randomize the skins with this set too, each model has a decent amount of skins.
+		self:SetSkin(math.random(0, self:SkinCount()))
 	end
 end
 

@@ -89,10 +89,14 @@ hook.Add("OnBossKilled", "nzrArmorSystem", function(ent)
 end)
 
 hook.Add("PlayerButtonDown", "nzrArmorSystem", function(ply, but)
-    if but == KEY_H and ply:Alive() then
+    if not IsValid(ply) or not ply:Alive() then return end
+
+    local armorKey = ply:GetInfoNum("nz_key_armor", KEY_H)
+    if but == armorKey then
         nzArmor:UsePlate(ply)
     end
 end)
+
 
 function GM:HandlePlayerArmorReduction(ply, dmginfo)
     if nzSettings:GetSimpleSetting("BO6_Armor", false) then return end

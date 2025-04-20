@@ -887,7 +887,7 @@ nzGum:RegisterGum("roundrobbin", {
 		local nextRound = currentRound + 1
 		if nzMapping.Settings.timedgame ~= 1 then
 			local specialround = math.random(nzMapping.Settings.specialroundmin or 5, nzMapping.Settings.specialroundmax or 7)
-			self:SetNextSpecialRound(self:GetNumber() + specialround)
+			nzRound:SetNextSpecialRound(nzRound:GetNumber() + specialround)
 		end
 		nzRound:Prepare()
 

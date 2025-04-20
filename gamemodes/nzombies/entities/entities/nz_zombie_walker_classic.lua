@@ -229,6 +229,8 @@ ENT.SequenceTables = {
 				"nz_walk_ad19",
 				"nz_s4_3arc_walk_au_v22",
 				"nz_walk_au23",
+
+				"nz_base_zombie_inert_stagger_04",
 			},
 			LowgMovementSequence = {
 				"nz_walk_lowg_v1",
@@ -396,6 +398,8 @@ ENT.SequenceTables = {
 				"nz_t9_base_sprint_ad_v21",
 				"nz_t9_base_sprint_au_v20",
 				"nz_t9_base_sprint_au_v22",
+
+				"nz_pb_zombie_sprint_v7",
 			},
 			LowgMovementSequence = {
 				"nz_sprint_lowg_v1",

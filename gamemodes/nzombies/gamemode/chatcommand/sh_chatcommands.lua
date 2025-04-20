@@ -824,3 +824,35 @@ nzChatCommand.Add("/fizzlist", SERVER, function(ply, text)
     end
 
 end, true, "Shows all enabled perks in the wunderfizz.")
+
+nzChatCommand.Add("/stimuluscheck", SERVER, function(ply, text)
+    if IsValid(ply) then
+        local plyToCompensate = text[1] and player.GetByName(text[1]) or ply
+        
+        if not IsValid(plyToCompensate) then
+            ply:ChatPrint("[NZ] Invalid player name provided.")
+            return
+        end
+        
+        local starting = nzMapping.Settings.startpoints or 500
+        local round = nzRound:GetNumber() > 0 and nzRound:GetNumber() or 1
+        local points = round * starting
+        
+        if ply:IsAdmin() then
+            if plyToCompensate:IsPlaying() then
+                plyToCompensate:GivePoints(points)
+                ply:ChatPrint("[NZ] " .. plyToCompensate:Nick() .. " has been compensated with " .. points .. " points.")
+                plyToCompensate:ChatPrint("[NZ] You have received " .. points .. " points as compensation for joining late. You're no longer broke.")
+            else
+                ply:ChatPrint("[NZ] The player you've chosen is not valid.")
+            end
+        else
+            for _, admin in ipairs(player.GetAll()) do
+                if admin:IsSuperAdmin() then
+                    admin:ChatPrint("[NZ] " .. ply:Nick() .. " is requesting a stimulus check.")
+                end
+            end
+            ply:ChatPrint("[NZ] admins know you're broke as hell now.... ")
+        end
+    end
+end, false, "[playerName] Compensate a player for joining late with points.")

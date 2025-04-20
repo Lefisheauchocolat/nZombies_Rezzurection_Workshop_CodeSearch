@@ -1,4 +1,9 @@
 -- Made by Hari exclusive for nZombies Rezzurection. Copying this code is prohibited!
+if CLIENT then
+    CreateClientConVar("nz_key_voteyes", KEY_9, true, true, "Sets the key for voting yes.")
+    CreateClientConVar("nz_key_voteno", KEY_0, true, true, "Sets the key for voting no.")
+end
+
 
 if SERVER then
     nzVotes = nzVotes or {}
@@ -7,7 +12,7 @@ if SERVER then
     util.AddNetworkString("nZr.HariVoteResponse")
     util.AddNetworkString("nZr.HariVoteUpdate")
     util.AddNetworkString("nZr.HariVoteResult")
-    
+
     local activeVote = false
     local votes = {}
     local requiredVotes = 0
@@ -170,30 +175,37 @@ else
 
     hook.Add("HUDPaint", "DrawVoteHUD", function()
         if not voteActive then return end
-    
+        local keyYesTxt = GetConVar("nz_key_voteyes"):GetInt()
+        local keyNoTxt = GetConVar("nz_key_voteno"):GetInt()
+        local keyYesDisplay = nzKeyConfig.keyDisplayNames[keyYesTxt] or "?"
+        local keyNoDisplay = nzKeyConfig.keyDisplayNames[keyNoTxt] or "?"
+        local of_x = 0
+        if nz_ee_hari and player.GetCount() > 1 then
+            of_x = We(170)
+        end
         if voteResult == nil then
             surface.SetMaterial(voteBg)
             surface.SetDrawColor(255,255,255)
-            surface.DrawTexturedRect(We(20), ScrH() / 2 - He(100), We(400), He(120))
+            surface.DrawTexturedRect(We(20)+of_x, ScrH() / 2 - He(100), We(400), He(120))
         
-            draw.SimpleText("SQUAD VOTE", "BO6_ExfilVote", We(30), ScrH() / 2 - He(100), Color(0, 0, 0))
-            draw.SimpleText("Initiated Vote", "BO6_ExfilVote", We(30), ScrH() / 2 - He(65), Color(255, 255, 255))
-            draw.SimpleText(voteText, "BO6_ExfilVote", We(30), ScrH() / 2 - He(50), Color(200, 200, 200))
+            draw.SimpleText("SQUAD VOTE", "BO6_ExfilVote", We(30)+of_x, ScrH() / 2 - He(100), Color(0, 0, 0))
+            draw.SimpleText("Initiated Vote", "BO6_ExfilVote", We(30)+of_x, ScrH() / 2 - He(65), Color(255, 255, 255))
+            draw.SimpleText(voteText, "BO6_ExfilVote", We(30)+of_x, ScrH() / 2 - He(50), Color(200, 200, 200))
         
-            draw.SimpleText(votesLeft.." Player Needed...", "BO6_ExfilVote", We(30), ScrH() / 2 - He(10), Color(255, 0, 0))
+            draw.SimpleText(votesLeft.." Player Needed...", "BO6_ExfilVote", We(30)+of_x, ScrH() / 2 - He(10), Color(255, 0, 0))
         
             if voteCan then
-                draw.RoundedBox(4, We(178), ScrH() / 2 - He(11), We(24), He(24), Color(200,200,200))
-                draw.SimpleText("9", "BO6_ExfilVote", We(190), ScrH() / 2 - He(10), Color(0, 0, 0), TEXT_ALIGN_CENTER)
-                draw.SimpleText("ACCEPT", "BO6_ExfilVote", We(210), ScrH() / 2 - He(10), Color(255, 255, 255), TEXT_ALIGN_LEFT)
-                draw.RoundedBox(4, We(298), ScrH() / 2 - He(11), We(24), He(24), Color(200,200,200))
-                draw.SimpleText("0", "BO6_ExfilVote", We(310), ScrH() / 2 - He(10), Color(0, 0, 0), TEXT_ALIGN_CENTER)
-                draw.SimpleText("DECLINE", "BO6_ExfilVote", We(330), ScrH() / 2 - He(10), Color(255, 255, 255), TEXT_ALIGN_LEFT)
+                draw.RoundedBox(4, We(178)+of_x, ScrH() / 2 - He(11), We(24), He(24), Color(200,200,200))
+                draw.SimpleText(keyYesDisplay, "BO6_ExfilVote", We(190)+of_x, ScrH() / 2 - He(10), Color(0, 0, 0), TEXT_ALIGN_CENTER)
+                draw.SimpleText("ACCEPT", "BO6_ExfilVote", We(210)+of_x, ScrH() / 2 - He(10), Color(255, 255, 255), TEXT_ALIGN_LEFT)
+                draw.RoundedBox(4, We(298)+of_x, ScrH() / 2 - He(11), We(24), He(24), Color(200,200,200))
+                draw.SimpleText(keyNoDisplay, "BO6_ExfilVote", We(310)+of_x, ScrH() / 2 - He(10), Color(0, 0, 0), TEXT_ALIGN_CENTER)
+                draw.SimpleText("DECLINE", "BO6_ExfilVote", We(330)+of_x, ScrH() / 2 - He(10), Color(255, 255, 255), TEXT_ALIGN_LEFT)
             else
                 if voteAnswer == 1 then
-                    draw.SimpleText("YOU ACCEPTED", "BO6_ExfilVote", We(380), ScrH() / 2 - He(10), Color(255, 255, 255), TEXT_ALIGN_RIGHT)
+                    draw.SimpleText("YOU ACCEPTED", "BO6_ExfilVote", We(380)+of_x, ScrH() / 2 - He(10), Color(255, 255, 255), TEXT_ALIGN_RIGHT)
                 elseif voteAnswer == 0 then
-                    draw.SimpleText("YOU DECLINED", "BO6_ExfilVote", We(380), ScrH() / 2 - He(10), Color(255, 255, 255), TEXT_ALIGN_RIGHT)
+                    draw.SimpleText("YOU DECLINED", "BO6_ExfilVote", We(380)+of_x, ScrH() / 2 - He(10), Color(255, 255, 255), TEXT_ALIGN_RIGHT)
                 end
             end
         else
@@ -202,27 +214,39 @@ else
             
             surface.SetMaterial(voteBg)
             surface.SetDrawColor(resultColor.r, resultColor.g, resultColor.b)
-            surface.DrawTexturedRect(We(20), ScrH() / 2 - He(100), We(400), He(120))
+            surface.DrawTexturedRect(We(20)+of_x, ScrH() / 2 - He(100), We(400), He(120))
         
-            draw.SimpleText(resultText, "BO6_ExfilVote", We(30), ScrH() / 2 - He(100), Color(0, 0, 0))
-            draw.SimpleText("Initiated Vote", "BO6_ExfilVote", We(30), ScrH() / 2 - He(65), Color(255, 255, 255))
-            draw.SimpleText(voteText, "BO6_ExfilVote", We(30), ScrH() / 2 - He(50), Color(200, 200, 200))
+            draw.SimpleText(resultText, "BO6_ExfilVote", We(30)+of_x, ScrH() / 2 - He(100), Color(0, 0, 0))
+            draw.SimpleText("Initiated Vote", "BO6_ExfilVote", We(30)+of_x, ScrH() / 2 - He(65), Color(255, 255, 255))
+            draw.SimpleText(voteText, "BO6_ExfilVote", We(30)+of_x, ScrH() / 2 - He(50), Color(200, 200, 200))
 
             if voteAnswer == 1 then
-                draw.SimpleText("YOU ACCEPTED", "BO6_ExfilVote", We(380), ScrH() / 2 - He(10), Color(255, 255, 255), TEXT_ALIGN_RIGHT)
+                draw.SimpleText("YOU ACCEPTED", "BO6_ExfilVote", We(380)+of_x, ScrH() / 2 - He(10), Color(255, 255, 255), TEXT_ALIGN_RIGHT)
             elseif voteAnswer == 0 then
-                draw.SimpleText("YOU DECLINED", "BO6_ExfilVote", We(380), ScrH() / 2 - He(10), Color(255, 255, 255), TEXT_ALIGN_RIGHT)
+                draw.SimpleText("YOU DECLINED", "BO6_ExfilVote", We(380)+of_x, ScrH() / 2 - He(10), Color(255, 255, 255), TEXT_ALIGN_RIGHT)
             end
         end
     end)
-    
-    hook.Add("PlayerButtonDown", "VoteKeyPress", function(ply, button)
+        
+    hook.Add("Think", "VoteKeyPressThink", function()
         if not voteActive or voteResult ~= nil then return end
-    
-        if button == KEY_9 and voteCan then
-            response(true)
-        elseif button == KEY_0 and voteCan then
-            response(false)
+
+        local ply = LocalPlayer()
+        if not IsValid(ply) then return end
+
+        local keyYes = input.IsKeyDown(ply:GetInfoNum("nz_key_voteyes", KEY_9))
+        local keyNo = input.IsKeyDown(ply:GetInfoNum("nz_key_voteno", KEY_0))
+
+        if keyYes and voteCan then
+            if not ply.lastVotePress or CurTime() - ply.lastVotePress > 0.2 then
+                ply.lastVotePress = CurTime()
+                response(true)
+            end
+        elseif keyNo and voteCan then
+            if not ply.lastVotePress or CurTime() - ply.lastVotePress > 0.2 then
+                ply.lastVotePress = CurTime()
+                response(false)
+            end
         end
     end)
 end

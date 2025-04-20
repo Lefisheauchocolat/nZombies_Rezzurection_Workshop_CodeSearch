@@ -22,7 +22,7 @@ function ENT:Initialize()
 	end
 
 	self.alivetime = 1
-	self.killtime = CurTime() + 8
+	self.killtime = CurTime() + 5
 
 	util.ScreenShake(self:GetPos(), 10, 255, 1, 150)
 	self:EmitSound("nz_moo/zombies/vox/_quad/_classic/explo/explo_0"..math.random(3)..".mp3")

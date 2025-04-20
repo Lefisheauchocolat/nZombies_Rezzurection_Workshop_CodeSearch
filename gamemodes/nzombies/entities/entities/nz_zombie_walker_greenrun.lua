@@ -244,9 +244,9 @@ ENT.SequenceTables = {
 		{
 			SpawnSequence = {spawnslow},
 			MovementSequence = {
-				"nz_bo3_zombie_walk_v1",
-				"nz_bo3_zombie_walk_v2",
-				"nz_bo3_zombie_walk_v3",
+				"nz_walk_ad1",
+				"nz_walk_ad2",
+				"nz_walk_ad3",
 				"nz_s4_3arc_walk_ad_v4",
 				"nz_walk_ad7",
 				"nz_walk_ad5",
@@ -263,7 +263,7 @@ ENT.SequenceTables = {
 				"nz_walk_au1",
 				"nz_walk_au2",
 				"nz_walk_au3",
-				"nz_bo3_zombie_walk_v3",
+				"nz_walk_au4",
 				"nz_walk_au5",
 				"nz_walk_au6",
 				"nz_walk_au7",
@@ -280,6 +280,13 @@ ENT.SequenceTables = {
 				"nz_s4_3arc_walk_au_v24",
 				"nz_s4_3arc_walk_au_v25",
 				"nz_legacy_walk_v9",
+
+				"nz_base_zombie_walk_dazed_v1",
+				"nz_base_zombie_walk_dazed_v2",
+				"nz_base_zombie_walk_dazed_v1",
+				"nz_base_zombie_walk_dazed_v2",
+				"nz_legacy_walk_dazed",
+				"nz_legacy_walk_dazed",
 			},
 			LowgMovementSequence = {
 				"nz_walk_lowg_v1",
@@ -467,6 +474,9 @@ ENT.SequenceTables = {
 				"nz_legacy_sprint_v5",
 				"nz_legacy_sprint_v5",
 
+				"nz_pb_zombie_sprint_v7",
+				"nz_pb_zombie_sprint_v7",
+
 				"nz_t9_base_sprint_ad_v01",
 				"nz_t9_base_sprint_ad_v02",
 				"nz_t9_base_sprint_ad_v05",
@@ -560,14 +570,10 @@ ENT.SequenceTables = {
 			MovementSequence = {
 				"nz_hazmat_sprint_01",
 				"nz_suicide_sprint_01",
-				"nz_pb_zombie_sprint_v7",
-				"nz_pb_zombie_sprint_v9",
 				"nz_base_zombie_sprint_w_object_4",
 				"nz_base_zombie_sprint_w_object_5",
 				"nz_hazmat_sprint_01",
 				"nz_suicide_sprint_01",
-				"nz_pb_zombie_sprint_v7",
-				"nz_pb_zombie_sprint_v9",
 				"nz_base_zombie_sprint_w_object_4",
 				"nz_base_zombie_sprint_w_object_5",
 

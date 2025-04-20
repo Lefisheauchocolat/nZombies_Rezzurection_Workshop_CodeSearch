@@ -91,7 +91,7 @@ hook.Add("UpdateAnimation", "nzDownedAnimation", function(ply, vel, seqspeed)
 
 		ply:SetPlaybackRate(1)
 
-        if CLIENT then
+        if CLIENT and VManip then
         	if GetConVar("nz_vmanip_crawl"):GetInt() == 1 then
             local angle, angle2 = vel:Angle(), ply:GetAngles()
             local ydif = math.abs(math.NormalizeAngle(angle.y - angle2.y))

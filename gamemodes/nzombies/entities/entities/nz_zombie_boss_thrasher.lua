@@ -554,6 +554,38 @@ function ENT:OnThink()
 		victim:SetParent(nil)
 		self:SetCurrentPlayer(nil)
 	end
+
+	-- Spore Scales
+	local spore1 = self:LookupBone("tag_spore_leg")
+	local spore2 = self:LookupBone("tag_spore_chest")
+	local spore3 = self:LookupBone("tag_spore_back")
+	if self:GetManipulateBoneScale(spore1) == Vector(1,1,1) then
+		if !self.BackSpore then
+			self.BackSpore = true
+		end
+	else
+		if self.BackSpore then
+			self.BackSpore = false
+		end
+	end
+	if self:GetManipulateBoneScale(spore2) == Vector(1,1,1) then
+		if !self.LegSpore then
+			self.LegSpore = true
+		end
+	else
+		if self.LegSpore then
+			self.LegSpore = false
+		end
+	end
+	if self:GetManipulateBoneScale(spore3) == Vector(1,1,1) then
+		if !self.ChestSpore then
+			self.ChestSpore = true
+		end
+	else
+		if self.ChestSpore then
+			self.ChestSpore = false
+		end
+	end
 end
 
 function ENT:RegenSpore()

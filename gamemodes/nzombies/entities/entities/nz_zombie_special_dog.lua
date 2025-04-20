@@ -5,7 +5,12 @@ ENT.PrintName = "Hellhound"
 ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 
-if CLIENT then return end -- Client doesn't really need anything beyond the basics
+if CLIENT then 
+	ENT.EyeColorTable = {
+		[0] = Material("models/moo/codz/t5_hellhound/mtl_nazi_hellhound_eyes.vmt"),
+	}
+	return 
+end -- Client doesn't really need anything beyond the basics
 
 ENT.SpeedBasedSequences = true
 ENT.IsMooZombie = true
@@ -14,36 +19,44 @@ ENT.IsMooSpecial = true
 ENT.AttackRange = 80
 
 ENT.Models = {
-	{Model = "models/moo/_codz_ports/t5/hellhound/moo_codz_t5_devildoggo.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/t4/moo_codz_t4_zombie_wolf.mdl", Skin = 0, Bodygroups = {0,0}},
 }
 
 local spawn = {"idle"}
 
+local StandAttackSequences = {
+	{seq = "nz_base_dog_attack_02"},
+}
+
 local AttackSequences = {
-	{seq = "nz_dog_run_attack", dmgtimes = {0.3}},
+	{seq = "nz_base_dog_attack_01"},
 }
 
 local JumpSequences = {
-	{seq = ACT_JUMP, speed = 100},
+	{seq = "nz_base_dog_mantle_over_40"},
 }
 
 
 ENT.BarricadeTearSequences = {
-	--Leave this empty if you don't intend on having a special enemy use tear anims.
+	"nz_base_dog_attack_02"
 }
 
-ENT.IdleSequence = "nz_dog_idle"
+ENT.IdleSequence = "nz_base_dog_idle_t4"
+ENT.IdleSequenceAU = "nz_base_dog_idle_t7"
 
 ENT.DeathSequences = {
-	"nz_dog_death_front",
+	"nz_base_dog_death_01",
+	"nz_base_dog_death_02",
+	"nz_base_dog_death_03",
+	"nz_base_dog_death_04",
 }
 
 ENT.ElectrocutionSequences = {
-	"nz_dog_tesla_death_a",
-	"nz_dog_tesla_death_b",
-	"nz_dog_tesla_death_c",
-	"nz_dog_tesla_death_d",
-	"nz_dog_tesla_death_e",
+	"nz_base_dog_death_tesla_01",
+	"nz_base_dog_death_tesla_02",
+	"nz_base_dog_death_tesla_03",
+	"nz_base_dog_death_tesla_04",
+	"nz_base_dog_death_tesla_05",
 }
 
 local walksounds = {
@@ -94,13 +107,31 @@ ENT.SpiritSounds = {
 	Sound("nz_moo/zombies/vox/_devildog/exp_bo3/spirit/exp_hellhound_spirit_02.mp3"),
 	Sound("nz_moo/zombies/vox/_devildog/exp_bo3/spirit/exp_hellhound_spirit_03.mp3"),
 	Sound("nz_moo/zombies/vox/_devildog/exp_bo3/spirit/exp_hellhound_spirit_04.mp3"),
+	Sound("nz_moo/zombies/vox/_devildog/exp_bo3/spirit/exp_hellhound_spirit_05.mp3"),
+	Sound("nz_moo/zombies/vox/_devildog/exp_bo3/spirit/exp_hellhound_spirit_06.mp3"),
+	Sound("nz_moo/zombies/vox/_devildog/exp_bo3/spirit/exp_hellhound_spirit_07.mp3"),
+	Sound("nz_moo/zombies/vox/_devildog/exp_bo3/spirit/exp_hellhound_spirit_08.mp3"),
 }
 
 ENT.AppearSounds = {
-	Sound("nz_moo/zombies/vox/_devildog/spawn/spawn_01.mp3"),
+	Sound("nz_moo/zombies/vox/_devildog/_zhd/spawn/zmb_hellhound_spawn_aw_04.mp3"),
+	Sound("nz_moo/zombies/vox/_devildog/_zhd/spawn/zmb_hellhound_spawn_aw_05.mp3"),
+	Sound("nz_moo/zombies/vox/_devildog/_zhd/spawn/zmb_hellhound_spawn_aw_06.mp3"),
+	Sound("nz_moo/zombies/vox/_devildog/_zhd/spawn/zmb_hellhound_spawn_aw_07.mp3"),
 }
 
-ENT.DogStepSounds = {
+ENT.CustomWalkFootstepsSounds = {
+	Sound("nz_moo/zombies/vox/_devildog/step/step_00.mp3"),
+	Sound("nz_moo/zombies/vox/_devildog/step/step_01.mp3"),
+	Sound("nz_moo/zombies/vox/_devildog/step/step_02.mp3"),
+	Sound("nz_moo/zombies/vox/_devildog/step/step_03.mp3"),
+	Sound("nz_moo/zombies/vox/_devildog/step/step_04.mp3"),
+	Sound("nz_moo/zombies/vox/_devildog/step/step_05.mp3"),
+	Sound("nz_moo/zombies/vox/_devildog/step/step_06.mp3"),
+	Sound("nz_moo/zombies/vox/_devildog/step/step_07.mp3"),
+}
+
+ENT.CustomRunFootstepsSounds = {
 	Sound("nz_moo/zombies/vox/_devildog/step/step_00.mp3"),
 	Sound("nz_moo/zombies/vox/_devildog/step/step_01.mp3"),
 	Sound("nz_moo/zombies/vox/_devildog/step/step_02.mp3"),
@@ -116,8 +147,9 @@ ENT.SequenceTables = {
 		{
 			SpawnSequence = {spawn},
 			MovementSequence = {
-				"nz_dog_walk",
+				"nz_base_dog_walk_01",
 			},
+			StandAttackSequences = {StandAttackSequences},
 			AttackSequences = {AttackSequences},
 			JumpSequences = {JumpSequences},
 			PassiveSounds = {walksounds},
@@ -127,8 +159,9 @@ ENT.SequenceTables = {
 		{
 			SpawnSequence = {spawn},
 			MovementSequence = {
-				"nz_dog_trot",
+				"nz_base_dog_trot_01",
 			},
+			StandAttackSequences = {StandAttackSequences},
 			AttackSequences = {AttackSequences},
 			JumpSequences = {JumpSequences},
 			PassiveSounds = {walksounds},
@@ -138,8 +171,10 @@ ENT.SequenceTables = {
 		{
 			SpawnSequence = {spawn},
 			MovementSequence = {
-				"nz_dog_run",
+				"nz_base_dog_run_01",
+				"nz_base_dog_run_02",
 			},
+			StandAttackSequences = {StandAttackSequences},
 			AttackSequences = {AttackSequences},
 			JumpSequences = {JumpSequences},
 			PassiveSounds = {runsounds},
@@ -230,11 +265,10 @@ function ENT:DoDeathAnimation(seq)
 	end)
 end
 
-
 function ENT:AI()
-	if IsValid(self:GetTarget()) then
-		local distToTarget = self:GetPos():Distance(self:GetTargetPosition())
-		if not self.Sprinting and distToTarget < 750 then
+	local target = self.Target
+	if IsValid(target) then
+		if not self.Sprinting and self:TargetInRange(750) then
 			self.Sprinting = true
 			self.IgnitedFoxy = true
 			self:SetRunSpeed( 71 )
@@ -245,59 +279,7 @@ function ENT:AI()
 	end
 end
 
-
-function ENT:PlayAttackAndWait( name, speed )
-
-	local len = self:SetSequence( name )
-	speed = speed or 1
-
-	self:ResetSequenceInfo()
-	self:SetCycle( 0 )
-	self:SetPlaybackRate( speed )
-
-	local endtime = CurTime() + len / speed
-
-	while ( true ) do
-
-		if ( endtime < CurTime() ) then
-			if !self:GetStop() then
-				self:ResetMovementSequence()
-				self.loco:SetDesiredSpeed( self:GetRunSpeed() )
-			end
-			return
-		end
-		if self:IsValidTarget( self:GetTarget() ) then
-			self.loco:FaceTowards( self:GetTarget():GetPos() )
-		end
-
-		coroutine.yield()
-
-	end
-
-end
-
 function ENT:IsValidTarget( ent )
 	if not ent then return false end
 	return IsValid(ent) and ent:GetTargetPriority() ~= TARGET_PRIORITY_NONE and ent:GetTargetPriority() ~= TARGET_PRIORITY_MONSTERINTERACT and ent:GetTargetPriority() ~= TARGET_PRIORITY_SPECIAL and ent:GetTargetPriority() ~= TARGET_PRIORITY_FUNNY
-end
-
-function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how sad I am that I didn't know about this sooner.
-	if e == "melee" then
-		self:EmitSound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(85, 105), 1, 2)
-		self:DoAttackDamage()
-	end
-	if e == "death_ragdoll" then
-		self:BecomeRagdoll(DamageInfo())
-	end
-	if e == "start_traverse" then
-		--print("starttraverse")
-		self.TraversalAnim = true
-	end
-	if e == "finish_traverse" then
-		--print("finishtraverse")
-		self.TraversalAnim = false
-	end
-	if e == "dog_step" then
-		self:EmitSound(self.DogStepSounds[math.random(#self.DogStepSounds)], 75, math.random(95,105))
-	end
 end

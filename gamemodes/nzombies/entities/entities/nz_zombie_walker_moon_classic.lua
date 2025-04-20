@@ -219,7 +219,6 @@ local runsounds = {
 	Sound("nz_moo/zombies/vox/_classic/sprint/sprint_06.mp3"),
 	Sound("nz_moo/zombies/vox/_classic/sprint/sprint_07.mp3"),
 	Sound("nz_moo/zombies/vox/_classic/sprint/sprint_08.mp3"),
-	Sound("nz_moo/zombies/vox/_classic/taunt/spec_taunt.mp3"),
 }
 
 ENT.IdleSequence = "nz_bo3_idle_v1_delta"
@@ -237,6 +236,7 @@ ENT.SequenceTables = {
 				"nz_walk_au5",
 				"nz_walk_au6",
 				"nz_legacy_walk_v9",
+				"nz_base_zombie_walk_dazed_v1",
 
 				"nz_walk_ad22",
 				"nz_walk_ad25",
@@ -409,6 +409,8 @@ ENT.SequenceTables = {
 				"nz_t9_base_sprint_ad_v24",
 				"nz_t9_base_sprint_au_v20",
 				"nz_t9_base_sprint_au_v22",
+				
+				"nz_pb_zombie_sprint_v10",
 			},
 			LowgMovementSequence = {
 				"nz_sprint_lowg_v1",
@@ -479,9 +481,6 @@ ENT.SequenceTables = {
 		{
 			SpawnSequence = {spawnsuperfast},
 			MovementSequence = {
-				--"nz_l4d_run_05",
-				--"nz_pb_zombie_sprint_v7",
-				--"nz_pb_zombie_sprint_v9",
 				"nz_hazmat_sprint_01",
 				"nz_suicide_sprint_01",
 				"nz_base_zombie_sprint_w_object_4",

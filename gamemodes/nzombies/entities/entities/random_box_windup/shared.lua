@@ -44,53 +44,85 @@ function ENT:Initialize()
 	self.TeddyModels = {
 		["Original"] = {
 			MDL = {"models/moo/_codz_ports_props/t6/global/zombie_teddybear/moo_codz_p6_teddybear.mdl"},
-			ANGLE = Angle(-90,90,0)
+			ANGLE = Angle(-90,90,0),
+			WINDU = Vector(0,0,30),
+			WINDD = Vector(0,-0,-20),
 		},
 		["Nacht Der Untoten"] = {
 			MDL = {"models/moo/_codz_ports_props/t6/global/zombie_teddybear/moo_codz_p6_teddybear.mdl"},
-			ANGLE = Angle(-90,90,0)
+			ANGLE = Angle(-90,90,0),
+			WINDU = Vector(0,0,30),
+			WINDD = Vector(0,-0,-20),
 		},
 		["Verruckt"] = {
 			MDL = {"models/moo/_codz_ports_props/t6/global/zombie_teddybear/moo_codz_p6_teddybear.mdl"},
-			ANGLE = Angle(-90,90,0)
+			ANGLE = Angle(-90,90,0),
+			WINDU = Vector(0,0,30),
+			WINDD = Vector(0,-0,-20),
 		},
 		["UGX Coffin"] = {
 			MDL = {"models/moo/_codz_ports_props/t6/global/zombie_teddybear/moo_codz_p6_teddybear.mdl"},
-			ANGLE = Angle(-90,90,0)
+			ANGLE = Angle(-90,90,0),
+			WINDU = Vector(0,0,30),
+			WINDD = Vector(0,-0,-20),
 		},
 		["Present Box"] = {
 			MDL = {"models/wavy_ports/ugx/present_bear.mdl"},
-			ANGLE = Angle(0,180,0)
+			ANGLE = Angle(0,180,0),
+			WINDU = Vector(0,0,30),
+			WINDD = Vector(0,-0,-20),
 		},
 		["Mob of the Dead"] = {
 			MDL = {"models/moo/_codz_ports_props/t6/global/zombie_teddybear/moo_codz_p6_teddybear.mdl"},
-			ANGLE = Angle(-90,90,0)
+			ANGLE = Angle(-90,90,0),
+			WINDU = Vector(0,0,30),
+			WINDD = Vector(0,-0,-20),
+		},
+		["Origins"] = {
+			MDL = {"models/moo/_codz_ports_props/t6/global/zombie_teddybear/moo_codz_p6_teddybear.mdl"},
+			ANGLE = Angle(-90,90,0),
+			WINDU = Vector(0,30,0),
+			WINDD = Vector(0,-20,0),
 		},
 		["Leviathan"] = {
 			MDL = {"models/moo/_codz_ports_props/t7/_der/p7_zm_teddybear/moo_codz_p7_teddybear.mdl"},
-			ANGLE = Angle(-90,90,0)
+			ANGLE = Angle(-90,90,0),
+			WINDU = Vector(0,0,30),
+			WINDD = Vector(0,-0,-20),
 		},
 		["Black Ops 3"] = {
 			MDL = {"models/moo/_codz_ports_props/t7/_der/p7_zm_teddybear/moo_codz_p7_teddybear.mdl"},
-			ANGLE = Angle(-90,0,0)
+			ANGLE = Angle(-90,0,0),
+			WINDU = Vector(0,0,30),
+			WINDD = Vector(0,-0,-20),
 		},
 		["Black Ops 3(Quiet Cosmos)"] = {
 			MDL = {"models/moo/_codz_ports_props/t7/_der/p7_zm_teddybear/moo_codz_p7_teddybear.mdl"},
-			ANGLE = Angle(-90,0,0)
+			ANGLE = Angle(-90,0,0),
+			WINDU = Vector(0,0,30),
+			WINDD = Vector(0,-0,-20),
 		},
 		["Cold War"] = {
 			MDL = {"models/moo/_codz_ports_props/s4/zm/zod/s4_zm_magic_box_bunny/moo_codz_s4_zm_magic_box_bunny.mdl"},
-			ANGLE = Angle(0,180,0)
+			ANGLE = Angle(0,180,0),
+			WINDU = Vector(0,0,30),
+			WINDD = Vector(0,-0,-20),
 		},
 	}
 
-	--print(self.TeddyModels[nzMapping.Settings.boxtype].ANGLE)
+	--print(self.TeddyModels[self.Style].ANGLE)
 
-	if !(nzMapping.Settings.boxtype == "UGX Coffin") then
+	if SERVER then
+		self.Style = self.Box.SpawnPoint:GetBoxType()
+	end
+
+	local selection = self.TeddyModels[self.Style]
+
+	if !(self.Style == "UGX Coffin") then
 		self:SetLocalVelocity(self.WindupMovement/self.WindupTime)
 	end
 	
-	if (nzMapping.Settings.boxtype == "UGX Coffin" or nzMapping.Settings.boxtype == "Present Box") then
+	if (self.Style == "UGX Coffin" or self.Style == "Present Box") then
 		self:SetAngles(Angle(-90,-90,0))
 		--self:SetPos(Vector(0,0,0))
 	end
@@ -150,7 +182,7 @@ function ENT:WindUp( )
 
 	if gun and gun.WorldModel != nil then
 		self:SetModel(gun.WM or gun.WorldModel)
-		if (nzMapping.Settings.boxtype == "UGX Coffin") then
+		if (self.Style == "UGX Coffin") then
 		self:EmitSound("nz_moo/mysterybox/ugx_coffin/box_boom.mp3", 300, 100, 1)
 		end
 	end
@@ -177,7 +209,7 @@ function ENT:Think()
 	if SERVER then
 		if self:GetIsTeddy() then
 			if self.TeddyFlyTime and self.TeddyFlyTime < CurTime() then
-				if !(nzMapping.Settings.boxtype == "UGX Coffin" or nzMapping.Settings.boxtype == "Present Box") then
+				if !(self.Style == "UGX Coffin" or self.Style == "Present Box") then
 				self:SetLocalVelocity(self.TeddyVelocity)
 			else
 				self:SetLocalVelocity(self.TeddyVelocityCoffin)
@@ -194,7 +226,7 @@ function ENT:Think()
 		elseif self:GetWinding() then
 			if self.WindingTime > CurTime() then
 				self:WindUp()
-				if !(nzMapping.Settings.boxtype == "UGX Coffin") then
+				if !(self.Style == "UGX Coffin") then
 					self:NextThink(CurTime() + 0.2/(self.WindingTime - CurTime()))
 					else
 					self:NextThink(CurTime() + 0.1*(self.WindingTime - CurTime()))
@@ -226,9 +258,9 @@ function ENT:Think()
 
 			if self:GetWepClass() == "nz_box_teddy" then
 
-				local angle = self.Box:GetAngles() + self.TeddyModels[nzMapping.Settings.boxtype].ANGLE
+				local angle = self.Box:GetAngles() + self.TeddyModels[self.Style].ANGLE
 
-				self:SetModel(self.TeddyModels[nzMapping.Settings.boxtype].MDL[1])
+				self:SetModel(self.TeddyModels[self.Style].MDL[1])
 				self:SetAngles(angle)
 
 				self.TeddyFlyTime = CurTime() + 2

@@ -399,7 +399,7 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.icontype = (data.icontype) or "World at War/ Black Ops 1"
 	nzMapping.Settings.turnedlist = data.turnedlist
 
-	nzMapping.Settings.boxtype = data.boxtype or "Original"
+	nzMapping.Settings.boxtype = data.boxtype or nil
 	nzMapping.Settings.perkmachinetype = data.perkmachinetype or "Classic"
 	nzMapping.Settings.PAPtype = data.PAPtype or "Original"
 	nzMapping.Settings.PAPcamo = data.PAPcamo or "nz_classic"
@@ -478,6 +478,7 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.healthmod = data.healthmod == nil and 0.1 or data.healthmod
 	nzMapping.Settings.healthcap = data.healthcap == nil and 60000 or data.healthcap
 	nzMapping.Settings.speedcap = data.speedcap == nil and 300 or data.speedcap
+	nzMapping.Settings.lastzombiesprint = data.lastzombiesprint == nil and 3 or data.lastzombiesprint
 
 	nzMapping.Settings.sidestepping = data.sidestepping or false
 	nzMapping.Settings.badattacks = data.badattacks or false

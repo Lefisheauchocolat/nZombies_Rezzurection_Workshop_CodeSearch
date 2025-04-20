@@ -228,11 +228,15 @@ local function OnWeaponAdded( wep )
 			ply:ChatPrint("Maybe next time you'll follow directions. Go use TFA.")
 		end*/
 
-		if (wep.ArcCW or wep.CW20Weapon or wep.IsFAS2Weapon or (wep.Base and wep.Base:find("mg_base"))) and !ply.receivedNZWEPwarning then
+		if (wep.ArcCW or wep.CW20Weapon or (wep.Base and wep.Base:find("mg_base")) or (wep.Base and wep.Base:find("arc9_base")))  then
 			ply.receivedNZWEPwarning = true
-			ply:ChatPrint("This version of nzombies is designed for TFA weapons only")
-			ply:ChatPrint("Expect errors and most weapon modifying effects to not work")
-			ply:ChatPrint("Sorry for the inconvenience")
+			ply:StripWeapon(wep:GetClass())
+			if wep.Arccw then
+			ply:EmitSound("arccw.wav", 511)
+			else
+			ply:EmitSound("TFA.wav", 511)
+			end
+			ply:ChatPrint("This weapon base does not work with this gamemode. Use TFA base or PERISH")
 		end
 	end)
 end

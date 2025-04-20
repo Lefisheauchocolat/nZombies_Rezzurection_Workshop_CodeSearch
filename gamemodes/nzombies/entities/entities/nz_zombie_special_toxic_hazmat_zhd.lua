@@ -225,6 +225,14 @@ function ENT:SpecialInit()
 	local speed = math.random(71,185)
 	self:SetRunSpeed(speed)
 	self:SpeedChanged()
+
+	self.CanGib = false
+
+	self.DeathSequences = {
+		"nz_dth_microwave_1",
+		"nz_dth_microwave_2",
+		"nz_dth_microwave_3",
+	}
 end
 
 function ENT:ToxicExplode()
@@ -271,6 +279,9 @@ function ENT:CustomAnimEvent(a,b,c,d,e)
 	self.OverrideDDoll = true 		-- Overrides death_ragdoll
 
 	if e == "death_ragdoll" then
+		self:ToxicExplode()
+	end
+	if e == "cooked" then
 		self:ToxicExplode()
 	end
 end

@@ -226,7 +226,7 @@ ENT.SequenceTables = {
 				"nz_bo3_zombie_walk_v4",
 				"nz_walk_au5",
 				"nz_walk_au6",
-				"nz_legacy_walk_v9",
+				"nz_base_zombie_walk_dazed_v1",
 
 				"nz_walk_ad20",
 				"nz_walk_ad23",

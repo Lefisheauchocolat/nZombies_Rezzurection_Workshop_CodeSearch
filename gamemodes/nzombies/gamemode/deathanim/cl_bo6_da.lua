@@ -82,6 +82,21 @@ local function CreateTimedScene(modelsTable, effectsTable, sceneDuration, onFini
                 cfov = fovTab[an]
             end
 
+            local bool = render.GetLightColor(att.Pos):Length() < 0.005
+            if bool then
+                local dlight = DynamicLight( LocalPlayer():EntIndex() )
+                if dlight then
+                    dlight.pos = att.Pos
+                    dlight.r = 220
+                    dlight.g = 40
+                    dlight.b = 40
+                    dlight.brightness = 0.1
+                    dlight.decay = 1000
+                    dlight.size = 256
+                    dlight.dietime = CurTime() + 1
+                end
+            end
+
             view.origin = att.Pos
             view.angles = att.Ang
             view.fov = cfov
@@ -484,10 +499,10 @@ local function CreateTimedScene(modelsTable, effectsTable, sceneDuration, onFini
                     playRandomSound("nz_moo/zombies/vox/_bruiser/swing") 
                 elseif type == "brutus_over" then
                     surface.PlaySound("nz_moo/zombies/vox/_bruiser/voicelines/vox_brutus_brutus_attacks_d_"..math.random(1,15)..".mp3")
-                elseif type == "fear" then
+                --[[elseif type == "fear" then
                     playRandomSound("bo6/da/fear")
                 elseif type == "pain" then
-                    playRandomSound("bo6/da/pain")
+                    playRandomSound("bo6/da/pain")]]
                 elseif type == "touch" then
                     playRandomSound("bo6/da/touch")
                 elseif type == "drop" then

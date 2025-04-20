@@ -220,6 +220,9 @@ function ENT:StatsInitialize()
 		self.SpitCooldown = CurTime() + 3
 		self.CanSpit = false
 		self.Spitting = false
+		
+
+		self:SetBloodColor(BLOOD_COLOR_ANTLION)
 	end
 end
 
@@ -253,27 +256,11 @@ function ENT:PerformDeath(dmginfo)
 	self:EmitSound(self.DeathSounds[math.random(#self.DeathSounds)], 500, math.random(95, 105), 1, 2)
 	
 	if math.random(3) == 3 then
-	local vaporizer = ents.Create("point_hurt")
-	local gfx = ents.Create("pfx2_03")
-		ParticleEffectAttach("bo3_sliquifier_puddle_2", PATTACH_ABSORIGIN_FOLLOW, gfx, 0)
-        gfx:SetPos(self:GetPos() + (Vector(0,0,1)))
-        gfx:SetAngles(Angle(0,0,0))
-		gfx:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
-        gfx:Spawn()
-		if !vaporizer:IsValid() then return end
-		vaporizer:SetKeyValue("Damage", 20)
-		vaporizer:SetKeyValue("DamageRadius", 130)
-		vaporizer:SetKeyValue("DamageDelay",0.35)
-		vaporizer:SetKeyValue("DamageType", DMG_ACID)
-		--vaporizer:SetKeyValue("DamageTarget", "player")
-		vaporizer:SetPos(self:GetPos())
-		vaporizer:SetOwner(self)
-		vaporizer:Spawn()
-		vaporizer:Fire("TurnOn","",0)
-		vaporizer:Fire("kill","",8)
-		timer.Simple(8, function()
-		gfx:Remove()
-		end)
+	
+		local fuckercloud = ents.Create("nz_ent_toxic_cloud")
+		fuckercloud:SetPos(self:GetPos())
+		fuckercloud:SetAngles(Angle(0,0,0))
+		fuckercloud:Spawn()
 
 	ParticleEffect("bo3_mirg2k_explode",self:WorldSpaceCenter(),Angle(0,0,0),nil)
 	self:EmitSound("character/alien/vocals/spitter/spitter_miss_01.wav", 500)

@@ -8,8 +8,20 @@ ENT.AdminSpawnable = false
 
 if SERVER then
 	AddCSLuaFile()
-	util.AddNetworkString("nz_panzer_grab")
+	util.AddNetworkString("nz_amalgam_grab")
 end
+
+ENT.GibSounds = {
+	Sound("nz_moo/zombies/vox/_amal/fly/fly_amal_gib_victim_00.mp3"),
+	Sound("nz_moo/zombies/vox/_amal/fly/fly_amal_gib_victim_01.mp3"),
+	Sound("nz_moo/zombies/vox/_amal/fly/fly_amal_gib_victim_02.mp3"),
+	Sound("nz_moo/zombies/vox/_amal/fly/fly_amal_gib_victim_03.mp3"),
+	Sound("nz_moo/zombies/vox/_amal/fly/fly_amal_gib_victim_04.mp3"),
+	Sound("nz_moo/zombies/vox/_amal/fly/fly_amal_gib_victim_05.mp3"),
+	Sound("nz_moo/zombies/vox/_amal/fly/fly_amal_gib_victim_06.mp3"),
+	Sound("nz_moo/zombies/vox/_amal/fly/fly_amal_gib_victim_07.mp3"),
+	Sound("nz_moo/zombies/vox/_amal/fly/fly_amal_gib_victim_08.mp3"),
+}
 
 function ENT:SetupDataTables()
 	self:NetworkVar("Entity", 0, "Amalgam")
@@ -17,13 +29,17 @@ end
 
 function ENT:Initialize()
 	if SERVER then
-		self:SetModel("models/nz_zombie/panzer_claw.mdl") -- Change later
+        self:SetModel("models/dav0r/hoverball.mdl")
 		self:PhysicsInit(SOLID_OBB)
 		self:SetSolid(SOLID_NONE)
 		self:SetTrigger(true)
 		self:UseTriggerBounds(true, 0)
 		self:SetMoveType(MOVETYPE_FLY)
-		ParticleEffectAttach("doom_imp_fireball_cheap",PATTACH_ABSORIGIN_FOLLOW,self,0)
+
+		self:SetNoDraw(true)
+		self:SetMaterial("invisible")
+
+		--ParticleEffectAttach("doom_imp_fireball_cheap",PATTACH_ABSORIGIN_FOLLOW,self,0)
 		--self:SetCollisionGroup(COLLISION_GROUP_INTERACTIVE_DEBRIS)
 		--self:SetSolid(SOLID_VPHYSICS)
 		phys = self:GetPhysicsObject()
@@ -35,12 +51,12 @@ function ENT:Initialize()
 end
 
 function ENT:Launch(dir)
-	self:SetLocalVelocity(dir * 1000)
+	self:SetLocalVelocity(dir * 2000)
 	self:SetAngles((dir*-1):Angle())
 	self:SetSequence(self:LookupSequence("anim_close"))
 	
-	self.AutoReturnTime = CurTime() + 0.95
-	self.AutoBreak = CurTime() + 3
+	self.AutoReturnTime = CurTime() + 1.75
+	self.AutoBreak = CurTime() + 4
 end
 
 function ENT:Grab(ply, pos) -- Pos is used for clients who may not have the Panzer valid yet
@@ -56,10 +72,9 @@ function ENT:Grab(ply, pos) -- Pos is used for clients who may not have the Panz
 	local breaktime = CurTime() + 3
 	local index = self:EntIndex()
 	
-	self:EmitSound("nz_moo/zombies/vox/_mechz/v2/claw/retract/retract.mp3", 100, math.random(85, 105))
-	self:EmitSound("nz_moo/zombies/vox/_mechz/v2/claw/loop_in.wav", 45)
+	self:EmitSound("nz_moo/zombies/vox/_amal/fly/fly_amal_grab_arm_retract_short.mp3", 80, math.random(95,105))
 
-	hook.Add("SetupMove", "PanzerGrab"..index, function(pl, mv, cmd)
+	hook.Add("SetupMove", "AmalgamGrab"..index, function(pl, mv, cmd)
 		if !IsValid(ply) or IsValid(ply) and !ply:GetNotDowned() then self:Release() end
 		
 		if pl == ply then
@@ -67,18 +82,18 @@ function ENT:Grab(ply, pos) -- Pos is used for clients who may not have the Panz
 			mv:SetVelocity(dir * speed)
 			
 			if !IsValid(amalgam) or !IsValid(Entity(index)) then
-				hook.Remove("SetupMove", "PanzerGrab"..index)
+				hook.Remove("SetupMove", "AmalgamGrab"..index)
 			else
 				local dist = (pl:GetPos() + Vector(0,0,50)):Distance(pos)
 				if dist < 50 then
 					speed = 200
 				end
-				if dist < 16 then
+				if dist < 70 then
 					self:Reattach()
 				end
 			end
 
-			if mv:GetVelocity():Length() > 100 then -- Keep a speed over 100
+			if mv:GetVelocity():Length() > 50 then -- Keep a speed over 100
 				breaktime = CurTime() + 3 -- Then we keep delaying when to "break" the hook
 			elseif CurTime() > breaktime then -- But if you haven't been over 100 speed for the time
 				self:Release() -- Break the hook!				
@@ -92,7 +107,7 @@ function ENT:Grab(ply, pos) -- Pos is used for clients who may not have the Panz
 	
 	if SERVER then
 		self:SetLocalVelocity(Vector(0,0,0))
-		net.Start("nz_panzer_grab")
+		net.Start("nz_amalgam_grab")
 			net.WriteBool(true)
 			net.WriteEntity(self)
 			net.WriteVector(pos)
@@ -107,10 +122,10 @@ function ENT:Release()
 	if IsValid(self.GrabbedPlayer) then
 		local amalgam = self:GetAmalgam()
 		amalgam:FinishGrab()
-		hook.Remove("SetupMove", "PanzerGrab"..self:EntIndex())
+		hook.Remove("SetupMove", "AmalgamGrab"..self:EntIndex())
 		
 		if SERVER then
-			net.Start("nz_panzer_grab")
+			net.Start("nz_amalgam_grab")
 				net.WriteBool(false)
 				net.WriteEntity(self)
 			net.Send(self.GrabbedPlayer)
@@ -120,7 +135,7 @@ function ENT:Release()
 		end
 	else
 		if SERVER then
-			net.Start("nz_panzer_grab")
+			net.Start("nz_amalgam_grab")
 				net.WriteBool(false)
 				net.WriteEntity(self)
 			net.Broadcast()
@@ -130,7 +145,7 @@ function ENT:Release()
 end
 
 if CLIENT then
-	net.Receive("nz_panzer_grab", function()
+	net.Receive("nz_amalgam_grab", function()
 		local grab = net.ReadBool()
 		local ent = net.ReadEntity()
 		local pos
@@ -148,7 +163,6 @@ end
 
 function ENT:Return() -- Emptyhanded return - Grab is with player
 	--print("return")
-	self:EmitSound("nz_moo/zombies/vox/_mechz/v2/claw/retract/retract.mp3", 100, math.random(85, 105))
 	self.HasGrabbed = true
 	self.Retract = true
 
@@ -164,13 +178,12 @@ end
 
 function ENT:Reattach(removed)
 	if SERVER then
-		self:StopSound("nz_moo/zombies/vox/_mechz/v2/claw/loop_in.wav")
 		if !removed then self:Remove() end
 	end
 	
 	local amalgam = self:GetAmalgam()
 	if !IsValid(amalgam) then return end
-	
+
 	amalgam:FinishGrab()
 end
 
@@ -179,7 +192,6 @@ function ENT:StartTouch(ent)
 	if IsValid(amalgam) and !self.HasGrabbed  then
 		if ent:IsPlayer() and amalgam:IsValidTarget(ent) then
 			--self:EmitSound("death.wav")
-			self:EmitSound("nz_moo/zombies/vox/_mechz/v2/claw/grab/grab.mp3", 100, math.random(85, 105))
 			self:Grab(ent)
 		else
 			if ent:GetClass() == "nz_zombie_boss_amalgam" or ent.IsMooZombie then return end
@@ -192,12 +204,6 @@ function ENT:StartTouch(ent)
 	end
 end
 
-if CLIENT then
-	function ENT:Draw()
-		self:DrawModel()
-	end
-end
-
 
 function ENT:Think()
 	if SERVER then
@@ -205,7 +211,7 @@ function ENT:Think()
 			local amalgam = self:GetAmalgam()
 			if !IsValid(amalgam) then self:Remove() return end
 			
-			if !IsValid(self.GrabbedPlayer) and self:GetPos():DistToSqr(amalgam:GetAttachment(amalgam:LookupAttachment("grab_attach")).Pos) <= 10000 then
+			if !IsValid(self.GrabbedPlayer) and self:GetPos():DistToSqr(amalgam:GetAttachment(amalgam:LookupAttachment("grab_attach")).Pos) <= 5000 then
 				self:Reattach()
 			end
 			
@@ -231,12 +237,36 @@ function ENT:Think()
 	return true
 end
 
+if CLIENT then
+	function ENT:Draw()
+		self:DrawModel()
+	end
+
+	local col = Color(255,255,255,255)
+	local mat = Material("models/flesh_cable")
+	hook.Add( "PostDrawOpaqueRenderables", "amalgam_claw_wires", function()
+		for k,v in pairs(ents.FindByClass("nz_proj_amalgam_grab")) do
+			local amalgam = v:GetAmalgam()
+			if IsValid(amalgam) then
+				local Vector1 = amalgam:GetAttachment(amalgam:LookupAttachment("grab_attach")).Pos
+				local Vector2 = v:GetPos() + v:GetAngles():Forward()*10
+				render.SetMaterial( mat )
+				render.DrawBeam( Vector1, Vector2, 5, 1, 1, col )
+			end
+		end
+	end )
+end
+
 function ENT:OnRemove()
 	if SERVER then
 		local amalgam = self:GetAmalgam()
 		amalgam:FinishGrab()
-		self:StopSound("nz_moo/zombies/vox/_mechz/v2/claw/loop_in.wav")
 	end
 	self:Release()
 	self:Reattach(true)
+
+	for i = 1, 5 do 
+		ParticleEffect("ins_blood_impact_headshot",self:GetPos(),self:GetAngles(),nil) 
+	end
+	self:EmitSound(self.GibSounds[math.random(#self.GibSounds)],100)
 end

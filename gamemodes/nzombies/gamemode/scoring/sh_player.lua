@@ -12,6 +12,18 @@ function meta:IncrementTotalKills()
 	self:SetTotalKills(self:GetTotalKills() + 1)
 end
 
+function meta:GetTotalHeadshots()
+	return self:GetNWInt("iHeadshots", 0)
+end
+
+function meta:SetTotalHeadshots(value)
+	self:SetNWInt("iHeadshots", value)
+end
+
+function meta:IncrementTotalHeadshots()
+	self:SetTotalHeadshots(self:GetTotalHeadshots() + 1)
+end
+
 function meta:GetTotalDowns()
 	return self:GetNWInt("iTotalDowns", 0)
 end

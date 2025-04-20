@@ -320,7 +320,7 @@ function ENT:StatsInitialize()
 
 			self:SetModelScale(0.99, 0.001)
 
-			util.SpriteTrail(self, 2, Color(eyecolor.r,eyecolor.g,eyecolor.b), true, 45, 20, 0.5, 1 / 40 * 0.3, "materials/particle/beam_smoke_01")
+			--util.SpriteTrail(self, 2, Color(eyecolor.r,eyecolor.g,eyecolor.b), true, 45, 20, 0.5, 1 / 40 * 0.3, "materials/particle/beam_smoke_01")
 
 			self:SetCollisionBounds(Vector(-9,-9, 0), Vector(9, 9, 45))
 			self:SetSurroundingBounds(Vector(-35, -35, 0), Vector(35, 35, 72))

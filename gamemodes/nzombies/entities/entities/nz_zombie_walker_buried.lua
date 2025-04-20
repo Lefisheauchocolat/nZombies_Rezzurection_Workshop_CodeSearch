@@ -891,8 +891,6 @@ ENT.SequenceTables = {
 			SpawnSequence = {spawnsuperfast},
 			MovementSequence = {
 				--"nz_l4d_run_05",
-				"nz_pb_zombie_sprint_v7",
-				"nz_pb_zombie_sprint_v9",
 				"nz_supersprint_ad1",
 				"nz_supersprint_ad2",
 				"nz_supersprint_ad3",
@@ -982,8 +980,6 @@ ENT.SequenceTables = {
 			SpawnSequence = {spawnsuperfast},
 			MovementSequence = {
 				--"nz_l4d_run_05",
-				"nz_pb_zombie_sprint_v7",
-				"nz_pb_zombie_sprint_v9",
 				"nz_supersprint_au1",
 				"nz_supersprint_au2",
 				"nz_supersprint_au3",

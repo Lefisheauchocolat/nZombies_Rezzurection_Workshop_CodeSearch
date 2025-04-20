@@ -282,6 +282,32 @@ function nzRound:AddBossType(id, class, funcs)
 	end
 end
 
+nzRound:AddBossType("Amalgam", "nz_zombie_boss_amalgam", {
+	specialspawn = false,
+	health = 500,
+	scale = 1,
+	dmgmul = 1,
+	amountatonce = 2,
+	initalrnd = 16,
+	intermission = 4,
+	perplayer = 1,
+	maxperrnd = 3,
+	initfunc = function()
+	end,
+	spawnfunc = function(self)
+		--[[local data = nzRound:GetBossData(self.NZBossType)
+		local count = #player.GetAllPlaying()
+
+		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))]]
+	end,
+	deathfunc = function(self, killer, dmginfo, hitgroup)
+		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+			attacker:GivePoints(150) -- Give killer 500 points if not downed
+		end
+	end,
+})
+
 nzRound:AddBossType("Abomination(BO6)", "nz_zombie_boss_abom_t10", {
 	specialspawn = false,
 	health = 500,
@@ -397,6 +423,27 @@ nzRound:AddBossType("Werewolf", "nz_zombie_boss_werewolf", {
     end,
 })
 nzRound:AddBossType("Megaton", "nz_zombie_boss_steiner", {
+    specialspawn = false,
+    health = 80,
+    scale = 400,
+    dmgmul = 0.65,
+	amountatonce = 2,
+	initalrnd = 12,
+	intermission = 4,
+	perplayer = 1,
+	maxperrnd = 2,
+    initfunc = function()
+    end,
+    spawnfunc = function(self)
+		BroadcastLua("surface.PlaySound('nz_moo/zombies/vox/_steiner/spawn_mus/mus_steiner_v1_00_mas.mp3')")
+    end,
+    deathfunc = function(self, killer, dmginfo, hitgroup)
+        if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+            attacker:GivePoints(150) -- Give killer 500 points if not downed
+        end
+    end,
+})
+nzRound:AddBossType("Atomic Flounder", "nz_zombie_boss_flounder", {
     specialspawn = false,
     health = 80,
     scale = 400,
@@ -840,6 +887,31 @@ nzRound:AddBossType("Scrake", "nz_zombie_boss_scrake", {
 		end
 	end,
 })
+nzRound:AddBossType("Chainsaw Zombie(Scrape)", "nz_zombie_boss_chainsaw", {
+	specialspawn = false,
+	health = 500,
+	scale = 1,
+	dmgmul = 1,
+	amountatonce = 3,
+	initalrnd = 8,
+	intermission = 2,
+	perplayer = 1,
+	maxperrnd = 3,
+	initfunc = function()
+	end,
+	spawnfunc = function(self)
+		--[[local data = nzRound:GetBossData(self.NZBossType)
+		local count = #player.GetAllPlaying()
+
+		self:SetHealth(nzRound:GetNumber() * data.scale + (data.health * count))
+		self:SetMaxHealth(nzRound:GetNumber() * data.scale + (data.health * count))]]
+	end,
+	deathfunc = function(self, killer, dmginfo, hitgroup)
+		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+			attacker:GivePoints(150) -- Give killer 500 points if not downed
+		end
+	end,
+})
 nzRound:AddBossType("Tesla Zombie", "nz_zombie_boss_hev", {
 	specialspawn = false,
 	health = 400,
@@ -910,29 +982,6 @@ nzRound:AddBossType("Adolf", "nz_zombie_boss_hillturr", {
         end
     end,
 })
-
-nzRound:AddBossType("Panzerhund", "nz_zombie_boss_panzerhund", {
-    specialspawn = false,
-    health = 500,
-    scale = 300,
-    dmgmul = 0.75,
-	amountatonce = 2,
-	initalrnd = 7,
-	intermission = 3,
-	perplayer = 1,
-	maxperrnd = 5,
-    initfunc = function()
-    end,
-    spawnfunc = function(self)
-		--BroadcastLua("surface.PlaySound('nz/panzer/mech_alarm.wav')")
-    end,
-    deathfunc = function(self, killer, dmginfo, hitgroup)
-        if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
-            attacker:GivePoints(150) -- Give killer 500 points if not downed
-        end
-    end,
-})
-
 nzRound:AddBossType("Panzer Soldat (Origins)", "nz_zombie_boss_panzer", {
     specialspawn = false,
     health = 700,
@@ -1689,4 +1738,26 @@ nzRound:AddBossType("Flood Tank", "nz_zombie_boss_gary", {
 			attacker:GivePoints(150) -- Give killer 500 points if not downed
 		end
 	end,
+})
+
+nzRound:AddBossType("Panzerhund", "nz_zombie_boss_panzerhund", {
+    specialspawn = false,
+    health = 500,
+    scale = 300,
+    dmgmul = 0.75,
+    amountatonce = 2,
+    initalrnd = 7,
+    intermission = 3,
+    perplayer = 1,
+    maxperrnd = 5,
+    initfunc = function()
+    end,
+    spawnfunc = function(self)
+        --BroadcastLua("surface.PlaySound('nz/panzer/mech_alarm.wav')")
+    end,
+    deathfunc = function(self, killer, dmginfo, hitgroup)
+        if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+            attacker:GivePoints(150) -- Give killer 500 points if not downed
+        end
+    end,
 })

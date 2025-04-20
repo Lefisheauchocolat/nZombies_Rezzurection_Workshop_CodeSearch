@@ -7,36 +7,11 @@ ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo and Wavy"
 ENT.Spawnable = true
 
-
-
-
 if CLIENT then
-	local eyeglow =  Material("nz_moo/sprites/moo_glow1")
-	local LEyeColor = Color(255, 0, 0, 255)
-	local REyeColor = Color(50, 50, 255, 255)
-
-	function ENT:DrawEyeGlow()
-		local latt = self:LookupAttachment("lefteye")
-		local ratt = self:LookupAttachment("righteye")
-
-		if latt == nil then return end
-		if ratt == nil then return end
-
-		local leye = self:GetAttachment(latt)
-		local reye = self:GetAttachment(ratt)
-
-		if leye == nil then return end
-		if reye == nil then return end
-
-		local righteyepos = leye.Pos + leye.Ang:Forward()*0.5
-		local lefteyepos = reye.Pos + reye.Ang:Forward()*0.5
-
-		if lefteyepos and righteyepos then
-			render.SetMaterial(eyeglow)
-			render.DrawSprite(lefteyepos, 4, 4, LEyeColor)
-			render.DrawSprite(righteyepos, 4, 4, REyeColor)
-		end
-	end
+	ENT.EyeColorTable = {
+		[0] = Material("models/moo/codz/iw7_zombies/park/zmb_male_eyes_02.vmt"),
+		[1] = Material("models/moo/codz/iw7_zombies/park/zmb_shared_eyes_a.vmt"),
+	}
 	return 
 end -- Client doesn't really need anything beyond the basics
 
@@ -44,20 +19,19 @@ ENT.SpeedBasedSequences = true
 ENT.IsMooZombie = true
 ENT.RedEyes = true
 
-ENT.SoundDelayMin = 5
-ENT.SoundDelayMax = 7
+ENT.SoundDelayMin = 2
+ENT.SoundDelayMax = 5
+ENT.MinSoundPitch 	= 95
+ENT.MaxSoundPitch 	= 105
 
 ENT.Models = {
-	{Model = "models/moo/_codz_ports/iw7/park/moo_codz_iw7_police_officer.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/iw7/park/moo_codz_iw7_park_police_officer.mdl", Skin = 0, Bodygroups = {0,0}},
 }
 
 local spawnslow = {"nz_iw7_cp_zom_spawn_ground_02", "nz_iw7_cp_zom_spawn_ground_06", "nz_iw7_cp_zom_spawn_ground_walk_01", "nz_iw7_cp_zom_spawn_ground_walk_03", "nz_iw7_cp_zom_spawn_ground_walk_04"}
 local spawnrun = {"nz_iw7_cp_zom_spawn_ground_run_01", "nz_iw7_cp_zom_spawn_ground_run_02", "nz_iw7_cp_zom_spawn_ground_run_03", "nz_iw7_cp_zom_spawn_ground_run_04"}
 local spawnfast = {"nz_iw7_cp_zom_spawn_ground_run_01", "nz_iw7_cp_zom_spawn_ground_run_02", "nz_iw7_cp_zom_spawn_ground_run_03", "nz_iw7_cp_zom_spawn_ground_run_04"}
 local spawnsuperfast = {"nz_ent_ground_01", "nz_ent_ground_02"}
-
-ENT.SoundDelayMin = 1
-ENT.SoundDelayMax = 3
 
 ENT.DeathSequences = {
 	"nz_iw7_cp_zom_death_backward_1",
@@ -127,59 +101,6 @@ local CrawlJumpSequences = {
 	{seq = "nz_iw7_cp_zom_prone_walk_window_over_40_01"},
 	{seq = "nz_iw7_cp_zom_prone_walk_window_over_40_02"},
 	{seq = "nz_iw7_cp_zom_prone_walk_window_over_40_03"},
-}
-
-local SlowClimbUp36 = {
-	"nz_traverse_climbup36"
-}
-local SlowClimbUp48 = {
-	"nz_traverse_climbup48"
-}
-local SlowClimbUp72 = {
-	"nz_traverse_climbup72"
-}
-local SlowClimbUp96 = {
-	"nz_traverse_climbup96"
-}
-local SlowClimbUp128 = {
-	"nz_traverse_climbup128",
-	"nz_l4d_traverse_climbup132_01",
-	"nz_l4d_traverse_climbup132_02",
-	"nz_l4d_traverse_climbup132_03",
-}
-local SlowClimbUp160 = {
-	"nz_traverse_climbup160",
-	"nz_l4d_traverse_climbup156_01",
-	"nz_l4d_traverse_climbup156_02",
-	"nz_l4d_traverse_climbup156_03",
-}
-local FastClimbUp36 = {
-	"nz_traverse_fast_climbup36",
-	"nz_l4d_traverse_climbup36_01",
-	"nz_l4d_traverse_climbup36_02",
-	"nz_l4d_traverse_climbup36_03",
-}
-local FastClimbUp48 = {
-	"nz_traverse_fast_climbup48",
-	"nz_l4d_traverse_climbup48_01",
-	"nz_l4d_traverse_climbup48_02",
-	"nz_l4d_traverse_climbup48_03",
-	"nz_l4d_traverse_climbup48_04",
-}
-local FastClimbUp72 = {
-	"nz_traverse_fast_climbup72",
-	"nz_l4d_traverse_climbup72_01",
-	"nz_l4d_traverse_climbup72_02",
-	"nz_l4d_traverse_climbup72_03",
-}
-local FastClimbUp96 = {
-	"nz_traverse_fast_climbup96",
-	"nz_l4d_traverse_climbup96_01",
-	"nz_l4d_traverse_climbup96_02",
-	"nz_l4d_traverse_climbup96_03",
-}
-local ClimbUp200 = {
-	"nz_traverse_climbup200"
 }
 
 local AttackSequences = {
@@ -275,6 +196,64 @@ local runsounds = {
 	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_05.mp3"),
 	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_06.mp3"),
 	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_07.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_01.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_02.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_03.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_04.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_05.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_06.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_07.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_01.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_02.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_03.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_04.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_05.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_06.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_07.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_01.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_02.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_03.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_04.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_05.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_06.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_07.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_01.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_02.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_03.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_04.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_05.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_06.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_07.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_01.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_02.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_03.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_04.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_05.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_06.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_07.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_01.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_02.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_03.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_04.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_05.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_06.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_07.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_01.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_02.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_03.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_04.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_05.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_06.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_run_front_07.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_talk_01.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_talk_02.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_talk_03.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_talk_04.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_talk_05.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_talk_06.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_talk_07.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_talk_08.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_talk_09.mp3"),
 }
 
 local sprintsounds = {
@@ -285,6 +264,64 @@ local sprintsounds = {
 	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_05.mp3"),
 	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_06.mp3"),
 	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_07.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_01.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_02.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_03.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_04.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_05.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_06.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_07.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_01.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_02.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_03.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_04.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_05.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_06.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_07.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_01.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_02.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_03.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_04.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_05.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_06.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_07.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_01.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_02.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_03.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_04.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_05.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_06.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_07.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_01.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_02.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_03.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_04.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_05.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_06.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_07.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_01.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_02.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_03.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_04.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_05.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_06.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_07.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_01.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_02.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_03.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_04.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_05.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_06.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_sprinter_sprint_front_07.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_talk_01.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_talk_02.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_talk_03.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_talk_04.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_talk_05.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_talk_06.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_talk_07.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_talk_08.mp3"),
+	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_runner_talk_09.mp3"),
 }
 
 local talksounds = {
@@ -369,14 +406,6 @@ ENT.SequenceTables = {
 			JumpSequences = {JumpSequences},
 			CrawlJumpSequences = {CrawlJumpSequences},
 
-			Climb36 = {SlowClimbUp36},
-			Climb48 = {SlowClimbUp48},
-			Climb72 = {SlowClimbUp72},
-			Climb96 = {SlowClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
-
 			PassiveSounds = {walksounds},
 		}
 	}},
@@ -447,14 +476,6 @@ ENT.SequenceTables = {
 			JumpSequences = {RunJumpSequences},
 			CrawlJumpSequences = {CrawlJumpSequences},
 
-			Climb36 = {SlowClimbUp36},
-			Climb48 = {SlowClimbUp48},
-			Climb72 = {SlowClimbUp72},
-			Climb96 = {SlowClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
-
 			PassiveSounds = {runsounds},
 		}
 	}},
@@ -467,8 +488,6 @@ ENT.SequenceTables = {
 				"nz_s1_zom_core_run_3",
 				"nz_s1_zom_core_run_4",
 				"nz_s1_zom_core_run_5",
-				--[["nz_legacy_sprint_v4",
-				"nz_fast_sprint_v2",]]
 			},
 			LowgMovementSequence = {
 				"nz_sprint_lowg_v1",
@@ -523,14 +542,6 @@ ENT.SequenceTables = {
 
 			JumpSequences = {SprintJumpSequences},
 			CrawlJumpSequences = {CrawlJumpSequences},
-
-			Climb36 = {FastClimbUp36},
-			Climb48 = {FastClimbUp48},
-			Climb72 = {FastClimbUp72},
-			Climb96 = {FastClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
 
 			PassiveSounds = {sprintsounds},
 		}
@@ -615,6 +626,25 @@ ENT.CrawlerSounds = {
 
 ENT.MonkeySounds = {
 	Sound("nz_moo/zombies/vox/mute_00.wav"),
+	Sound("nz_moo/zombies/vox/mute_00.wav"),
+	Sound("nz_moo/zombies/vox/mute_00.wav"),
+	Sound("nz_moo/zombies/vox/mute_00.wav"),
+	Sound("nz_moo/zombies/vox/mute_00.wav"),
+	Sound("nz_moo/zombies/vox/mute_00.wav"),
+	Sound("nz_moo/zombies/vox/mute_00.wav"),
+	Sound("nz_moo/zombies/vox/mute_00.wav"),
+	Sound("nz_moo/zombies/vox/mute_00.wav"),
+	Sound("nz_moo/zombies/vox/mute_00.wav"),
+	Sound("nz_moo/zombies/vox/mute_00.wav"),
+	Sound("nz_moo/zombies/vox/mute_00.wav"),
+	Sound("nz_moo/zombies/vox/mute_00.wav"),
+	Sound("nz_moo/zombies/vox/mute_00.wav"),
+	Sound("nz_moo/zombies/vox/mute_00.wav"),
+	Sound("nz_moo/zombies/vox/mute_00.wav"),
+	Sound("nz_moo/zombies/vox/mute_00.wav"),
+	Sound("nz_moo/zombies/vox/mute_00.wav"),
+	Sound("nz_moo/zombies/vox/mute_00.wav"),
+	Sound("nz_moo/zombies/vox/mute_00.wav"),
 }
 
 ENT.BehindSoundDistance = 200 -- When the zombie is within 200 units of a player, play these sounds instead
@@ -640,7 +670,7 @@ function ENT:StatsInitialize()
 			self:SetRunSpeed( 100 )
 		end
 
-		self:SetHealth( nzRound:GetZombieHealth() or 75 )
+		self:SetHealth( nzRound:GetZombieHealth() * 2 or 75 )
 		self.AttackDamage = nzRound:GetZombieDamage() or 50
 	end
 end
@@ -684,48 +714,6 @@ function ENT:OnSpawn(animation, grav, dirt)
 		self:CollideWhenPossible()
 	end
 end
-
-
-function ENT:Sound()
-	if self:GetAttacking() or !self:IsAlive() or self:GetDecapitated() then return end
-
-	local vol = 80
-
-	for k,v in nzLevel.GetZombieArray() do -- FUCK YOU, ARRAYS ARE AWESOME!!!
-		if k < 2 then vol = 511 else vol = 80 end
-	end
-
-	if self.BehindSoundDistance > 0 -- We have enabled behind sounds
-		and IsValid(self.Target)
-		and self.Target:IsPlayer() -- We have a target and it's a player within distance
-		and self:GetRangeTo(self.Target) <= self.BehindSoundDistance
-		and (self.Target:GetPos() - self:GetPos()):GetNormalized():Dot(self.Target:GetAimVector()) >= 0 then -- If the direction towards the player is same 180 degree as the player's aim (away from the zombie)
-			self:PlaySound(self.BehindSounds[math.random(#self.BehindSounds)], 100, math.random(80, 110), 1, 2) -- Play the behind sound, and a bit louder!
-	
-	--[[ A big "if then" thingy for playing other sounds. ]]--
-	elseif self.ElecSounds and (self.BO4IsShocked and self:BO4IsShocked() or self.BO4IsScorped and self:BO4IsScorped() or self.BO4IsSpinning and self:BO4IsSpinning()) then
-		self:PlaySound(self.ElecSounds[math.random(#self.ElecSounds)],vol, math.random(80, 110), 1, 2)
-	elseif IsValid(self.Target) and self.Target:GetClass() == "nz_bo3_tac_monkeybomb" and self.MonkeySounds and !self.IsMooSpecial then
-		self:PlaySound(self.MonkeySounds[math.random(#self.MonkeySounds)], 100, math.random(80, 110), 1, 2)
-	elseif self:GetCrawler() and self.CrawlerSounds then
-		self:PlaySound(self.CrawlerSounds[math.random(#self.CrawlerSounds)],vol, math.random(80, 110), 1, 2)
-	elseif (self:BomberBuff() or self.IsTurned ) and self.GasVox and !self.IsMooSpecial then
-		self:PlaySound(self.GasVox[math.random(#self.GasVox)],vol, math.random(95, 105), 1, 2)
-	elseif self.PassiveSounds then
-		if math.random(100) > 15 then
-			self:PlaySound(self.PassiveSounds[math.random(#self.PassiveSounds)],vol, math.random(80, 110), 1, 2)
-		else
-			self:PlaySound(self.TauntSounds[math.random(#self.TauntSounds)],vol, math.random(80, 110), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		end
-	else
-
-
-		-- We still delay by max sound delay even if there was no sound to play
-		self.NextSound = CurTime() + self.SoundDelayMax
-	end
-end
-
 
 ENT.PainSounds = {
 	Sound("nz_moo/zombies/vox/_cop/zombie_vox_cop_pain_01.mp3"),

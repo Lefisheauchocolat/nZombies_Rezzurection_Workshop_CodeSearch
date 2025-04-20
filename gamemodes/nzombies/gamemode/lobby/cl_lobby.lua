@@ -6,6 +6,7 @@ local showLobbyBG = CreateConVar("nz_lobby_show_bg", "1", FCVAR_ARCHIVE, "Change
 local showLobbyCharacters = CreateConVar("nz_lobby_show_characters", "1", FCVAR_ARCHIVE, "Hide or show playermodels in the pregame lobby. (0: Hide Playermodels 1: Show Playermodels)")
 local showLobbyLogo = CreateConVar("nz_lobby_show_logo", "1", FCVAR_ARCHIVE, "Hide or show the logo in the pregame lobby. (0: Hide Logo 1: Show Logo)")
 local textAlignmentConVar = CreateConVar("nz_lobby_text_alignment", "0", FCVAR_ARCHIVE, "Change text alignment for lobby buttons. (0: Left 1: Center)")
+local nzLobbySfxConVar = CreateClientConVar("nz_lobby_ui_sfx", "bo1", true, false, "Select UI sound set. (Ex. waw, bo1, bo2, bo3, mw1, mw2, ghosts)")
 
 local gradientBG = Material("bo6/other/lobby_bg_simple.png")
 local logoMat = Material("bo6/other/logo.png")
@@ -19,6 +20,8 @@ local lobbypanel = nil
 local animtab = {"nz_idles_f_crossedfront", "nz_idles_m_armsback", "nz_idles_m_armsfront", "nz_idles_m_hipleft", "nz_idles_m_hipright", "nz_idles_m_hips"}
 local campostab1 = {Vector(100,0,60), Vector(120,-16,60), Vector(120,16,60), Vector(140,-32,60), Vector(140,32,60)}
 local campostab2 = {Vector(0,0,60), Vector(0,-20,60), Vector(0,20,60), Vector(0,-40,60), Vector(0,40,60)}
+local soundPack = GetConVar("nz_lobby_ui_sfx"):GetString()
+
 
 local function We(x)
     return x/1920*ScrW()
@@ -293,6 +296,248 @@ function nzLobby:CreatePlayerModels(frame)
     end
 end
 
+--CUSTOM KEYBINDS by reikoow    --
+
+surface.CreateFont("NZ::ModernTitle", {
+    font = "PierSans-Regular",
+    size = 22,
+    weight = 500,
+    antialias = true,
+})
+
+surface.CreateFont("NZ::ModernSmallText", {
+    font = "PierSans-Regular",
+    size = 16,
+    weight = 650,
+    antialias = true,
+})
+
+
+local function DrawBlur(x, y, w, h, amount)
+    local blur = Material("pp/blurscreen")
+    surface.SetDrawColor(255, 255, 255)
+    surface.SetMaterial(blur)
+    for i = 1, 6 do
+        blur:SetFloat("$blur", (i / 6) * amount)
+        blur:Recompute()
+        render.UpdateScreenEffectTexture()
+        surface.DrawTexturedRect(x * -1, y * -1, ScrW(), ScrH())
+    end
+end
+
+function nzLobby:CreateKeybindsMenu(parent)
+    -- Mapping of input types to their display names
+
+
+    local function GlobalKeyPressHandler(ply, key)
+        if not IsValid(ply) or not ply:IsPlayer() then return end
+        hook.Run("nZombiesKeyCapture", key)
+    end
+    hook.Add("PlayerButtonDown", "nZombiesGlobalKeyCapture", GlobalKeyPressHandler)
+
+    local function GlobalMousePressHandler(mousecode)
+        hook.Run("nZombiesKeyCapture", mousecode)
+    end
+    hook.Add("GUIMousePressed", "nZombiesGlobalMouseCapture", GlobalMousePressHandler)
+
+
+    local frame = vgui.Create("DFrame", parent)
+    frame:SetSize(400, 475)
+    frame:SetTitle("")
+    frame:ShowCloseButton(false)
+    frame:SetDraggable(true)
+    frame.StartTime = SysTime()
+    frame:MakePopup()
+
+    -- Bouton de fermeture custom
+    local closeButton = vgui.Create("DButton", frame)
+    closeButton:SetSize(30, 30)
+    closeButton:SetPos(frame:GetWide() - 40, 5)
+    closeButton:SetText("X")
+    closeButton:SetTextColor(Color(255, 255, 255))
+    closeButton.Paint = function(self, w, h) end
+    closeButton.DoClick = function()
+        surface.PlaySound("nz_moo/effects/ui/" .. soundPack .. "/main_click_fnt.mp3")
+        frame:Close()
+    end
+
+    function frame:Paint(w, h)
+        local x, y = self:LocalToScreen(0, 0)
+        DrawBlur(x, y, w, h, 6)
+        draw.RoundedBox(12, 0, 0, w, h, Color(20, 20, 20, 230))
+        --draw.RoundedBoxEx(12, 0, 0, w, 40, Color(40, 40, 40, 210), true, true, false, false)
+        draw.RoundedBox(0, 0, 40, w, 2, Color(130, 130, 130, 230))
+
+        -- White Borders
+        draw.RoundedBox(0, 0, 40, 2, h, Color(130, 130, 130, 230))
+        draw.RoundedBox(0, w - 2, 40, 2, h, Color(130, 130, 130, 230))
+        draw.RoundedBox(0, 0, h - 2, w, 2, Color(130, 130, 130, 230))
+        draw.SimpleText("nZombies Keybinds", "NZ::ModernTitle", w / 2, 20, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+    end
+
+    local scroll = vgui.Create("DScrollPanel", frame)
+    scroll:Dock(FILL)
+    scroll:DockMargin(10, 30, 10, 10)
+
+    local sbar = scroll:GetVBar()
+    function sbar:Paint(w, h)
+        draw.RoundedBox(4, 0, 0, w, h, Color(50, 50, 50, 200))
+    end
+    function sbar.btnUp:Paint(w, h)
+        draw.RoundedBox(4, 0, 0, w, h, Color(70, 70, 70, 220))
+    end
+    function sbar.btnDown:Paint(w, h)
+        draw.RoundedBox(4, 0, 0, w, h, Color(70, 70, 70, 220))
+    end
+    function sbar.btnGrip:Paint(w, h)
+        draw.RoundedBox(4, 0, 0, w, h, Color(90, 90, 90, 240))
+    end
+
+    local function PopulateKeybinds()
+        scroll:Clear()
+        
+        -- Retrieve keybinds and sort them alphabetically
+        local keybinds = {}
+        for category, key in pairs(nzKeyConfig:getAllBinds()) do
+            table.insert(keybinds, category)
+        end
+        table.sort(keybinds, function(a, b) return a:lower() < b:lower() end) -- Sort case-insensitively
+        
+        -- Create UI elements for each keybind
+        for _, category in ipairs(keybinds) do
+            local key = nzKeyConfig:getAllBinds()[category]
+
+            local panel = scroll:Add("DPanel")
+            panel:SetTall(40)
+            panel:Dock(TOP)
+            panel:DockMargin(0, 0, 0, 5)
+            
+            function panel:Paint(w, h)
+                draw.RoundedBox(6, 0, 0, w, h, Color(40, 40, 40, 230))
+                draw.RoundedBox(0, 0, h - 2, w, 2, Color(130, 130, 130, 230))
+            end
+
+            -- Category Label
+            local categoryLabel = vgui.Create("DLabel", panel)
+            if isstring(nzKeyConfig.customText[category]) then
+                categoryLabel:SetText(string.upper(nzKeyConfig.customText[category]))
+            else
+                categoryLabel:SetText(string.upper(category))
+            end
+            categoryLabel:SetFont("NZ::ModernSmallText")
+            categoryLabel:SetTextColor(Color(200, 200, 200))
+            categoryLabel:Dock(LEFT)
+            categoryLabel:DockMargin(10, 0, 0, 0)
+            categoryLabel:SizeToContentsX()
+
+            -- Key Button
+            local keyButton = vgui.Create("DButton", panel)
+            keyButton:Dock(RIGHT)
+            keyButton:DockMargin(0, 5, 10, 5)
+            keyButton:SetWide(80)
+
+            local function GetKeyDisplayName(keyCode)
+                return nzKeyConfig.keyDisplayNames[keyCode] or "NONE"
+            end
+
+            local currentKeyName = GetKeyDisplayName(GetConVar("nz_key_"..category):GetInt()) or "NULL"
+            keyButton:SetText(string.upper(currentKeyName))
+            keyButton:SetFont("NZ::ModernSmallText")
+            keyButton:SetTextColor(Color(255, 255, 255))
+            
+            function keyButton:Paint(w, h)
+                local col = self:IsHovered() and Color(70, 70, 70, 250) or Color(50, 50, 50, 230)
+                draw.RoundedBox(4, 0, 0, w, h, col)
+            end
+
+            keyButton.OnCursorEntered = function()
+                surface.PlaySound("nz_moo/effects/ui/" .. soundPack .. "/slider_fnt.mp3")
+            end
+
+            -- Key changing mechanism
+            local isChangingKey = false
+            keyButton.DoClick = function()
+                surface.PlaySound("nz_moo/effects/ui/" .. soundPack .. "/main_click_fnt.mp3")
+                if isChangingKey then return end
+                
+                isChangingKey = true
+                keyButton:SetText("PRESS KEY")
+                
+                -- Debug print
+                print("[nZombies Keybinds] Waiting for key press for category: " .. category)
+                
+                -- Global key capture method
+                local function CaptureKey(key)
+                    if not isChangingKey then return end
+                    
+                    print("[nZombies Keybinds] Captured key: " .. tostring(key))
+                    
+                    -- Validate key
+                    if nzKeyConfig.keyDisplayNames[key] then
+                        -- play the funky menu sound
+                        surface.PlaySound("nz_moo/effects/ui/" .. soundPack .. "/2nd_click_rear.mp3")
+
+                        -- Update key
+                        local convarName = "nz_key_" .. string.lower(category)
+                        RunConsoleCommand(convarName, key)
+                        
+                        -- Update visual representation
+                        local newKeyName = GetKeyDisplayName(key)
+                        keyButton:SetText(string.upper(newKeyName))
+                        
+                        -- Update local keys table
+                        nzSpecialWeapons.Keys[category] = key
+                        
+                        -- Reset state
+                        isChangingKey = false
+                        
+                        -- Remove hook
+                        hook.Remove("nZombiesKeyCapture", "KeybindsCaptureHook")
+                        
+                        print("[nZombies Keybinds] Updated key for " .. category .. " to " .. newKeyName)
+                        RunConsoleCommand("nz_save_key")
+                    end
+                end
+                
+                -- Alternative capture method using a global hook
+                hook.Add("nZombiesKeyCapture", "KeybindsCaptureHook", CaptureKey)
+                
+                -- Add a custom key press listener
+                frame.OnKeyCodePressed = function(_, key)
+                    if isChangingKey then
+                        hook.Run("nZombiesKeyCapture", key)
+                        return true
+                    end
+                end
+                
+                -- Fallback mouse button listener
+                frame.OnMousePressed = function(_, mousecode)
+                    if isChangingKey then
+                        hook.Run("nZombiesKeyCapture", mousecode)
+                        return true
+                    end
+                end
+            end
+        end
+    end
+
+    -- but.OnCursorEntered = function()
+    --     surface.PlaySound("nz_moo/effects/ui/" .. soundPack .. "/slider_rear.mp3")
+    -- end
+
+    PopulateKeybinds()
+    frame:Center()
+    return frame
+end
+
+concommand.Add("nz_open_keybinds", OpenKeybindsMenu)
+
+-- Debug command to test key capture
+concommand.Add("nz_debug_keys", function()
+    PrintTable(nzSpecialWeapons.Keys)
+end)
+
+
 local function open_lobby_menu()
     if !nzSettings:GetSimpleSetting("Lobby_Enabled", true) or IsValid(lobbypanel) then return end
 
@@ -436,7 +681,7 @@ local function open_lobby_menu()
                 time_before_start_last = time_before_start
                 time_num_alpha = 0
                 time_num_height = 16
-                surface.PlaySound("nz_moo/effects/ui/main_click_rear.mp3")
+                surface.PlaySound("nz_moo/effects/ui/" .. soundPack .. "/main_click_rear.mp3")
             end
             time_num_height = math.max(time_num_height-FrameTime()/0.05, 0)
             time_num_alpha = math.min(time_num_alpha+FrameTime()/0.005, 255)
@@ -506,10 +751,10 @@ local function open_lobby_menu()
         else
             RunConsoleCommand( "nz_chatcommand", "/ready" )
         end
-        surface.PlaySound("nz_moo/effects/ui/2nd_click_rear.mp3")
+        surface.PlaySound("nz_moo/effects/ui/" .. soundPack .. "/2nd_click_rear.mp3")
     end
     but.OnCursorEntered = function()
-        surface.PlaySound("nz_moo/effects/ui/slider_rear.mp3")
+        surface.PlaySound("nz_moo/effects/ui/" .. soundPack .. "/slider_rear.mp3")
     end
 
     local but = vgui.Create("DButton", frame)
@@ -531,11 +776,11 @@ local function open_lobby_menu()
     end
 
     but.DoClick = function()
-        surface.PlaySound("nz_moo/effects/ui/2nd_click_rear.mp3")
+        surface.PlaySound("nz_moo/effects/ui/" .. soundPack .. "/2nd_click_rear.mp3")
         nzLobby:PlayerModelEditor(frame)
     end
     but.OnCursorEntered = function()
-        surface.PlaySound("nz_moo/effects/ui/slider_rear.mp3")
+        surface.PlaySound("nz_moo/effects/ui/" .. soundPack .. "/slider_rear.mp3")
     end
 
     local but = vgui.Create("DButton", frame)
@@ -558,12 +803,41 @@ local function open_lobby_menu()
 
     but.DoClick = function()
         if nzLobby:CanStart() then return end
-        surface.PlaySound("nz_moo/effects/ui/2nd_click_rear.mp3")
+        surface.PlaySound("nz_moo/effects/ui/" .. soundPack .. "/2nd_click_rear.mp3")
         frame:Remove()
         LocalPlayer():ConCommand("nz_settings")
     end
     but.OnCursorEntered = function()
-        surface.PlaySound("nz_moo/effects/ui/slider_rear.mp3")
+        surface.PlaySound("nz_moo/effects/ui/" .. soundPack .. "/slider_rear.mp3")
+    end
+
+    // New Keybinds button 
+
+    local but = vgui.Create("DButton", frame)
+    but:SetText("")
+    but:SetSize(We(270), He(50))
+    but:SetPos(We(570), He(965))
+    but.Paint = function(self, w, h)
+        local alignment = textAlignmentConVar:GetInt() == 0 and TEXT_ALIGN_LEFT or TEXT_ALIGN_CENTER
+        local xOffset = alignment == TEXT_ALIGN_LEFT and We(10) or w / 2
+        local text = "CUSTOM KEYBINDS"
+
+        if self:IsHovered() then
+            draw.RoundedBox(8, 0, 0, w, h, Color(235, 235, 235, 200))
+            draw.SimpleText(text, "BO6_Lobby48", xOffset, h / 2, Color(0, 0, 0), alignment, TEXT_ALIGN_CENTER)
+        else
+            draw.RoundedBox(8, 0, 0, w, h, Color(0, 0, 0, 200))
+            draw.SimpleText(text, "BO6_Lobby48", xOffset, h / 2, color_white, alignment, TEXT_ALIGN_CENTER)
+        end
+    end
+
+    but.DoClick = function()
+        if nzLobby:CanStart() then return end
+        surface.PlaySound("nz_moo/effects/ui/" .. soundPack .. "/2nd_click_rear.mp3")
+        nzLobby:CreateKeybindsMenu(frame)
+    end
+    but.OnCursorEntered = function()
+        surface.PlaySound("nz_moo/effects/ui/" .. soundPack .. "/slider_rear.mp3")
     end
 
     local but = vgui.Create("DButton", frame)
@@ -586,12 +860,12 @@ local function open_lobby_menu()
 
     but.DoClick = function()
         if nzLobby:CanStart() then return end
-        surface.PlaySound("nz_moo/effects/ui/2nd_click_rear.mp3")
+        surface.PlaySound("nz_moo/effects/ui/" .. soundPack .. "/2nd_click_rear.mp3")
         frame:Close()
         gui.ActivateGameUI()
     end
     but.OnCursorEntered = function()
-        surface.PlaySound("nz_moo/effects/ui/slider_rear.mp3")
+        surface.PlaySound("nz_moo/effects/ui/" .. soundPack .. "/slider_rear.mp3")
     end
 
     if LocalPlayer():IsSuperAdmin() then
@@ -615,11 +889,11 @@ local function open_lobby_menu()
 
         but.DoClick = function()
             if nzLobby:CanStart() then return end
-            surface.PlaySound("nz_moo/effects/ui/2nd_click_rear.mp3")
+            surface.PlaySound("nz_moo/effects/ui/" .. soundPack .. "/2nd_click_rear.mp3")
             RunConsoleCommand("nz_chatcommand", "/load")
         end
         but.OnCursorEntered = function()
-            surface.PlaySound("nz_moo/effects/ui/slider_rear.mp3")
+            surface.PlaySound("nz_moo/effects/ui/" .. soundPack .. "/slider_rear.mp3")
         end
 
         local but = vgui.Create("DButton", frame)
@@ -642,7 +916,7 @@ local function open_lobby_menu()
 
         but.DoClick = function()
             if nzLobby:CanStart() then return end
-            surface.PlaySound("nz_moo/effects/ui/2nd_click_rear.mp3")
+            surface.PlaySound("nz_moo/effects/ui/" .. soundPack .. "/2nd_click_rear.mp3")
             RunConsoleCommand("nz_chatcommand", "/create")
             frame:Close()
             timer.Simple(0.01, function()
@@ -654,7 +928,7 @@ local function open_lobby_menu()
             end)
         end
         but.OnCursorEntered = function()
-            surface.PlaySound("nz_moo/effects/ui/slider_rear.mp3")
+            surface.PlaySound("nz_moo/effects/ui/" .. soundPack .. "/slider_rear.mp3")
         end
 
         if have_bots then
@@ -681,11 +955,11 @@ local function open_lobby_menu()
 
             but.DoClick = function()
                 if nzLobby:CanStart() then return end
-                surface.PlaySound("nz_moo/effects/ui/2nd_click_rear.mp3")
+                surface.PlaySound("nz_moo/effects/ui/" .. soundPack .. "/2nd_click_rear.mp3")
                 nzLobby:BotEditor(frame)
             end
             but.OnCursorEntered = function()
-                surface.PlaySound("nz_moo/effects/ui/slider_rear.mp3")
+                surface.PlaySound("nz_moo/effects/ui/" .. soundPack .. "/slider_rear.mp3")
             end
         end
     end
@@ -725,7 +999,6 @@ hook.Add("Think", "nZ_Lobby_Think", function()
         close_lobby_menu()
     end
 end)
-
 
 --PLAYERMODEL SELECTOR--
 

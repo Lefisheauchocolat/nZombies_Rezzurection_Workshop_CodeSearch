@@ -27,6 +27,8 @@ function ENT:Initialize()
 		end
 		self.Boundone,self.Boundtwo = self:GetCollisionBounds()
 		self:BlockLock(true)
+
+		self.AutomaticFrameAdvance = true
 	end
 end
 
@@ -83,9 +85,8 @@ function ENT:OnRemove()
 	end
 end
 
-if CLIENT then
-	
-	function ENT:Think()
+function ENT:Think()
+	if CLIENT then
 		if !self.ShakeEffectTime then
 			if !self:GetNoDraw() and !self:GetNWLocked() then
 				self.ShakeEffectTime = CurTime() + 0.3
@@ -102,7 +103,12 @@ if CLIENT then
 			end
 		end
 	end
+	
+	self:NextThink(CurTime())
+	return true
+end
 
+if CLIENT then
 	function ENT:Draw()
 		if self.ShakePos then
 			--print("Yo shakey")
@@ -116,4 +122,5 @@ if CLIENT then
 			end
 		end
 	end
+
 end

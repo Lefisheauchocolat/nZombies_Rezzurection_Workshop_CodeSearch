@@ -216,6 +216,8 @@ function ENT:StatsInitialize()
 		self.JumpCooldown = CurTime() + 3
 		self.CanJump = false
 		self.Jumping = false
+
+		self:SetBloodColor(BLOOD_COLOR_ANTLION)
 	end
 end
 

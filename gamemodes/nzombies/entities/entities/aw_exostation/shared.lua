@@ -13,7 +13,6 @@ if SERVER then
         self:SetSolid(SOLID_VPHYSICS)
         self:GetPhysicsObject():EnableMotion(false)
         self:SetUseType(SIMPLE_USE)
-        self:SetAngles(self:GetAngles() + Angle(0,90,0))
     end
 
     function ENT:Use(ply)

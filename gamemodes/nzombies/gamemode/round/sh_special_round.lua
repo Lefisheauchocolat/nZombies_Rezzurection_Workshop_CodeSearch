@@ -196,6 +196,8 @@ nzRound:AddFontType("WW2", 						"WW2", {})
 nzRound:AddFontType("IW", 						"IW", {}) 
 nzRound:AddFontType("Default NZR", 				"Default NZR", {}) 
 
+
+-- The Box model is now set in the tool itself, but this will remain here so the model can continue to be correct for old configs.
 nzRound.BoxSkinData = nzRound.BoxSkinData or {}
 function nzRound:AddBoxType(id, class)
 	if SERVER then
@@ -223,6 +225,7 @@ nzRound:AddBoxType("Verruckt", 							"", {})
 nzRound:AddBoxType("UGX Coffin", 						"", {})
 nzRound:AddBoxType("Cold War",			 				"", {})
 nzRound:AddBoxType("Present Box",			 			"", {})
+nzRound:AddBoxType("Origins",			 				"", {})
 
 nzRound.HudSelectData = nzRound.HudSelectData or {}
 function nzRound:AddHUDType(id, class)
@@ -317,106 +320,110 @@ function nzRound:AddZombieType(id, class)
 end
 
 
-nzRound:AddZombieType("Ascension", 					"nz_zombie_walker_ascension", {}) 
-nzRound:AddZombieType("Anchovies", 					"nz_zombie_walker_anchovy", {})
-nzRound:AddZombieType("Ascension(Classic)", 		"nz_zombie_walker_ascension_classic", {})
-nzRound:AddZombieType("Armored Zombies(CW)",		"nz_zombie_walker_armoredheavy", {})
-nzRound:AddZombieType("Area 51 Guard", 				"nz_zombie_walker_moon_guard", {}) 
-nzRound:AddZombieType("Blood of the Dead", 			"nz_zombie_walker_escape", {})
-nzRound:AddZombieType("Bluds", 						"nz_zombie_walker_blud", {})  
-nzRound:AddZombieType("Buried", 					"nz_zombie_walker_buried", {}) 
-nzRound:AddZombieType("Call of the Dead", 			"nz_zombie_walker_cotd", {}) 
-nzRound:AddZombieType("Cheaple", 					"nz_zombie_walker_cheaple", {}) 
-nzRound:AddZombieType("Crusader Zombies", 			"nz_zombie_walker_origins_templar", {}) 
-nzRound:AddZombieType("Crusader Zombies(Classic)", 	"nz_zombie_walker_origins_templar_classic", {}) 
-nzRound:AddZombieType("Cyborg Zombies", 			"nz_zombie_walker_cyborg", {}) 
-nzRound:AddZombieType("Das Herrenhaus", 			"nz_zombie_walker_haus", {}) 
-nzRound:AddZombieType("Deadbolt", 					"nz_zombie_walker_jup", {}) 
-nzRound:AddZombieType("Deadbolt(Charred)", 			"nz_zombie_walker_jup_charred", {}) 
-nzRound:AddZombieType("Deadbolt(Armored Heavy)", 	"nz_zombie_walker_jup_heavy", {}) 
-nzRound:AddZombieType("Der Eisendrache", 			"nz_zombie_walker_eisendrache", {}) 
-nzRound:AddZombieType("Der Riese", 					"nz_zombie_walker_derriese", {}) 
-nzRound:AddZombieType("Der Riese(Enhanced)", 		"nz_zombie_walker_derriese_enhanced", {}) 
-nzRound:AddZombieType("Der Riese(WWII)", 			"nz_zombie_walker_derriese_wwii", {}) 
-nzRound:AddZombieType("Der Riese(Nacht Vox)", 		"nz_zombie_walker_derriese_pro", {}) 
-nzRound:AddZombieType("Dead of the Night", 			"nz_zombie_walker_mansion", {}) 
-nzRound:AddZombieType("Die Machine", 				"nz_zombie_walker_diemachine", {}) 
-nzRound:AddZombieType("Die Rise", 					"nz_zombie_walker_dierise", {}) 
-nzRound:AddZombieType("Elves", 						"nz_zombie_walker_elf", {}) 
-nzRound:AddZombieType("Atlas Corporation", 			"nz_zombie_walker_exo", {}) 
-nzRound:AddZombieType("Minimum Wage",	 			"nz_zombie_walker_exo_wage", {})
-nzRound:AddZombieType("Burger Town",	 			"nz_zombie_walker_exo_brg", {}) 
-nzRound:AddZombieType("FIVE", 						"nz_zombie_walker_five", {}) 
-nzRound:AddZombieType("FIVE(Classic)", 				"nz_zombie_walker_five_classic", {}) 
-nzRound:AddZombieType("Former", 					"nz_zombie_walker_former", {})
-nzRound:AddZombieType("Green Flu(Airport)", 		"nz_zombie_walker_greenflu_airport", {})
-nzRound:AddZombieType("Green Flu(Military)", 		"nz_zombie_walker_greenflu_military", {})
-nzRound:AddZombieType("Green Flu(Hospital)", 		"nz_zombie_walker_greenflu_hospital", {})
-nzRound:AddZombieType("Green Flu", 					"nz_zombie_walker_greenflu", {})
-nzRound:AddZombieType("Green Flu(Revised)", 		"nz_zombie_walker_greenflu_c_ci", {})
-nzRound:AddZombieType("Green Flu(Revised Airport)", "nz_zombie_walker_greenflu_c_ci_airport", {})
-nzRound:AddZombieType("Green Flu(Revised Hospital)","nz_zombie_walker_greenflu_c_ci_hospital", {})
-nzRound:AddZombieType("Gorod Krovi", 				"nz_zombie_walker_gorodkrovi", {}) 
-nzRound:AddZombieType("Headcrab Zombies", 			"nz_zombie_walker_headcrab", {}) 
-nzRound:AddZombieType("Humorous Eves at Fredricks", "nz_zombie_walker_fredricks", {}) 
-nzRound:AddZombieType("FNAF (Canon)", 				"nz_zombie_walker_fredricks_canon", {}) 
-nzRound:AddZombieType("IX", 						"nz_zombie_walker_ix", {}) 
-nzRound:AddZombieType("Kino der Toten", 			"nz_zombie_walker", {}) 
-nzRound:AddZombieType("Kino der Toten(Classic)", 	"nz_zombie_walker_classic", {}) 
-nzRound:AddZombieType("Kino der Toten(Classic Wii)","nz_zombie_walker_classic_wii", {}) 
-nzRound:AddZombieType("Leviathan", 					"nz_zombie_walker_leviathan", {})
-nzRound:AddZombieType("Luigi's Mansion Ghosts", 	"nz_zombie_walker_lmghost", {}) 
-nzRound:AddZombieType("Mannequins", 				"nz_zombie_walker_mannequin", {})
-nzRound:AddZombieType("Mob of the Dead", 			"nz_zombie_walker_hellcatraz", {})
-nzRound:AddZombieType("Moon", 						"nz_zombie_walker_moon", {}) 
-nzRound:AddZombieType("Moon Tech", 					"nz_zombie_walker_moon_tech", {}) 
-nzRound:AddZombieType("Moon(Classic)", 				"nz_zombie_walker_moon_classic", {}) 
-nzRound:AddZombieType("Moon MP(Classic)", 			"nz_zombie_walker_moon_classic_guard", {}) 
-nzRound:AddZombieType("Navy Seal Zombies", 			"nz_zombie_walker_seal", {}) 
-nzRound:AddZombieType("Nacht Der Untoten", 			"nz_zombie_walker_prototype", {}) 
-nzRound:AddZombieType("Nacht Der Untoten(Enhanced)","nz_zombie_walker_prototype_enhanced", {}) 
-nzRound:AddZombieType("Nuketown", 					"nz_zombie_walker_nuketown", {}) 
-nzRound:AddZombieType("Necromorph", 				"nz_zombie_walker_necromorph", {}) 
-nzRound:AddZombieType("NZ3 Zombies", 				"nz_zombie_walker_nut", {}) 
-nzRound:AddZombieType("Omega Gold", 				"nz_zombie_walker_gold", {}) 
-nzRound:AddZombieType("Origins", 					"nz_zombie_walker_origins", {}) 
-nzRound:AddZombieType("Origins(Classic)", 			"nz_zombie_walker_origins_classic", {}) 
-nzRound:AddZombieType("Outbreak", 					"nz_zombie_walker_outbreak", {}) 
-nzRound:AddZombieType("Police Zombies(IW)",			"nz_zombie_walker_park_cop", {})
-nzRound:AddZombieType("Poolday Zombies",			"nz_zombie_walker_poolday", {})
-nzRound:AddZombieType("Revelations", 				"nz_zombie_walker_genesis", {}) 
-nzRound:AddZombieType("Science Team", 				"nz_zombie_walker_kleiner", {})  
-nzRound:AddZombieType("Sentinel Zombies", 			"nz_zombie_walker_sentinel", {})
-nzRound:AddZombieType("Shadows of Evil", 			"nz_zombie_walker_zod", {}) 
-nzRound:AddZombieType("Shangri-La", 				"nz_zombie_walker_shangrila", {}) 
-nzRound:AddZombieType("Shangri-La(Classic)", 		"nz_zombie_walker_shangrila_classic", {}) 
-nzRound:AddZombieType("Shi no Numa", 				"nz_zombie_walker_sumpf", {}) 
-nzRound:AddZombieType("Shi no Numa(Classic)", 		"nz_zombie_walker_sumpf_classic", {}) 
-nzRound:AddZombieType("Shi no Numa(Black Ops 1)", 	"nz_zombie_walker_sumpf_bo1", {}) 
-nzRound:AddZombieType("Spaceland Zombies",			"nz_zombie_walker_park", {})
-nzRound:AddZombieType("Spaceland Zombies(3arc)",	"nz_zombie_walker_park_3arc", {})
-nzRound:AddZombieType("Skeleton", 					"nz_zombie_walker_skeleton", {}) 
-nzRound:AddZombieType("Tag Der Toten", 				"nz_zombie_walker_orange", {}) 
-nzRound:AddZombieType("Terminus(Lab)", 				"nz_zombie_walker_quartz_lab", {})
-nzRound:AddZombieType("Terminus(Hazmat)", 			"nz_zombie_walker_quartz_hazmat", {}) 
-nzRound:AddZombieType("Terminus(Armored Heavy)", 	"nz_zombie_walker_quartz_armored_heavy", {}) 
-nzRound:AddZombieType("The Tomb", 					"nz_zombie_walker_opal_mummy", {})
-nzRound:AddZombieType("Tranzit", 					"nz_zombie_walker_greenrun", {}) 
-nzRound:AddZombieType("Vanguard Zombies", 			"nz_zombie_walker_griddy", {})
-nzRound:AddZombieType("Voyage of Despair", 			"nz_zombie_walker_titanic", {}) 
-nzRound:AddZombieType("W@W Russian Zombies", 		"nz_zombie_walker_waw_russians", {}) 
-nzRound:AddZombieType("WWII Zombies", 				"nz_zombie_walker_ww2", {})
-nzRound:AddZombieType("WWII Zombies(Summer Event)", "nz_zombie_walker_ww2_wet", {})
-nzRound:AddZombieType("WWII Zombies(3arc Styled)", 	"nz_zombie_walker_ww2_3arc", {})
-nzRound:AddZombieType("Xenomorph", 					"nz_zombie_walker_xeno", {}) 
-nzRound:AddZombieType("Zetsubou no Shima", 			"nz_zombie_walker_zetsubou", {}) 
-nzRound:AddZombieType("Zombies in Spaceland", 		"nz_zombie_walker_clown", {}) 
-nzRound:AddZombieType("Flood (Classic Elite)", 		"nz_zombie_walker_floodelite", {}) 
-nzRound:AddZombieType("Flood (Elite)", 				"nz_zombie_walker_floodelite3", {}) 
-nzRound:AddZombieType("Flood (Classic Marine)", 	"nz_zombie_walker_floodunsc", {}) 
-nzRound:AddZombieType("Flood (Marine)", 			"nz_zombie_walker_floodunsc3", {}) 
-nzRound:AddZombieType("Flood (Brute)", 				"nz_zombie_walker_floodbrute",   {}) 
-nzRound:AddZombieType("Shambler", 					"nz_zombie_walker_shambler",   {}) 
+nzRound:AddZombieType("Ascension", 							"nz_zombie_walker_ascension", {}) 
+nzRound:AddZombieType("Anchovies", 							"nz_zombie_walker_anchovy", {})
+nzRound:AddZombieType("Ascension(Classic)", 				"nz_zombie_walker_ascension_classic", {})
+nzRound:AddZombieType("Armored Zombies(CW)",				"nz_zombie_walker_armoredheavy", {})
+nzRound:AddZombieType("Area 51 Guard", 						"nz_zombie_walker_moon_guard", {}) 
+nzRound:AddZombieType("Blood of the Dead", 					"nz_zombie_walker_escape", {})
+nzRound:AddZombieType("Bluds", 								"nz_zombie_walker_blud", {})  
+nzRound:AddZombieType("Buried", 							"nz_zombie_walker_buried", {}) 
+nzRound:AddZombieType("Call of the Dead", 					"nz_zombie_walker_cotd", {}) 
+nzRound:AddZombieType("Cheaple", 							"nz_zombie_walker_cheaple", {}) 
+nzRound:AddZombieType("Crusader Zombies", 					"nz_zombie_walker_origins_templar", {}) 
+nzRound:AddZombieType("Crusader Zombies(Classic)", 			"nz_zombie_walker_origins_templar_classic", {}) 
+nzRound:AddZombieType("Cyborg Zombies", 					"nz_zombie_walker_cyborg", {}) 
+nzRound:AddZombieType("Das Herrenhaus", 					"nz_zombie_walker_haus", {}) 
+nzRound:AddZombieType("Deadbolt", 							"nz_zombie_walker_jup", {}) 
+nzRound:AddZombieType("Deadbolt(Charred)", 					"nz_zombie_walker_jup_charred", {}) 
+nzRound:AddZombieType("Deadbolt(Armored Heavy)", 			"nz_zombie_walker_jup_heavy", {}) 
+nzRound:AddZombieType("Der Eisendrache", 					"nz_zombie_walker_eisendrache", {}) 
+nzRound:AddZombieType("Der Riese", 							"nz_zombie_walker_derriese", {}) 
+nzRound:AddZombieType("Der Riese(Enhanced)", 				"nz_zombie_walker_derriese_enhanced", {}) 
+nzRound:AddZombieType("Der Riese(WWII)", 					"nz_zombie_walker_derriese_wwii", {}) 
+nzRound:AddZombieType("Der Riese(Nacht Vox)", 				"nz_zombie_walker_derriese_pro", {}) 
+nzRound:AddZombieType("Dead of the Night", 					"nz_zombie_walker_mansion", {}) 
+nzRound:AddZombieType("Die Machine", 						"nz_zombie_walker_diemachine", {}) 
+nzRound:AddZombieType("Die Rise", 							"nz_zombie_walker_dierise", {}) 
+nzRound:AddZombieType("Elves", 								"nz_zombie_walker_elf", {}) 
+nzRound:AddZombieType("Atlas Corporation", 					"nz_zombie_walker_exo", {}) 
+nzRound:AddZombieType("Minimum Wage",	 					"nz_zombie_walker_exo_wage", {})
+nzRound:AddZombieType("Burger Town",	 					"nz_zombie_walker_exo_brg", {}) 
+nzRound:AddZombieType("FIVE", 								"nz_zombie_walker_five", {}) 
+nzRound:AddZombieType("FIVE(Classic)", 						"nz_zombie_walker_five_classic", {}) 
+nzRound:AddZombieType("Former", 							"nz_zombie_walker_former", {})
+nzRound:AddZombieType("Green Flu(Airport)", 				"nz_zombie_walker_greenflu_airport", {})
+nzRound:AddZombieType("Green Flu(Military)", 				"nz_zombie_walker_greenflu_military", {})
+nzRound:AddZombieType("Green Flu(Hospital)", 				"nz_zombie_walker_greenflu_hospital", {})
+nzRound:AddZombieType("Green Flu", 							"nz_zombie_walker_greenflu", {})
+nzRound:AddZombieType("Green Flu(Revised)", 				"nz_zombie_walker_greenflu_c_ci", {})
+nzRound:AddZombieType("Green Flu(Revised Airport)", 		"nz_zombie_walker_greenflu_c_ci_airport", {})
+nzRound:AddZombieType("Green Flu(Revised Hospital)",		"nz_zombie_walker_greenflu_c_ci_hospital", {})
+nzRound:AddZombieType("Gorod Krovi", 						"nz_zombie_walker_gorodkrovi", {}) 
+nzRound:AddZombieType("Headcrab Zombies", 					"nz_zombie_walker_headcrab", {}) 
+nzRound:AddZombieType("Humorous Eves at Fredricks", 		"nz_zombie_walker_fredricks", {}) 
+nzRound:AddZombieType("FNAF (Canon)", 						"nz_zombie_walker_fredricks_canon", {}) 
+nzRound:AddZombieType("IX", 								"nz_zombie_walker_ix", {}) 
+nzRound:AddZombieType("Kino der Toten", 					"nz_zombie_walker", {}) 
+nzRound:AddZombieType("Kino der Toten(Classic)", 			"nz_zombie_walker_classic", {}) 
+nzRound:AddZombieType("Kino der Toten(Classic Wii)",		"nz_zombie_walker_classic_wii", {}) 
+nzRound:AddZombieType("Leviathan", 							"nz_zombie_walker_leviathan", {})
+nzRound:AddZombieType("Luigi's Mansion Ghosts", 			"nz_zombie_walker_lmghost", {}) 
+nzRound:AddZombieType("Mannequins", 						"nz_zombie_walker_mannequin", {})
+nzRound:AddZombieType("Mob of the Dead", 					"nz_zombie_walker_hellcatraz", {})
+nzRound:AddZombieType("Moon", 								"nz_zombie_walker_moon", {}) 
+nzRound:AddZombieType("Moon Tech", 							"nz_zombie_walker_moon_tech", {}) 
+nzRound:AddZombieType("Moon(Classic)", 						"nz_zombie_walker_moon_classic", {}) 
+nzRound:AddZombieType("Moon MP(Classic)", 					"nz_zombie_walker_moon_classic_guard", {}) 
+nzRound:AddZombieType("Navy Seal Zombies", 					"nz_zombie_walker_seal", {}) 
+nzRound:AddZombieType("Nacht Der Untoten", 					"nz_zombie_walker_prototype", {}) 
+nzRound:AddZombieType("Nacht Der Untoten(Enhanced)",		"nz_zombie_walker_prototype_enhanced", {}) 
+nzRound:AddZombieType("Nuketown", 							"nz_zombie_walker_nuketown", {}) 
+nzRound:AddZombieType("Necromorph", 						"nz_zombie_walker_necromorph", {}) 
+nzRound:AddZombieType("NZ3 Zombies", 						"nz_zombie_walker_nut", {}) 
+nzRound:AddZombieType("Omega Gold", 						"nz_zombie_walker_gold", {}) 
+nzRound:AddZombieType("Origins", 							"nz_zombie_walker_origins", {}) 
+nzRound:AddZombieType("Origins(Classic)", 					"nz_zombie_walker_origins_classic", {}) 
+nzRound:AddZombieType("Outbreak", 							"nz_zombie_walker_outbreak", {}) 
+nzRound:AddZombieType("Poolday Zombies",					"nz_zombie_walker_poolday", {})
+nzRound:AddZombieType("Revelations", 						"nz_zombie_walker_genesis", {}) 
+nzRound:AddZombieType("Science Team", 						"nz_zombie_walker_kleiner", {})  
+nzRound:AddZombieType("Sentinel Zombies", 					"nz_zombie_walker_sentinel", {})
+nzRound:AddZombieType("Shadows of Evil", 					"nz_zombie_walker_zod", {}) 
+nzRound:AddZombieType("Shangri-La", 						"nz_zombie_walker_shangrila", {}) 
+nzRound:AddZombieType("Shangri-La(Classic)", 				"nz_zombie_walker_shangrila_classic", {}) 
+nzRound:AddZombieType("Shi no Numa", 						"nz_zombie_walker_sumpf", {}) 
+nzRound:AddZombieType("Shi no Numa(Classic)", 				"nz_zombie_walker_sumpf_classic", {}) 
+nzRound:AddZombieType("Shi no Numa(Black Ops 1)", 			"nz_zombie_walker_sumpf_bo1", {}) 
+nzRound:AddZombieType("Spaceland Police Zombies",			"nz_zombie_walker_park_cop", {})
+nzRound:AddZombieType("Spaceland Police Zombies(3arc)",		"nz_zombie_walker_park_cop_3arc", {})
+nzRound:AddZombieType("Spaceland Zombies",					"nz_zombie_walker_park", {})
+nzRound:AddZombieType("Spaceland Zombies(3arc)",			"nz_zombie_walker_park_3arc", {})
+nzRound:AddZombieType("Skeleton", 							"nz_zombie_walker_skeleton", {}) 
+nzRound:AddZombieType("Tag Der Toten", 						"nz_zombie_walker_orange", {}) 
+nzRound:AddZombieType("Terminus", 							"nz_zombie_walker_quartz", {})
+nzRound:AddZombieType("Terminus(Lab)", 						"nz_zombie_walker_quartz_lab", {})
+nzRound:AddZombieType("Terminus(Hazmat)", 					"nz_zombie_walker_quartz_hazmat", {}) 
+nzRound:AddZombieType("Terminus(Armored Heavy)", 			"nz_zombie_walker_quartz_armored_heavy", {}) 
+nzRound:AddZombieType("The Tomb", 							"nz_zombie_walker_opal_mummy", {})
+nzRound:AddZombieType("Tranzit", 							"nz_zombie_walker_greenrun", {}) 
+nzRound:AddZombieType("Vanguard Zombies", 					"nz_zombie_walker_griddy", {})
+nzRound:AddZombieType("Voyage of Despair", 					"nz_zombie_walker_titanic", {}) 
+nzRound:AddZombieType("W@W Russian Zombies", 				"nz_zombie_walker_waw_russians", {}) 
+nzRound:AddZombieType("UGX Mod 1.1 Zombies(Variety Set)", 	"nz_zombie_walker_ugx",   {}) 
+nzRound:AddZombieType("Project Viking Zombies",				"nz_zombie_walker_viking",   {}) 
+nzRound:AddZombieType("WWII Zombies", 						"nz_zombie_walker_ww2", {})
+nzRound:AddZombieType("WWII Zombies(Summer Event)", 		"nz_zombie_walker_ww2_wet", {})
+nzRound:AddZombieType("WWII Zombies(3arc Styled)", 			"nz_zombie_walker_ww2_3arc", {})
+nzRound:AddZombieType("Xenomorph", 							"nz_zombie_walker_xeno", {}) 
+nzRound:AddZombieType("Zetsubou no Shima", 					"nz_zombie_walker_zetsubou", {}) 
+nzRound:AddZombieType("Zombies in Spaceland", 				"nz_zombie_walker_clown", {}) 
+nzRound:AddZombieType("Flood (Classic Elite)", 				"nz_zombie_walker_floodelite", {}) 
+nzRound:AddZombieType("Flood (Elite)", 						"nz_zombie_walker_floodelite3", {}) 
+nzRound:AddZombieType("Flood (Classic Marine)", 			"nz_zombie_walker_floodunsc", {}) 
+nzRound:AddZombieType("Flood (Marine)", 					"nz_zombie_walker_floodunsc3", {}) 
+nzRound:AddZombieType("Flood (Brute)", 						"nz_zombie_walker_floodbrute",   {}) 
+nzRound:AddZombieType("Shamblers", 							"nz_zombie_walker_shambler",   {}) 
 
 function nzRound:GetZombieType(id)
 	if id == nil then 
@@ -550,6 +557,75 @@ nzRound:AddSpecialRoundType("Jumping Jacks", {
 	end
 end) -- No round func or end func
 
+nzRound:AddSpecialRoundType("Gary", {
+	specialTypes = {
+		["nz_zombie_special_gary"] = {chance = 100},
+	},
+		specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.15, 2) end, -- Dynamically change spawn speed depending on player count
+		specialCountMod = function(original) return math.floor(original * 0.5) end, -- Modify the count
+	},
+	function(dog) -- We want to modify health
+		local round = nzRound:GetNumber()
+		if round == -1 then
+			dog:SetHealth(math.random(50,250))
+		else
+			local hp = 40
+			for i = 1, nzRound:GetNumber() do 
+			hp = hp * 1.1
+			if hp > 2000 then
+				hp = 2000
+			end
+		end
+		dog:SetHealth(hp)
+	end
+end) -- No round func or end func
+
+nzRound:AddSpecialRoundType("Vermins", {
+	specialTypes = {
+		["nz_zombie_special_vermin"] = {chance = 100},
+	},
+		specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.15, 2) end, -- Dynamically change spawn speed depending on player count
+		specialCountMod = function(original) return math.floor(original * 0.5) end, -- Modify the count
+	},
+	function(dog) -- We want to modify health
+		local round = nzRound:GetNumber()
+		if round == -1 then
+			dog:SetHealth(math.random(50,250))
+		else
+			local hp = 15
+			for i = 1, nzRound:GetNumber() do 
+			hp = hp * 1.1
+			if hp > 5000 then
+				hp = 5000
+			end
+		end
+		dog:SetHealth(hp)
+	end
+end) -- No round func or end func
+
+nzRound:AddSpecialRoundType("Crogs", {
+	specialTypes = {
+		["nz_zombie_special_minicrab"] = {chance = 100},
+	},
+		specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.15, 2) end, -- Dynamically change spawn speed depending on player count
+		specialCountMod = function(original) return math.floor(original * 0.5) end, -- Modify the count
+	},
+	function(dog) -- We want to modify health
+		local round = nzRound:GetNumber()
+		if round == -1 then
+			dog:SetHealth(math.random(50,250))
+		else
+			local hp = 15
+			for i = 1, nzRound:GetNumber() do 
+			hp = hp * 1.1
+			if hp > 5000 then
+				hp = 5000
+			end
+		end
+		dog:SetHealth(hp)
+	end
+end) -- No round func or end func
+
 nzRound:AddSpecialRoundType("Cryptids", {
 	specialTypes = {
 		["nz_zombie_special_alien_scout"] = {chance = 100},
@@ -664,6 +740,29 @@ nzRound:AddSpecialRoundType("Extra Spicy", {
 			hp = hp * 1.1
 			if hp > 1000 then
 				hp = 1000
+			end
+		end
+		dog:SetHealth(hp)
+	end
+end) -- No round func or end func
+
+nzRound:AddSpecialRoundType("Toxic Hazmat Zombies(Skeletons)", {
+	specialTypes = {
+		["nz_zombie_special_toxic_hazmat_skeleton"] = {chance = 100}
+	},
+		specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.15, 2) end, -- Dynamically change spawn speed depending on player count
+		specialCountMod = function(original) return math.floor(original * 0.5) end, -- Modify the count
+	},
+	function(dog) -- We want to modify health
+		local round = nzRound:GetNumber()
+		if round == -1 then
+			dog:SetHealth(math.random(50,250))
+		else
+			local hp = 75
+			for i = 1, nzRound:GetNumber() do 
+			hp = hp * 1.1
+			if hp > 2000 then
+				hp = 2000
 			end
 		end
 		dog:SetHealth(hp)
@@ -995,6 +1094,28 @@ nzRound:AddSpecialRoundType("Cloakers", {
 			hp = hp * 1.1
 			if hp > 900 then
 				hp = 900
+			end
+		end
+		dog:SetHealth(hp)
+	end
+end) -- No round func or end func
+
+nzRound:AddSpecialRoundType("Doom Imps", {
+	specialTypes = {
+		["nz_zombie_special_doom_imp"] = {chance = 100}
+	},
+	specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.5, 2) end, -- Dynamically change spawn speed depending on player count
+	specialCountMod = function() return math.Clamp(nzRound:GetNumber() * #player.GetAllPlaying(), 8, 64) end, -- Modify the count
+}, 	function(dog) -- We want to modify health
+		local round = nzRound:GetNumber()
+		if round == -1 then
+			dog:SetHealth(math.random(100,500))
+		else
+			local hp = 100
+			for i = 1, nzRound:GetNumber() do 
+			hp = hp * 1.1
+			if hp > 1000 then
+				hp = 1000
 			end
 		end
 		dog:SetHealth(hp)

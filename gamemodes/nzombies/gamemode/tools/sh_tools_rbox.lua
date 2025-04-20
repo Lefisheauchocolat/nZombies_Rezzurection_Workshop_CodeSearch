@@ -6,7 +6,7 @@ nzTools:CreateTool("rbox", {
 	end,
 
 	PrimaryAttack = function(wep, ply, tr, data)
-		nzMapping:BoxSpawn(tr.HitPos, Angle(0,(tr.HitPos - ply:GetPos()):Angle()[2] - 90,0), data.PossibleSpawn, ply)
+		nzMapping:BoxSpawn(tr.HitPos, Angle(0,(tr.HitPos - ply:GetPos()):Angle()[2] - 90,0), data.PossibleSpawn, data.BoxType, ply)
 	end,
 
 	SecondaryAttack = function(wep, ply, tr, data)
@@ -33,14 +33,16 @@ nzTools:CreateTool("rbox", {
 	end,
 	interface = function(frame, data)
 		local valz = {}
-		valz["Row1"] = data.PossibleSpawn
+		valz["Row1"] = tobool(data.PossibleSpawn)
+		valz["Row2"] = tostring(data.BoxType)
 
 		local DProperties = vgui.Create( "DProperties", frame )
 		DProperties:SetSize( 480, 300 )
 		DProperties:SetPos( 10, 10 )
 		
 		function DProperties.CompileData()
-			data.PossibleSpawn = valz["Row1"]
+			data.PossibleSpawn 	= tobool(valz["Row1"])
+			data.BoxType 		= tostring(valz["Row2"])
 			return data
 		end
 		
@@ -53,9 +55,25 @@ nzTools:CreateTool("rbox", {
 		Row1:SetValue( valz["Row1"] )
 		Row1.DataChanged = function( _, val ) valz["Row1"] = val DProperties.UpdateData(DProperties.CompileData()) end
 
+		local Row2 = DProperties:CreateRow( "Random Box", "Box Type" )
+		Row2:Setup( "Combo" )
+		Row2:AddChoice("Original"						,"Original")
+		Row2:AddChoice("Black Ops 3"					,"Black Ops 3")
+		Row2:AddChoice("Black Ops 3(Quiet Cosmos)"		,"Black Ops 3(Quiet Cosmos)")
+		Row2:AddChoice("Leviathan"						,"Leviathan")
+		Row2:AddChoice("Mob of the Dead"				,"Mob of the Dead")
+		Row2:AddChoice("Nacht Der Untoten"				,"Nacht Der Untoten")
+		Row2:AddChoice("Verruckt"						,"Verruckt")
+		Row2:AddChoice("UGX Coffin"						,"UGX Coffin")
+		Row2:AddChoice("Cold War"						,"Cold War")
+		Row2:AddChoice("Present Box"					,"Present Box")
+		Row2:AddChoice("Origins"						,"Origins")
+		Row2.DataChanged = function( _, val ) valz["Row2"] = val DProperties.UpdateData(DProperties.CompileData()) end
+
 		return DProperties
 	end,
 	defaultdata = {
 		PossibleSpawn = 0,
+		BoxType = tostring(nzMapping.Settings.boxtype) and nzMapping.Settings.boxtype ~= nil or "Original",
 	}
 })

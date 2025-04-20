@@ -41,7 +41,7 @@ ENT.IsMooBossZombie = true
 ENT.CanCancelSpecial = false
 ENT.CanCancelAttack = false
 ENT.AttackRange = 200
-ENT.DamageRange 			= 180
+ENT.DamageRange 			= 200
 ENT.AttackDamage 			= 75
 ENT.BloodType 				= "Robot" 
 

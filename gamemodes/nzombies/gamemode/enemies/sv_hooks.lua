@@ -24,6 +24,8 @@ function nzEnemies:OnEnemyKilled(enemy, attacker, dmginfo, hitgroup)
 		hitgroup = util_QuickTrace(dmginfo:GetDamagePosition(), dmginfo:GetDamagePosition()).HitGroup
 	end
 
+	local shitgroup = enemy.LastHitGroup or HITGROUP_GENERIC
+
 	if nzRound:InProgress() then
 		nzRound:SetZombiesKilled( nzRound:GetZombiesKilled() + 1 )
         --print(nzRound:GetZombiesRemaining())
@@ -174,13 +176,18 @@ function nzEnemies:OnEnemyKilled(enemy, attacker, dmginfo, hitgroup)
 			end
 		end
 
+
+		--[[-------------------------------------------------------------------------
+		Comment out code here moved to line 315(GM:OnZombieKilled)
+		---------------------------------------------------------------------------]]
+		--[[
 		if meleetypes[dmginfo:GetDamageType()] then
 			if nzMapping.Settings.cwpointssystem == 1 then
 				attacker:GivePoints(115)
 			else
 				attacker:GivePoints(130)
 			end
-		elseif (enemy:GetDecapitated() or hitgroup == HITGROUP_HEAD) and not dmginfo:IsDamageType(DMG_MISSILEDEFENSE) then
+		elseif (shitgroup == HITGROUP_HEAD or enemy.GetDecapitated and enemy:GetDecapitated()) and not dmginfo:IsDamageType(DMG_MISSILEDEFENSE) then
 			attacker:EmitSound("nz_moo/effects/headshot_notif_2k24/ui_zmb_headshot_fatal_0"..math.random(4)..".mp3", 65)
 			if nzMapping.Settings.cwpointssystem == 1 then
 				attacker:GivePoints(115)
@@ -268,6 +275,7 @@ function nzEnemies:OnEnemyKilled(enemy, attacker, dmginfo, hitgroup)
 				attacker:GivePoints(math.random(5) * 10)
 			end
 		end
+		]]
 	end
 
 	if nzRound:InProgress() then
@@ -302,6 +310,117 @@ local invalid_ammo = {
 	["null"] = true,
 	[""] = true
 }
+
+-- Done here so headshots and other related things can work consistently.
+function GM:OnZombieKilled(zombie, dmginfo)
+	local attacker = dmginfo:GetAttacker()
+	local enemy = zombie
+	local hitgroup = zombie.LastHitGroup or HITGROUP_GENERIC
+	if meleetypes[dmginfo:GetDamageType()] then
+		if nzMapping.Settings.cwpointssystem == 1 then
+			attacker:GivePoints(115)
+		else
+			attacker:GivePoints(130)
+		end
+	elseif (hitgroup == HITGROUP_HEAD or zombie.GetDecapitated and zombie:GetDecapitated()) and not dmginfo:IsDamageType(DMG_MISSILEDEFENSE) then
+		if IsValid(attacker) and attacker:IsPlayer() then
+			attacker:IncrementTotalHeadshots()
+
+			attacker:EmitSound("nz_moo/effects/headshot_notif_2k24/ui_zmb_headshot_fatal_0"..math.random(4)..".mp3", 65)
+			if nzMapping.Settings.cwpointssystem == 1 then
+				attacker:GivePoints(115)
+			else
+				attacker:GivePoints(100)
+			end
+			if dmginfo:IsBulletDamage() and attacker:HasUpgrade("vigor") then
+				attacker:GivePoints(50)
+			end
+
+			if attacker:HasPerk("deadshot") then
+				if math.random(25) < attacker:GetNW2Int("nz.DeadshotChance", 0) then
+					enemy:EmitSound("nzr/2022/effects/zombie/evt_kow_headshot.wav", 511, math.random(95,105), 1, CHAN_ITEM)
+					attacker:EmitSound("nzr/2022/effects/zombie/head_0"..math.random(3)..".wav", 75, math.random(95,105), 1, CHAN_STATIC)
+					ParticleEffect("divider_slash3", enemy:EyePos(), angle_zero)
+
+					local round = nzRound:GetNumber() > 0 and nzRound:GetNumber() or 1
+					local health = tonumber(nzCurves.GenerateHealthCurve(round))
+					local scale = math.random(3) * 0.1
+					local range = 160
+
+					if attacker:HasUpgrade("deadshot") then
+						scale = math.random(9) * 0.1
+						range = 180
+
+						//fear effect moved to upgrade
+						timer.Simple(0, function()
+							if not IsValid(attacker) then return end
+							local pos = attacker:GetPos()
+
+							local zombies = {}
+							for k, v in nzLevel.GetZombieArray() do
+								if IsValid(v) and v:IsAlive() and v:Health() > 0 and attacker:VisibleVec(v:EyePos()) then
+									table.insert(zombies, v)
+								end
+							end
+
+							if table.IsEmpty(zombies) then return end
+
+							if #zombies > 1 then
+								table.sort(zombies, function(a, b) return tobool(a:GetPos():DistToSqr(pos) < b:GetPos():DistToSqr(pos)) end)
+							end
+
+							local count = 0
+							for k, v in pairs(zombies) do
+								v:FleeTarget(math.Rand(1.5,2.5))
+
+								count = count + 1
+								if count >= 12 then break end
+							end
+						end)
+					end
+
+					for k, v in pairs(ents.FindInSphere(enemy:EyePos(), range)) do
+						if IsValid(v) and v:IsValidZombie() then
+							if v:Health() <= 0 then continue end
+							if v == enemy then continue end
+
+							local damage = DamageInfo()
+							damage:SetDamage((health * scale) + 200)
+							damage:SetAttacker(attacker)
+							damage:SetInflictor(enemy)
+							damage:SetDamageType(DMG_MISSILEDEFENSE)
+							damage:SetDamageForce(v:GetUp()*math.random(4000,6000) + (v:GetPos() - enemy:GetPos()):GetNormalized()*math.random(10000,14000))
+							damage:SetDamagePosition(v:WorldSpaceCenter())
+							v:TakeDamageInfo(damage)
+						end
+					end
+
+					attacker:SetNW2Float("nz.DeadshotDecay", CurTime() + 1)
+					attacker:SetNW2Int("nz.DeadshotChance", 0)
+				else
+					attacker:SetNW2Int("nz.DeadshotChance", attacker:GetNW2Int("nz.DeadshotChance", 0) + (attacker:HasUpgrade("deadshot") and 2 or 1))
+				end
+			end
+		end
+	elseif dmginfo:IsDamageType(DMG_MISSILEDEFENSE) then
+		attacker:GivePoints(30)
+	else
+		if IsValid(attacker) and attacker:IsPlayer() then
+			if nzMapping.Settings.cwpointssystem == 1 then
+				attacker:GivePoints(90)
+			else
+				attacker:GivePoints(50)
+			end
+			if dmginfo:IsBulletDamage() and attacker:HasUpgrade("vigor") then
+				attacker:GivePoints(math.random(5) * 10)
+			end
+		end
+	end
+
+	if IsValid(attacker) and attacker:IsPlayer() then
+		attacker:IncrementTotalKills()
+	end
+end
 
 function GM:EntityTakeDamage(zombie, dmginfo)
 	if zombie:IsPlayer() and dmginfo:IsDamageType(DMG_SLOWBURN) then return true end

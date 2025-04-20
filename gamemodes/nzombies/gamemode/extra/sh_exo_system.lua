@@ -48,12 +48,10 @@ if SERVER then
         if bool then
             if ply:GetNWBool("HaveExoSuit") then return end
             ply:SetNWBool("HaveExoSuit", true)
-            ply:SetSlidingSpeed(nzMapping.Settings.slidespeed * (ply:HasPerk("phd") and 1.4 or 1) * 2)
             ply:EmitSound(SOUND_EQUIP, 70, math.random(90,110))
             ply:Give(nzMapping.Settings.paparms or "")
         else
             ply:SetNWBool("HaveExoSuit", false)
-            ply:SetSlidingSpeed(nzMapping.Settings.slidespeed)
             ply.ExoHasSlammed = false
         end
     end
@@ -67,9 +65,9 @@ if SERVER then
 
     hook.Add("PlayerButtonDown", "nzrExoSuitDodge", function(ply, button)
         local vel = ply:GetVelocity():Length()
-        if not ply:GetNWBool("HaveExoSuit", false) or not ply:Alive() then return end
+        if not ply:GetNWBool("HaveExoSuit", false) or not ply:Alive() or ply:GetSliding() then return end
 
-        if vel > 50 and button == KEY_LCONTROL and not ply:IsOnGround() and IsDoublePress(ply, KEY_LCONTROL) and not ply.ExoHasSlammed and nocooldown("slam", 8, ply) then
+        if vel > 50 and button == KEY_LCONTROL and not ply:OnGround() and IsDoublePress(ply, KEY_LCONTROL) and not ply.ExoHasSlammed and nocooldown("slam", 8, ply) then
             local vel = ply:GetEyeTrace().Normal*math.abs(SLAM_FORCE)
             vel.z = SLAM_FORCE
             ply:SetVelocity(vel)
@@ -122,59 +120,57 @@ if SERVER then
             end
         end
         if button == KEY_SPACE then
-            if not ply:IsOnGround() and not ply.ExoHasDoubleJumped then
+            if not ply:OnGround() and not ply.ExoHasDoubleJumped then
                 local velocity = ply:GetVelocity()
                 ply:SetVelocity(Vector(0, 0, DOUBLE_JUMP_FORCE) - Vector(0, 0, velocity.z))
                 playsnd(SOUND_DOUBLE_JUMP, 3, ply)
                 ply.ExoHasDoubleJumped = true
                 ply:ViewPunch(Angle(15,0,0))
-            elseif ply:IsOnGround() then
+            elseif ply:OnGround() then
                 ply.ExoHasDoubleJumped = false
             end
         end
     end)
 
-    hook.Add("Think", "nzrExoSuitSlamAttack", function()
-        for _, ply in pairs(player.GetAll()) do
-            if not ply:GetNWBool("HaveExoSuit", false) then return end
+    hook.Add("PlayerPostThink", "nzrExoSuitSlamAttack", function(ply)
+        if not ply:GetNWBool("HaveExoSuit", false) then return end
 
-            if ply:IsOnGround() and ply.ExoHasSlammed then
-                ply.ExoHasSlammed = false
+        if ply:OnGround() and ply.ExoHasSlammed then
+            ply.ExoHasSlammed = false
 
-                local explosionOrigin = ply:GetPos()
-                local entities = ents.FindInSphere(explosionOrigin, SLAM_DAMAGE_RADIUS)
+            local explosionOrigin = ply:GetPos()
+            local entities = ents.FindInSphere(explosionOrigin, SLAM_DAMAGE_RADIUS)
 
-                for _, ent in pairs(entities) do
-                    if (ent:IsNextBot() or ent:IsNPC()) and ply:IsLineOfSightClear(ent:WorldSpaceCenter()) then
-                        local damageInfo = DamageInfo()
-                        local dmg = ent:Health()
-                        if string.match(ent:GetClass(), "special") or string.match(ent:GetClass(), "boss") then
-                            dmg = 500
-                        end
-                        damageInfo:SetDamage(dmg)
-                        damageInfo:SetDamageType(DMG_BLAST)
-                        damageInfo:SetAttacker(ply)
-                        damageInfo:SetInflictor(ply)
-                        ent:TakeDamageInfo(damageInfo)
+            for _, ent in pairs(entities) do
+                if (ent:IsNextBot() or ent:IsNPC()) and ply:IsLineOfSightClear(ent:WorldSpaceCenter()) then
+                    local damageInfo = DamageInfo()
+                    local dmg = ent:Health()
+                    if string.match(ent:GetClass(), "special") or string.match(ent:GetClass(), "boss") then
+                        dmg = 500
                     end
+                    damageInfo:SetDamage(dmg)
+                    damageInfo:SetDamageType(DMG_BLAST)
+                    damageInfo:SetAttacker(ply)
+                    damageInfo:SetInflictor(ply)
+                    ent:TakeDamageInfo(damageInfo)
                 end
-
-                playsnd(SOUND_SLAM, 3, ply)
-                ply:ViewPunch(Angle(25,0,0))
-                ply:SetSVAnim("nz_exo_slam", true)
-                ply:Freeze(true)
-                ply:SetEyeAngles(Angle(0,ply:EyeAngles().y,0))
-                ply:SetVelocity(-ply:GetVelocity())
-                timer.Simple(0.83, function()
-                    if !IsValid(ply) then return end
-                    ply:Freeze(false)
-                end)
-                util.ScreenShake(ply:GetPos(), 4, 40, 2, 400)
-                ParticleEffect("bo3_margwa_slam", ply:GetPos(), Angle(270,0,0), game.GetWorld())
-                ParticleEffect("doi_ceilingDust_small", ply:GetPos(), Angle(0,0,0), game.GetWorld())
-                local spos = ply:WorldSpaceCenter()+ply:GetForward()*21-ply:GetRight()*5
-                util.Decal("Scorch", spos, spos-Vector(0,0,40), ply)
             end
+
+            playsnd(SOUND_SLAM, 3, ply)
+            ply:ViewPunch(Angle(25,0,0))
+            ply:SetSVAnim("nz_exo_slam", true)
+            ply:Freeze(true)
+            ply:SetEyeAngles(Angle(0,ply:EyeAngles().y,0))
+            ply:SetVelocity(-ply:GetVelocity())
+            timer.Simple(0.83, function()
+                if !IsValid(ply) then return end
+                ply:Freeze(false)
+            end)
+            util.ScreenShake(ply:GetPos(), 4, 40, 2, 400)
+            ParticleEffect("bo3_margwa_slam", ply:GetPos(), Angle(270,0,0), game.GetWorld())
+            ParticleEffect("doi_ceilingDust_small", ply:GetPos(), Angle(0,0,0), game.GetWorld())
+            local spos = ply:WorldSpaceCenter()+ply:GetForward()*21-ply:GetRight()*5
+            util.Decal("Scorch", spos, spos-Vector(0,0,40), ply)
         end
     end)
 
@@ -219,7 +215,7 @@ else
                 fov = fov,
                 drawviewer = false
             }
-            if ply:GetSVAnim() != "" then
+            if ply:GetSVAnim() != "" and ply:GetCycle() < 1 then
                 local att = ply:GetAttachment(ply:LookupAttachment("eyes"))
                 view = {
                     origin = att.Pos+att.Ang:Forward()*2,

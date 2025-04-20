@@ -31,9 +31,6 @@ ENT.SpeedBasedSequences = true
 ENT.IsMooZombie = true
 ENT.RedEyes = true
 
-ENT.SoundDelayMin  = 2
-ENT.SoundDelayMax  = 3
-
 ENT.Models = {
 	{Model = "models/moo/_codz_ports/iw7/park/moo_codz_iw7_park_male_1_1.mdl", Skin = 0, Bodygroups = {0,0}},
 	{Model = "models/moo/_codz_ports/iw7/park/moo_codz_iw7_park_male_1_2.mdl", Skin = 0, Bodygroups = {0,0}},
