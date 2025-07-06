@@ -66,6 +66,7 @@ ENT.SequenceTables = {
 	{Threshold = 0, Sequences = {
 		{
 			SpawnSequence = {spawnsuperfast},
+			CrawlOutSequences = {crawlspawnsprint},
 			MovementSequence = {
 				"walk"
 			},
@@ -78,6 +79,7 @@ ENT.SequenceTables = {
 	{Threshold = 60, Sequences = {
 		{
 			SpawnSequence = {spawnsuperfast},
+			CrawlOutSequences = {crawlspawnsprint},
 			MovementSequence = {
 				"combat_walk",
 			},
@@ -90,6 +92,7 @@ ENT.SequenceTables = {
 	{Threshold = 110, Sequences = {
 		{
 			SpawnSequence = {spawnsuperfast},
+			CrawlOutSequences = {crawlspawnsprint},
 			MovementSequence = {
 				"run",
 			},

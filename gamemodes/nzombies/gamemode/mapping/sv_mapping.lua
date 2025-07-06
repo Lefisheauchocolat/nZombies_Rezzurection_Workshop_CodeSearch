@@ -1,5 +1,5 @@
 --
-function nzMapping:ZedSpawn(pos, angle, link, link2, link3, master, spawntype, zombietype, roundactive, spawnchance, miscspawn, totalspawn, aliveamount, ply)
+function nzMapping:ZedSpawn(pos, angle, link, link2, link3, master, spawntype, zombietype, roundactive, spawnchance, miscspawn, totalspawn, aliveamount, roundcooldown, ply)
 
 	local ent = ents.Create("nz_spawn_zombie_normal")
 	pos.z = pos.z - ent:OBBMaxs().z
@@ -61,6 +61,12 @@ function nzMapping:ZedSpawn(pos, angle, link, link2, link3, master, spawntype, z
 		ent:SetSpawnChance(tonumber(spawnchance))
 	else
 		ent:SetSpawnChance(100)
+	end
+
+	if roundcooldown ~= nil then
+		ent:SetRoundCooldown(tonumber(roundcooldown))
+	else
+		ent:SetRoundCooldown(0)
 	end
 
 	if ply then

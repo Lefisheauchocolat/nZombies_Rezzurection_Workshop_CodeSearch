@@ -181,11 +181,13 @@ function ENT:AOEEffect()
 		if nzombies and v:IsPlayer() and !v:GetNotDowned() and !v.DownedWithSoloRevive then
 			v.DownedWithSoloRevive = true
 			v:StartRevive(v)
-			timer.Simple(4, function()
+			timer.Simple(2, function()
 				if IsValid(v) and !v:GetNotDowned() then
 					v:RevivePlayer(v)
-					for _, perk in pairs(v.OldPerks) do
-						v:GivePerk(perk)
+					if v.OldPerks then
+						for _, perk in pairs(v.OldPerks) do
+							v:GivePerk(perk)
+						end
 					end
 					if v.DownPoints then
 						v:GivePoints(tonumber(v.DownPoints))

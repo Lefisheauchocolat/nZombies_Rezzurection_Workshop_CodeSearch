@@ -10,7 +10,7 @@ SWEP.Type_Displayed = "#tfa.weapontype.wonderweapon"
 SWEP.Purpose = "BO1 Scavenger remake by Rayjiun"
 SWEP.Author = "Rayjiun, FlamingFox"
 SWEP.Slot = 3
-SWEP.PrintName = nzombies and "Scavenger | BO3" or "Scavenger"
+SWEP.PrintName = "Scavenger"
 SWEP.DrawCrosshair = true
 SWEP.DrawCrosshairIS = false
 

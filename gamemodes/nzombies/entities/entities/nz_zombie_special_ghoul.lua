@@ -86,6 +86,8 @@ ENT.HeavyAttackDamage 		= 75
 ENT.ResistWW 				= true
 ENT.WWResistDamage 			= 0.25 		
 
+ENT.SoundVolume = SNDLVL_140dB
+
 ENT.BehindSoundDistance = 0
 
 ENT.Models = {

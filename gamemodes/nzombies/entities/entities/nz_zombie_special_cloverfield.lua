@@ -1,5 +1,53 @@
 AddCSLuaFile()
 
+hook.Add( "EntityTakeDamage", "CloverfieldEXECUTION", function( target, dmginfo )
+	
+	if ( target:IsPlayer()) then
+	local attacker = (dmginfo:GetAttacker()):GetClass()
+	--local entName = ent:GetClass()
+	if  string.StartsWith( attacker, "nz_zombie_special_cloverfield" ) and target:Health()<40   then
+	--PrintMessage(HUD_PRINTTALK, "THIS BORING MOTHER FUCKER -->"..activator:Nick().."<-- JUST DEACTIVATED THE MALDOMETER AND GOT SENT TO THE CUM ZONE")
+	net.Start("nzPowerUps.PickupHud")
+			net.WriteString(target:Nick().." is going to fucking explode, goodbye nigga")
+			net.WriteBool(true)
+		net.Broadcast()
+	timer.Create( "CLOVERFIELDPARASITE_KILL", 5, 1, function() 
+	print( "bye nigga" ) 
+	if IsValid(target) then
+	ParticleEffect("bo3_margwa_death",target:LocalToWorld(Vector(0,0,0)),Angle(0,0,0),nil)
+		target:EmitSound("enemies/bosses/gunker/death_gore"..math.random(1,2)..".ogg", 90, math.random(85, 105), 1, 2)
+		target:EmitSound("nz_moo/zombies/vox/_margwa/head_explo/margwa_head_explo_0.mp3", 100)
+		target:EmitSound("nz_moo/zombies/vox/_amal/fly/fly_amal_gib_victim_07.mp3", 100)
+		ParticleEffect("nbnz_gib_explosion",target:LocalToWorld(Vector(0,0,0)),Angle(0,0,0),nil)
+				ParticleEffect("baby_dead",target:LocalToWorld(Vector(20,20,0)),Angle(0,0,0),nil)
+				for k, v in pairs(ents.FindInSphere(target:GetPos(), 200)) do
+            	if v:IsPlayer() then
+					if v == target then continue end
+                	if v:Health() <= 0 then continue end
+                	local expdamage = DamageInfo()
+					local damage = target:HasPerk("danger") and 100 or 50
+                	expdamage:SetAttacker(attacker)
+                	expdamage:SetInflictor(attacker)
+                	expdamage:SetDamageType(DMG_BLAST)
+                	local distfac = target:GetPos():Distance(v:WorldSpaceCenter())
+                	distfac = 1 - math.Clamp((distfac/200), 0, 1)
+                	expdamage:SetDamage(damage * distfac)
+                	expdamage:SetDamageForce(v:GetUp()*5000 + (v:GetPos() - target:GetPos()):GetNormalized() * 10000)
+                	v:TakeDamageInfo(expdamage)
+            	end
+        	end
+	target:Kill()
+	target:Kill()
+	end
+	end )
+		dmginfo:ScaleDamage( 0 ) 
+		end
+	end
+end )
+
+
+
+
 ENT.Base = "nz_zombiebase_moo"
 ENT.Type = "nextbot"
 ENT.PrintName = "Cloverfield Parasite"
@@ -159,16 +207,22 @@ end
 function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how sad I am that I didn't know about this sooner.
 	if e == "step"  then
 		if self.CustomWalkFootstepsSounds then
-			self:EmitSound(self.CustomWalkFootstepsSounds[math.random(#self.CustomWalkFootstepsSounds)], 70)
+			--self:EmitSound(self.CustomWalkFootstepsSounds[math.random(#self.CustomWalkFootstepsSounds)], 70)
 		else
-			self:EmitSound("CoDZ_Zombie.StepWalk")
+			--self:EmitSound("CoDZ_Zombie.StepWalk")
 		end
 	end
 	if e == "melee" then
 		if self.AttackSounds then
 			self:EmitSound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(95, 105), 1, 2)
 		end
+		local target = self:GetTarget()
+		if target:Health() < 40 then
 		self:DoAttackDamage()
+		self:FleeTarget(5)
+		else
+		self:DoAttackDamage()
+		end
 	end
 	if e == "jump_attack" then
 		self:DoJumpAttackDamage()

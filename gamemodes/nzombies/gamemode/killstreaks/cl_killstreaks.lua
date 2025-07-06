@@ -1,38 +1,40 @@
 -- Made by Hari exclusive for nZombies Rezzurection. Copying this code is prohibited!
 
-local function We(x)
-    return (x / 1920) * ScrW()
-end
-
-local function He(y)
-    return (y / 1080) * ScrH()
-end
+local w, h = ScrW(), ScrH()
+local scale = ((w / 1920) + 1) / 2
 
 local salvageIcon = Material("bo6/other/salvage.png", "mips")
 hook.Add("HUDPaint", "DrawSalvageHUD", function()
     local ply = LocalPlayer()
-    if !GetConVar("cl_drawhud"):GetBool() or !IsValid(ply) or !ply:Alive() or !nzSettings:GetSimpleSetting("BO6_Salvage", false) or !nzSettings:GetSimpleSetting("BO6_SalvageHUD", true) then return end
+    if not GetConVar("cl_drawhud"):GetBool() or not IsValid(ply) or not ply:Alive()
+    or not nzSettings:GetSimpleSetting("BO6_Salvage", false)
+    or not nzSettings:GetSimpleSetting("BO6_SalvageHUD", true) then return end
 
     surface.SetMaterial(salvageIcon)
-    surface.SetDrawColor(255,255,255)
-    surface.DrawTexturedRect(We(250), ScrH()-He(38), We(32), He(32))
+    surface.SetDrawColor(255, 255, 255)
+    surface.DrawTexturedRect(250 * scale, h - (38 * scale), 32 * scale, 32 * scale)
 
-    draw.SimpleText(ply:GetNWInt('Salvage', 0), "BO6_Exfil26", We(285), ScrH()-He(20), Color(255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+    draw.SimpleText(ply:GetNWInt('Salvage', 0), "BO6_Exfil26", 285 * scale, h - (20 * scale), Color(255, 255, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
 end)
 
 hook.Add("HUDPaint", "DrawKillstreakIconHUD", function()
     local ply = LocalPlayer()
-    if !GetConVar("cl_drawhud"):GetBool() or !IsValid(ply) or !ply:Alive() or !ply:HaveKillstreak() or !nzSettings:GetSimpleSetting("BO6_KillstreakHUD", true) then return end
+    if not GetConVar("cl_drawhud"):GetBool() or not IsValid(ply) or not ply:Alive()
+    or not ply:HaveKillstreak()
+    or not nzSettings:GetSimpleSetting("BO6_KillstreakHUD", true) then return end
 
-    draw.RoundedBox(4, We(1250), ScrH()-He(72), We(64), He(64), Color(125,125,125,200))
-    surface.SetMaterial(nzKillstreak.ClassToIcon[ply:HaveKillstreak()])
-    surface.SetDrawColor(255,255,255)
-    surface.DrawTexturedRect(We(1252), ScrH()-He(72), We(60), He(60))
+    draw.RoundedBox(4, 1250 * scale, h - (72 * scale), 64 * scale, 64 * scale, Color(125, 125, 125, 200))
 
-    draw.RoundedBox(4, We(1330), ScrH()-He(50), We(24), He(24), color_white)
-    draw.SimpleText("5", "BO6_Exfil26", We(1342), ScrH()-He(37), Color(25,25,25), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+    local ksIcon = nzKillstreak.ClassToIcon[ply:HaveKillstreak()]
+    if ksIcon then
+        surface.SetMaterial(ksIcon)
+        surface.SetDrawColor(255, 255, 255)
+        surface.DrawTexturedRect(1252 * scale, h - (72 * scale), 60 * scale, 60 * scale)
+    end
+
+    draw.RoundedBox(4, 1330 * scale, h - (50 * scale), 24 * scale, 24 * scale, color_white)
+    draw.SimpleText("5", "BO6_Exfil26", 1342 * scale, h - (37 * scale), Color(25, 25, 25), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 end)
-
 -------------------------MANGLER--------------------------------------------------
 
 hook.Add("EntityEmitSound", "nzrKillstreaks_Mangler", function(t)
@@ -75,25 +77,27 @@ local ManglerDespawnTime = 0
 hook.Add("HUDPaint", "nzrKillstreaks_Mangler", function()
     local ply = LocalPlayer()
     if ply:GetModel() == "models/moo/_codz_ports/t10/zm/moo_codz_t10_mangler.mdl" then
-        local percent = math.max((ManglerDespawnTime-CurTime())/nzSettings:GetSimpleSetting("BO6_Killstreak_ManglerTime", 45), 0)
+        local percent = math.max((ManglerDespawnTime - CurTime()) / nzSettings:GetSimpleSetting("BO6_Killstreak_ManglerTime", 45), 0)
 
-        surface.SetDrawColor(20,20,20,180)
-        surface.DrawRect(ScrW()/2-We(200), ScrH()-He(130), We(400), He(80))
+        surface.SetDrawColor(20, 20, 20, 180)
+        surface.DrawRect(w / 2 - (200 * scale), h - (130 * scale), 400 * scale, 80 * scale)
 
-        surface.SetDrawColor(255,255,255)
+        surface.SetDrawColor(255, 255, 255)
         surface.SetMaterial(manglerIcon)
-        surface.DrawTexturedRect(ScrW()/2-We(194), ScrH()-He(126), We(72), He(72))
+        surface.DrawTexturedRect(w / 2 - (194 * scale), h - (126 * scale), 72 * scale, 72 * scale)
 
-        surface.SetDrawColor(20,20,20,240)
-        surface.DrawRect(ScrW()/2-We(120), ScrH()-He(90), We(300), He(20))
-        surface.SetDrawColor(120,0,150)
-        surface.DrawRect(ScrW()/2-We(120), ScrH()-He(90), We(300)*percent, He(20))
-        surface.SetDrawColor(100,100,100,200)
-        surface.DrawOutlinedRect(ScrW()/2-We(120), ScrH()-He(90), We(300), He(20), 2)
+        surface.SetDrawColor(20, 20, 20, 240)
+        surface.DrawRect(w / 2 - (120 * scale), h - (90 * scale), 300 * scale, 20 * scale)
 
-        draw.SimpleText("MANGLER INJECTION", "BO6_Exfil26", ScrW()/2-We(120), ScrH()-He(95), color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
+        surface.SetDrawColor(120, 0, 150)
+        surface.DrawRect(w / 2 - (120 * scale), h - (90 * scale), (300 * scale) * percent, 20 * scale)
+
+        surface.SetDrawColor(100, 100, 100, 200)
+        surface.DrawOutlinedRect(w / 2 - (120 * scale), h - (90 * scale), 300 * scale, 20 * scale, 2)
+
+        draw.SimpleText("MANGLER INJECTION", "BO6_Exfil26", w / 2 - (120 * scale), h - (95 * scale), color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
     else
-        ManglerDespawnTime = CurTime()+nzSettings:GetSimpleSetting("BO6_Killstreak_ManglerTime", 45)
+        ManglerDespawnTime = CurTime() + nzSettings:GetSimpleSetting("BO6_Killstreak_ManglerTime", 45)
     end
 end)
 

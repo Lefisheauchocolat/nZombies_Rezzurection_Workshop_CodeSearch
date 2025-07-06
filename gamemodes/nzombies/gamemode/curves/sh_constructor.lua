@@ -116,7 +116,7 @@ if SERVER then
 	-- Cold War Style Zombie attack damage increase.
 	function nzCurves.GenerateAttackDamage(round)
 
-		if nzMapping.Settings.dmgincrease == false then return 50 end
+		if tobool(nzMapping.Settings.dmgincrease) == false then return 50 end
 
 		local damage_increase = {
 			{

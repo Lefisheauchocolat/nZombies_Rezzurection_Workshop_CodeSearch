@@ -147,6 +147,7 @@ ENT.SequenceTables = {
 	{Threshold = 0, Sequences = {
 		{
 			SpawnSequence = {spawnsuperfast},
+			CrawlOutSequences = {crawlspawnsprint},
 			MovementSequence = {
 				"nz_t9_base_player_sprint_v01",
 				"nz_t9_base_player_sprint_v02",

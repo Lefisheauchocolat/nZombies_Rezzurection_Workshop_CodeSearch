@@ -8,10 +8,6 @@ ENT.Author = "GhostlyMoo"
 ENT.Spawnable = true
 
 if CLIENT then 
-	ENT.EyeColorTable = {
-		[0] = Material("models/moo/codz/t8_zombies/common/mtl_c_t8_zmb_eyes.vmt"),
-		[1] = Material("models/moo/codz/t8_zombies/common/mtl_c_t8_zmb_eyes_lod.vmt"),
-	}
 	return 
 end -- Client doesn't really need anything beyond the basics
 
@@ -62,6 +58,9 @@ local spawnrun = {"nz_spawn_ground_v1_run"}
 local spawnfast = {"nz_spawn_ground_climbout_fast", "nz_s4_3arc_traverse_riser"}
 local spawnsuperfast = {"nz_ent_ground_01", "nz_ent_ground_02"}
 
+local crawlspawnwalk = {"nz_base_zombie_crawl_out_walk_01",}
+local crawlspawnrun = {"nz_base_zombie_crawl_out_run_01","nz_base_zombie_crawl_out_run_02",}
+local crawlspawnsprint = {"nz_base_zombie_crawl_out_sprint_01","nz_base_zombie_crawl_out_sprint_01",}
 ENT.DeathSequences = {
 	"nz_death_1",
 	"nz_death_2",
@@ -206,18 +205,43 @@ local SuperSprintAttackSequences = {
 	{seq = "nz_t8_attack_supersprint_rarm_2"},
 }
 
-local JumpSequences = {
-	{seq = "nz_barricade_trav_walk_1"},
-	{seq = "nz_barricade_trav_walk_2"},
-	{seq = "nz_barricade_trav_walk_3"},
+local WalkJumpSequencesMiddle = {
+	{seq = "nz_base_zombie_walk_win_trav_m_01"},
+	{seq = "nz_base_zombie_walk_win_trav_m_02"},
+	{seq = "nz_base_zombie_walk_win_trav_m_03"},
 }
-local RunJumpSequences = {
-	{seq = "nz_barricade_run_1"},
-	{seq = "nz_l4d_mantle_over_36"},
+
+local WalkJumpSequencesLeft = {
+	{seq = "nz_base_zombie_walk_win_trav_l_01"},
 }
-local SprintJumpSequences = {
-	{seq = "nz_barricade_sprint_1"},
-	{seq = "nz_barricade_sprint_2"},
+
+local WalkJumpSequencesRight = {
+	{seq = "nz_base_zombie_walk_win_trav_r_01"},
+}
+
+local RunJumpSequencesMiddle = {
+	{seq = "nz_base_zombie_run_win_trav_m_01"},
+}
+
+local RunJumpSequencesLeft = {
+	{seq = "nz_base_zombie_run_win_trav_l_01"},
+}
+
+local RunJumpSequencesRight = {
+	{seq = "nz_base_zombie_run_win_trav_r_01"},
+}
+
+local SprintJumpSequencesMiddle = {
+	{seq = "nz_base_zombie_sprint_win_trav_m_01"},
+	{seq = "nz_base_zombie_sprint_win_trav_m_02"},
+}
+
+local SprintJumpSequencesLeft = {
+	{seq = "nz_base_zombie_sprint_win_trav_l_01"},
+}
+
+local SprintJumpSequencesRight = {
+	{seq = "nz_base_zombie_sprint_win_trav_r_01"},
 }
 
 local walksounds = {
@@ -330,14 +354,18 @@ ENT.SequenceTables = {
 	{Threshold = 0, Sequences = {
 		{
 			SpawnSequence = {spawnslow},
+			CrawlOutSequences = {crawlspawnwalk},
 			MovementSequence = {
-				"nz_bo3_zombie_walk_v1",
-				"nz_bo3_zombie_walk_v2",
-				"nz_bo3_zombie_walk_v3",
+				"nz_walk_ad1",
+				"nz_walk_ad2",
+				"nz_walk_ad3",
 				"nz_walk_ad4",
 				"nz_walk_ad7",
 				"nz_walk_ad5",
 				"nz_walk_ad6",
+				"nz_s4_3arc_walk_ad_v10",
+				"nz_s4_3arc_walk_ad_v12",
+				"nz_s4_3arc_walk_ad_v14",
 				"nz_walk_ad19",
 				"nz_walk_ad20",
 				"nz_walk_ad21",
@@ -345,11 +373,11 @@ ENT.SequenceTables = {
 				"nz_walk_ad23",
 				"nz_walk_ad24",
 				"nz_walk_ad25",
-				"nz_walk_au_goose",
+				--"nz_walk_au_goose",
 				"nz_walk_au1",
 				"nz_walk_au2",
 				"nz_walk_au3",
-				"nz_bo3_zombie_walk_v4",
+				"nz_walk_au4",
 				"nz_walk_au5",
 				"nz_walk_au6",
 				"nz_walk_au7",
@@ -365,7 +393,7 @@ ENT.SequenceTables = {
 				"nz_walk_au23",
 				"nz_s4_3arc_walk_au_v24",
 				"nz_s4_3arc_walk_au_v25",
-				"nz_walk_au_goose",
+				--"nz_walk_au_goose",
 			},
 			LowgMovementSequence = {
 				"nz_walk_lowg_v1",
@@ -425,7 +453,9 @@ ENT.SequenceTables = {
 			StandAttackSequences = {AttackSequences},
 			CrawlAttackSequences = {CrawlAttackSequences},
 
-			JumpSequences = {JumpSequences},
+			JumpSequences = {WalkJumpSequencesMiddle},
+			JumpSequencesLeft = {WalkJumpSequencesLeft},
+			JumpSequencesRight = {WalkJumpSequencesRight},
 			CrawlJumpSequences = {CrawlJumpSequences},
 
 			PassiveSounds = {walksounds},
@@ -434,6 +464,7 @@ ENT.SequenceTables = {
 	{Threshold = 36, Sequences = {
 		{
 			SpawnSequence = {spawnrun},
+			CrawlOutSequences = {crawlspawnrun},
 			MovementSequence = {
 				"nz_walk_fast_ad1",
 				"nz_walk_fast_ad2",
@@ -530,7 +561,9 @@ ENT.SequenceTables = {
 			Bo3AttackSequences = {StinkyRunAttackSequences},
 			CrawlAttackSequences = {CrawlAttackSequences},
 
-			JumpSequences = {RunJumpSequences},
+			JumpSequences = {RunJumpSequencesMiddle},
+			JumpSequencesLeft = {RunJumpSequencesLeft},
+			JumpSequencesRight = {RunJumpSequencesRight},
 			CrawlJumpSequences = {CrawlJumpSequences},
 
 			PassiveSounds = {runsounds},
@@ -539,6 +572,7 @@ ENT.SequenceTables = {
 	{Threshold = 71, Sequences = {
 		{
 			SpawnSequence = {spawnfast},
+			CrawlOutSequences = {crawlspawnsprint},
 			MovementSequence = {
 				--"nz_legacy_sprint_v5",
 				--"nz_legacy_jap_run_v3",
@@ -552,7 +586,6 @@ ENT.SequenceTables = {
 				"nz_sprint_ad4",
 				"nz_fast_sprint_v1",
 				"nz_fast_sprint_v2",
-				"nz_cyborg_sprint_02",
 				"nz_t9_base_sprint_au_v01",
 				"nz_t9_base_sprint_au_v02",
 				"nz_t9_base_sprint_au_v20",
@@ -563,7 +596,6 @@ ENT.SequenceTables = {
 				"nz_sprint_au4",
 				"nz_fast_sprint_v3",
 				"nz_fast_sprint_v2",
-				"nz_cyborg_sprint_02",
 			},
 			LowgMovementSequence = {
 				"nz_sprint_lowg_v1",
@@ -624,7 +656,9 @@ ENT.SequenceTables = {
 			Bo3AttackSequences = {StinkyRunAttackSequences},
 			CrawlAttackSequences = {CrawlAttackSequences},
 
-			JumpSequences = {SprintJumpSequences},
+			JumpSequences = {SprintJumpSequencesMiddle},
+			JumpSequencesLeft = {SprintJumpSequencesLeft},
+			JumpSequencesRight = {SprintJumpSequencesRight},
 			CrawlJumpSequences = {CrawlJumpSequences},
 
 			PassiveSounds = {runsounds},
@@ -633,6 +667,7 @@ ENT.SequenceTables = {
 	{Threshold = 155, Sequences = {
 		{
 			SpawnSequence = {spawnsuperfast},
+			CrawlOutSequences = {crawlspawnsprint},
 			MovementSequence = {
 				"nz_supersprint_ad1",
 				"nz_supersprint_ad2",
@@ -715,7 +750,9 @@ ENT.SequenceTables = {
 			Bo3AttackSequences = {StinkyRunAttackSequences},
 			CrawlAttackSequences = {CrawlAttackSequences},
 
-			JumpSequences = {SprintJumpSequences},
+			JumpSequences = {SprintJumpSequencesMiddle},
+			JumpSequencesLeft = {SprintJumpSequencesLeft},
+			JumpSequencesRight = {SprintJumpSequencesRight},
 			CrawlJumpSequences = {CrawlJumpSequences},
 
 			PassiveSounds = {walksounds},

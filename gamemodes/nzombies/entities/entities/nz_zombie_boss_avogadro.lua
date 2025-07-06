@@ -6,14 +6,6 @@ ENT.PrintName = "Avogadro"
 ENT.Category = "Brainz"
 ENT.Author = "GhostlyMoo"
 
-local meleetypes = {
-	[DMG_CLUB] = true,
-	[DMG_SLASH] = true,
-	[DMG_CRUSH] = true,
-	[DMG_GENERIC] = true,
-	[DMG_SHOCK] = true,
-}
-
 if CLIENT then 
 	function ENT:Draw()
 		self:DrawModel()
@@ -232,8 +224,9 @@ function ENT:CustomAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 end
 
 function ENT:OnInjured(dmginfo)
-	if !meleetypes[dmginfo:GetDamageType()] then
-		dmginfo:ScaleDamage(0)
+	local weapon = dmginfo:GetInflictor()
+	if (weapon.Base ~= "tfa_quickknife_base" or weapon.Base ~= "tfa_melee_base" or weapon.Base ~= "tfa_bash_base") then
+		dmginfo:ScaleDamage(0.1)
 	else
 		if CurTime() > self.LastStun then
 			dmginfo:ScaleDamage(2) -- Increase damage done by melee because the nZ knives don't do consistent damage.

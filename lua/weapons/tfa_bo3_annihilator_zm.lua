@@ -10,7 +10,7 @@ SWEP.UseHands = true
 SWEP.Type_Displayed = "#tfa.weapontype.specialist"
 SWEP.Author = "FlamingFox"
 SWEP.Slot = 1
-SWEP.PrintName = nzombies and "Annihilator | BO3" or "Annihilator"
+SWEP.PrintName = "Annihilator"
 SWEP.DrawCrosshair = true
 SWEP.DrawCrosshairIS = false
 SWEP.AutoSwitchTo = false
@@ -49,7 +49,7 @@ SWEP.Primary.RPM = 167
 SWEP.Primary.RPM_Semi = nil
 SWEP.Primary.RPM_Burst = nil
 SWEP.Primary.RPM_Displayed = 67
-SWEP.Primary.Damage = 1150000
+SWEP.Primary.Damage = 5000
 SWEP.Primary.DamageType = bit.bor(DMG_AIRBOAT, DMG_ALWAYSGIB)
 SWEP.Primary.PenetrationMultiplier	= 5
 SWEP.Primary.HullSize = 4
@@ -202,6 +202,7 @@ SWEP.CustomBulletCallback = function(ply, tr, dmg)
 
 			if ent.GetBloodColor and DontBleed[ent:GetBloodColor()] then return end
 			ent:SetNW2Bool("AnniKilled", true)
+			ent:EmitSound("TFA_BO3_ANNIHILATOR.Lfe")
 		end
 	end
 end

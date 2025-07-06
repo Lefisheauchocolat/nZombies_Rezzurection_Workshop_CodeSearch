@@ -3037,11 +3037,11 @@ end
 				["ToolTip"] = "Music that plays during special rounds.(Can have multiple)",
 				["Bind"] = valz["SndRow49"]
 			},
-			--[[[17] = {
+			[17] = {
 				["Title"] = "Headshot Impact Sound",
 				["ToolTip"] = "Plays when you headshot a zombie.",
 				["Bind"] = valz["SndRow50"]
-			},]]
+			},
 		}
 
 		local SndMenuPowerUp = { 

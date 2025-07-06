@@ -17,6 +17,7 @@ nzAATs:RegisterAAT("blastfurnace", {
 	flash = Material("vgui/aat/t7_hud_cp_aat_blastfurnace.png", "smooth unlitgeneric"),
 	icon = Material("vgui/aat/t7_hud_wp_aat_blastfurance.png", "smooth unlitgeneric"),
 	ent = "elemental_pop_effect_1",
+	desc = "Proc to ignite and kill any zombies within a small area."
 })
 
 nzAATs:RegisterAAT("deadwire", {
@@ -27,6 +28,7 @@ nzAATs:RegisterAAT("deadwire", {
 	flash = Material("vgui/aat/t7_hud_cp_aat_deadwire.png", "smooth unlitgeneric"),
 	icon = Material("vgui/aat/t7_hud_wp_aat_deadwire.png", "smooth unlitgeneric"),
 	ent = "elemental_pop_effect_2",
+	desc = "Proc to chain a shock that stuns and kills multiple zombies."
 })
 
 nzAATs:RegisterAAT("fireworks", {
@@ -37,6 +39,7 @@ nzAATs:RegisterAAT("fireworks", {
 	flash = Material("vgui/aat/t7_hud_cp_aat_fireworks.png", "smooth unlitgeneric"),
 	icon = Material("vgui/aat/t7_hud_wp_aat_fireworks.png", "smooth unlitgeneric"),
 	ent = "elemental_pop_effect_3",
+	desc = "Proc to kill multiple zombies in a very wacky and colorful way."
 })
 
 nzAATs:RegisterAAT("thunderwall", {
@@ -47,6 +50,7 @@ nzAATs:RegisterAAT("thunderwall", {
 	flash = Material("vgui/aat/t7_hud_cp_aat_thunderwall.png", "smooth unlitgeneric"),
 	icon = Material("vgui/aat/t7_hud_wp_aat_thunderwall.png", "smooth unlitgeneric"),
 	ent = "elemental_pop_effect_4",
+	desc = "Proc to launch a thunderwall that kill any zombies in its wake."
 })
 
 nzAATs:RegisterAAT("cryofreeze", {
@@ -57,6 +61,7 @@ nzAATs:RegisterAAT("cryofreeze", {
 	flash = Material("vgui/aat/t7_hud_cp_aat_cryofreeze.png", "smooth unlitgeneric"),
 	icon = Material("vgui/hud_wpn_aat_cryofreeze_alt.png", "smooth unlitgeneric"),
 	ent = "elemental_pop_effect_5",
+	desc = "Proc to freeze any zombies within a small radius."
 })
 
 nzAATs:RegisterAAT("turned", {
@@ -67,16 +72,18 @@ nzAATs:RegisterAAT("turned", {
 	flash = Material("vgui/aat/t7_hud_cp_aat_turned.png", "smooth unlitgeneric"),
 	icon = Material("vgui/aat/t7_hud_wp_aat_turned.png", "smooth unlitgeneric"),
 	ent = "elemental_pop_effect_6",
+	desc = "Proc to turn a zombie against its fellow infected friends."
 })
 
 nzAATs:RegisterAAT("blackhole", {
 	name = "Void Caster",
 	chance = 0.10,
-	cooldown = 35,
+	cooldown = 25,
 	color = Color(180, 60, 255),
 	flash = Material("vgui/aat/t7_hud_cp_aat_bhole.png", "smooth unlitgeneric"),
 	icon = Material("vgui/aat/t7_hud_wp_aat_bhole.png", "smooth unlitgeneric"),
-	ent = "elemental_pop_effect_7",
+	ent = "voidcaster_effect_new", --no more gersch device......
+	desc = "Proc to create a black hole stunning and killing any zombies within its radius."
 })
 
 nzAATs:RegisterAAT("radiation", {
@@ -87,4 +94,5 @@ nzAATs:RegisterAAT("radiation", {
 	flash = Material("vgui/hud_cp_aat_radiation.png", "smooth unlitgeneric"),
 	icon = Material("vgui/hud_wpn_aat_radiation.png", "smooth unlitgeneric"),
 	ent = "radiation_aat_effect",
+	desc = "Proc to create a pit of toxic goop that slows and kills any zombies within it."
 })

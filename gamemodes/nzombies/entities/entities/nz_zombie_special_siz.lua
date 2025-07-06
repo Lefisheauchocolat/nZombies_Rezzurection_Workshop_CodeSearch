@@ -100,59 +100,6 @@ ENT.BarricadeTearSequences = {
 	"nz_legacy_door_tear_right",
 }
 
-local SlowClimbUp36 = {
-	"nz_traverse_climbup36"
-}
-local SlowClimbUp48 = {
-	"nz_traverse_climbup48"
-}
-local SlowClimbUp72 = {
-	"nz_traverse_climbup72"
-}
-local SlowClimbUp96 = {
-	"nz_traverse_climbup96"
-}
-local SlowClimbUp128 = {
-	"nz_traverse_climbup128",
-	"nz_l4d_traverse_climbup132_01",
-	"nz_l4d_traverse_climbup132_02",
-	"nz_l4d_traverse_climbup132_03",
-}
-local SlowClimbUp160 = {
-	"nz_traverse_climbup160",
-	"nz_l4d_traverse_climbup156_01",
-	"nz_l4d_traverse_climbup156_02",
-	"nz_l4d_traverse_climbup156_03",
-}
-local FastClimbUp36 = {
-	"nz_traverse_fast_climbup36",
-	"nz_l4d_traverse_climbup36_01",
-	"nz_l4d_traverse_climbup36_02",
-	"nz_l4d_traverse_climbup36_03",
-}
-local FastClimbUp48 = {
-	"nz_traverse_fast_climbup48",
-	"nz_l4d_traverse_climbup48_01",
-	"nz_l4d_traverse_climbup48_02",
-	"nz_l4d_traverse_climbup48_03",
-	"nz_l4d_traverse_climbup48_04",
-}
-local FastClimbUp72 = {
-	"nz_traverse_fast_climbup72",
-	"nz_l4d_traverse_climbup72_01",
-	"nz_l4d_traverse_climbup72_02",
-	"nz_l4d_traverse_climbup72_03",
-}
-local FastClimbUp96 = {
-	"nz_traverse_fast_climbup96",
-	"nz_l4d_traverse_climbup96_01",
-	"nz_l4d_traverse_climbup96_02",
-	"nz_l4d_traverse_climbup96_03",
-}
-local ClimbUp200 = {
-	"nz_traverse_climbup200"
-}
-
 local AttackSequences = {
 	{seq = "nz_iw7_cp_zom_stand_attack_l_01"},
 	{seq = "nz_iw7_cp_zom_stand_attack_l_02"},
@@ -169,24 +116,43 @@ local RunAttackSequences = {
 	{seq = "nz_t8_attack_supersprint_rarm_2"},
 }
 
-local JumpSequences = {
-	{seq = "nz_iw7_cp_zom_walk_window_over_40_01"},
-	{seq = "nz_iw7_cp_zom_walk_window_over_40_02"},
-	{seq = "nz_iw7_cp_zom_walk_window_over_40_03"},
-	{seq = "nz_iw7_cp_zom_walk_window_over_40_04"},
+local WalkJumpSequencesMiddle = {
+	{seq = "nz_base_zombie_walk_win_trav_m_01"},
+	{seq = "nz_base_zombie_walk_win_trav_m_02"},
+	{seq = "nz_base_zombie_walk_win_trav_m_03"},
 }
-local RunJumpSequences = {
-	{seq = "nz_iw7_cp_zom_run_window_over_40_01"},
-	{seq = "nz_iw7_cp_zom_run_window_over_40_02"},
-	{seq = "nz_iw7_cp_zom_run_window_over_40_03"},
-	{seq = "nz_iw7_cp_zom_run_window_over_40_04"},
-	{seq = "nz_iw7_cp_zom_run_window_over_40_05"},
-	{seq = "nz_l4d_mantle_over_36"},
+
+local WalkJumpSequencesLeft = {
+	{seq = "nz_base_zombie_walk_win_trav_l_01"},
 }
-local SprintJumpSequences = {
-	{seq = "nz_zom_core_mantle_over_40"},
-	{seq = "nz_zom_core_traverse_stepover_40"},
-	{seq = "nz_zom_core_traverse_window_36_quick"},
+
+local WalkJumpSequencesRight = {
+	{seq = "nz_base_zombie_walk_win_trav_r_01"},
+}
+
+local RunJumpSequencesMiddle = {
+	{seq = "nz_base_zombie_run_win_trav_m_01"},
+}
+
+local RunJumpSequencesLeft = {
+	{seq = "nz_base_zombie_run_win_trav_l_01"},
+}
+
+local RunJumpSequencesRight = {
+	{seq = "nz_base_zombie_run_win_trav_r_01"},
+}
+
+local SprintJumpSequencesMiddle = {
+	{seq = "nz_base_zombie_sprint_win_trav_m_01"},
+	{seq = "nz_base_zombie_sprint_win_trav_m_02"},
+}
+
+local SprintJumpSequencesLeft = {
+	{seq = "nz_base_zombie_sprint_win_trav_l_01"},
+}
+
+local SprintJumpSequencesRight = {
+	{seq = "nz_base_zombie_sprint_win_trav_r_01"},
 }
 
 local walksounds = {
@@ -266,15 +232,9 @@ ENT.SequenceTables = {
 			StandAttackSequences = {AttackSequences},
 			CrawlAttackSequences = {CrawlAttackSequences},
 
-			Climb36 = {SlowClimbUp36},
-			Climb48 = {SlowClimbUp48},
-			Climb72 = {SlowClimbUp72},
-			Climb96 = {SlowClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
-
-			JumpSequences = {SprintJumpSequences},
+			JumpSequences = {SprintJumpSequencesMiddle},
+			JumpSequencesLeft = {SprintJumpSequencesLeft},
+			JumpSequencesRight = {SprintJumpSequencesRight},
 			CrawlJumpSequences = {CrawlJumpSequences},
 			PassiveSounds = {walksounds},
 		},
@@ -342,15 +302,9 @@ ENT.SequenceTables = {
 			StandAttackSequences = {AttackSequences},
 			CrawlAttackSequences = {CrawlAttackSequences},
 
-			Climb36 = {SlowClimbUp36},
-			Climb48 = {SlowClimbUp48},
-			Climb72 = {SlowClimbUp72},
-			Climb96 = {SlowClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
-
-			JumpSequences = {SprintJumpSequences},
+			JumpSequences = {SprintJumpSequencesMiddle},
+			JumpSequencesLeft = {SprintJumpSequencesLeft},
+			JumpSequencesRight = {SprintJumpSequencesRight},
 			CrawlJumpSequences = {CrawlJumpSequences},
 			PassiveSounds = {runsounds},
 		},
@@ -374,9 +328,9 @@ ENT.TauntSequences = {
 
 
 ENT.SizTauntSequences = {
-	"nz_taunt_v7",
 	"nz_l4d_violentalert_f",
-	"nz_legacy_taunt_v1",
+	"nz_stn_idle_react_f_v3",
+	"nz_stn_idle_react_f_v4",
 }
 
 ENT.DeathSounds = {
@@ -414,6 +368,21 @@ ENT.SpawnSounds = {
 	Sound("nz_moo/zombies/vox/_siz/zmb_vox_siz_convert_04.mp3"),
 }
 
+ENT.TauntSounds = {
+	Sound("nz_moo/zombies/vox/_siz/zmb_vox_siz_convert_01.mp3"),
+	Sound("nz_moo/zombies/vox/_siz/zmb_vox_siz_convert_02.mp3"),
+	Sound("nz_moo/zombies/vox/_siz/zmb_vox_siz_convert_03.mp3"),
+	Sound("nz_moo/zombies/vox/_siz/zmb_vox_siz_convert_04.mp3"),
+	Sound("nz_moo/zombies/vox/_siz/zmb_vox_siz_convert_01.mp3"),
+	Sound("nz_moo/zombies/vox/_siz/zmb_vox_siz_convert_02.mp3"),
+	Sound("nz_moo/zombies/vox/_siz/zmb_vox_siz_convert_03.mp3"),
+	Sound("nz_moo/zombies/vox/_siz/zmb_vox_siz_convert_04.mp3"),
+	Sound("nz_moo/zombies/vox/_siz/zmb_vox_siz_convert_01.mp3"),
+	Sound("nz_moo/zombies/vox/_siz/zmb_vox_siz_convert_02.mp3"),
+	Sound("nz_moo/zombies/vox/_siz/zmb_vox_siz_convert_03.mp3"),
+	Sound("nz_moo/zombies/vox/_siz/zmb_vox_siz_convert_04.mp3"),
+}
+
 ENT.FootstepsSounds = {
 	"nz_moo/zombies/vox/_napalm/step/fly_step_napalm_close_00.mp3",
 	"nz_moo/zombies/vox/_napalm/step/fly_step_napalm_close_01.mp3",
@@ -444,20 +413,12 @@ function ENT:StatsInitialize()
 	if SERVER then
 		self:SetRunSpeed( 1 )
 
-		self.UseCustomAttackDamage = true
 		self.HasSTaunted = true
 		self.SizIgnite = false
 		self.EnrageTime = CurTime() + math.random(2,7)
 
-		self.TimesAttacks = 0
-
 		local health = nzRound:GetZombieHealth()
 		self:SetHealth( math.ceil(nzRound:GetZombieHealth() * 0.5) or 200)
-	end
-end
-
-function ENT:SpecialInit()
-	if CLIENT then
 	end
 end
 
@@ -535,28 +496,17 @@ function ENT:AI()
 	end
 end
 
-function ENT:CustomAttackDamage(target, dmg) 
-	local dmgInfo = DamageInfo()
-	dmgInfo:SetAttacker( self )
-	dmgInfo:SetDamage( dmg )
-	dmgInfo:SetDamageType( DMG_BURN )
-
-	target:TakeDamageInfo(dmgInfo)
-	target:Ignite(1, 0)
-
-	if math.random(100) > 50 and self.TimesAttacks > 3 then
-		self:TakeDamage(self:Health() + 666, self, self)
-	else
-		self.TimesAttacks = self.TimesAttacks + 1
-	end
-
-end
-
 function ENT:PostDeath(dmginfo)
-	self:Explode(45, true)
+	self:Explode(25, true)
 end
 
-function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how sad I am that I didn't know about this sooner.
+function ENT:CustomAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how sad I am that I didn't know about this sooner.
+
+	self.OverrideLsmall = true
+	self.OverrideLLarge = true
+	self.OverrideRsmall = true
+	self.OverrideRLarge = true
+
 	if e == "step_right_small" then
 		self:EmitSound(self.FootstepsSounds[math.random(#self.FootstepsSounds)], 85)
 		self:EmitSound(self.SWTFootstepsSounds[math.random(#self.SWTFootstepsSounds)], 70)
@@ -577,175 +527,5 @@ function ENT:HandleAnimEvent(a,b,c,d,e) -- Moo Mark 4/14/23: You don't know how 
 		self:EmitSound(self.SWTFootstepsSounds[math.random(#self.SWTFootstepsSounds)], 70)
 		ParticleEffectAttach("bo3_napalm_fs",PATTACH_POINT,self,11)
 	end
-	if e == "crawl_hand" then
-		if self.CustomCrawlImpactSounds then
-			self:EmitSound(self.CrawlImpactSounds[math.random(#self.CrawlImpactSounds)], 70)
-		else
-			self:EmitSound("CoDZ_Zombie.StepCrawl")
-		end
-	end
-	if e == "melee" or e == "melee_heavy" then
-		if self:BomberBuff() and self.GasAttack then
-			self:EmitSound(self.GasAttack[math.random(#self.GasAttack)], 100, math.random(95, 105), 1, 2)
-		else
-			if self.AttackSounds then
-				self:EmitSound(self.AttackSounds[math.random(#self.AttackSounds)], 100, math.random(85, 105), 1, 2)
-			end
-		end
-		if e == "melee_heavy" then
-			self.HeavyAttack = true
-		end
-		self:DoAttackDamage()
-	end
-	if e == "base_ranged_rip" then
-		ParticleEffectAttach("ins_blood_dismember_limb", 4, self, 5)
-		self:EmitSound("nz_moo/zombies/gibs/gib_0"..math.random(0,3)..".mp3", 100, math.random(95,105))
-		self:EmitSound("nz_moo/zombies/gibs/head/head_explosion_0"..math.random(4)..".mp3", 65, math.random(95,105))
-	end
-	if e == "base_ranged_throw" then
-		self:EmitSound("nz_moo/zombies/fly/attack/whoosh/zmb_attack_med_0"..math.random(0,2)..".mp3", 95)
 
-		local larmfx_tag = self:LookupBone("j_wrist_le")
-
-		self.Guts = ents.Create("nz_gib")
-		self.Guts:SetPos(self:GetBonePosition(larmfx_tag))
-		self.Guts:Spawn()
-
-		local phys = self.Guts:GetPhysicsObject()
-		local target = self:GetTarget()
-		local movementdir
-		if IsValid(phys) and IsValid(target) then
-			--[[if target:IsPlayer() then
-				movementdir = target:GetVelocity():Normalize()
-				print(movementdir)
-			end]]
-			phys:SetVelocity(self.Guts:getvel(target:EyePos() - Vector(0,0,7), self:EyePos(), 0.95))
-		end
-	end
-	if e == "pull_plank" then
-		if IsValid(self) and self:IsAlive() then
-			if IsValid(self.BarricadePlankPull) and IsValid(self.Barricade) then
-				self.Barricade:RemovePlank(self.BarricadePlankPull)
-			end
-		end
-	end
-	if e == "death_ragdoll" then
-		self:BecomeRagdoll(DamageInfo())
-	end
-	if e == "start_traverse" then
-		--print("starttraverse")
-		self.TraversalAnim = true
-	end
-	if e == "finish_traverse" then
-		--print("finishtraverse")
-		self.TraversalAnim = false
-	end
-
-	-- WW2 Zobies	
-	if e == "s2_gen_step" then
-		self:EmitSound(self.StepSounds[math.random(#self.StepSounds)], 60, math.random(95, 105))
-	end
-	if e == "s2_taunt_vox" then
-		self:EmitSound(self.TauntSounds[math.random(#self.TauntSounds)],95, math.random(95, 105), 1, 2)
-	end
-
-	-- Taunt Sounds, theres alot of these
-
-	if e == "generic_taunt" then
-		if self.TauntSounds and !self.Screamed then
-			self.Screamed = true
-			self:EmitSound(self.SpawnSounds[math.random(#self.SpawnSounds)], 100, math.random(85, 105), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		end
-	end
-	if e == "special_taunt" then
-		if self.CustomSpecialTauntSounds then
-			self:EmitSound(self.CustomSpecialTauntSounds[math.random(#self.CustomSpecialTauntSounds)], 100, math.random(85, 105), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		else
-			self:EmitSound("nz_moo/zombies/vox/_classic/taunt/spec_taunt.mp3", 100, math.random(85, 105), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		end
-	end
-	if e == "anim_taunt_v1" then
-		if self.CustomTauntAnimV1Sounds then
-			self:EmitSound(self.CustomTauntAnimV1Sounds[math.random(#self.CustomTauntAnimV1Sounds)], 100, math.random(85, 105), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		else
-			self:EmitSound(self.TauntAnimV1Sounds[math.random(#self.TauntAnimV1Sounds)], 100, math.random(85, 105), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		end
-	end
-	if e == "anim_taunt_v2" then
-		if self.CustomTauntAnimV2Sounds then
-			self:EmitSound(self.CustomTauntAnimV2Sounds[math.random(#self.CustomTauntAnimV2Sounds)], 100, math.random(85, 105), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		else
-			self:EmitSound(self.TauntAnimV2Sounds[math.random(#self.TauntAnimV2Sounds)], 100, math.random(85, 105), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		end
-	end
-	if e == "anim_taunt_v3" then
-		if self.CustomTauntAnimV2Sounds then
-			self:EmitSound(self.CustomTauntAnimV3Sounds[math.random(#self.CustomTauntAnimV3Sounds)], 100, math.random(85, 105), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		else
-			self:EmitSound(self.TauntAnimV3Sounds[math.random(#self.TauntAnimV3Sounds)], 100, math.random(85, 105), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		end
-	end
-	if e == "anim_taunt_v4" then
-		if self.CustomTauntAnimV4Sounds then
-			self:EmitSound(self.CustomTauntAnimV4Sounds[math.random(#self.CustomTauntAnimV4Sounds)], 100, math.random(85, 105), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		else
-			self:EmitSound(self.TauntAnimV4Sounds[math.random(#self.TauntAnimV4Sounds)], 100, math.random(85, 105), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		end
-	end
-	if e == "anim_taunt_v5" then
-		if self.CustomTauntAnimV5Sounds then
-			self:EmitSound(self.CustomTauntAnimV5Sounds[math.random(#self.CustomTauntAnimV5Sounds)], 100, math.random(85, 105), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		else
-			self:EmitSound(self.TauntAnimV5Sounds[math.random(#self.TauntAnimV5Sounds)], 100, math.random(85, 105), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		end
-	end
-	if e == "anim_taunt_v6" then
-		if self.CustomTauntAnimV6Sounds then
-			self:EmitSound(self.CustomTauntAnimV6Sounds[math.random(#self.CustomTauntAnimV6Sounds)], 100, math.random(85, 105), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		else
-			self:EmitSound(self.TauntAnimV6Sounds[math.random(#self.TauntAnimV6Sounds)], 100, math.random(85, 105), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		end
-	end
-	if e == "anim_taunt_v7" then
-		if self.CustomTauntAnimV7Sounds then
-			self:EmitSound(self.CustomTauntAnimV7Sounds[math.random(#self.CustomTauntAnimV7Sounds)], 100, math.random(85, 105), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		else
-			self:EmitSound(self.SpawnSounds[math.random(#self.SpawnSounds)], 100, math.random(85, 105), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		end
-	end
-	if e == "anim_taunt_v8" then
-		if self.CustomTauntAnimV8Sounds then
-			self:EmitSound(self.CustomTauntAnimV8Sounds[math.random(#self.CustomTauntAnimV8Sounds)], 100, math.random(85, 105), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		else
-			self:EmitSound(self.TauntAnimV8Sounds[math.random(#self.TauntAnimV8Sounds)], 100, math.random(85, 105), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		end
-	end
-	if e == "anim_taunt_v9" then
-		if self.CustomTauntAnimV9Sounds then
-			self:EmitSound(self.CustomTauntAnimV9Sounds[math.random(#self.CustomTauntAnimV9Sounds)], 100, math.random(85, 105), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		else
-			self:EmitSound(self.TauntAnimV9Sounds[math.random(#self.TauntAnimV9Sounds)], 100, math.random(85, 105), 1, 2)
-			self.NextSound = CurTime() + self.SoundDelayMax
-		end
-	end
 end

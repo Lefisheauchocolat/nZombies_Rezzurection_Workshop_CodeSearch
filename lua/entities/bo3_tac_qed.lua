@@ -876,12 +876,9 @@ ENT.WaffeEffect = function(self)
 	waff:SetAngles(Angle(90,0,0))
 	waff:SetOwner(IsValid(self:GetOwner()) and self:GetOwner() or self)
 
-	waff.Damage = 11500
-	waff.mydamage = 11500
-
 	waff:Spawn()
 
-	ang = Angle(90,0,0)
+	local ang = Angle(90,0,0)
 	local dir = ang:Forward() 
 	dir:Mul(500)
 

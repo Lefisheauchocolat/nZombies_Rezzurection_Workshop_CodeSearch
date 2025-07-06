@@ -71,6 +71,9 @@ local spawnrun = {"nz_spawn_ground_v1_run"}
 local spawnfast = {"nz_spawn_ground_climbout_fast", "nz_s4_3arc_traverse_riser"}
 local spawnsuperfast = {"nz_ent_ground_01", "nz_ent_ground_02"}
 
+local crawlspawnwalk = {"nz_base_zombie_crawl_out_walk_01",}
+local crawlspawnrun = {"nz_base_zombie_crawl_out_run_01","nz_base_zombie_crawl_out_run_02",}
+local crawlspawnsprint = {"nz_base_zombie_crawl_out_sprint_01","nz_base_zombie_crawl_out_sprint_01",}
 ENT.DeathSequences = {
 	"nz_death_v1",
 	"nz_death_v2",
@@ -253,6 +256,7 @@ ENT.SequenceTables = {
 	{Threshold = 0, Sequences = {
 		{
 			SpawnSequence = {spawnslow},
+			CrawlOutSequences = {crawlspawnwalk},
 			MovementSequence = {
 				"nz_walk_v1",
 			},
@@ -305,7 +309,9 @@ ENT.SequenceTables = {
 			StandAttackSequences = {AttackSequences},
 			CrawlAttackSequences = {CrawlAttackSequences},
 
-			JumpSequences = {JumpSequences},
+			JumpSequences = {WalkJumpSequencesMiddle},
+			JumpSequencesLeft = {WalkJumpSequencesLeft},
+			JumpSequencesRight = {WalkJumpSequencesRight},
 			CrawlJumpSequences = {CrawlJumpSequences},
 
 			Climb36 = {SlowClimbUp36},
@@ -322,6 +328,7 @@ ENT.SequenceTables = {
 	{Threshold = 36, Sequences = {
 		{
 			SpawnSequence = {spawnrun},
+			CrawlOutSequences = {crawlspawnrun},
 			MovementSequence = {
 				"nz_run_v1",
 			},
@@ -375,7 +382,9 @@ ENT.SequenceTables = {
 			Bo3AttackSequences = {StinkyRunAttackSequences},
 			CrawlAttackSequences = {CrawlAttackSequences},
 
-			JumpSequences = {RunJumpSequences},
+			JumpSequences = {RunJumpSequencesMiddle},
+			JumpSequencesLeft = {RunJumpSequencesLeft},
+			JumpSequencesRight = {RunJumpSequencesRight},
 			CrawlJumpSequences = {CrawlJumpSequences},
 
 			Climb36 = {SlowClimbUp36},
@@ -392,6 +401,7 @@ ENT.SequenceTables = {
 	{Threshold = 71, Sequences = {
 		{
 			SpawnSequence = {spawnfast},
+			CrawlOutSequences = {crawlspawnsprint},
 			MovementSequence = {
 				"nz_mm_zombie_stand_sprint_loco_f"
 			},
@@ -445,7 +455,9 @@ ENT.SequenceTables = {
 			Bo3AttackSequences = {StinkyRunAttackSequences},
 			CrawlAttackSequences = {CrawlAttackSequences},
 
-			JumpSequences = {SprintJumpSequences},
+			JumpSequences = {SprintJumpSequencesMiddle},
+			JumpSequencesLeft = {SprintJumpSequencesLeft},
+			JumpSequencesRight = {SprintJumpSequencesRight},
 			CrawlJumpSequences = {CrawlJumpSequences},
 
 			Climb36 = {FastClimbUp36},
@@ -462,6 +474,7 @@ ENT.SequenceTables = {
 	{Threshold = 155, Sequences = {
 		{
 			SpawnSequence = {spawnsuperfast},
+			CrawlOutSequences = {crawlspawnsprint},
 			MovementSequence = {
 				"nz_hazmat_sprint_01",
 			},
@@ -512,7 +525,9 @@ ENT.SequenceTables = {
 			Bo3AttackSequences = {StinkyRunAttackSequences},
 			CrawlAttackSequences = {CrawlAttackSequences},
 
-			JumpSequences = {SprintJumpSequences},
+			JumpSequences = {SprintJumpSequencesMiddle},
+			JumpSequencesLeft = {SprintJumpSequencesLeft},
+			JumpSequencesRight = {SprintJumpSequencesRight},
 			CrawlJumpSequences = {CrawlJumpSequences},
 
 			Climb36 = {FastClimbUp36},

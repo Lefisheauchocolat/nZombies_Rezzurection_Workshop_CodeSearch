@@ -165,6 +165,13 @@ if SERVER then
     end)
 end
 
+hook.Add("SetupMove", "nz.Bleeding.SetupMove", function(ply, mv, cmd)
+	if ply:NZIsBleedingVictim() and ply:GetNotDowned() then
+		ply:SetDSP(32, false)
+		mv:SetMaxClientSpeed(100)
+	end
+end)
+
 hook.Add("StartCommand", "nz.TrasherBlockCMD", function(ply, cmd)
 	if not nzombies then hook.Remove("StartCommand", "nz.TrasherBlockCMD") end
     if ply:NZIsThrasherVictim() then

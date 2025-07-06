@@ -11,7 +11,7 @@ SWEP.UseHands = true
 SWEP.Type_Displayed = "#tfa.weapontype.specialist"
 SWEP.Author = "FlamingFox"
 SWEP.Slot = 0
-SWEP.PrintName = nzombies and "Gauntlet of Siegfried | BO3" or "Gauntlet of Siegfried"
+SWEP.PrintName = "Gauntlet of Siegfried"
 SWEP.DrawCrosshair = true
 SWEP.DrawCrosshairIS = false
 SWEP.WWCrosshairEnabled = true
@@ -334,7 +334,7 @@ function SWEP:AttachWaveGun()
 	
 	self.up_hat = false
 	self.HoldType = "fist"
-	self.PrintName = "115 Punch | BO3"
+	self.PrintName = "115 Punch"
 
 	self.InspectPos = Vector(0, -1, -1)
 	self.InspectAng = Vector(15, 0, 0)
@@ -367,7 +367,7 @@ function SWEP:DetachWaveGun()
 	
 	self.up_hat = true
 	self.HoldType = "pistol"
-	self.PrintName = "Gauntlet of Siegfried | BO3"
+	self.PrintName = "Gauntlet of Siegfried"
 
 	self.InspectPos = Vector(8, -5, -1)
 	self.InspectAng = Vector(20, 30, 16)

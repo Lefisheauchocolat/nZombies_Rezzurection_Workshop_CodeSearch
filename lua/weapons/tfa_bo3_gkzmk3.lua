@@ -9,7 +9,7 @@ SWEP.UseHands = true
 SWEP.Type_Displayed = "#tfa.weapontype.wonderweapon"
 SWEP.Author = "FlamingFox"
 SWEP.Slot = 1
-SWEP.PrintName = nzombies and "GKZ-45 Mk3 | BO3" or "GKZ-45 Mk3"
+SWEP.PrintName = "GKZ-45 Mk3"
 SWEP.DrawCrosshair = true
 SWEP.DrawCrosshairIS = false
 

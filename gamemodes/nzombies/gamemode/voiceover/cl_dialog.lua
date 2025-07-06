@@ -13,6 +13,29 @@ local activeDialog = {
     endTime = 0
 }
 
+local function We(x)
+    return x/1920*ScrW()
+end
+
+local function He(y)
+    return y/1080*ScrH()
+end
+
+local function ScaleToAspect(origWidth, origHeight, maxWidth, maxHeight) 
+    local aspectRatio = origWidth / origHeight
+    local scaleWidth, scaleHeight
+
+    if maxWidth / maxHeight > aspectRatio then
+        scaleWidth = maxHeight * aspectRatio
+        scaleHeight = maxHeight
+    else
+        scaleWidth = maxWidth
+        scaleHeight = maxWidth / aspectRatio
+    end
+
+    return scaleWidth, scaleHeight
+end
+
 local function DisplayCharacterDialog(name, iconPath, soundPath, color)
     local ply = LocalPlayer()
     color = color or Color(60,165,255)

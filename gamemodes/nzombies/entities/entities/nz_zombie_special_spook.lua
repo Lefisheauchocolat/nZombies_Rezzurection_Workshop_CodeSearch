@@ -60,16 +60,45 @@ ENT.BarricadeTearSequences = {
 	"nz_legacy_door_tear_right",
 }
 
-local JumpSequences = {
-	{seq = "nz_barricade_trav_walk_1"},
-	{seq = "nz_barricade_trav_walk_2"},
-	{seq = "nz_barricade_trav_walk_3"},
+local WalkJumpSequencesMiddle = {
+	{seq = "nz_base_zombie_walk_win_trav_m_01"},
+	{seq = "nz_base_zombie_walk_win_trav_m_02"},
+	{seq = "nz_base_zombie_walk_win_trav_m_03"},
 }
 
-local RunJumpSequences = {
-	{seq = "nz_barricade_sprint_1"},
-	{seq = "nz_barricade_sprint_2"},
+local WalkJumpSequencesLeft = {
+	{seq = "nz_base_zombie_walk_win_trav_l_01"},
 }
+
+local WalkJumpSequencesRight = {
+	{seq = "nz_base_zombie_walk_win_trav_r_01"},
+}
+
+local RunJumpSequencesMiddle = {
+	{seq = "nz_base_zombie_run_win_trav_m_01"},
+}
+
+local RunJumpSequencesLeft = {
+	{seq = "nz_base_zombie_run_win_trav_l_01"},
+}
+
+local RunJumpSequencesRight = {
+	{seq = "nz_base_zombie_run_win_trav_r_01"},
+}
+
+local SprintJumpSequencesMiddle = {
+	{seq = "nz_base_zombie_sprint_win_trav_m_01"},
+	{seq = "nz_base_zombie_sprint_win_trav_m_02"},
+}
+
+local SprintJumpSequencesLeft = {
+	{seq = "nz_base_zombie_sprint_win_trav_l_01"},
+}
+
+local SprintJumpSequencesRight = {
+	{seq = "nz_base_zombie_sprint_win_trav_r_01"},
+}
+
 
 local AttackSequences = {
 	{seq = "nz_spook_jump_kick"},
@@ -90,7 +119,9 @@ ENT.SequenceTables = {
 				"nz_blackhole_2",
 				"nz_blackhole_3",
 			},
-			JumpSequences = {JumpSequences},
+			JumpSequences = {WalkJumpSequencesMiddle},
+			JumpSequencesLeft = {WalkJumpSequencesLeft},
+			JumpSequencesRight = {WalkJumpSequencesRight},
 			PassiveSounds = {walksounds},
 			AttackSequences = {AttackSequences},
 		},
@@ -105,7 +136,9 @@ ENT.SequenceTables = {
 				"nz_blackhole_2",
 				"nz_blackhole_3",
 			},
-			JumpSequences = {RunJumpSequences},
+			JumpSequences = {RunJumpSequencesMiddle},
+			JumpSequencesLeft = {RunJumpSequencesLeft},
+			JumpSequencesRight = {RunJumpSequencesRight},
 			PassiveSounds = {walksounds},
 			AttackSequences = {AttackSequences},
 		},

@@ -142,6 +142,7 @@ ENT.SequenceTables = {
 	{Threshold = 0, Sequences = {
 		{
 			SpawnSequence = {spawnrun},
+			CrawlOutSequences = {crawlspawnrun},
 			MovementSequence = {
 				"nz_supersprint_ad3",
 				"nz_supersprint_au3",
@@ -201,7 +202,9 @@ ENT.SequenceTables = {
 			StandAttackSequences = {AttackSequences},
 			CrawlAttackSequences = {CrawlAttackSequences},
 
-			JumpSequences = {SprintJumpSequences},
+			JumpSequences = {SprintJumpSequencesMiddle},
+			JumpSequencesLeft = {SprintJumpSequencesLeft},
+			JumpSequencesRight = {SprintJumpSequencesRight},
 			CrawlJumpSequences = {CrawlJumpSequences},
 
 			Climb36 = {SlowClimbUp36},

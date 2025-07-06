@@ -64,6 +64,10 @@ if SERVER then
 
 			if (dot < 0 and not shield) or (dot >= 0 and shield) then
 				ply:GetShield():TakeDamage(30, ent, ent)
+
+				if ply:HasUpgrade("tortoise") and math.Rand(100) <= 25 then
+					ent:PerformStun(math.Rand(1.25, 3.7))
+				end
 				return false
 			end
 		end

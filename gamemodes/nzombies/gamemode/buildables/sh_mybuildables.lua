@@ -33,6 +33,27 @@ nzBuilds:NewBuildable("unique_id", {
 	text = function(self) end, //custom text, DELETE IF NOT USING
 })]]--
 
+nzBuilds:NewBuildable("mw2_riotshield", {
+	name = "Riot Shield",
+	model = "models/weapons/tfa_mw2009/riotshield/w_riotshield.mdl",
+	weapon = "tfa_mw2_riotshield",
+	hudicon = Material("vgui/icon/iw4_menu_riotshield.png", "unlitgeneric smooth"),
+	pos = Vector(0,0,72),
+	ang = Angle(0,0,0),
+	parts = {
+		[1] = {
+			id = "Shield Face", 
+			mdl = "models/weapons/tfa_mw2009/riotshield/build_riotshield_face.mdl",
+			icon = Material("vgui/icon/iw4_hud_pickup_riotshield.png", "unlitgeneric smooth")
+		},
+		[2] = {
+			id = "Shield Handle", 
+			mdl = "models/weapons/tfa_mw2009/riotshield/build_riotshield_parts.mdl",
+			icon = Material("vgui/icon/inventory_wirerepair.png", "unlitgeneric smooth")
+		},
+	},
+})
+
 nzBuilds:NewBuildable("bo2_tranzitshield", {
 	name = "Tranzit Shield",
 	model = "models/weapons/tfa_bo2/tranzitshield/w_tranzitshield.mdl",

@@ -104,7 +104,6 @@ ENT.SequenceTables = {
 			},
 			AttackSequences = {AttackSequences},
 			JumpSequences = {JumpSequences},
-
 			PassiveSounds = {walksounds},
 		},
 		
@@ -112,13 +111,13 @@ ENT.SequenceTables = {
 	{Threshold = 200, Sequences = {
 		{
 			SpawnSequence = {spawnsuperfast},
+			CrawlOutSequences = {crawlspawnsprint},
 			MovementSequence = {
 				"run_unarmed",
 				"run_sprint",
 			},
 			AttackSequences = {AttackSequences},
 			JumpSequences = {JumpSequences},
-
 			PassiveSounds = {runsounds},
 		},
 		

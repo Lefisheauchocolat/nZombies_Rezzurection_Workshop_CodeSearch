@@ -54,15 +54,19 @@ function ENT:CreatePapWeapon()
 	local model = (ass and ass.WM or ass.WorldModel) or "models/weapons/w_rif_ak47.mdl"
 	if !util.IsValidModel(model) then model = "models/weapons/w_rif_ak47.mdl" end
 
-	self.GunEnt = ents.Create("nz_prop_effect_attachment")
-	self.GunEnt:SetModel(model)
-	self.GunEnt:SetAngles(ang)
-	self.GunEnt:SetPos(pos)
-	self.GunEnt:Spawn()
-	self.GunEnt:SetParent(self)
+	-- Seeing if delaying the fake weapon model makes the rotation be correct more consistently.(Most weapons face the wrong way like its nZ Classic.)
+	timer.Simple(engine.TickInterval(), function()
+		self.GunEnt = ents.Create("nz_prop_effect_attachment")
+		self.GunEnt:SetModel(model)
+		self.GunEnt:SetAngles(ang)
+		self.GunEnt:SetPos(pos)
+		self.GunEnt:Spawn()
+		self.GunEnt:SetParent(self)
 
-	self.GunEnt:FollowBone(self, 1)
-	self.GunEnt:DeleteOnRemove(self)
+		self.GunEnt:FollowBone(self, 1)
+		self.GunEnt:DeleteOnRemove(self)
+		self.GunEnt:SetAngles(ang)
+	end)
 end
 
 function ENT:WeaponEject()	

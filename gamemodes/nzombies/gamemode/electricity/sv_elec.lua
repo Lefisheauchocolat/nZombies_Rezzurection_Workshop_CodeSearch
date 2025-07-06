@@ -24,6 +24,10 @@ function nzElec:Activate(nochat)
 		v:TurnOn()
 	end
 
+	for k,v in pairs(ents.FindByClass("bo6_arsenal")) do
+		v:TurnOn()
+	end
+
 	if nzMapping.Settings.cwfizz then
 		for k,v in pairs(ents.FindByClass("wunderfizz_machine")) do
 			v:TurnOn()
@@ -76,6 +80,10 @@ function nzElec:Reset(nochat)
 
 	-- And Wunderfizz Machines
 	for k,v in pairs(ents.FindByClass("wunderfizz_machine")) do
+		v:TurnOff()
+	end
+
+	for k,v in pairs(ents.FindByClass("bo6_arsenal")) do
 		v:TurnOff()
 	end
 

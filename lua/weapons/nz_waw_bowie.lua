@@ -1,7 +1,7 @@
 local nzombies = engine.ActiveGamemode() == "nzombies"
 
 SWEP.Base = "tfa_melee_base"
-SWEP.Category = "nZombies Buyable Knives"
+SWEP.Category = "OLD nZombies Buyable Knives"
 SWEP.Spawnable = false
 SWEP.AdminSpawnable = true
 SWEP.UseHands = true
@@ -45,7 +45,9 @@ SWEP.Primary.Sound_Hit = "TFA.BO1.KNIFE.Hit"
 SWEP.Primary.Sound_HitFlesh = "TFA_WAW.BOWIE.STAB"
 SWEP.Primary.DamageType = DMG_SLASH
 SWEP.Primary.RPM = 100
-SWEP.Primary.Damage = 1000
+SWEP.Primary.Damage = 1250
+SWEP.Secondary.Damage = 1250
+SWEP.Secondary.BashDamage = SWEP.Secondary.Damage
 SWEP.Primary.MaxCombo = 0
 SWEP.Secondary.Damage = 1000
 SWEP.Secondary.MaxCombo = 0
@@ -143,7 +145,7 @@ function SWEP:AdjustMouseSensitivity()
 		return 0.25
 	end
 	if self:GetStatus() ~= TFA.Enum.STATUS_SHOOTING and self:GetNextPrimaryFire() > CurTime() and self:GetStabbed() then
-		return math.Clamp(CurTime()/self:GetNextPrimaryFire(), 0, 1)
+		return math.Clamp(CurTime()/self:GetNextPrimaryFire(), 0.2, 1)
 	end
 end
 
@@ -194,7 +196,6 @@ function SWEP:PrimaryAttack(...)
 					ply:PrintMessage(2, tostring(ply:GetKnifingTarget()))
 				end
 			end
-
 			return self:SecondaryAttack()
 		end
 	end

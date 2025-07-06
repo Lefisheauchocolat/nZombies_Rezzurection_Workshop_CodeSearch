@@ -20,7 +20,7 @@ SWEP.WorldModel = "models/nzr/2022/perks/w_perk_bottle.mdl"
 SWEP.HoldType = "slam"
 SWEP.CameraAttachmentOffsets = {}
 SWEP.CameraAttachmentScale = 1
-SWEP.VMPos = Vector(0, -1, 0)
+SWEP.VMPos = Vector(0, 0, -1)
 SWEP.VMAng = Vector(0, 0, 0)
 SWEP.VMPos_Additive = true
 
@@ -103,8 +103,10 @@ SWEP.EventTable = {
 	end
 end, client = true, server = true},
 { ["time"] = 0, ["type"] = "lua", value = function(self) self:GetOwner():SetUsingSpecialWeapon(true) end, client = false, server = true},
-{ ["time"] = 20 / 30, ["type"] = "sound", ["value"] = Sound("Perks_T7C.Open") },
-{ ["time"] = 21 / 30, ["type"] = "sound", ["value"] = Sound("Perks_T7C.Fizz") },
+{ ["time"] = 1 / 30, ["type"] = "sound", ["value"] = Sound("weapon_bo3_cloth.med") },
+{ ["time"] = 11 / 30, ["type"] = "sound", ["value"] = Sound("weapon_bo3_cloth.med") },
+{ ["time"] = 24 / 30, ["type"] = "sound", ["value"] = Sound("Perks_T7C.Open") },
+{ ["time"] = 25 / 30, ["type"] = "sound", ["value"] = Sound("Perks_T7C.Fizz") },
 { ["time"] = 43 / 30, ["type"] = "sound", ["value"] = Sound("Perks_T7C.Cap") },
 { ["time"] = 39 / 30, ["type"] = "sound", ["value"] = Sound("Perks_RD.Drink") },
 { ["time"] = 55 / 30, ["type"] = "lua", value = function(self) self:GetOwner():PerkBlur(0.8) end, client = false, server = true},

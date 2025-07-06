@@ -173,11 +173,11 @@ function ENT:Think()
 
 				local lights_off = {5, 6, 7}
 				table.RemoveByValue(lights_off, cooldowns_lights[cooldowns_stage])
-				self:SetSubMaterial(cooldowns_lights[cooldowns_stage], "gummachine/mtl_p7_zm_zod_bubblegum_machine_light_bulb_on.vmt")
+				--self:SetSubMaterial(cooldowns_lights[cooldowns_stage], "gummachine/mtl_p7_zm_zod_bubblegum_machine_light_bulb_on.vmt")
 
-				for k, v in pairs(lights_off) do
+				--[[for k, v in pairs(lights_off) do
 					self:SetSubMaterial(v, "models/bo3/gobblegum/mtl_p7_zm_zod_bubblegum_machine_light_bulb.vmt")
-				end
+				end]]
 
 				if cooldowns_stage == 6 then
 					self.next_turnofflights = ct + .5
@@ -237,10 +237,10 @@ function ENT:TurnLightsOn(noskin)
 
 	self:SetAllLightsOn(true)
 	self:SetLightsOn(true)
-	self:SetSubMaterial(4, "models/bo3/gobblegum/mtl_p7_zm_zod_bubblegum_machine_light_bulb_top.vmt")
-	self:SetSubMaterial(5, "models/bo3/gobblegum/mtl_p7_zm_zod_bubblegum_machine_light_bulb_row1.vmt")
-	self:SetSubMaterial(6, "models/bo3/gobblegum/mtl_p7_zm_zod_bubblegum_machine_light_bulb_row2.vmt")
-	self:SetSubMaterial(7, "models/bo3/gobblegum/mtl_p7_zm_zod_bubblegum_machine_light_bulb_row3.vmt")
+	--self:SetSubMaterial(4, "models/bo3/gobblegum/mtl_p7_zm_zod_bubblegum_machine_light_bulb_top.vmt")
+	--self:SetSubMaterial(5, "models/bo3/gobblegum/mtl_p7_zm_zod_bubblegum_machine_light_bulb_row1.vmt")
+	--self:SetSubMaterial(6, "models/bo3/gobblegum/mtl_p7_zm_zod_bubblegum_machine_light_bulb_row2.vmt")
+	--self:SetSubMaterial(7, "models/bo3/gobblegum/mtl_p7_zm_zod_bubblegum_machine_light_bulb_row3.vmt")
 end
 
 function ENT:TurnLightsOff()
@@ -248,10 +248,10 @@ function ENT:TurnLightsOff()
 
 	self:SetAllLightsOn(false)
 	self:SetLightsOn(false)
-	self:SetSubMaterial(4, "models/bo3/gobblegum/mtl_p7_zm_zod_bubblegum_machine_light_bulb.vmt")
-	self:SetSubMaterial(5, "models/bo3/gobblegum/mtl_p7_zm_zod_bubblegum_machine_light_bulb.vmt")
-	self:SetSubMaterial(6, "models/bo3/gobblegum/mtl_p7_zm_zod_bubblegum_machine_light_bulb.vmt")
-	self:SetSubMaterial(7, "models/bo3/gobblegum/mtl_p7_zm_zod_bubblegum_machine_light_bulb.vmt")
+	--self:SetSubMaterial(4, "models/bo3/gobblegum/mtl_p7_zm_zod_bubblegum_machine_light_bulb.vmt")
+	--self:SetSubMaterial(5, "models/bo3/gobblegum/mtl_p7_zm_zod_bubblegum_machine_light_bulb.vmt")
+	--self:SetSubMaterial(6, "models/bo3/gobblegum/mtl_p7_zm_zod_bubblegum_machine_light_bulb.vmt")
+	--self:SetSubMaterial(7, "models/bo3/gobblegum/mtl_p7_zm_zod_bubblegum_machine_light_bulb.vmt")
 end
 
 function ENT:GumDissapier()

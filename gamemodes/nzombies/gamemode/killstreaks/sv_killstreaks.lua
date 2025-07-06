@@ -66,7 +66,7 @@ hook.Add("PlayerSwitchWeapon", "nzrKillstreaks", function(ply, ow, nw)
 end)
 
 hook.Add("PlayerButtonDown", "nzrKillstreaks", function(ply, but)
-    if ply:HaveKillstreak() and ply:Alive() and but == KEY_5 then
+    if ply:HaveKillstreak() and ply:GetNotDowned() and ply:Alive() and but == KEY_5 then
         ply:SelectWeapon(ply:HaveKillstreak())
     end
 end)
@@ -125,7 +125,7 @@ hook.Add("PlayerPostThink", "nzrSalvageSystem", function(ply)
         if v:GetClass() == "bo6_salvage" then
             v:Remove()
             ply:SetNWInt("Salvage", ply:GetNWInt("Salvage")+50)
-            ply:EmitSound(")bo6/other/metal_collect.wav", 60)
+            ply:EmitSound("nz_moo/effects/pickup_salvage/pickup_0"..math.random(0,3)..".mp3", SNDLVL_GUNFIRE)
             break
         end
     end

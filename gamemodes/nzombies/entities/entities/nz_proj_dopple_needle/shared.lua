@@ -60,7 +60,7 @@ function ENT:StartTouch(ent)
 
             if v:IsPlayer() then
                 v:TakeDamageInfo(expdamage)
-				v:NZSonicBlind(1)
+				v:NZBleedingVictim(1)
             end
         end
 

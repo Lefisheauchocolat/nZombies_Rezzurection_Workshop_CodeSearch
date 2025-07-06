@@ -62,7 +62,10 @@ function ENT:Initialize()
 	self.TotalSpawns = 0
 	self.NextRound = 0
 	self.MarkRound = false
+	self.StartCooldown = false
 	self.MarkedRound = 0
+
+	self.MixedSpawnOnCooldown = false
 
 	self.CurrentSpawnType = "nil"
 	self:UpdateSpawnType()
@@ -97,6 +100,7 @@ function ENT:UpdateSpawnType()
 		[17] = "Alcove Spawn 56",
 		[18] = "Alcove Spawn 96",
 		[19] = "Riser(IW Style)",
+		[20] = "Crawl Spawn(BO6 Style)",
 	}
 	self.CurrentSpawnType = types[self:GetSpawnType()]
 end
@@ -208,7 +212,7 @@ function ENT:Think()
 								if !v:GetMasterSpawn() 
 									and (v.link == nil or nzDoors:IsLinkOpened(v.link) or nzDoors:IsLinkOpened(v.link2) or nzDoors:IsLinkOpened(v.link3) ) 
 									and (nzElec:IsOn() and v:GetActiveRound() == -1 or nzRound:GetNumber() >= v:GetActiveRound() and v:GetActiveRound() ~= -1) 
-									--[[and (self:GetRoundCooldown() == 0 or nzRound:GetNumber() == self.NextRound and self:GetRoundCooldown ~= 0)]] then
+									and (nzRound:GetNumber() == v.NextRound and v:GetRoundCooldown() ~= 0 or v:GetRoundCooldown() == 0) then
 
 									if nzMapping.Settings.navgroupbased == 1 then
 										for k2, v2 in pairs(plys) do
@@ -268,10 +272,6 @@ function ENT:Think()
 						-- Find what type of spawner it is.
 						local spawntypes = {
 							["nz_spawn_zombie_normal"] = true,
-							["nz_spawn_zombie_extra1"] = true,
-							["nz_spawn_zombie_extra2"] = true,
-							["nz_spawn_zombie_extra3"] = true,
-							["nz_spawn_zombie_extra4"] = true,
 						}
 
 						if !randomspawn:GetMixedSpawn() then
@@ -398,6 +398,8 @@ function ENT:ChanceExtraEnemySpawn()
 				spawn.MarkRound = true
 				spawn.MarkedRound = rnd
 				active = rnd
+			elseif spawn:GetActiveRound() == -1 and nzElec:IsOn() and spawn.MarkRound then
+				active = spawn.MarkedRound
 			end
 			
 			local chance = spawn:GetSpawnChance()
@@ -406,7 +408,7 @@ function ENT:ChanceExtraEnemySpawn()
 
 			if chance < 100 then
 				for i=1, multi do
-					chance = math.Clamp(chance + 0.15, 0, limit)
+					chance = math.Clamp(chance + 0.05, 0, limit)
 				end
 			end
 
@@ -445,22 +447,31 @@ function ENT:ChanceExtraEnemySpawn()
 end
 
 hook.Add("OnRoundStart", "ResetTotalSpawnsAndCooldown", function()
-	for k,v in nzLevel.GetZombieSpawnArray() do
-		v.TotalSpawns = 0
-		if nzRound:GetNumber() == 1 then
-			v.MarkRound = false
-		end
 
-		--[[if v:GetRoundCooldown() ~= 0 then
-			if v:GetActiveRound() == -1 and nzElec:IsOn() then
-
-			elseif nzRound:GetNumber() >= v:GetActiveRound() and v:GetActiveRound() ~= -1 then
-
+	for _,spawn in nzLevel.GetZombieSpawnArray() do
+		local round = nzRound:GetNumber()
+		if !spawn:GetMasterSpawn() then
+			spawn.TotalSpawns = 0
+			if nzRound:GetNumber() == 1 then
+				spawn.MarkRound = false
+				spawn.StartCooldown = false
+				spawn.NextRound = spawn:GetActiveRound()
+				if spawn:GetActiveRound() == -1 then
+					spawn.NextRound = 1
+				end
 			end
-		end]]
 
-		--[[if (nzElec:IsOn() and v:GetActiveRound() == -1 or nzRound:GetNumber() >= v:GetActiveRound() and v:GetActiveRound() ~= -1) then
-		end]]
+			if spawn:GetRoundCooldown() ~= 0 and spawn:GetMixedSpawn() and spawn.StartCooldown then
+				if (round >= spawn:GetActiveRound() and spawn:GetActiveRound() ~= -1)
+				or (spawn.MarkRound and round >= spawn.MarkedRound and spawn:GetActiveRound() == -1) then
+					if round > spawn.NextRound then
+						spawn.NextRound = round + spawn:GetRoundCooldown()
+					end
+				end
+			elseif spawn:GetMixedSpawn() and !spawn.StartCooldown and round >= spawn:GetActiveRound() then
+				spawn.StartCooldown = true
+			end
+		end
 	end
 end)
 
@@ -520,11 +531,14 @@ if CLIENT then
 				if self.GetAliveAmount and !self:GetMasterSpawn() then
 					draw.SimpleText("Alive Cap: "..self:GetAliveAmount().."", displayfont, 0, -135, ourcolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				end
+				if self.GetAliveAmount and !self:GetMasterSpawn() then
+					draw.SimpleText("Round Cooldown: "..self:GetRoundCooldown().."", displayfont, 0, -150, ourcolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				end
 				--[[if self.GetSpeedOverride and self:GetSpeedOverride() then
 					draw.SimpleText("Speed Override: "..self:GetSpeedOverride().."", displayfont, 0, -150, ourcolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				end]]
 				if self.GetMixedSpawn and self:GetMixedSpawn() then
-					draw.SimpleText("Mixed Spawn", displayfont, 0, -150, ourcolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+					draw.SimpleText("Mixed Spawn", displayfont, 0, -165, ourcolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				end
 			cam.End3D2D()
 		end

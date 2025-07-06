@@ -44,33 +44,23 @@ VManip:RegisterAnim("vm_iw_poweron",
 }
 )
 
+-- IW Pick Up
+VManip:RegisterAnim("vm_iw_pickup",
+{
+["model"]="nzr/2025/gestures/iw7/pickup/vm_iw7_pickup.mdl",
+["lerp_peak"]=1.04,
+["lerp_speed_in"]= 1,
+["lerp_speed_out"]= 1,
+["speed"]= 0.7,
+["sounds"]={},
+["loop"]=false
+}
+)
+
+
 -- Bo3 Downed Crawl Anims
 
-VManip:RegisterAnim("crawl_in",
-{
-["model"]="nzr/2025/gestures/t7/crawl/vm_t7_crawl.mdl",
-["lerp_peak"]=0.8,
-["lerp_speed_in"]= 1,
-["lerp_speed_out"]= 1,
-["speed"]= 0.7,
-["sounds"]={},
-["loop"]=false
-}
-)
-
-VManip:RegisterAnim("crawl_out",
-{
-["model"]="nzr/2025/gestures/t7/crawl/vm_t7_crawl.mdl",
-["lerp_peak"]=0.8,
-["lerp_speed_in"]= 1,
-["lerp_speed_out"]= 1,
-["speed"]= 0.7,
-["sounds"]={},
-["loop"]=false
-}
-)
-
-VManip:RegisterAnim("crawl_forward",
+VManip:RegisterAnim("crawl_forward_t7",
 {
 ["model"]="nzr/2025/gestures/t7/crawl/vm_t7_crawl.mdl",
 ["lerp_peak"]=0.1,
@@ -82,7 +72,7 @@ VManip:RegisterAnim("crawl_forward",
 }
 )
 
-VManip:RegisterAnim("crawl_back",
+VManip:RegisterAnim("crawl_back_t7",
 {
 ["model"]="nzr/2025/gestures/t7/crawl/vm_t7_crawl.mdl",
 ["lerp_peak"]=0.1,
@@ -94,7 +84,7 @@ VManip:RegisterAnim("crawl_back",
 }
 )
 
-VManip:RegisterAnim("crawl_left",
+VManip:RegisterAnim("crawl_left_t7",
 {
 ["model"]="nzr/2025/gestures/t7/crawl/vm_t7_crawl_side.mdl",
 ["lerp_peak"]=0.1,
@@ -106,7 +96,7 @@ VManip:RegisterAnim("crawl_left",
 }
 )
 
-VManip:RegisterAnim("crawl_right",
+VManip:RegisterAnim("crawl_right_t7",
 {
 ["model"]="nzr/2025/gestures/t7/crawl/vm_t7_crawl_side.mdl",
 ["lerp_peak"]=0.1,
@@ -115,5 +105,86 @@ VManip:RegisterAnim("crawl_right",
 ["speed"]= 0.7,
 ["sounds"]={},
 ["loop"]=true
+}
+)
+
+-- BOCW Downed Crawl Anims
+
+VManip:RegisterAnim("crawl_forward_t9",
+{
+["model"]="nzr/2025/gestures/t9/crawl/vm_t9_crawl.mdl",
+["lerp_peak"]=0.1,
+["lerp_speed_in"]= 2,
+["lerp_speed_out"]= 0.5,
+["speed"]= 0.7,
+["sounds"]={},
+["loop"]=true
+}
+)
+
+VManip:RegisterAnim("crawl_back_t9",
+{
+["model"]="nzr/2025/gestures/t9/crawl/vm_t9_crawl.mdl",
+["lerp_peak"]=0.1,
+["lerp_speed_in"]= 2,
+["lerp_speed_out"]= 0.5,
+["speed"]= 0.7,
+["sounds"]={},
+["loop"]=true
+}
+)
+
+VManip:RegisterAnim("crawl_left_t9",
+{
+["model"]="nzr/2025/gestures/t9/crawl/vm_t9_crawl.mdl",
+["lerp_peak"]=0.1,
+["lerp_speed_in"]= 2,
+["lerp_speed_out"]= 0.5,
+["speed"]= 0.7,
+["sounds"]={},
+["loop"]=true
+}
+)
+
+VManip:RegisterAnim("crawl_right_t9",
+{
+["model"]="nzr/2025/gestures/t9/crawl/vm_t9_crawl.mdl",
+["lerp_peak"]=0.1,
+["lerp_speed_in"]= 2,
+["lerp_speed_out"]= 0.5,
+["speed"]= 0.7,
+["sounds"]={},
+["loop"]=true
+}
+)
+
+-- BO6 Armor Plate
+VManip:RegisterAnim("replate_t10",
+{
+["model"]="nzr/2025/gestures/t10/replate/vm_t10_replate.mdl",
+["lerp_peak"]=0.9,
+["lerp_speed_in"]= 0.5,
+["lerp_speed_out"]= 0.7,
+["speed"]= 0.7,
+["sounds"]={
+	["Latte_Armor.Open"] = 0,
+	["Latte_Armor.Insert"] = 0.1,
+},
+["loop"]=false
+}
+)
+
+VManip:RegisterAnim("replate_fast_t10",
+{
+["model"]="nzr/2025/gestures/t10/replate/vm_t10_replate.mdl",
+["lerp_peak"]=0.6,
+["lerp_speed_in"]= 0.5,
+["lerp_speed_out"]= 1,
+["speed"]= 1,
+["sounds"]={
+	["Latte_Armor.Open"] = 0,
+	["Latte_Armor.Insert"] = 0.05,
+},
+["loop"]=false
 }
 )

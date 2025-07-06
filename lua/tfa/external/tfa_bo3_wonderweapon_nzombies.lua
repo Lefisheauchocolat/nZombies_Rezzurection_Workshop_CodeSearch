@@ -129,7 +129,7 @@ if nzombies then
 	end)
 
 	if SERVER then
-		hook.Add("OnZombieKilled", "BO3.NZ.WW.KillIncrement", function(npc, dmginfo)
+		/*hook.Add("OnZombieKilled", "BO3.NZ.WW.KillIncrement", function(npc, dmginfo)
 			if nzEnemies and nzEnemies.Updated then
 				hook.Remove("OnZombieKilled", "BO3.NZ.WW.KillIncrement")
 			end
@@ -165,7 +165,7 @@ if nzombies then
 					end
 				end
 			end
-		end)
+		end)*/
 
 		hook.Add("OnZombieKilled", "BO3.NZ.WW.Kill", function(ent, dmginfo)
 			if not IsValid(ent) then return end

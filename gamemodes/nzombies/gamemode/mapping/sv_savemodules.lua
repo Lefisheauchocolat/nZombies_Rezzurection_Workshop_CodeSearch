@@ -52,13 +52,14 @@ nzMapping:AddSaveModule("ZedSpawns", {
 				miscspawn 	= v:GetMixedSpawn(),
 				totalspawn  = v:GetTotalSpawns(),
 				aliveamount  = v:GetAliveAmount(),
+				roundcooldown  = v:GetRoundCooldown(),
 			})
 		end
 		return zed_spawns
 	end,
 	loadfunc = function(data)
 		for k,v in pairs(data) do
-			nzMapping:ZedSpawn(v.pos, v.angle, v.link, v.link2, v.link3, v.master, v.spawntype, v.zombietype, v.roundactive, v.spawnchance, v.miscspawn, v.totalspawn, v.aliveamount)
+			nzMapping:ZedSpawn(v.pos, v.angle, v.link, v.link2, v.link3, v.master, v.spawntype, v.zombietype, v.roundactive, v.spawnchance, v.miscspawn, v.totalspawn, v.aliveamount, v.roundcooldown)
 		end
 	end,
 	cleanents = {"nz_spawn_zombie_normal"}, -- Simply clean entities of this type
@@ -735,7 +736,8 @@ nzMapping:AddSaveModule("BreakEntry", {
 		"breakable_entry_plank", 
 		"breakable_entry_bar", 
 		"breakable_entry_ventslat", 
-		"breakable_entry_plank_zhd"
+		"breakable_entry_plank_zhd",
+		"breakable_entry_plank_classic"
 	},
 	postrestorefunc = function(data)
 		-- Now we respawn them! :D

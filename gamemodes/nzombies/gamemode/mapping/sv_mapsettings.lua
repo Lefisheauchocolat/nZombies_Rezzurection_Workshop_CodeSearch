@@ -320,6 +320,7 @@ function nzMapping:LoadMapSettings(data)
 	nzMapping.Settings.dontkeepperks = nil
 
 	nzMapping.Settings.roundwaittime = data.roundwaittime or 15
+	nzMapping.Settings.firstroundwaittime = data.firstroundwaittime or 1
 	nzMapping.Settings.specialroundwaittime = data.specialroundwaittime or 15
 	nzMapping.Settings.specialroundmin = data.specialroundmin or 5
 	nzMapping.Settings.specialroundmax = data.specialroundmax or 7

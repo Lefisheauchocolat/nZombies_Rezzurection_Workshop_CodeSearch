@@ -29,6 +29,13 @@ end)
 
 
 -- fixes
+nzChatCommand.Add("/clearmarkedprops", SERVER, function(ply, text)
+    for _,ent in pairs(ents.GetAll()) do
+        if nzMapping.MarkedProps[ent:MapCreationID()] then
+            ent:Remove()
+        end 
+    end
+end, false, "Delete all props marked for removal.")
 
 nzChatCommand.Add("/fixme", SERVER, function(ply, text)
 	if IsValid(ply) then
@@ -129,7 +136,7 @@ nzChatCommand.Add("/printgums", SERVER, function(ply, text)
 	for k, v in pairs(nzPerks.Gums) do
 		ply:PrintMessage(HUD_PRINTCONSOLE, k)
 	end
-end, true, "Prints all perks internal names to console.")
+end, true, "Prints all gum internal names to console.")
 
 nzChatCommand.Add("/printpowerups", SERVER, function(ply, text)
 	for k, v in pairs(nzPowerUps.Data) do
@@ -380,6 +387,31 @@ nzChatCommand.Add("/giveupgrade", SERVER, function(ply, text)
 		end
 	end
 end, false, "[playerName] perkID Give a perk upgrade to yourself or another player.")
+
+nzChatCommand.Add("/givesalvage", SERVER, function(ply, text)
+	if IsValid(ply) and ply:IsAdmin() then
+		local plyToGiv = player.GetByName(text[1])
+		local salvageAmount
+
+		if not plyToGiv then
+			salvageAmount = tonumber(text[1])
+			plyToGiv = ply
+		else
+			salvageAmount = tonumber(text[2])
+		end
+
+		if IsValid(plyToGiv) and plyToGiv:Alive() and (plyToGiv:IsPlaying() or nzRound:InState(ROUND_CREATE)) then
+			if salvageAmount then
+				local current = plyToGiv:GetNWInt("Salvage", 0)
+				plyToGiv:SetNWInt("Salvage", current + salvageAmount)
+			else
+				ply:ChatPrint("[NZ] No valid number provided.")
+			end
+		else
+			ply:ChatPrint("[NZ] The player you have selected is either not valid or not alive.")
+		end
+	end
+end, false, "[playerName] salvageAmount Give salvage to yourself or another player.")
 
 nzChatCommand.Add("/removeperk", SERVER, function(ply, text)
 	if IsValid(ply) and ply:IsAdmin() then
@@ -811,6 +843,41 @@ nzChatCommand.Add("/gotogocamera", SERVER, function(ply, text)
 		end
 	end
 end, false, "Teleporters player to given Game Over camera start.")
+
+nzChatCommand.Add("/find", SERVER, function(ply, text)
+	if not (IsValid(ply) and ply:IsAdmin()) then return end
+	if not nzRound:InState(ROUND_CREATE) then
+		ply:ChatPrint("[NZ] You can only use this command during ROUND_CREATE.")
+		return
+	end
+
+	local className = text[1]
+	if not className or className == "" then
+		ply:ChatPrint("[NZ] Usage: /find <entity_classname>")
+		return
+	end
+
+	local nearestEnt
+	local shortestDist = math.huge
+	local plyPos = ply:GetPos()
+
+	for _, ent in ipairs(ents.FindByClass(className)) do
+		if IsValid(ent) then
+			local dist = ent:GetPos():DistToSqr(plyPos)
+			if dist < shortestDist then
+				shortestDist = dist
+				nearestEnt = ent
+			end
+		end
+	end
+
+	if IsValid(nearestEnt) then
+		ply:SetPos(nearestEnt:GetPos() + Vector(0, 0, 32))
+		ply:ChatPrint("[NZ] Teleported to the closest entity: " .. className)
+	else
+		ply:ChatPrint("[NZ] No valid entity found with classname: " .. className)
+	end
+end, false, "Teleport to the closest entity of the specified class.")
 
 nzChatCommand.Add("/fizzlist", SERVER, function(ply, text)
     local fizzlist = nzMapping.Settings.wunderfizzperklist

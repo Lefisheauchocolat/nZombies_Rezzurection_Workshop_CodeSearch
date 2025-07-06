@@ -155,8 +155,8 @@ end)
 
 function nzLobby:CanOpenLobby()
     local ply = LocalPlayer()
-    if nzRound:GetState() != ROUND_WAITING or gui.IsGameUIVisible() or ply:Alive() or nzLobby:HaveOpenedPanels() then
-        return false 
+    if (MapVote and MapVote.Allow) or nzRound:GetState() != ROUND_WAITING or gui.IsGameUIVisible() or ply:Alive() or nzLobby:HaveOpenedPanels() then
+        return false
     end
     return true
 end

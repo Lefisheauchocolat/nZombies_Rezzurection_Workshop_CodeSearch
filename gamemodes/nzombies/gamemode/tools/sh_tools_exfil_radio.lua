@@ -54,6 +54,14 @@ nzTools:CreateTool("exfilradioeditor", {
 			nzSettings:SetSimpleSetting("ExfilMaxZombies", tonumber(val) or 84)
 		end
 
+		local Row21 = DProperties:CreateRow("Config Settings", "Loading Distance")
+		Row21:Setup("Generic")
+		Row21:SetValue(nzSettings:GetSimpleSetting("ExfilLoadDis", 200))
+		nzSettings:SyncValueToElement("ExfilLoadDis", Row21)
+		Row21.DataChanged = function( _, val ) 
+			nzSettings:SetSimpleSetting("ExfilLoadDis", tonumber(val) or 200)
+		end
+
 		local Row3 = DProperties:CreateRow("Config Settings", "Time Before Losing")
 		Row3:Setup("Generic")
 		Row3:SetValue(nzSettings:GetSimpleSetting("ExfilTime", 90))
@@ -178,7 +186,7 @@ nzTools:CreateTool("exfilradioeditor", {
 		local text = vgui.Create("DLabel", DProperties)
 		text:SetText("Tips:\nPlace your position far away from walls to prevent clip bugs.\nIf you will use custom end music then best duration is 15 seconds.\nYou can have only one radio on map!")
 		text:SetFont("Default")
-		text:SetPos(0, 355)
+		text:SetPos(0, 370)
 		text:SetTextColor( Color(50, 50, 50) )
 		text:SetSize(400, 60)
 		text:CenterHorizontal()

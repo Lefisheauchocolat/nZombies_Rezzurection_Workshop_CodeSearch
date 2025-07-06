@@ -120,6 +120,8 @@ function ENT:CreateCore()
 
 	core:Spawn()
 
+	self:DeleteOnRemove(core)
+
 	timer.Simple(0, function()
 		core:SetCollisionGroup(COLLISION_GROUP_NONE)
 		core:SetSolid(SOLID_NONE)
@@ -151,6 +153,8 @@ function ENT:CreateExitCore()
 	core2:SetMoveType(MOVETYPE_NONE)
 	
 	core2:Spawn()
+
+	self:DeleteOnRemove(core2)
 
 	timer.Simple(0, function()
 		core2:SetCollisionGroup(COLLISION_GROUP_NONE)

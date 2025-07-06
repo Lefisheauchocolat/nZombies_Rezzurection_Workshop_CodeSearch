@@ -13,6 +13,11 @@ ENT.SpeedBasedSequences = true
 ENT.IsMooZombie = true
 ENT.RedEyes = true
 
+ENT.BloodType = "Robot"
+
+ENT.MinSoundPitch 			= 85
+ENT.MaxSoundPitch 			= 140
+
 ENT.Models = {
 	{Model = "models/moo/_codz_ports/t8/white/moo_codz_t8_mannequin_male_damage.mdl", Skin = 0, Bodygroups = {0,0}},
 }
@@ -22,6 +27,9 @@ local spawnrun = {"nz_spawn_ground_v1_run"}
 local spawnfast = {"nz_spawn_ground_climbout_fast", "nz_s4_3arc_traverse_riser"}
 local spawnsuperfast = {"nz_ent_ground_01", "nz_ent_ground_02"}
 
+local crawlspawnwalk = {"nz_base_zombie_crawl_out_walk_01",}
+local crawlspawnrun = {"nz_base_zombie_crawl_out_run_01","nz_base_zombie_crawl_out_run_02",}
+local crawlspawnsprint = {"nz_base_zombie_crawl_out_sprint_01","nz_base_zombie_crawl_out_sprint_01",}
 ENT.DeathSequences = {
 	"nz_death_1",
 	"nz_death_2",
@@ -88,104 +96,22 @@ local CrawlJumpSequences = {
 	{seq = "nz_barricade_crawl_2"},
 }
 
-local SlowClimbUp36 = {
-	"nz_traverse_climbup36"
-}
-local SlowClimbUp48 = {
-	"nz_traverse_climbup48"
-}
-local SlowClimbUp72 = {
-	"nz_traverse_climbup72"
-}
-local SlowClimbUp96 = {
-	"nz_traverse_climbup96"
-}
-local SlowClimbUp128 = {
-	"nz_traverse_climbup128",
-	"nz_l4d_traverse_climbup132_01",
-	"nz_l4d_traverse_climbup132_02",
-	"nz_l4d_traverse_climbup132_03",
-}
-local SlowClimbUp160 = {
-	"nz_traverse_climbup160",
-	"nz_l4d_traverse_climbup156_01",
-	"nz_l4d_traverse_climbup156_02",
-	"nz_l4d_traverse_climbup156_03",
-}
-local FastClimbUp36 = {
-	"nz_traverse_fast_climbup36",
-	"nz_l4d_traverse_climbup36_01",
-	"nz_l4d_traverse_climbup36_02",
-	"nz_l4d_traverse_climbup36_03",
-}
-local FastClimbUp48 = {
-	"nz_traverse_fast_climbup48",
-	"nz_l4d_traverse_climbup48_01",
-	"nz_l4d_traverse_climbup48_02",
-	"nz_l4d_traverse_climbup48_03",
-	"nz_l4d_traverse_climbup48_04",
-}
-local FastClimbUp72 = {
-	"nz_traverse_fast_climbup72",
-	"nz_l4d_traverse_climbup72_01",
-	"nz_l4d_traverse_climbup72_02",
-	"nz_l4d_traverse_climbup72_03",
-}
-local FastClimbUp96 = {
-	"nz_traverse_fast_climbup96",
-	"nz_l4d_traverse_climbup96_01",
-	"nz_l4d_traverse_climbup96_02",
-	"nz_l4d_traverse_climbup96_03",
-}
-local ClimbUp200 = {
-	"nz_traverse_climbup200"
-}
-
 local AttackSequences = {
-	{seq = "nz_attack_stand_ad_1"},
-	{seq = "nz_attack_stand_au_1"},
-	{seq = "nz_legacy_attack_v3"},
-	{seq = "nz_legacy_attack_v6"},
-	{seq = "nz_legacy_attack_v4"},
-	{seq = "nz_legacy_attack_v11"},
-	{seq = "nz_legacy_attack_v12"},
-	{seq = "nz_legacy_attack_superwindmill"},
-	{seq = "nz_attack_stand_long"},
-	{seq = "nz_fwd_ad_attack_v1"},
-	{seq = "nz_fwd_ad_attack_v2"},
-	{seq = "nz_t8_attack_stand_larm_1"},
-	{seq = "nz_t8_attack_stand_larm_2"},
-	{seq = "nz_t8_attack_stand_larm_3"},
-	{seq = "nz_t8_attack_stand_rarm_1"},
-	{seq = "nz_t8_attack_stand_rarm_2"},
-	{seq = "nz_t8_attack_stand_rarm_3"},
+	{seq = "nz_cyborg_stand_attack_01"},
+	{seq = "nz_cyborg_stand_attack_02"},
+	{seq = "nz_cyborg_stand_attack_03"},
+	{seq = "nz_cyborg_stand_attack_04"},
 }
 
 local WalkAttackSequences = {
-	{seq = "nz_walk_ad_attack_v1"}, -- Quick single swipe
-	{seq = "nz_walk_ad_attack_v2"}, -- Slowish double swipe
-	{seq = "nz_walk_ad_attack_v3"}, -- Slowish single swipe
-	{seq = "nz_walk_ad_attack_v4"}, -- Quickish double swipe
-	{seq = "nz_walk_ad_attack_v5"},
-	{seq = "nz_walk_ad_attack_v6"},
-	{seq = "nz_walk_ad_attack_v7"},
-	{seq = "nz_walk_ad_attack_v8"},
-	{seq = "nz_walk_ad_attack_v9"},
-	{seq = "nz_t8_attack_walk_larm_1"},
-	{seq = "nz_t8_attack_walk_rarm_3"},
-	{seq = "nz_t8_attack_walk_larm_2"},
-	{seq = "nz_t8_attack_walk_rarm_6"},
+	{seq = "nz_cyborg_walk_attack_01"},
+	{seq = "nz_cyborg_walk_attack_02"},
+	{seq = "nz_cyborg_walk_attack_03"},
 }
 
 local RunAttackSequences = {
-	{seq = "nz_t8_attack_run_larm_1"},
-	{seq = "nz_t8_attack_run_larm_2"},
-	{seq = "nz_t8_attack_run_larm_3"},
-	{seq = "nz_t8_attack_run_larm_4"},
-	{seq = "nz_t8_attack_run_rarm_1"},
-	{seq = "nz_t8_attack_run_rarm_2"},
-	{seq = "nz_t8_attack_run_rarm_3"},
-	{seq = "nz_t8_attack_run_rarm_4"},
+	{seq = "nz_cyborg_walk_attack_01"},
+	{seq = "nz_cyborg_walk_attack_02"},
 }
 
 local StinkyRunAttackSequences = {
@@ -219,20 +145,46 @@ local SuperSprintAttackSequences = {
 	{seq = "nz_t8_attack_supersprint_rarm_2"},
 }
 
-local JumpSequences = {
-	{seq = "nz_barricade_trav_walk_1"},
-	{seq = "nz_barricade_trav_walk_2"},
-	{seq = "nz_barricade_trav_walk_3"},
-}
-local RunJumpSequences = {
-	{seq = "nz_barricade_run_1"},
-	{seq = "nz_l4d_mantle_over_36"},
+
+local WalkJumpSequencesMiddle = {
+	{seq = "nz_base_zombie_walk_win_trav_m_01"},
+	{seq = "nz_base_zombie_walk_win_trav_m_02"},
+	{seq = "nz_base_zombie_walk_win_trav_m_03"},
 }
 
-local SprintJumpSequences = {
-	{seq = "nz_barricade_sprint_1"},
-	{seq = "nz_barricade_sprint_2"},
+local WalkJumpSequencesLeft = {
+	{seq = "nz_base_zombie_walk_win_trav_l_01"},
 }
+
+local WalkJumpSequencesRight = {
+	{seq = "nz_base_zombie_walk_win_trav_r_01"},
+}
+
+local RunJumpSequencesMiddle = {
+	{seq = "nz_base_zombie_run_win_trav_m_01"},
+}
+
+local RunJumpSequencesLeft = {
+	{seq = "nz_base_zombie_run_win_trav_l_01"},
+}
+
+local RunJumpSequencesRight = {
+	{seq = "nz_base_zombie_run_win_trav_r_01"},
+}
+
+local SprintJumpSequencesMiddle = {
+	{seq = "nz_base_zombie_sprint_win_trav_m_01"},
+	{seq = "nz_base_zombie_sprint_win_trav_m_02"},
+}
+
+local SprintJumpSequencesLeft = {
+	{seq = "nz_base_zombie_sprint_win_trav_l_01"},
+}
+
+local SprintJumpSequencesRight = {
+	{seq = "nz_base_zombie_sprint_win_trav_r_01"},
+}
+
 local walksounds = {
 	Sound("nz_moo/zombies/vox/_robot/amb/amb_00.mp3"),
 	Sound("nz_moo/zombies/vox/_robot/amb/amb_01.mp3"),
@@ -310,27 +262,16 @@ ENT.SequenceTables = {
 	{Threshold = 0, Sequences = {
 		{
 			SpawnSequence = {spawnslow},
+			CrawlOutSequences = {crawlspawnwalk},
 			MovementSequence = {
-				"nz_walk_ad1",
-				"nz_walk_ad2",
-				"nz_walk_ad3",
-				"nz_walk_ad4",
-				"nz_walk_ad7",
-				"nz_walk_ad5",
-				"nz_walk_ad6",
-				"nz_walk_ad19",
-				"nz_walk_ad20",
-				"nz_walk_ad21",
-				"nz_walk_ad22",
-				"nz_walk_ad23",
-				"nz_walk_ad24",
-				"nz_walk_ad25",
-				--"nz_walk_au_goose",
-				--"nz_legacy_walk_dazed",
-				--"nz_legacy_jap_walk_v1",
-				--"nz_legacy_jap_walk_v2",
-				--"nz_legacy_jap_walk_v3",
-				--"nz_legacy_jap_walk_v4",
+				"nz_cyborg_walk_01",
+				"nz_cyborg_walk_02",
+				"nz_cyborg_walk_03",
+				"nz_cyborg_walk_04",
+				"nz_cyborg_walk_05",
+				"nz_cyborg_walk_06",
+				"nz_cyborg_walk_07",
+				"nz_cyborg_walk_08",
 			},
 			LowgMovementSequence = {
 				"nz_walk_lowg_v1",
@@ -390,149 +331,26 @@ ENT.SequenceTables = {
 			StandAttackSequences = {AttackSequences},
 			CrawlAttackSequences = {CrawlAttackSequences},
 
-			JumpSequences = {JumpSequences},
+			JumpSequences = {WalkJumpSequencesMiddle},
+			JumpSequencesLeft = {WalkJumpSequencesLeft},
+			JumpSequencesRight = {WalkJumpSequencesRight},
 			CrawlJumpSequences = {CrawlJumpSequences},
-
-			Climb36 = {SlowClimbUp36},
-			Climb48 = {SlowClimbUp48},
-			Climb72 = {SlowClimbUp72},
-			Climb96 = {SlowClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
 
 			PassiveSounds = {walksounds},
 		},
-		{
-			SpawnSequence = {spawnslow},
-			MovementSequence = {
-				"nz_walk_au1",
-				"nz_walk_au2",
-				"nz_walk_au3",
-				"nz_walk_au4",
-				"nz_walk_au5",
-				"nz_walk_au6",
-				"nz_walk_au7",
-				"nz_walk_au8",
-				"nz_walk_au10",
-				"nz_walk_au11",
-				"nz_walk_au12",
-				"nz_walk_au13",
-				"nz_walk_au15",
-				"nz_walk_au20",
-				"nz_walk_au21",
-				"nz_s4_3arc_walk_au_v22",
-				"nz_walk_au23",
-				"nz_s4_3arc_walk_au_v24",
-				"nz_s4_3arc_walk_au_v25",
-				--"nz_walk_au_goose", -- This is the goosestep walk aka marching anim that german soldier zombies use.
-				--"nz_legacy_walk_dazed",
-				--"nz_legacy_jap_walk_v1",
-				--"nz_legacy_jap_walk_v2",
-				--"nz_legacy_jap_walk_v3",
-				--"nz_legacy_jap_walk_v4",
-			},
-			LowgMovementSequence = {
-				"nz_walk_lowg_v1",
-				"nz_walk_lowg_v2",
-				"nz_walk_lowg_v3",
-				"nz_walk_lowg_v4",
-			},
-			BlackholeMovementSequence = {
-				"nz_blackhole_1",
-				"nz_blackhole_2",
-				"nz_blackhole_3",
-			},
-			CrawlMovementSequence = {
-				"nz_crawl_slow_v1",
-				"nz_crawl_slow_v2",
-				"nz_crawl_slow_v3",
-				"nz_crawl_v1",
-				"nz_crawl_v2",
-				"nz_crawl_v5",
-				"nz_crawl_sprint_v1",
-				"nz_crawl_on_hands",
-				"nz_crawl_on_hands_c",
-				"nz_s4_3arc_crawl_sprint",
-			},
-			FireMovementSequence = {
-				"nz_firestaff_walk_v1",
-				"nz_firestaff_walk_v2",
-				"nz_firestaff_walk_v3",
-			},
-			TurnedMovementSequence = {
-				--"nz_pb_zombie_sprint_v6",
-				--"nz_pb_zombie_sprint_v7",
-				"nz_pb_zombie_sprint_v8", -- The Tranzit Sprinter one.
-				--"nz_pb_zombie_sprint_v9",
-				"nz_l4d_run_03",
-				"nz_l4d_run_04",
-				
-				"nz_t9_base_player_sprint_v01",
-				"nz_t9_base_player_sprint_v02",
-				"nz_t9_base_player_sprint_v03",
-				"nz_t9_base_player_sprint_v04",
-				"nz_t9_base_player_sprint_v05",
-				"nz_t9_base_player_sprint_v06",
-				"nz_t9_base_player_sprint_v07",
-				"nz_t9_base_player_sprint_v08",
-			},
-			PatrolMovementSequence = {
-				"nz_base_zombie_idle_patrol_01",
-				"nz_base_zombie_idle_patrol_02",
-				"nz_base_zombie_idle_patrol_03",
-				"nz_base_zombie_idle_patrol_04",
-				"nz_base_zombie_idle_patrol_05",
-				"nz_base_zombie_idle_patrol_06",
-				"nz_base_zombie_idle_patrol_07",
-			},
-			AttackSequences = {WalkAttackSequences},
-			StandAttackSequences = {AttackSequences},
-			CrawlAttackSequences = {CrawlAttackSequences},
-
-			JumpSequences = {JumpSequences},
-			CrawlJumpSequences = {CrawlJumpSequences},
-
-			Climb36 = {SlowClimbUp36},
-			Climb48 = {SlowClimbUp48},
-			Climb72 = {SlowClimbUp72},
-			Climb96 = {SlowClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
-
-			PassiveSounds = {walksounds},
-		}
 	}},
 	{Threshold = 36, Sequences = {
 		{
 			SpawnSequence = {spawnrun},
+			CrawlOutSequences = {crawlspawnrun},
 			MovementSequence = {
-				"nz_walk_fast_ad1",
-				"nz_walk_fast_ad2",
-				"nz_walk_fast_ad3",
-				--"nz_legacy_run_v1",
-				--"nz_legacy_run_v3",
-				--"nz_legacy_jap_run_v1",
-				--"nz_legacy_jap_run_v2",
-				--"nz_legacy_jap_run_v4",
-				--"nz_legacy_jap_run_v5",
-				--"nz_legacy_jap_run_v6",
-				"nz_run_ad1",
-				"nz_run_ad2",
-				"nz_run_ad3",
-				"nz_run_ad4",
-				"nz_run_ad7",
-				"nz_run_ad8",
-				"nz_run_ad11",
-				"nz_run_ad12",
-				"nz_s4_3arc_run_ad_v13",
-				"nz_run_ad14",
-				"nz_run_ad20",
-				"nz_run_ad21",
-				"nz_run_ad22",
-				"nz_run_ad23",
-				"nz_run_ad24",
+				"nz_cyborg_walk_fast_01",
+				"nz_cyborg_walk_fast_02",
+				"nz_cyborg_walk_fast_03",
+				"nz_cyborg_run_01",
+				"nz_cyborg_run_02",
+				"nz_cyborg_run_03",
+				"nz_cyborg_run_04",
 			},
 			LowgMovementSequence = {
 				"nz_run_lowg_v1",
@@ -593,137 +411,23 @@ ENT.SequenceTables = {
 			Bo3AttackSequences = {StinkyRunAttackSequences},
 			CrawlAttackSequences = {CrawlAttackSequences},
 
-			JumpSequences = {RunJumpSequences},
+			JumpSequences = {RunJumpSequencesMiddle},
+			JumpSequencesLeft = {RunJumpSequencesLeft},
+			JumpSequencesRight = {RunJumpSequencesRight},
 			CrawlJumpSequences = {CrawlJumpSequences},
-
-			Climb36 = {SlowClimbUp36},
-			Climb48 = {SlowClimbUp48},
-			Climb72 = {SlowClimbUp72},
-			Climb96 = {SlowClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
 
 			PassiveSounds = {runsounds},
 		},
-		{
-			SpawnSequence = {spawnrun},
-			MovementSequence = {
-				"nz_walk_fast_au1",
-				"nz_walk_fast_au2",
-				"nz_walk_fast_au3",
-				--"nz_legacy_run_v1",
-				--"nz_legacy_run_v3",
-				--"nz_legacy_jap_run_v1",
-				--"nz_legacy_jap_run_v2",
-				--"nz_legacy_jap_run_v4",
-				--"nz_legacy_jap_run_v5",
-				--"nz_legacy_jap_run_v6",
-				"nz_run_au1",
-				"nz_run_au2",
-				"nz_run_au3",
-				"nz_run_au4",
-				"nz_run_au5",
-				"nz_run_au9",
-				"nz_run_au11",
-				"nz_s4_3arc_run_au_v12",
-				"nz_run_au13",
-				"nz_run_au20",
-				"nz_run_au21",
-				"nz_run_au22",
-				"nz_run_au23",
-				"nz_run_au24",
-			},
-			LowgMovementSequence = {
-				"nz_run_lowg_v1",
-				"nz_run_lowg_v2",
-				"nz_run_lowg_v3",
-				"nz_run_lowg_v4",
-			},
-			BlackholeMovementSequence = {
-				"nz_blackhole_1",
-				"nz_blackhole_2",
-				"nz_blackhole_3",
-			},
-			CrawlMovementSequence = {
-				"nz_crawl_slow_v1",
-				"nz_crawl_slow_v2",
-				"nz_crawl_slow_v3",
-				"nz_crawl_v1",
-				"nz_crawl_v2",
-				"nz_crawl_v5",
-				"nz_crawl_sprint_v1",
-				"nz_crawl_on_hands",
-				"nz_crawl_on_hands_c",
-				"nz_s4_3arc_crawl_sprint",
-			},
-			FireMovementSequence = {
-				"nz_firestaff_walk_v1",
-				"nz_firestaff_walk_v2",
-				"nz_firestaff_walk_v3",
-			},
-			TurnedMovementSequence = {
-				--"nz_pb_zombie_sprint_v6",
-				--"nz_pb_zombie_sprint_v7",
-				"nz_pb_zombie_sprint_v8", -- The Tranzit Sprinter one.
-				--"nz_pb_zombie_sprint_v9",
-				"nz_l4d_run_03",
-				"nz_l4d_run_04",
-				
-				"nz_t9_base_player_sprint_v01",
-				"nz_t9_base_player_sprint_v02",
-				"nz_t9_base_player_sprint_v03",
-				"nz_t9_base_player_sprint_v04",
-				"nz_t9_base_player_sprint_v05",
-				"nz_t9_base_player_sprint_v06",
-				"nz_t9_base_player_sprint_v07",
-				"nz_t9_base_player_sprint_v08",
-			},
-			PatrolMovementSequence = {
-				"nz_base_zombie_idle_patrol_01",
-				"nz_base_zombie_idle_patrol_02",
-				"nz_base_zombie_idle_patrol_03",
-				"nz_base_zombie_idle_patrol_04",
-				"nz_base_zombie_idle_patrol_05",
-				"nz_base_zombie_idle_patrol_06",
-				"nz_base_zombie_idle_patrol_07",
-			},
-			AttackSequences = {RunAttackSequences},
-			StandAttackSequences = {AttackSequences},
-			Bo3AttackSequences = {StinkyRunAttackSequences},
-			CrawlAttackSequences = {CrawlAttackSequences},
-
-			JumpSequences = {RunJumpSequences},
-			CrawlJumpSequences = {CrawlJumpSequences},
-
-			Climb36 = {SlowClimbUp36},
-			Climb48 = {SlowClimbUp48},
-			Climb72 = {SlowClimbUp72},
-			Climb96 = {SlowClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
-
-			PassiveSounds = {runsounds},
-		}
 	}},
 	{Threshold = 71, Sequences = {
 		{
 			SpawnSequence = {spawnfast},
+			CrawlOutSequences = {crawlspawnsprint},
 			MovementSequence = {
-				--"nz_legacy_sprint_v5",
-				--"nz_legacy_jap_run_v3",
-				"nz_sprint_ad1",
-				"nz_sprint_ad2",
-				"nz_sprint_ad3",
-				"nz_sprint_ad4",
-				"nz_sprint_ad5",
-				"nz_sprint_ad21",
-				"nz_sprint_ad22",
-				"nz_sprint_ad23",
-				"nz_sprint_ad24",
-				"nz_fast_sprint_v1",
-				"nz_fast_sprint_v2",
+				"nz_cyborg_sprint_01",
+				"nz_cyborg_sprint_02",
+				"nz_cyborg_sprint_01",
+				"nz_cyborg_sprint_02",
 			},
 			LowgMovementSequence = {
 				"nz_sprint_lowg_v1",
@@ -784,111 +488,18 @@ ENT.SequenceTables = {
 			Bo3AttackSequences = {StinkyRunAttackSequences},
 			CrawlAttackSequences = {CrawlAttackSequences},
 
-			JumpSequences = {SprintJumpSequences},
+			JumpSequences = {SprintJumpSequencesMiddle},
+			JumpSequencesLeft = {SprintJumpSequencesLeft},
+			JumpSequencesRight = {SprintJumpSequencesRight},
 			CrawlJumpSequences = {CrawlJumpSequences},
-
-			Climb36 = {FastClimbUp36},
-			Climb48 = {FastClimbUp48},
-			Climb72 = {FastClimbUp72},
-			Climb96 = {FastClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
 
 			PassiveSounds = {runsounds},
 		},
-		{
-			SpawnSequence = {spawnfast},
-			MovementSequence = {
-				--"nz_legacy_sprint_v5",
-				--"nz_legacy_jap_run_v3",
-				"nz_sprint_au1",
-				"nz_sprint_au2",
-				"nz_sprint_au3",
-				"nz_sprint_au4",
-				"nz_sprint_au20",
-				"nz_sprint_au21",
-				"nz_sprint_au22",
-				"nz_sprint_au25",
-				"nz_fast_sprint_v1",
-				"nz_fast_sprint_v2",
-			},
-			LowgMovementSequence = {
-				"nz_sprint_lowg_v1",
-				"nz_sprint_lowg_v2",
-				"nz_sprint_lowg_v3",
-				"nz_sprint_lowg_v4",
-			},
-			BlackholeMovementSequence = {
-				"nz_blackhole_1",
-				"nz_blackhole_2",
-				"nz_blackhole_3",
-			},
-			CrawlMovementSequence = {
-				"nz_crawl_slow_v1",
-				"nz_crawl_slow_v2",
-				"nz_crawl_slow_v3",
-				"nz_crawl_v1",
-				"nz_crawl_v2",
-				"nz_crawl_v5",
-				"nz_crawl_sprint_v1",
-				"nz_crawl_on_hands",
-				"nz_crawl_on_hands_c",
-				"nz_s4_3arc_crawl_sprint",
-			},
-			FireMovementSequence = {
-				"nz_firestaff_walk_v1",
-				"nz_firestaff_walk_v2",
-				"nz_firestaff_walk_v3",
-			},
-			TurnedMovementSequence = {
-				--"nz_pb_zombie_sprint_v6",
-				--"nz_pb_zombie_sprint_v7",
-				"nz_pb_zombie_sprint_v8", -- The Tranzit Sprinter one.
-				--"nz_pb_zombie_sprint_v9",
-				"nz_l4d_run_03",
-				"nz_l4d_run_04",
-				
-				"nz_t9_base_player_sprint_v01",
-				"nz_t9_base_player_sprint_v02",
-				"nz_t9_base_player_sprint_v03",
-				"nz_t9_base_player_sprint_v04",
-				"nz_t9_base_player_sprint_v05",
-				"nz_t9_base_player_sprint_v06",
-				"nz_t9_base_player_sprint_v07",
-				"nz_t9_base_player_sprint_v08",
-			},
-			PatrolMovementSequence = {
-				"nz_base_zombie_idle_patrol_01",
-				"nz_base_zombie_idle_patrol_02",
-				"nz_base_zombie_idle_patrol_03",
-				"nz_base_zombie_idle_patrol_04",
-				"nz_base_zombie_idle_patrol_05",
-				"nz_base_zombie_idle_patrol_06",
-				"nz_base_zombie_idle_patrol_07",
-			},
-			AttackSequences = {SprintAttackSequences},
-			StandAttackSequences = {AttackSequences},
-			Bo3AttackSequences = {StinkyRunAttackSequences},
-			CrawlAttackSequences = {CrawlAttackSequences},
-
-			JumpSequences = {SprintJumpSequences},
-			CrawlJumpSequences = {CrawlJumpSequences},
-
-			Climb36 = {FastClimbUp36},
-			Climb48 = {FastClimbUp48},
-			Climb72 = {FastClimbUp72},
-			Climb96 = {FastClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
-
-			PassiveSounds = {runsounds},
-		}
 	}},
 	{Threshold = 155, Sequences = {
 		{
 			SpawnSequence = {spawnsuperfast},
+			CrawlOutSequences = {crawlspawnsprint},
 			MovementSequence = {
 				"nz_supersprint_ad1",
 				"nz_supersprint_ad2",
@@ -903,81 +514,6 @@ ENT.SequenceTables = {
 				"nz_supersprint_ad11",
 				"nz_supersprint_ad12",
 				"nz_supersprint_ad13",
-			},
-			LowgMovementSequence = {
-				"nz_supersprint_lowg",
-			},
-			BlackholeMovementSequence = {
-				"nz_blackhole_1",
-				"nz_blackhole_2",
-				"nz_blackhole_3",
-			},
-			CrawlMovementSequence = {
-				"nz_crawl_slow_v1",
-				"nz_crawl_slow_v2",
-				"nz_crawl_slow_v3",
-				"nz_crawl_v1",
-				"nz_crawl_v2",
-				"nz_crawl_v5",
-				"nz_crawl_sprint_v1",
-				"nz_crawl_on_hands",
-				"nz_crawl_on_hands_c",
-				"nz_s4_3arc_crawl_sprint",
-			},
-			FireMovementSequence = {
-				"nz_firestaff_walk_v1",
-				"nz_firestaff_walk_v2",
-				"nz_firestaff_walk_v3",
-			},
-			TurnedMovementSequence = {
-				--"nz_pb_zombie_sprint_v6",
-				--"nz_pb_zombie_sprint_v7",
-				"nz_pb_zombie_sprint_v8", -- The Tranzit Sprinter one.
-				--"nz_pb_zombie_sprint_v9",
-				"nz_l4d_run_03",
-				"nz_l4d_run_04",
-				
-				"nz_t9_base_player_sprint_v01",
-				"nz_t9_base_player_sprint_v02",
-				"nz_t9_base_player_sprint_v03",
-				"nz_t9_base_player_sprint_v04",
-				"nz_t9_base_player_sprint_v05",
-				"nz_t9_base_player_sprint_v06",
-				"nz_t9_base_player_sprint_v07",
-				"nz_t9_base_player_sprint_v08",
-				"nz_l4d_run_03",
-				"nz_l4d_run_04",
-			},
-			PatrolMovementSequence = {
-				"nz_base_zombie_idle_patrol_01",
-				"nz_base_zombie_idle_patrol_02",
-				"nz_base_zombie_idle_patrol_03",
-				"nz_base_zombie_idle_patrol_04",
-				"nz_base_zombie_idle_patrol_05",
-				"nz_base_zombie_idle_patrol_06",
-				"nz_base_zombie_idle_patrol_07",
-			},
-			AttackSequences = {SuperSprintAttackSequences},
-			StandAttackSequences = {AttackSequences},
-			Bo3AttackSequences = {StinkyRunAttackSequences},
-			CrawlAttackSequences = {CrawlAttackSequences},
-
-			JumpSequences = {SprintJumpSequences},
-			CrawlJumpSequences = {CrawlJumpSequences},
-
-			Climb36 = {FastClimbUp36},
-			Climb48 = {FastClimbUp48},
-			Climb72 = {FastClimbUp72},
-			Climb96 = {FastClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
-
-			PassiveSounds = {walksounds},
-		},
-		{
-			SpawnSequence = {spawnsuperfast},
-			MovementSequence = {
 				"nz_supersprint_au1",
 				"nz_supersprint_au2",
 				"nz_supersprint_au3",
@@ -1048,19 +584,13 @@ ENT.SequenceTables = {
 			Bo3AttackSequences = {StinkyRunAttackSequences},
 			CrawlAttackSequences = {CrawlAttackSequences},
 
-			JumpSequences = {SprintJumpSequences},
+			JumpSequences = {SprintJumpSequencesMiddle},
+			JumpSequencesLeft = {SprintJumpSequencesLeft},
+			JumpSequencesRight = {SprintJumpSequencesRight},
 			CrawlJumpSequences = {CrawlJumpSequences},
 
-			Climb36 = {FastClimbUp36},
-			Climb48 = {FastClimbUp48},
-			Climb72 = {FastClimbUp72},
-			Climb96 = {FastClimbUp96},
-			Climb120 = {SlowClimbUp128},
-			Climb160 = {SlowClimbUp160},
-			Climb200 = {ClimbUp200},
-
-			PassiveSounds = {walksounds},
-		}
+			PassiveSounds = {runsounds},
+		},
 	}}
 }
 
@@ -1076,76 +606,77 @@ ENT.TauntSequences = {
 	"nz_taunt_v9"
 }
 
-ENT.IdleSequence = "nz_idle_ad"
+ENT.IdleSequence = "nz_cyborg_idle_01"
+ENT.IdleSequenceAU = "nz_cyborg_idle_02"
 
 ENT.DeathSounds = {
-	"nz_moo/zombies/vox/_robot/death/death_00.mp3",
-	"nz_moo/zombies/vox/_robot/death/death_01.mp3",
-	"nz_moo/zombies/vox/_robot/death/death_02.mp3",
-	"nz_moo/zombies/vox/_robot/death/death_03.mp3",
-	"nz_moo/zombies/vox/_robot/death/death_04.mp3",
-	"nz_moo/zombies/vox/_robot/death/death_05.mp3",
-	"nz_moo/zombies/vox/_robot/death/death_06.mp3",
-	"nz_moo/zombies/vox/_robot/death/death_07.mp3",
-	"nz_moo/zombies/vox/_robot/death/death_08.mp3",
-	"nz_moo/zombies/vox/_robot/death/death_09.mp3",
-	"nz_moo/zombies/vox/_robot/death/death_10.mp3",
-	"nz_moo/zombies/vox/_robot/death/death_11.mp3",
-	"nz_moo/zombies/vox/_robot/death/death_12.mp3",
-	"nz_moo/zombies/vox/_robot/death/death_13.mp3",
-	"nz_moo/zombies/vox/_robot/death/death_14.mp3",
-	"nz_moo/zombies/vox/_robot/death/death_15.mp3",
+	Sound("nz_moo/zombies/vox/_robot/death/death_00.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/death/death_01.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/death/death_02.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/death/death_03.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/death/death_04.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/death/death_05.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/death/death_06.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/death/death_07.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/death/death_08.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/death/death_09.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/death/death_10.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/death/death_11.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/death/death_12.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/death/death_13.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/death/death_14.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/death/death_15.mp3"),
 }
 
 ENT.ElecSounds = {
-	"nz_moo/zombies/vox/_robot/elec/elec_00.mp3",
-	"nz_moo/zombies/vox/_robot/elec/elec_01.mp3",
-	"nz_moo/zombies/vox/_robot/elec/elec_02.mp3",
-	"nz_moo/zombies/vox/_robot/elec/elec_03.mp3",
-	"nz_moo/zombies/vox/_robot/elec/elec_04.mp3",
-	"nz_moo/zombies/vox/_robot/elec/elec_05.mp3",
+	Sound("nz_moo/zombies/vox/_robot/elec/elec_00.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/elec/elec_01.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/elec/elec_02.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/elec/elec_03.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/elec/elec_04.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/elec/elec_05.mp3"),
 }
 
 ENT.NukeDeathSounds = {
-	"nz_moo/zombies/vox/nuke_death/soul_00.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_01.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_02.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_03.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_04.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_05.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_06.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_07.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_08.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_09.mp3",
-	"nz_moo/zombies/vox/nuke_death/soul_10.mp3"
+	Sound("nz_moo/zombies/vox/nuke_death/soul_00.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_01.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_02.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_03.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_04.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_05.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_06.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_07.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_08.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_09.mp3"),
+	Sound("nz_moo/zombies/vox/nuke_death/soul_10.mp3")
 }
 
 ENT.AttackSounds = {
-	"nz_moo/zombies/vox/_robot/attack/attack_00.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_01.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_02.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_03.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_04.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_05.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_06.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_07.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_08.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_09.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_10.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_11.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_12.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_13.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_14.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_15.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_16.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_17.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_18.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_19.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_20.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_21.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_22.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_23.mp3",
-	"nz_moo/zombies/vox/_robot/attack/attack_24.mp3",
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_00.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_01.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_02.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_03.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_04.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_05.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_06.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_07.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_08.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_09.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_10.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_11.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_12.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_13.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_14.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_15.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_16.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_17.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_18.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_19.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_20.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_21.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_22.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_23.mp3"),
+	Sound("nz_moo/zombies/vox/_robot/attack/attack_24.mp3"),
 }
 
 ENT.CrawlerSounds = {
@@ -1175,6 +706,46 @@ ENT.BehindSounds = {
 	Sound("nz_moo/zombies/vox/_robot/behind/behind_03.mp3"),
 }
 
+ENT.CustomWalkFootstepsSounds = {
+	Sound("nz_moo/zombies/vox/_cyborg/steps/zmb_zombie_nt_vocals_land.mp3"),
+}
+
+ENT.CustomRunFootstepsSounds = {
+	Sound("nz_moo/zombies/vox/_cyborg/steps/zmb_zombie_nt_vocals_land.mp3"),
+}
+
+ENT.CustomMeleeWhooshSounds = {
+	Sound("nz_moo/zombies/fly/attack/whoosh/_og/swing_00.mp3"),
+	Sound("nz_moo/zombies/fly/attack/whoosh/_og/swing_01.mp3"),
+	Sound("nz_moo/zombies/fly/attack/whoosh/_og/swing_02.mp3"),
+}
+
+ENT.GibSounds = {
+	Sound("nz_moo/zombies/vox/_cyborg/gib/robo_impact_soft_01.mp3"),
+	Sound("nz_moo/zombies/vox/_cyborg/gib/robo_impact_soft_02.mp3"),
+	Sound("nz_moo/zombies/vox/_cyborg/gib/robo_impact_soft_03.mp3"),
+	Sound("nz_moo/zombies/vox/_cyborg/gib/robo_impact_soft_04.mp3"),
+	Sound("nz_moo/zombies/vox/_cyborg/gib/robo_impact_soft_05.mp3"),
+}
+
+ENT.HeadGibSounds = {
+	Sound("nz_moo/zombies/vox/_cyborg/headshot/robo_impact_hard_01.mp3"),
+	Sound("nz_moo/zombies/vox/_cyborg/headshot/robo_impact_hard_02.mp3"),
+	Sound("nz_moo/zombies/vox/_cyborg/headshot/robo_impact_hard_03.mp3"),
+	Sound("nz_moo/zombies/vox/_cyborg/headshot/robo_impact_hard_04.mp3"),
+}
+
+ENT.BloodExplodeSounds = {
+	Sound("nz_moo/zombies/vox/_cyborg/explode/giant_common_explodes_01.mp3"),
+	Sound("nz_moo/zombies/vox/_cyborg/explode/giant_common_explodes_02.mp3"),
+	Sound("nz_moo/zombies/vox/_cyborg/explode/giant_common_explodes_01.mp3"),
+	Sound("nz_moo/zombies/vox/_cyborg/explode/giant_common_explodes_02.mp3"),
+	Sound("nz_moo/zombies/vox/_cyborg/explode/giant_common_explodes_01.mp3"),
+	Sound("nz_moo/zombies/vox/_cyborg/explode/giant_common_explodes_02.mp3"),
+	Sound("nz_moo/zombies/vox/_cyborg/explode/giant_common_explodes_01.mp3"),
+	Sound("nz_moo/zombies/vox/_cyborg/explode/giant_common_explodes_02.mp3"),
+}
+
 function ENT:StatsInitialize()
 	if SERVER then
 		local speeds = nzRound:GetZombieCoDSpeeds()
@@ -1187,7 +758,7 @@ function ENT:StatsInitialize()
 		self:SetHealth( nzRound:GetZombieHealth() or 75 )
 		self.AttackDamage = nzRound:GetZombieDamage() or 50
 
-		self.CanBleed = false
+		self:SetBloodColor(DONT_BLEED)
 	end
 end
 
@@ -1230,82 +801,3 @@ function ENT:OnSpawn(animation, grav, dirt)
 		self:CollideWhenPossible()
 	end
 end
-
-ENT.PainSounds = {
-	"nz_moo/zombies/vox/_zhd/pain/pain_00.mp3",
-	"nz_moo/zombies/vox/_zhd/pain/pain_01.mp3",
-	"nz_moo/zombies/vox/_zhd/pain/pain_02.mp3",
-	"nz_moo/zombies/vox/_zhd/pain/pain_03.mp3",
-	"nz_moo/zombies/vox/_zhd/pain/pain_04.mp3",
-	"nz_moo/zombies/vox/_zhd/pain/pain_05.mp3",
-	"nz_moo/zombies/vox/_zhd/pain/pain_06.mp3",
-	"nz_moo/zombies/vox/_zhd/pain/pain_07.mp3",
-	"nz_moo/zombies/vox/_zhd/pain/pain_08.mp3",
-	"nz_moo/zombies/vox/_zhd/pain/pain_09.mp3",
-	"nz_moo/zombies/vox/_zhd/pain/pain_10.mp3",
-	"nz_moo/zombies/vox/_zhd/pain/pain_11.mp3",
-	"nz_moo/zombies/vox/_zhd/pain/pain_12.mp3",
-	"nz_moo/zombies/vox/_zhd/pain/pain_13.mp3",
-	"nz_moo/zombies/vox/_zhd/pain/pain_14.mp3",
-	"nz_moo/zombies/vox/_zhd/pain/pain_15.mp3",
-	"nz_moo/zombies/vox/_zhd/pain/pain_16.mp3",
-}
-
-ENT.GasVox = {
-	"nz_moo/zombies/vox/_gas/sprint/sprint_00.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_01.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_02.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_03.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_04.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_05.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_06.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_07.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_08.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_09.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_10.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_11.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_12.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_13.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_14.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_15.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_16.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_17.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_18.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_19.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_20.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_21.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_22.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_23.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_24.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_25.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_26.mp3",
-	"nz_moo/zombies/vox/_gas/sprint/sprint_27.mp3",
-}
-
-ENT.GasAttack = {
-	"nz_moo/zombies/vox/_gas/attack/attack_00.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_01.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_02.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_03.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_04.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_05.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_06.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_07.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_08.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_09.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_10.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_11.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_12.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_13.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_14.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_15.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_16.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_17.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_18.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_19.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_20.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_21.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_22.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_23.mp3",
-	"nz_moo/zombies/vox/_gas/attack/attack_24.mp3",
-}

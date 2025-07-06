@@ -135,6 +135,8 @@ ENT.DamageRange = 110
 ENT.AttackDamage = 90
 ENT.HeavyAttackDamage = 150
 
+ENT.SoundVolume = 100
+
 ENT.TraversalCheckRange = 80
 
 ENT.Models = {

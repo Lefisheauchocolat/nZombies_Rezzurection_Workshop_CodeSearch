@@ -9,7 +9,7 @@ SWEP.UseHands = true
 SWEP.Type_Displayed = "#tfa.weapontype.wonderweapon"
 SWEP.Author = "FlamingFox"
 SWEP.Slot = 1
-SWEP.PrintName = nzombies and "Ray Gun | BO3" or "Ray Gun"
+SWEP.PrintName = "Ray Gun"
 SWEP.DrawCrosshair = true
 SWEP.DrawCrosshairIS = false
 

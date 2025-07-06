@@ -10,7 +10,7 @@ SWEP.Type_Displayed = "#tfa.weapontype.wonderweapon"
 SWEP.Purpose = nzombies and nil or "Hack players to heal them, Hack NPCs to convert them into allies, Hack doors to unlock and open them"
 SWEP.Author = "FlamingFox"
 SWEP.Slot = 5
-SWEP.PrintName = nzombies and "Hacker Device | BO3" or "Hacker Device"
+SWEP.PrintName = "Hacker Device"
 SWEP.DrawCrosshair = true
 SWEP.DrawCrosshairIS = false
 SWEP.AutoSwitchTo = false
@@ -209,16 +209,6 @@ SWEP.equipment_got_in_round = 0
 
 --[Coding]--
 DEFINE_BASECLASS( SWEP.Base )
-
-TFA.AddStatus("HACKING")
-TFA.AddStatus("HACKING_END")
-
-TFA.Enum.HUDDisabledStatus[TFA.Enum.STATUS_HACKING] = true
-TFA.Enum.ReadyStatus[TFA.Enum.STATUS_HACKING] = true
-TFA.Enum.IronStatus[TFA.Enum.STATUS_HACKING] = true
-
-TFA.Enum.HUDDisabledStatus[TFA.Enum.STATUS_HACKING_END] = true
-TFA.Enum.IronStatus[TFA.Enum.STATUS_HACKING_END] = true
 
 local passive = {
 	"npc_seagull", "npc_crow", "npc_piegon",  "monster_cockroach",

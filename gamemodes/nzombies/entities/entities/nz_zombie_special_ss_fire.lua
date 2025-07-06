@@ -108,6 +108,7 @@ ENT.SequenceTables = {
 	{Threshold = 0, Sequences = {
 		{
 			SpawnSequence = {spawnslow},
+			CrawlOutSequences = {crawlspawnwalk},
 			MovementSequence = {
 				"nz_napalm_walk_01",
 				"nz_napalm_walk_02",
@@ -120,7 +121,9 @@ ENT.SequenceTables = {
 			},
 			AttackSequences = {AttackSequences},
 
-			JumpSequences = {JumpSequences},
+			JumpSequences = {WalkJumpSequencesMiddle},
+			JumpSequencesLeft = {WalkJumpSequencesLeft},
+			JumpSequencesRight = {WalkJumpSequencesRight},
 
 			Climb36 = {SlowClimbUp36},
 			Climb48 = {SlowClimbUp48},
@@ -136,6 +139,7 @@ ENT.SequenceTables = {
 	{Threshold = 71, Sequences = {
 		{
 			SpawnSequence = {spawnslow},
+			CrawlOutSequences = {crawlspawnwalk},
 			MovementSequence = {
 				"nz_legacy_jap_run_v2",
 				"nz_legacy_jap_run_v3",
@@ -150,7 +154,9 @@ ENT.SequenceTables = {
 			},
 			AttackSequences = {RunAttackSequences},
 
-			JumpSequences = {RunJumpSequences},
+			JumpSequences = {RunJumpSequencesMiddle},
+			JumpSequencesLeft = {RunJumpSequencesLeft},
+			JumpSequencesRight = {RunJumpSequencesRight},
 
 			Climb36 = {FastClimbUp36},
 			Climb48 = {FastClimbUp48},

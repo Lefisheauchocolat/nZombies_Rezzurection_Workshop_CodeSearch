@@ -9,3 +9,7 @@ PrecacheParticleSystem("tomb_box_aura")
 PrecacheParticleSystem("tomb_box_open_aura")
 
 PrecacheParticleSystem("zmb_iw_spawn_portal")
+
+PrecacheParticleSystem("zmb_exo_blinker_aura")
+PrecacheParticleSystem("zmb_exo_emp_aura")
+PrecacheParticleSystem("zmb_exo_fire_aura")

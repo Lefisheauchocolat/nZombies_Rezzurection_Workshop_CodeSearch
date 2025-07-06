@@ -2726,9 +2726,9 @@ local function YaPh1lTypeWriter()
 	local hudtype = nzMapping.Settings.hudtype
 
 	local leftsided = false
-	if nzDisplay.leftsidedHUDs and nzDisplay.leftsidedHUDs[hudtype] or !nzDisplay.reworkedHUDs[hudtype] then
+	--[[if nzDisplay.leftsidedHUDs and nzDisplay.leftsidedHUDs[hudtype] or !nzDisplay.reworkedHUDs[hudtype] then -- You want me to fight the chicken? *Panzer Alarm Noise*
 		leftsided = true
-	end
+	end]]
 
 	local intro_strings = string.Split(mapstring, ";")
 	local intro_hud = {}

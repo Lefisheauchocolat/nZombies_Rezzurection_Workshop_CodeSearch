@@ -8,11 +8,6 @@ ENT.Author = "GhostlyMoo"
 ENT.Spawnable = true
 
 if CLIENT then 
-	ENT.EyeColorTable = {
-		[0] = Material("models/moo/codz/s1_zombies/marines/mtl_zom_eye_a.vmt"),
-		[1] = Material("models/moo/codz/s1_zombies/marines/mtl_zom_eye_a_l.vmt"),
-		[2] = Material("models/moo/codz/s1_zombies/marines/mtl_zom_eye_a_r.vmt"),
-	}
 	return 
 end -- Client doesn't really need anything beyond the basics
 
@@ -29,14 +24,16 @@ ENT.SoundVolume = 95
 
 ENT.Models = {
 	{Model = "models/moo/_codz_ports/s1/marines/moo_codz_s1_zom_marine_exo.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/s1/marines/moo_codz_s1_zom_marine_exo2.mdl", Skin = 0, Bodygroups = {0,0}},
 	{Model = "models/moo/_codz_ports/s1/marines/moo_codz_s1_zom_marine_shotgun.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/s1/marines/moo_codz_s1_zom_marine_shotgun2.mdl", Skin = 0, Bodygroups = {0,0}},
 
 	{Model = "models/moo/_codz_ports/s1/civ/moo_codz_s1_zom_civ_ruban_male.mdl", Skin = 0, Bodygroups = {0,0}},
 	{Model = "models/moo/_codz_ports/s1/civ/moo_codz_s1_zom_civ_ruban_male.mdl", Skin = 1, Bodygroups = {0,0}},
 	{Model = "models/moo/_codz_ports/s1/civ/moo_codz_s1_zom_civ_ruban_male.mdl", Skin = 2, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/s1/civ/moo_codz_s1_zom_civ_ruban_male.mdl", Skin = 3, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/s1/civ/moo_codz_s1_zom_civ_ruban_male.mdl", Skin = 4, Bodygroups = {0,0}},
-	{Model = "models/moo/_codz_ports/s1/civ/moo_codz_s1_zom_civ_ruban_male.mdl", Skin = 5, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/s1/civ/moo_codz_s1_zom_civ_ruban_male2.mdl", Skin = 0, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/s1/civ/moo_codz_s1_zom_civ_ruban_male2.mdl", Skin = 1, Bodygroups = {0,0}},
+	{Model = "models/moo/_codz_ports/s1/civ/moo_codz_s1_zom_civ_ruban_male2.mdl", Skin = 2, Bodygroups = {0,0}},
 }
 
 local spawnslow = {"nz_spawn_ground_v1", "nz_spawn_ground_ad_v2", "nz_spawn_ground_v2", "nz_spawn_ground_v2_altb", "nz_iw7_cp_zom_spawn_ground_02", "nz_iw7_cp_zom_spawn_ground_06", "nz_iw7_cp_zom_spawn_ground_walk_01", "nz_iw7_cp_zom_spawn_ground_walk_03", "nz_iw7_cp_zom_spawn_ground_walk_04"}
@@ -44,6 +41,9 @@ local spawnrun = {"nz_spawn_ground_v1_run", "nz_iw7_cp_zom_spawn_ground_run_01",
 local spawnfast = {"nz_spawn_ground_climbout_fast", "nz_s4_3arc_traverse_riser"}
 local spawnsuperfast = {"nz_ent_ground_01", "nz_ent_ground_02"}
 
+local crawlspawnwalk = {"nz_base_zombie_crawl_out_walk_01",}
+local crawlspawnrun = {"nz_base_zombie_crawl_out_run_01","nz_base_zombie_crawl_out_run_02",}
+local crawlspawnsprint = {"nz_base_zombie_crawl_out_sprint_01","nz_base_zombie_crawl_out_sprint_01",}
 ENT.DeathSequences = {
 	"nz_death_1",
 	"nz_death_2",
@@ -124,59 +124,6 @@ ENT.BarricadeTearSequences = {
 	"nz_legacy_door_tear_right",
 }
 
-local SlowClimbUp36 = {
-	"nz_traverse_climbup36"
-}
-local SlowClimbUp48 = {
-	"nz_traverse_climbup48"
-}
-local SlowClimbUp72 = {
-	"nz_traverse_climbup72"
-}
-local SlowClimbUp96 = {
-	"nz_traverse_climbup96"
-}
-local SlowClimbUp128 = {
-	"nz_traverse_climbup128",
-	"nz_l4d_traverse_climbup132_01",
-	"nz_l4d_traverse_climbup132_02",
-	"nz_l4d_traverse_climbup132_03",
-}
-local SlowClimbUp160 = {
-	"nz_traverse_climbup160",
-	"nz_l4d_traverse_climbup156_01",
-	"nz_l4d_traverse_climbup156_02",
-	"nz_l4d_traverse_climbup156_03",
-}
-local FastClimbUp36 = {
-	"nz_traverse_fast_climbup36",
-	"nz_l4d_traverse_climbup36_01",
-	"nz_l4d_traverse_climbup36_02",
-	"nz_l4d_traverse_climbup36_03",
-}
-local FastClimbUp48 = {
-	"nz_traverse_fast_climbup48",
-	"nz_l4d_traverse_climbup48_01",
-	"nz_l4d_traverse_climbup48_02",
-	"nz_l4d_traverse_climbup48_03",
-	"nz_l4d_traverse_climbup48_04",
-}
-local FastClimbUp72 = {
-	"nz_traverse_fast_climbup72",
-	"nz_l4d_traverse_climbup72_01",
-	"nz_l4d_traverse_climbup72_02",
-	"nz_l4d_traverse_climbup72_03",
-}
-local FastClimbUp96 = {
-	"nz_traverse_fast_climbup96",
-	"nz_l4d_traverse_climbup96_01",
-	"nz_l4d_traverse_climbup96_02",
-	"nz_l4d_traverse_climbup96_03",
-}
-local ClimbUp200 = {
-	"nz_traverse_climbup200"
-}
-
 local AttackSequences = {
 	{seq = "nz_iw7_cp_zom_stand_attack_l_01"},
 	{seq = "nz_iw7_cp_zom_stand_attack_l_02"},
@@ -234,24 +181,43 @@ local SuperSprintAttackSequences = {
 	{seq = "nz_zom_core_sprint_attack_r_02"},
 }
 
-local JumpSequences = {
-	{seq = "nz_iw7_cp_zom_walk_window_over_40_01"},
-	{seq = "nz_iw7_cp_zom_walk_window_over_40_02"},
-	{seq = "nz_iw7_cp_zom_walk_window_over_40_03"},
-	{seq = "nz_iw7_cp_zom_walk_window_over_40_04"},
+local WalkJumpSequencesMiddle = {
+	{seq = "nz_base_zombie_walk_win_trav_m_01"},
+	{seq = "nz_base_zombie_walk_win_trav_m_02"},
+	{seq = "nz_base_zombie_walk_win_trav_m_03"},
 }
-local RunJumpSequences = {
-	{seq = "nz_iw7_cp_zom_run_window_over_40_01"},
-	{seq = "nz_iw7_cp_zom_run_window_over_40_02"},
-	{seq = "nz_iw7_cp_zom_run_window_over_40_03"},
-	{seq = "nz_iw7_cp_zom_run_window_over_40_04"},
-	{seq = "nz_iw7_cp_zom_run_window_over_40_05"},
-	{seq = "nz_l4d_mantle_over_36"},
+
+local WalkJumpSequencesLeft = {
+	{seq = "nz_base_zombie_walk_win_trav_l_01"},
 }
-local SprintJumpSequences = {
-	{seq = "nz_zom_core_mantle_over_40"},
-	{seq = "nz_zom_core_traverse_stepover_40"},
-	{seq = "nz_zom_core_traverse_window_36_quick"},
+
+local WalkJumpSequencesRight = {
+	{seq = "nz_base_zombie_walk_win_trav_r_01"},
+}
+
+local RunJumpSequencesMiddle = {
+	{seq = "nz_base_zombie_run_win_trav_m_01"},
+}
+
+local RunJumpSequencesLeft = {
+	{seq = "nz_base_zombie_run_win_trav_l_01"},
+}
+
+local RunJumpSequencesRight = {
+	{seq = "nz_base_zombie_run_win_trav_r_01"},
+}
+
+local SprintJumpSequencesMiddle = {
+	{seq = "nz_base_zombie_sprint_win_trav_m_01"},
+	{seq = "nz_base_zombie_sprint_win_trav_m_02"},
+}
+
+local SprintJumpSequencesLeft = {
+	{seq = "nz_base_zombie_sprint_win_trav_l_01"},
+}
+
+local SprintJumpSequencesRight = {
+	{seq = "nz_base_zombie_sprint_win_trav_r_01"},
 }
 
 local walksounds = {
@@ -323,6 +289,7 @@ ENT.SequenceTables = {
 	{Threshold = 0, Sequences = {
 		{
 			SpawnSequence = {spawnslow},
+			CrawlOutSequences = {crawlspawnwalk},
 			MovementSequence = {
 				"nz_iw7_cp_zom_shamble_forward_01",
 				"nz_iw7_cp_zom_shamble_forward_02",
@@ -336,37 +303,6 @@ ENT.SequenceTables = {
 				"nz_s1_zom_core_walk_3",
 				"nz_s1_zom_core_walk_4",
 				"nz_s1_zom_core_walk_5",
-
-				"nz_walk_ad1",
-				"nz_s4_3arc_walk_ad_v2",
-				"nz_walk_au3",
-				"nz_walk_au4",
-				"nz_walk_au5",
-				"nz_walk_au6",
-				--[["nz_walk_ad3",
-				"nz_walk_ad4",
-				"nz_walk_ad7",
-				"nz_walk_ad5",
-				"nz_walk_ad6",
-				"nz_walk_ad19",
-				"nz_walk_ad20",
-				"nz_walk_ad21",
-				"nz_walk_ad22",
-				"nz_walk_ad23",
-				"nz_walk_ad24",
-				"nz_walk_ad25",
-				"nz_walk_au1",
-				"nz_walk_au2",
-				"nz_walk_au7",
-				"nz_walk_au8",
-				"nz_walk_au10",
-				"nz_walk_au11",
-				"nz_walk_au12",
-				"nz_walk_au13",
-				"nz_walk_au15",
-				"nz_walk_au20",
-				"nz_walk_au21",
-				"nz_walk_au23",]]
 			},
 			LowgMovementSequence = {
 				"nz_walk_lowg_v1",
@@ -429,7 +365,9 @@ ENT.SequenceTables = {
 			Bo3AttackSequences = {StinkyRunAttackSequences},
 			CrawlAttackSequences = {CrawlAttackSequences},
 
-			JumpSequences = {JumpSequences},
+			JumpSequences = {WalkJumpSequencesMiddle},
+			JumpSequencesLeft = {WalkJumpSequencesLeft},
+			JumpSequencesRight = {WalkJumpSequencesRight},
 			CrawlJumpSequences = {CrawlJumpSequences},
 
 			Climb36 = {SlowClimbUp36},
@@ -446,56 +384,13 @@ ENT.SequenceTables = {
 	{Threshold = 36, Sequences = {
 		{
 			SpawnSequence = {spawnrun},
+			CrawlOutSequences = {crawlspawnrun},
 			MovementSequence = {
 				"nz_iw7_cp_zom_run_forward_01",
 				"nz_iw7_cp_zom_run_forward_02",
 				"nz_iw7_cp_zom_run_forward_03",
 				"nz_iw7_cp_zom_run_forward_04",
 				"nz_iw7_cp_zom_run_forward_05",
-				"nz_walk_fast_ad1",
-				"nz_walk_fast_ad2",
-				"nz_walk_fast_au3",
-				"nz_s4_3arc_run_au_v1",
-				"nz_s4_3arc_run_au_v2",
-				"nz_run_au3",
-				"nz_s4_3arc_run_au_v4",
-				"nz_legacy_run_v1",
-				"nz_legacy_run_v3",
-				--[["nz_walk_fast_ad1",
-				"nz_walk_fast_ad2",
-				"nz_walk_fast_ad3",
-				"nz_run_ad1",
-				"nz_run_ad2",
-				"nz_run_ad3",
-				"nz_run_ad4",
-				"nz_run_ad7",
-				"nz_run_ad8",
-				"nz_run_ad11",
-				"nz_run_ad12",
-				"nz_s4_3arc_run_ad_v13",
-				"nz_run_ad14",
-				"nz_run_ad20",
-				"nz_run_ad21",
-				"nz_run_ad22",
-				"nz_run_ad23",
-				"nz_run_ad24",
-				"nz_walk_fast_au1",
-				"nz_walk_fast_au2",
-				"nz_walk_fast_au3",
-				"nz_s4_3arc_run_au_v1",
-				"nz_s4_3arc_run_au_v2",
-				"nz_run_au3",
-				"nz_s4_3arc_run_au_v4",
-				"nz_run_au5",
-				"nz_run_au9",
-				"nz_run_au11",
-				"nz_s4_3arc_run_au_v12",
-				"nz_run_au13",
-				"nz_run_au20",
-				"nz_run_au21",
-				"nz_run_au22",
-				"nz_run_au23",
-				"nz_run_au24",]]
 			},
 			LowgMovementSequence = {
 				"nz_run_lowg_v1",
@@ -558,7 +453,9 @@ ENT.SequenceTables = {
 			Bo3AttackSequences = {StinkyRunAttackSequences},
 			CrawlAttackSequences = {CrawlAttackSequences},
 
-			JumpSequences = {RunJumpSequences},
+			JumpSequences = {RunJumpSequencesMiddle},
+			JumpSequencesLeft = {RunJumpSequencesLeft},
+			JumpSequencesRight = {RunJumpSequencesRight},
 			CrawlJumpSequences = {CrawlJumpSequences},
 
 			Climb36 = {SlowClimbUp36},
@@ -575,41 +472,13 @@ ENT.SequenceTables = {
 	{Threshold = 71, Sequences = {
 		{
 			SpawnSequence = {spawnfast},
+			CrawlOutSequences = {crawlspawnsprint},
 			MovementSequence = {
-				"nz_s2_core_sprint_v10",
-				"nz_s2_core_sprint_v11",
-				
 				"nz_s1_zom_core_run_1",
 				"nz_s1_zom_core_run_2",
 				"nz_s1_zom_core_run_3",
 				"nz_s1_zom_core_run_4",
 				"nz_s1_zom_core_run_5",
-
-				"nz_t9_base_sprint_ad_v01",
-				"nz_bo3_zombie_sprint_v2",
-				"nz_sprint_ad3",
-				"nz_bo3_zombie_sprint_v4",
-				"nz_legacy_sprint_v5",
-				"nz_fast_sprint_v1",
-				"nz_fast_sprint_v2",
-				--[["nz_t9_base_sprint_ad_v02",
-				"nz_t9_base_sprint_ad_v05",
-				"nz_s4_3arc_sprint_ad_v21",
-				"nz_s4_3arc_sprint_ad_v22",
-				"nz_t9_base_sprint_ad_v23",]]
-				--"nz_sprint_ad4",
-
-				--[["nz_bo3_zombie_sprint_v4",
-				"nz_legacy_sprint_v5",
-				"nz_t9_base_sprint_au_v01",
-				"nz_t9_base_sprint_au_v20",
-				"nz_t9_base_sprint_au_v21",
-				"nz_t9_base_sprint_au_v22",
-				"nz_t9_base_sprint_au_v25",
-				"nz_sprint_au3",
-				"nz_sprint_au4",
-				"nz_fast_sprint_v1",
-				"nz_fast_sprint_v2",]]
 			},
 			LowgMovementSequence = {
 				"nz_sprint_lowg_v1",
@@ -672,7 +541,9 @@ ENT.SequenceTables = {
 			Bo3AttackSequences = {StinkyRunAttackSequences},
 			CrawlAttackSequences = {CrawlAttackSequences},
 
-			JumpSequences = {SprintJumpSequences},
+			JumpSequences = {SprintJumpSequencesMiddle},
+			JumpSequencesLeft = {SprintJumpSequencesLeft},
+			JumpSequencesRight = {SprintJumpSequencesRight},
 			CrawlJumpSequences = {CrawlJumpSequences},
 
 			Climb36 = {FastClimbUp36},
@@ -689,6 +560,7 @@ ENT.SequenceTables = {
 	{Threshold = 155, Sequences = {
 		{
 			SpawnSequence = {spawnsuperfast},
+			CrawlOutSequences = {crawlspawnsprint},
 			MovementSequence = {
 				"nz_s1_zom_core_sprint_1",
 				"nz_s1_zom_core_sprint_2",
@@ -755,7 +627,9 @@ ENT.SequenceTables = {
 			Bo3AttackSequences = {StinkyRunAttackSequences},
 			CrawlAttackSequences = {CrawlAttackSequences},
 
-			JumpSequences = {SprintJumpSequences},
+			JumpSequences = {SprintJumpSequencesMiddle},
+			JumpSequencesLeft = {SprintJumpSequencesLeft},
+			JumpSequencesRight = {SprintJumpSequencesRight},
 			CrawlJumpSequences = {CrawlJumpSequences},
 
 			Climb36 = {FastClimbUp36},

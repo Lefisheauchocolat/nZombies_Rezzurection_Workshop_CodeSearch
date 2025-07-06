@@ -329,7 +329,9 @@ nzRound:AddZombieType("Blood of the Dead", 					"nz_zombie_walker_escape", {})
 nzRound:AddZombieType("Bluds", 								"nz_zombie_walker_blud", {})  
 nzRound:AddZombieType("Buried", 							"nz_zombie_walker_buried", {}) 
 nzRound:AddZombieType("Call of the Dead", 					"nz_zombie_walker_cotd", {}) 
+nzRound:AddZombieType("Charred Zombies(CW)", 				"nz_zombie_walker_cw_charred", {}) 
 nzRound:AddZombieType("Cheaple", 							"nz_zombie_walker_cheaple", {}) 
+nzRound:AddZombieType("Counter-Strike Zombies", 			"nz_zombie_walker_css", {}) 
 nzRound:AddZombieType("Crusader Zombies", 					"nz_zombie_walker_origins_templar", {}) 
 nzRound:AddZombieType("Crusader Zombies(Classic)", 			"nz_zombie_walker_origins_templar_classic", {}) 
 nzRound:AddZombieType("Cyborg Zombies", 					"nz_zombie_walker_cyborg", {}) 
@@ -347,11 +349,14 @@ nzRound:AddZombieType("Die Machine", 						"nz_zombie_walker_diemachine", {})
 nzRound:AddZombieType("Die Rise", 							"nz_zombie_walker_dierise", {}) 
 nzRound:AddZombieType("Elves", 								"nz_zombie_walker_elf", {}) 
 nzRound:AddZombieType("Atlas Corporation", 					"nz_zombie_walker_exo", {}) 
+nzRound:AddZombieType("Atlas Corporation(3arc Styled)", 	"nz_zombie_walker_exo_3arc", {}) 
 nzRound:AddZombieType("Minimum Wage",	 					"nz_zombie_walker_exo_wage", {})
 nzRound:AddZombieType("Burger Town",	 					"nz_zombie_walker_exo_brg", {}) 
 nzRound:AddZombieType("FIVE", 								"nz_zombie_walker_five", {}) 
 nzRound:AddZombieType("FIVE(Classic)", 						"nz_zombie_walker_five_classic", {}) 
 nzRound:AddZombieType("Former", 							"nz_zombie_walker_former", {})
+nzRound:AddZombieType("Liberty Falls", 						"nz_zombie_walker_garnet", {}) 
+nzRound:AddZombieType("Liberty Falls(Armored Heavy)", 		"nz_zombie_walker_garnet_armored_heavy", {}) 
 nzRound:AddZombieType("Green Flu(Airport)", 				"nz_zombie_walker_greenflu_airport", {})
 nzRound:AddZombieType("Green Flu(Military)", 				"nz_zombie_walker_greenflu_military", {})
 nzRound:AddZombieType("Green Flu(Hospital)", 				"nz_zombie_walker_greenflu_hospital", {})
@@ -407,6 +412,7 @@ nzRound:AddZombieType("Terminus(Hazmat)", 					"nz_zombie_walker_quartz_hazmat",
 nzRound:AddZombieType("Terminus(Armored Heavy)", 			"nz_zombie_walker_quartz_armored_heavy", {}) 
 nzRound:AddZombieType("The Tomb", 							"nz_zombie_walker_opal_mummy", {})
 nzRound:AddZombieType("Tranzit", 							"nz_zombie_walker_greenrun", {}) 
+nzRound:AddZombieType("Vietnam Zombies", 					"nz_zombie_walker_vietnam", {}) 
 nzRound:AddZombieType("Vanguard Zombies", 					"nz_zombie_walker_griddy", {})
 nzRound:AddZombieType("Voyage of Despair", 					"nz_zombie_walker_titanic", {}) 
 nzRound:AddZombieType("W@W Russian Zombies", 				"nz_zombie_walker_waw_russians", {}) 
@@ -547,29 +553,6 @@ nzRound:AddSpecialRoundType("Jumping Jacks", {
 			dog:SetHealth(math.random(50,250))
 		else
 			local hp = 50
-			for i = 1, nzRound:GetNumber() do 
-			hp = hp * 1.1
-			if hp > 2000 then
-				hp = 2000
-			end
-		end
-		dog:SetHealth(hp)
-	end
-end) -- No round func or end func
-
-nzRound:AddSpecialRoundType("Gary", {
-	specialTypes = {
-		["nz_zombie_special_gary"] = {chance = 100},
-	},
-		specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.15, 2) end, -- Dynamically change spawn speed depending on player count
-		specialCountMod = function(original) return math.floor(original * 0.5) end, -- Modify the count
-	},
-	function(dog) -- We want to modify health
-		local round = nzRound:GetNumber()
-		if round == -1 then
-			dog:SetHealth(math.random(50,250))
-		else
-			local hp = 40
 			for i = 1, nzRound:GetNumber() do 
 			hp = hp * 1.1
 			if hp > 2000 then
@@ -740,6 +723,167 @@ nzRound:AddSpecialRoundType("Extra Spicy", {
 			hp = hp * 1.1
 			if hp > 1000 then
 				hp = 1000
+			end
+		end
+		dog:SetHealth(hp)
+	end
+end) -- No round func or end func
+
+nzRound:AddSpecialRoundType("Exo Exploders", {
+	specialTypes = {
+		["nz_zombie_special_exo_fire"] = {chance = 100}
+	},
+		specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.15, 2) end, -- Dynamically change spawn speed depending on player count
+		specialCountMod = function(original) return math.floor(original * 0.5) end, -- Modify the count
+	},
+	function(dog) -- We want to modify health
+		local round = nzRound:GetNumber()
+		if round == -1 then
+			dog:SetHealth(math.random(50,250))
+		else
+			local hp = 75
+			for i = 1, nzRound:GetNumber() do 
+			hp = hp * 1.1
+			if hp > 2000 then
+				hp = 2000
+			end
+		end
+		dog:SetHealth(hp)
+	end
+end) -- No round func or end func
+
+nzRound:AddSpecialRoundType("Exo Exploders(3arc Styled)", {
+	specialTypes = {
+		["nz_zombie_special_exo_fire_3arc"] = {chance = 100}
+	},
+		specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.15, 2) end, -- Dynamically change spawn speed depending on player count
+		specialCountMod = function(original) return math.floor(original * 0.5) end, -- Modify the count
+	},
+	function(dog) -- We want to modify health
+		local round = nzRound:GetNumber()
+		if round == -1 then
+			dog:SetHealth(math.random(50,250))
+		else
+			local hp = 75
+			for i = 1, nzRound:GetNumber() do 
+			hp = hp * 1.1
+			if hp > 2000 then
+				hp = 2000
+			end
+		end
+		dog:SetHealth(hp)
+	end
+end) -- No round func or end func
+
+nzRound:AddSpecialRoundType("Exo EMZs", {
+	specialTypes = {
+		["nz_zombie_special_exo_emp"] = {chance = 100}
+	},
+		specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.15, 2) end, -- Dynamically change spawn speed depending on player count
+		specialCountMod = function(original) return math.floor(original * 0.5) end, -- Modify the count
+	},
+	function(dog) -- We want to modify health
+		local round = nzRound:GetNumber()
+		if round == -1 then
+			dog:SetHealth(math.random(50,250))
+		else
+			local hp = 75
+			for i = 1, nzRound:GetNumber() do 
+			hp = hp * 1.1
+			if hp > 2000 then
+				hp = 2000
+			end
+		end
+		dog:SetHealth(hp)
+	end
+end) -- No round func or end func
+
+nzRound:AddSpecialRoundType("Exo EMZs(3arc Styled)", {
+	specialTypes = {
+		["nz_zombie_special_exo_emp_3arc"] = {chance = 100}
+	},
+		specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.15, 2) end, -- Dynamically change spawn speed depending on player count
+		specialCountMod = function(original) return math.floor(original * 0.5) end, -- Modify the count
+	},
+	function(dog) -- We want to modify health
+		local round = nzRound:GetNumber()
+		if round == -1 then
+			dog:SetHealth(math.random(50,250))
+		else
+			local hp = 75
+			for i = 1, nzRound:GetNumber() do 
+			hp = hp * 1.1
+			if hp > 2000 then
+				hp = 2000
+			end
+		end
+		dog:SetHealth(hp)
+	end
+end) -- No round func or end func
+
+nzRound:AddSpecialRoundType("Exo Cloakers", {
+	specialTypes = {
+		["nz_zombie_special_exo_blinker"] = {chance = 100}
+	},
+		specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.15, 2) end, -- Dynamically change spawn speed depending on player count
+		specialCountMod = function(original) return math.floor(original * 0.5) end, -- Modify the count
+	},
+	function(dog) -- We want to modify health
+		local round = nzRound:GetNumber()
+		if round == -1 then
+			dog:SetHealth(math.random(50,250))
+		else
+			local hp = 75
+			for i = 1, nzRound:GetNumber() do 
+			hp = hp * 1.1
+			if hp > 2000 then
+				hp = 2000
+			end
+		end
+		dog:SetHealth(hp)
+	end
+end) -- No round func or end func
+
+nzRound:AddSpecialRoundType("Exo Cloakers(3arc Styled)", {
+	specialTypes = {
+		["nz_zombie_special_exo_blinker_3arc"] = {chance = 100}
+	},
+		specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.15, 2) end, -- Dynamically change spawn speed depending on player count
+		specialCountMod = function(original) return math.floor(original * 0.5) end, -- Modify the count
+	},
+	function(dog) -- We want to modify health
+		local round = nzRound:GetNumber()
+		if round == -1 then
+			dog:SetHealth(math.random(50,250))
+		else
+			local hp = 75
+			for i = 1, nzRound:GetNumber() do 
+			hp = hp * 1.1
+			if hp > 2000 then
+				hp = 2000
+			end
+		end
+		dog:SetHealth(hp)
+	end
+end) -- No round func or end func
+
+nzRound:AddSpecialRoundType("Host Zombies", {
+	specialTypes = {
+		["nz_zombie_special_exo_host"] = {chance = 100}
+	},
+		specialDelayMod = function() return math.Clamp(2 - #player.GetAllPlaying()*0.5, 0.15, 2) end, -- Dynamically change spawn speed depending on player count
+		specialCountMod = function(original) return math.floor(original * 0.5) end, -- Modify the count
+	},
+	function(dog) -- We want to modify health
+		local round = nzRound:GetNumber()
+		if round == -1 then
+			dog:SetHealth(math.random(50,250))
+		else
+			local hp = 75
+			for i = 1, nzRound:GetNumber() do 
+			hp = hp * 1.1
+			if hp > 2000 then
+				hp = 2000
 			end
 		end
 		dog:SetHealth(hp)

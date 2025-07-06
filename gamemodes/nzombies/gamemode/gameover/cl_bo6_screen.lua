@@ -6,31 +6,27 @@ local roundBasedIcon = Material("bo6/other/round_based.png")
 local salvageIcon = Material("bo6/other/salvage.png", "mips")
 local essenceIcon = Material("bo6/other/essence.png", "mips")
 
-local function We(x)
-    return x/1920*ScrW()
-end
-
-local function He(y)
-    return y/1080*ScrH()
-end
+local w, h = ScrW(), ScrH()
+local scale = ((w / 1920) + 1) / 2
 
 surface.CreateFont("BO6_Exfil48", {
     font = "KairosSansW06-CondMedium",
-	extended = true,
-	size = He(48),
+    extended = true,
+    size = 48 * scale,
 })
 
 surface.CreateFont("BO6_Exfil72", {
     font = "KairosSansW06-CondMedium",
-	extended = true,
-	size = He(72),
+    extended = true,
+    size = 72 * scale,
 })
 
 surface.CreateFont("BO6_Exfil20", {
     font = "KairosSansW06-CondMedium",
-	extended = true,
-	size = He(20),
+    extended = true,
+    size = 20 * scale,
 })
+
 
 local function FindAndHidePanelWithFont()
     local fontName = "nz.small.classic"
@@ -99,15 +95,15 @@ local function open_game_over(endtype)
     end
 
     local title = vgui.Create("DLabel", frame)
-    title:SetPos(We(150), He(50))
+    title:SetPos(150 * scale, 50 * scale)
     title:SetText(string.upper(game.GetMap()).." | "..gametype.." | ROUND "..round)
     title:SetFont("BO6_Exfil24")
     title:SetContentAlignment(7)
     title:SetTextColor(Color(255, 165, 0))
     title:SizeToContents()
 
-    local title = vgui.Create("DLabel", frame)
-    title:SetPos(We(150), He(70))
+    title = vgui.Create("DLabel", frame)
+    title:SetPos(150 * scale, 70 * scale)
     title:SetText("ROUND-BASED ZOMBIES")
     title:SetFont("BO6_Exfil48")
     title:SetContentAlignment(7)
@@ -115,21 +111,21 @@ local function open_game_over(endtype)
     title:SizeToContents()
 
     local icon = vgui.Create("DImage", frame)
-    icon:SetPos(We(10), He(25))
-    icon:SetSize(We(564/4), He(468/4))
+    icon:SetPos(10 * scale, 25 * scale)
+    icon:SetSize((564/4) * scale, (468/4) * scale)
     icon:SetMaterial(roundBasedIcon)
 
     local eliminated = vgui.Create("DLabel", frame)
-    eliminated:SetSize(ScrW(), He(100))
-    eliminated:SetPos(0, He(150))
+    eliminated:SetSize(w, 100 * scale)
+    eliminated:SetPos(0, 150 * scale)
     eliminated:SetText(text)
     eliminated:SetFont("BO6_Exfil96")
     eliminated:SetContentAlignment(5)
     eliminated:SetTextColor(Color(200, 200, 200))
 
     local roundsSurvived = vgui.Create("DLabel", frame)
-    roundsSurvived:SetSize(ScrW(), He(30))
-    roundsSurvived:SetPos(0, He(230))
+    roundsSurvived:SetSize(w, 30 * scale)
+    roundsSurvived:SetPos(0, 230 * scale)
     roundsSurvived:SetText(string.format(nzSettings:GetSimpleSetting("BO6_GO_RoundText", "You Survived %s Rounds"), tostring(round)))
     roundsSurvived:SetFont("BO6_Exfil26")
     roundsSurvived:SetContentAlignment(5)
@@ -137,20 +133,20 @@ local function open_game_over(endtype)
 
     local columns = { "№", "NAME", "ESSENCE", "ELIMINATIONS", "DOWNS", "REVIVES", "PING" }
     local headerPanel = vgui.Create("DPanel", frame)
-    headerPanel:SetSize(ScrW() * (#columns/10), He(40))
-    headerPanel:SetPos(ScrW()/2 - headerPanel:GetSize()/2, ScrH() * 0.4)
+    headerPanel:SetSize(w * (#columns / 10), 40 * scale)
+    headerPanel:SetPos(w / 2 - headerPanel:GetWide() / 2, h * 0.4)
     headerPanel.Paint = function(self, w, h)
         surface.SetDrawColor(55, 55, 55, 200)
         surface.DrawRect(0, 0, w, h)
 
         surface.SetDrawColor(255, 255, 255, 10)
-        surface.DrawRect(We(190), 0, We(2), h)
+        surface.DrawRect(190 * scale, 0, 2 * scale, h)
     end
 
     for i, col in ipairs(columns) do
         local label = vgui.Create("DLabel", headerPanel)
-        label:SetPos((i - 1) * (ScrW() * 0.1), He(10))
-        label:SetSize(ScrW() * 0.1, He(20))
+        label:SetPos((i - 1) * (w * 0.1), 10 * scale)
+        label:SetSize(w * 0.1, 20 * scale)
         label:SetText(col)
         label:SetContentAlignment(5)
         label:SetFont("BO6_Exfil24")
@@ -160,60 +156,56 @@ local function open_game_over(endtype)
     local playersTab = player.GetAll()
     for k, v in pairs(playersTab) do
         local rowPanel = vgui.Create("DPanel", frame)
-        rowPanel:SetPos(ScrW()/2 - headerPanel:GetSize()/2, ScrH() * 0.4+(k*He(40)))
-        rowPanel:SetSize(ScrW() * (#columns/10), He(40))
+        rowPanel:SetPos(w / 2 - headerPanel:GetWide() / 2, h * 0.4 + (k * 40 * scale))
+        rowPanel:SetSize(w * (#columns / 10), 40 * scale)
         rowPanel.Paint = function(self, w, h)
             surface.SetDrawColor(125, 125, 125, 50)
             surface.DrawRect(0, 0, w, h)
 
             surface.SetDrawColor(255, 255, 255, 10)
-            surface.DrawRect(We(190), 0, We(2), h)
+            surface.DrawRect(190 * scale, 0, 2 * scale, h)
         end
 
         local rowValues = { k, v:Nick(), v:GetPoints(), v:GetTotalKills(), v:GetTotalDowns(), v:GetTotalRevives(), v:Ping() }
         for i, value in ipairs(rowValues) do
             local label = vgui.Create("DLabel", rowPanel)
-            label:SetPos((i - 1) * (ScrW() * 0.1), He(10))
-            label:SetSize(ScrW() * 0.1, He(20))
+            label:SetPos((i - 1) * (w * 0.1), 10 * scale)
+            label:SetSize(w * 0.1, 20 * scale)
             label:SetText(value)
             label:SetContentAlignment(5)
-            if i == 2 then
-                label:SetTextColor(Color(255, 220, 0))
-            else
-                label:SetTextColor(Color(255, 255, 255))
-            end
+            label:SetTextColor(i == 2 and Color(255, 220, 0) or Color(255, 255, 255))
             label:SetFont("BO6_Exfil20")
         end
     end
 
     local downPanel = vgui.Create("DPanel", frame)
-    downPanel:SetSize(ScrW() * (#columns/10) + We(50), He(90))
-    downPanel:SetPos(ScrW()/2 - downPanel:GetSize()/2, ScrH() * 0.4+((1+#playersTab)*He(40))+He(10))
+    downPanel:SetSize(w * (#columns / 10) + 50 * scale, 90 * scale)
+    downPanel:SetPos(w / 2 - downPanel:GetWide() / 2, h * 0.4 + ((1 + #playersTab) * 40 * scale) + 10 * scale)
     downPanel.Paint = function(self, w, h)
         surface.SetDrawColor(150, 150, 150, 50)
         surface.DrawRect(0, 0, w, h)
 
         surface.SetDrawColor(50, 50, 50, 180)
-        surface.DrawRect(We(75), 0, He(250), h)
-        draw.SimpleText(LocalPlayer():Nick(), "BO6_Exfil24", We(200), He(2), color_white, TEXT_ALIGN_CENTER)
+        surface.DrawRect(75 * scale, 0, 250 * scale, h)
+        draw.SimpleText(LocalPlayer():Nick(), "BO6_Exfil24", 200 * scale, 2 * scale, color_white, TEXT_ALIGN_CENTER)
 
-        surface.SetDrawColor(255, 255, 255, 255)
+        surface.SetDrawColor(255, 255, 255)
         surface.SetMaterial(essenceIcon)
-        surface.DrawTexturedRect(We(445), He(4), We(28), He(28))
-        draw.SimpleText("ESSENCE", "BO6_Exfil24", We(500), He(5), color_white, TEXT_ALIGN_CENTER)
-        draw.SimpleText(LocalPlayer():GetPoints(), "BO6_Exfil72", We(500), He(55), color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        surface.DrawTexturedRect(445 * scale, 4 * scale, 28 * scale, 28 * scale)
+        draw.SimpleText("ESSENCE", "BO6_Exfil24", 500 * scale, 5 * scale, color_white, TEXT_ALIGN_CENTER)
+        draw.SimpleText(LocalPlayer():GetPoints(), "BO6_Exfil72", 500 * scale, 55 * scale, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 
-        surface.SetDrawColor(255, 255, 255, 255)
+        surface.SetDrawColor(255, 255, 255)
         surface.SetMaterial(salvageIcon)
-        surface.DrawTexturedRect(We(625), He(4), We(28), He(28))
-        draw.SimpleText("SALVAGE", "BO6_Exfil24", We(680), He(5), color_white, TEXT_ALIGN_CENTER)
-        draw.SimpleText(LocalPlayer():GetNWInt('Salvage', 0), "BO6_Exfil72", We(680), He(55), color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        surface.DrawTexturedRect(625 * scale, 4 * scale, 28 * scale, 28 * scale)
+        draw.SimpleText("SALVAGE", "BO6_Exfil24", 680 * scale, 5 * scale, color_white, TEXT_ALIGN_CENTER)
+        draw.SimpleText(LocalPlayer():GetNWInt('Salvage', 0), "BO6_Exfil72", 680 * scale, 55 * scale, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
 
     local Avatar = vgui.Create("AvatarImage", downPanel)
-	Avatar:SetSize(We(56), He(56))
-	Avatar:SetPos(We(172.5), He(30))
-	Avatar:SetPlayer(LocalPlayer(), We(56))
+    Avatar:SetSize(56 * scale, 56 * scale)
+    Avatar:SetPos(172.5 * scale, 30 * scale)
+    Avatar:SetPlayer(LocalPlayer(), 56)
 
     local time = nzMapping["Settings"]["gameovertime"]+2
     local black = vgui.Create("DPanel", frame)

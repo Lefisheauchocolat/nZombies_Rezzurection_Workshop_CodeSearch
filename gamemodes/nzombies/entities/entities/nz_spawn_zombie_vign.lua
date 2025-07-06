@@ -108,9 +108,7 @@ function ENT:Think()
 			self:ResetSequence(self.Types[self:GetSpawnType()].inactive)
 		elseif nzRound:InState(ROUND_PREP) or nzRound:InState(ROUND_PROG) then
 			if (self.link == "" or nzDoors:IsLinkOpened(self.link or nzDoors:IsLinkOpened(self.link2 or nzDoors:IsLinkOpened(self.link3)))) then
-				if !self.SpawnedZombie then
-					self:SpawnVignZombie()
-				end
+				self:SpawnVignZombie()
 			end
 		end
 	end
@@ -153,29 +151,31 @@ function ENT:Use(ply)
 end
 
 function ENT:SpawnVignZombie()
-	self.SpawnedZombie = true
+	if !self.SpawnedZombie then
+		self.SpawnedZombie = true
 
-	local class = nzRound:GetZombieType(nzMapping.Settings.zombietype) -- Default to mapsetting zombie selection.
-	local zombietype = self:GetZombieType()
-	local zombie
+		local class = nzRound:GetZombieType(nzMapping.Settings.zombietype) -- Default to mapsetting zombie selection.
+		local zombietype = self:GetZombieType()
+		local zombie
 
-	if zombietype ~= "none" then
-		-- Override to specific zombie type if selected.
-		class = zombietype
-	end
+		if zombietype ~= "none" then
+			-- Override to specific zombie type if selected.
+			class = zombietype
+		end
 
-	if math.Rand(0,100) < self:GetSpawnChance() then
-		zombie = ents.Create(class)
-		zombie:SetPos(self:GetPos())
-		zombie:SetAngles(self:GetAngles())
+		if math.Rand(0,100) < self:GetSpawnChance() then
+			zombie = ents.Create(class)
+			zombie:SetPos(self:GetPos())
+			zombie:SetAngles(self:GetAngles())
 
-		zombie.IsENVZombie = true
+			zombie.IsENVZombie = true
 
-		zombie:Spawn()
-		zombie:Activate()
+			zombie:Spawn()
+			zombie:Activate()
 
-		if self:GetInstantAwake() then
-			zombie.ENVZombieInstantAwake = true
+			if self:GetInstantAwake() then
+				zombie.ENVZombieInstantAwake = true
+			end
 		end
 	end
 end

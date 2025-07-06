@@ -9,7 +9,13 @@ ENT.Purpose			= ""
 ENT.Instructions	= ""
 
 if CLIENT then
-    include("cl_powerbox.lua")
+	CreateClientConVar("nz_vmanip_poweron", "1", true, false, "Enable or disable VManip power-on animation")
+
+	net.Receive("PowerBox_UseAnim", function()
+	    if VManip and GetConVar("nz_vmanip_poweron"):GetInt() == 1 then
+	        VManip:PlayAnim("vm_iw_poweron")
+	    end
+	end)
 end
 
 if SERVER then
@@ -198,6 +204,10 @@ function ENT:Use( activator )
 				if v:GetClass() == "nz_button" or v:GetClass() == "nz_activatable" then
 					v:Ready() 
 					v.LocalPower = true -- Give it a new variable so it knows to turn on.
+				end
+
+				if v:GetClass() == "bo6_arsenal" then 
+					v:TurnOn()
 				end
 
 				if v:IsBuyableEntity() then

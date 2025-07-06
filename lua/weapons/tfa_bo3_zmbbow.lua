@@ -10,7 +10,7 @@ SWEP.Type_Displayed = "#tfa.weapontype.wonderweapon"
 SWEP.Purpose = "Fully charge to shoot a twice as powerfull shot, consumes 2 ammo"
 SWEP.Author = "FlamingFox"
 SWEP.Slot = 4
-SWEP.PrintName = nzombies and "Wrath of the Ancients | BO3" or "Wrath of the Ancients"
+SWEP.PrintName = "Wrath of the Ancients"
 SWEP.DrawCrosshair = true
 SWEP.DrawCrosshairIS = false
 

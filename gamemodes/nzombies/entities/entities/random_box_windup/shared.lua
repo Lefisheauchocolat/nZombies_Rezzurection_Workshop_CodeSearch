@@ -73,8 +73,8 @@ function ENT:Initialize()
 			WINDD = Vector(0,-0,-20),
 		},
 		["Mob of the Dead"] = {
-			MDL = {"models/moo/_codz_ports_props/t6/global/zombie_teddybear/moo_codz_p6_teddybear.mdl"},
-			ANGLE = Angle(-90,90,0),
+			MDL = {"models/kate/_codz_ports_props/t6/zm/motd/magic_box_lock/t6_zm_al_magic_box_lock_red.mdl"},
+			ANGLE = Angle(0,-90,0),
 			WINDU = Vector(0,0,30),
 			WINDD = Vector(0,-0,-20),
 		},

@@ -62,7 +62,6 @@ ENT.SequenceTables = {
 			},
 			AttackSequences = {AttackSequences},
 			JumpSequences = {JumpSequences},
-
 			PassiveSounds = {walksounds},
 		},
 		
@@ -75,7 +74,6 @@ ENT.SequenceTables = {
 			},
 			AttackSequences = {AttackSequences},
 			JumpSequences = {JumpSequences},
-
 			PassiveSounds = {runsounds},
 		},
 		

@@ -61,7 +61,7 @@ function nzRound:EnableSpecialFog( bool )
 		ofogcolor = fogcolor
 		hook.Add("Think", "nzFogFade", nzFogFade)
 		hook.Add("SetupWorldFog", "nzWorldFog", nzSetupWorldFog)
-		--hook.Add("SetupSkyboxFog", "nzSkyboxFog", nzSetupSkyFog)
+		hook.Add("SetupSkyboxFog", "nzSkyboxFog", nzSetupSkyFog)
 		foginit = true
 	else
 		hook.Remove("SetupWorldFog", "nzWorldFog")

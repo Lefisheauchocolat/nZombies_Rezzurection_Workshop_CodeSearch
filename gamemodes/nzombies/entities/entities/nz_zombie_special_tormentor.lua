@@ -136,24 +136,43 @@ local AttackSequences = {
 	{seq = "nz_zombie_catalyst_plasma_death_03"},
 }
 
-local JumpSequences = {
-	{seq = "nz_iw7_cp_zom_walk_window_over_40_01"},
-	{seq = "nz_iw7_cp_zom_walk_window_over_40_02"},
-	{seq = "nz_iw7_cp_zom_walk_window_over_40_03"},
-	{seq = "nz_iw7_cp_zom_walk_window_over_40_04"},
+local WalkJumpSequencesMiddle = {
+	{seq = "nz_base_zombie_walk_win_trav_m_01"},
+	{seq = "nz_base_zombie_walk_win_trav_m_02"},
+	{seq = "nz_base_zombie_walk_win_trav_m_03"},
 }
-local RunJumpSequences = {
-	{seq = "nz_iw7_cp_zom_run_window_over_40_01"},
-	{seq = "nz_iw7_cp_zom_run_window_over_40_02"},
-	{seq = "nz_iw7_cp_zom_run_window_over_40_03"},
-	{seq = "nz_iw7_cp_zom_run_window_over_40_04"},
-	{seq = "nz_iw7_cp_zom_run_window_over_40_05"},
-	{seq = "nz_l4d_mantle_over_36"},
+
+local WalkJumpSequencesLeft = {
+	{seq = "nz_base_zombie_walk_win_trav_l_01"},
 }
-local SprintJumpSequences = {
-	{seq = "nz_zom_core_mantle_over_40"},
-	{seq = "nz_zom_core_traverse_stepover_40"},
-	{seq = "nz_zom_core_traverse_window_36_quick"},
+
+local WalkJumpSequencesRight = {
+	{seq = "nz_base_zombie_walk_win_trav_r_01"},
+}
+
+local RunJumpSequencesMiddle = {
+	{seq = "nz_base_zombie_run_win_trav_m_01"},
+}
+
+local RunJumpSequencesLeft = {
+	{seq = "nz_base_zombie_run_win_trav_l_01"},
+}
+
+local RunJumpSequencesRight = {
+	{seq = "nz_base_zombie_run_win_trav_r_01"},
+}
+
+local SprintJumpSequencesMiddle = {
+	{seq = "nz_base_zombie_sprint_win_trav_m_01"},
+	{seq = "nz_base_zombie_sprint_win_trav_m_02"},
+}
+
+local SprintJumpSequencesLeft = {
+	{seq = "nz_base_zombie_sprint_win_trav_l_01"},
+}
+
+local SprintJumpSequencesRight = {
+	{seq = "nz_base_zombie_sprint_win_trav_r_01"},
 }
 
 local walksounds = {
@@ -285,7 +304,9 @@ ENT.SequenceTables = {
 			StandAttackSequences = {AttackSequences},
 			CrawlAttackSequences = {CrawlAttackSequences},
 
-			JumpSequences = {SprintJumpSequences},
+			JumpSequences = {SprintJumpSequencesMiddle},
+			JumpSequencesLeft = {SprintJumpSequencesLeft},
+			JumpSequencesRight = {SprintJumpSequencesRight},
 			CrawlJumpSequences = {CrawlJumpSequences},
 			PassiveSounds = {walksounds},
 		},

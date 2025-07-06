@@ -28,9 +28,6 @@ nZr_Exfil_Enemies = 1
 nZr_Exfil_Landing = false
 nZr_Exfil_RadioActive = true
 
-nZr_Exfil_Setting_ClearRadius = 800
-nZr_Exfil_Setting_LoadRadius = 160
-
 local function nZr_CalculateZombies()
     local MIN_ZOMBIES = 16
     local MAX_ZOMBIES = math.max(16, nzSettings:GetSimpleSetting("ExfilMaxZombies", 84))
@@ -309,13 +306,13 @@ hook.Add("Think", "nZr_Exfil_Think", function()
     for i=1,#tab do
         ply = tab[i]
         if nZr_Exfil_Landing then
-            if IsValid(nZr_Exfil_Heli) and nZr_Exfil_Heli.loading and ply:Alive() and ply:GetPos():DistToSqr(nZr_Exfil_Position) < nZr_Exfil_Setting_LoadRadius^2 then
+            if IsValid(nZr_Exfil_Heli) and nZr_Exfil_Heli.loading and ply:Alive() and ply:GetPos():DistToSqr(nZr_Exfil_Position) < nzSettings:GetSimpleSetting("ExfilLoadDis", 200)^2 then
                 nZr_Exfil_Stop(true)
             else
                 nZr_Exfil_ShowTimer(timer.TimeLeft("BO6_Exfil_Timer"), 3, nZr_Exfil_Enemies, ply)
             end
         else
-            if ply:Alive() and ply:GetPos():DistToSqr(nZr_Exfil_Position) < nZr_Exfil_Setting_ClearRadius^2 then
+            if ply:Alive() and ply:GetPos():DistToSqr(nZr_Exfil_Position) < (nzSettings:GetSimpleSetting("ExfilLoadDis", 200)*4)^2 then
                 nZr_Exfil_ShowTimer(timer.TimeLeft("BO6_Exfil_Timer"), 2, nZr_Exfil_Enemies, ply)
             else
                 nZr_Exfil_ShowTimer(timer.TimeLeft("BO6_Exfil_Timer"), 1, nZr_Exfil_Enemies, ply)

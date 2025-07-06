@@ -11,7 +11,7 @@ function ENT:InitDataTables()
 	self:NetworkVar("Bool", 6, "UsingLifeDrain")
 	self:NetworkVar("Entity", 6, "CurrentTarget")
 end
-
+ 
 if CLIENT then 
 	ENT.EyeColorTable = {
 		[0] = Material("models/moo/codz/t10_zombies/jup/disciple/xmaterial_2d0375ff3b4bf12.vmt"),
@@ -299,8 +299,8 @@ function ENT:StatsInitialize()
 			self:SetMaxHealth(2250)
 		else
 			if nzRound:InState( ROUND_PROG ) then
-				self:SetHealth(math.Clamp(nzRound:GetNumber() * 500 + (250 * count), 2250, 60000 * count))
-				self:SetMaxHealth(math.Clamp(nzRound:GetNumber() * 500 + (150 * count), 2250, 60000 * count))
+				self:SetHealth(math.Clamp(nzRound:GetNumber() * 250 + (250 * count), 2250, 60000 * count))
+				self:SetMaxHealth(math.Clamp(nzRound:GetNumber() * 250 + (250 * count), 2250, 60000 * count))
 			else
 				self:SetHealth(2250)
 				self:SetMaxHealth(2250)	
@@ -378,8 +378,8 @@ function ENT:AI()
 				self:Retarget()
 
 				self:EmitSound(self.DashSounds[math.random(#self.DashSounds)], 80, math.random(95,105))
-				self:SetRunSpeed(155)
-				self:SpeedChanged()
+				--[[self:SetRunSpeed(155)
+				self:SpeedChanged()]]
 			end
 		end
 	end
@@ -396,7 +396,7 @@ function ENT:AI()
 	-- Life Drain
 	if CurTime() > self.LifeDrainCooldown and !self:IsAttackBlocked() and !self.BuffZombies then
 
-		self:TryDash()
+		--self:TryDash()
 
 		if !IsValid(target) then return end
 		if (target:IsPlayer() and !self.IsTurned or self.IsTurned or self.IsNZAlly) and self:TargetInRange(self.DamageRange) and !self.InLifeDrain then
@@ -482,7 +482,7 @@ end
 function ENT:OnThink()
 	if CurTime() > self.LifeDrainDmgTick and self.InLifeDrain then
 		local target = self:GetTarget()
-		if self:IsAttackBlocked() or !self:TargetInRange(575) or (target:IsPlayer() and !target:GetNotDowned()) or !target:Alive() then
+		if self:IsAttackBlocked() or !self:TargetInRange(475) or (target:IsPlayer() and !target:GetNotDowned()) or !target:Alive() then
 			self.InLifeDrain = false
 			self:DoSpecialAnimation("nz_ai_disciple_lifedrain_finish", true)
 			self:EmitSound("nz_moo/zombies/vox/_sonoforda/lifedrain/lifedrain_bust.mp3", 90, math.random(95,105))
@@ -500,7 +500,7 @@ function ENT:OnThink()
 
 		--print(self:Health())
 
-		self.LifeDrainDmgTick = CurTime() + 0.5
+		self.LifeDrainDmgTick = CurTime() + 0.75
 	end
 
 	if CurTime() > self.BuffZombiesTick and self.BuffZombies then
@@ -645,7 +645,7 @@ function ENT:OnTakeDamage(dmginfo)
 				self:SetCurrentTarget(nil)
 			end
 		else
-			dmginfo:ScaleDamage(0.75)
+			dmginfo:ScaleDamage(0.85)
 		end
 	else
 		dmginfo:ScaleDamage(0.1)
@@ -670,7 +670,7 @@ function ENT:OnTakeDamage(dmginfo)
 		end
 	end
 
-	self:TryDash()
+	--self:TryDash()
 end
 
 

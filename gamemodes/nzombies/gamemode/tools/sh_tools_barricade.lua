@@ -79,10 +79,11 @@ nzTools:CreateTool("barricade", {
 
 		local Row3 = DProperties:CreateRow( "Settings", "Board Type?" )
 		Row3:Setup("Combo")
-		Row3:AddChoice("Wooden Boards", 1)
+		--Row3:AddChoice("Wooden Boards(NZ CLASSIC)", 5)
+		Row3:AddChoice("Wooden Boards(BO2/OG)", 1)
+        Row3:AddChoice("Wooden Boards(BO4/BOCW)", 4)
         Row3:AddChoice("Metal Rebar", 2)
         Row3:AddChoice("Vent Slats", 3)
-        Row3:AddChoice("Wooden Boards(BO4/BOCW)", 4)
 		Row3.DataChanged = function( _, val ) valz["Row3"] = val DProperties.UpdateData(DProperties.CompileData()) end
 		Row3:SetSelected(valz["Row3"])
 
@@ -113,6 +114,8 @@ nzTools:CreateTool("barricade", {
         Row5:AddChoice("Crawl Through: Car Slow"		,9)
         Row5:AddChoice("Crawl Through: Car Fast"		,10)
         Row5:AddChoice("Crawl Through: Car Super Fast"	,11)
+        Row5:AddChoice("Mantle Over: 36 Units Fast"		,12)
+        Row5:AddChoice("Mantle Over: 48 Units Fast"		,13)
 		Row5.DataChanged = function( _, val ) valz["Row5"] = val DProperties.UpdateData(DProperties.CompileData()) end
 		
 		local Row6 = DProperties:CreateRow( "Misc", "Player Collision" )

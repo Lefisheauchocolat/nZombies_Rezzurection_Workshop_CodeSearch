@@ -448,6 +448,10 @@ function ENT:OnSpawn()
 	elseif self.VariantChance == 2 then
 		self.Variant = "taser"
 		self:SetBodygroup(3,2)
+	elseif self.VariantChance == 3 then
+		self.Variant = "minigun"
+		self:SetBodygroup(3,2)
+		self:SetBodygroup(4,1)
 	end
 
 	self:TimeOut(2)

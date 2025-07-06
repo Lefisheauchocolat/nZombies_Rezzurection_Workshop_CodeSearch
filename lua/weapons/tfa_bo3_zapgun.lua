@@ -9,7 +9,7 @@ SWEP.UseHands = true
 SWEP.Type_Displayed = "#tfa.weapontype.wonderweapon"
 SWEP.Author = "FlamingFox"
 SWEP.Slot = 2
-SWEP.PrintName = nzombies and "Zap Gun Dual Wield | BO3" or "Zap Gun Dual Wield"
+SWEP.PrintName = "Zap Gun Dual Wield"
 SWEP.DrawCrosshair = true
 SWEP.DrawCrosshairIS = false
 
@@ -536,7 +536,7 @@ function SWEP:AttachWaveGun()
 	self.Akimbo = false
 	self.WElements.gun_left.active = false
 	self.data.ironsights = 1
-	self.PrintName = "Wave Gun | BO3"
+	self.PrintName = "Wave Gun"
 	self.NZPaPName = "Max Wave Gun"
 	self.DrawCrosshair = false
 
@@ -573,7 +573,7 @@ function SWEP:DetachWaveGun()
 	self.Akimbo = true
 	self.WElements.gun_left.active = true
 	self.data.ironsights = 0
-	self.PrintName = "Zap Gun Dual Wield | BO3"
+	self.PrintName = "Zap Gun Dual Wield"
 	self.NZPaPName = "Porter's X2 Zap Gun Dual Wield"
 	self.DrawCrosshair = true
 

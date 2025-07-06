@@ -251,6 +251,7 @@ function SWEP:PlantShield()
 	ent:SetPos(ply:GetPos() + Vector(0,0,1))
 	ent:SetAngles(ang)
 	ent:SetOwner(ply)
+	ent.Inflictor = self
 
 	local ratio = (self:Clip1() / self.Primary_TFA.ClipSize) * 100
 	ent:SetMaxHealth(500)
@@ -259,7 +260,7 @@ function SWEP:PlantShield()
 
 	ent:Spawn()
 	ent:SetOwner(ply)
-	ent.Inflictor = self:GetClass()
+	ent.Inflictor = self
 
 	timer.Simple(0, function()
 		if not IsValid(ply) or not IsValid(self) then return end

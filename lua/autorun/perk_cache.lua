@@ -298,7 +298,7 @@ sound.Add({
 sound.Add({
 	name = 			"Latte_Armor.Open",
 	channel = 		CHAN_AUTO,
-	volume = 		1,
+	volume = 		0.5,
 	pitch = 		{90,110},
 	sound = 			{ "plate/open.wav", "plate/open2.wav", "plate/open3.wav", "plate/open4.wav", "plate/open5.wav" }   
 })
@@ -310,6 +310,14 @@ sound.Add({
 	pitch = 		{90,110},
 	sound = 			{ "plate/insert.wav", "plate/insert2.wav", "plate/insert3.wav", "plate/insert4.wav", "plate/insert5.wav", "plate/insert6.wav"  }   
 })
+
+sound.Add({
+	name = 			"Latte_Armor.Break",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	pitch = 		{90,110},
+	sound = 			{ "nz_moo/zombies/fly/armor_break/break_00.mp3", "nz_moo/zombies/fly/armor_break/break_01.mp3", "nz_moo/zombies/fly/armor_break/break_02.mp3", "nz_moo/zombies/fly/armor_break/break_03.mp3", "nz_moo/zombies/fly/armor_break/break_04.mp3", "nz_moo/zombies/fly/armor_break/break_05.mp3", "nz_moo/zombies/fly/armor_break/break_06.mp3", "nz_moo/zombies/fly/armor_break/break_07.mp3", "nz_moo/zombies/fly/armor_break/break_08.mp3", "nz_moo/zombies/fly/armor_break/break_09.mp3", "nz_moo/zombies/fly/armor_break/break_10.mp3", "nz_moo/zombies/fly/armor_break/break_11.mp3", "nz_moo/zombies/fly/armor_break/break_12.mp3", "nz_moo/zombies/fly/armor_break/break_13.mp3" }   
+}) 
 
 -- Bo1 Radio
 
@@ -489,9 +497,76 @@ sound.Add({
 	sound = 			"perks/ren/drink.mp3"
 })
 
+-- BO2 Crowbar
+
+sound.Add({
+	name = 			"TFA_BO2.Crowbar_Swing",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			{ "weapons/tfa_bo2/crowbar/crowbar_swipe_1.ogg", "weapons/tfa_bo2/crowbar/crowbar_swipe_2.ogg" } 
+})
+
+sound.Add({
+	name = 			"TFA_BO2.Crowbar_Hit_Flesh",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			{ "weapons/tfa_bo2/crowbar/crowbar_hit_flesh_1.ogg", "weapons/tfa_bo2/crowbar/crowbar_hit_flesh_2.ogg" } 
+})
+
+sound.Add({
+	name = 			"TFA_BO2.Crowbar_Hit_World",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			{ "weapons/tfa_bo2/crowbar/crowbar_hit_other_1.ogg", "weapons/tfa_bo2/crowbar/crowbar_hit_other_1.ogg" } 
+})
+
+-- BO2 Pulvar Sword
+
+sound.Add({
+	name = 			"TFA_BO2.Pulvar_Swing",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			{ "weapons/tfa_bo2/pulvar_sword/swing_1.ogg", "weapons/tfa_bo2/pulvar_sword/swing_2.ogg", "weapons/tfa_bo2/pulvar_sword/swing_3.ogg" } 
+})
+
+sound.Add({
+	name = 			"TFA_BO2.Pulvar_Hit_Flesh",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			"weapons/tfa_bo2/pulvar_sword/hit_flesh.ogg"
+})
+
+sound.Add({
+	name = 			"TFA_BO2.Pulvar_Hit_World",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			{ "weapons/tfa_bo2/pulvar_sword/hit_other_1.ogg", "weapons/tfa_bo2/pulvar_sword/hit_other_2.ogg" } 
+})
+
+-- MW knife stab
+
+sound.Add({
+	name = 			"TFA_MW.Knife_Hit_Lunge",
+	channel = 		CHAN_AUTO,
+	volume = 		1,
+	sound = 			{ "weapons/tfa_mw2/knife/h2h_knife_stab1.ogg", "weapons/knife/pulvar_sword/h2h_knife_stab2.ogg" } 
+})
 
 if nzombies then
     hook.Add("InitPostEntity", "latte_perks", function()
+    nzSpecialWeapons:AddKnife("nz_cod4_knife", false, 0.65)
+    nzSpecialWeapons:AddKnife("nz_bo1_karambit", false, 0.65)
+    nzSpecialWeapons:AddKnife("nz_bo1_sog_knife", false, 0.65)
+    nzSpecialWeapons:AddKnife("nz_bo1_shiv", false, 0.65)
+    nzSpecialWeapons:AddKnife("nz_bo1_hatchet", false, 0.65)
+    nzSpecialWeapons:AddKnife("nz_bo2_machete", false, 0.65)
+    nzSpecialWeapons:AddKnife("nz_bo2_crowbar", false, 0.65)
+    nzSpecialWeapons:AddKnife("nz_bo2_pulvar_sword", false, 0.65)
+    nzSpecialWeapons:AddKnife("nz_bo2_tomohawk", false, 0.65)
+    nzSpecialWeapons:AddKnife("nz_ww2_combatknife", false, 0.65)
+    nzSpecialWeapons:AddKnife("nz_ww2_shovel", false, 0.65)
+    nzSpecialWeapons:AddKnife("nz_ww2_dagger", false, 0.65)
+    nzSpecialWeapons:AddKnife("nz_ww2_trenchknife", false, 0.65)
 	nzSpecialWeapons:AddDisplay("tfa_perk_can", false, function(wep)
             return SERVER and (wep.nzDeployTime + (wep:GetOwner():HasUpgrade("speed") and 1.65 or 3.2)) < CurTime()
         end)
@@ -540,84 +615,79 @@ if nzombies then
     end)
 
 
-    hook.Add("PostGamemodeLoaded", "latte_perk_materials", function()
-        nzPerks:RegisterBottle("tfa_perk_can", "ColdWarPerkCan", {
-            [0] = "models/nz/perks/cold_war_can/can_",
-            [1] = "models/nz/perks/cold_war_can/logo_",
-            [2] = "models/nz/perks/cold_war_can/liquid_"
-        }, "models/nzr/2024/perks/bocw/world/wm_t9_can.mdl", Vector(0,0,50), Angle(0,180,0))
+	CreateConVar("nz_bottle_liquid_type", "1", FCVAR_ARCHIVE, "0, Use BO3 styled dark liquid. 1, (Default) Use BO4 styled glowy liquid. (REQUIRES RESTART)")
 
-        nzPerks:RegisterBottle("tfa_perk_candy", "IWCandy", {
-            [0] = "models/nz/perks/candy/logo_"
-        }, "models/nzr/2024/perks/infinite_warfare/world/wm_iw8_candy.mdl", Vector(0,0,50), Angle(0,0,0))
- 
-        nzPerks:RegisterBottle("tfa_perk_gum", "Bo3Gobblegum", {
-            [0] = "models/nz/perks/gobblegum/t7_gum_",
-            [1] = "models/nz/perks/gobblegum/logo_"
-        }, "models/nzr/2024/perks/bo3/gum/world/wm_bo3_gum.mdl", Vector(0,0,55), Angle(0,180,0))
+	    local liquidType = GetConVar("nz_bottle_liquid_type"):GetInt()
+	    local function ReplaceBottlePath(tbl)
+	        for k, v in pairs(tbl) do
+	            if v == "models/nz/perks/bo3/bottle_" and liquidType == 0 then
+	                tbl[k] = "models/nz/perks/ren/liquid_"
+	            end
+	        end
+	        return tbl
+	    end
 
-        nzPerks:RegisterBottle("tfa_perk_goblet", "VGGoblet", {
-            [1] = "models/nz/perks/goblet/logo_",
-            [2] = "models/nz/perks/goblet/blood_"
-        }, "models/nzr/2024/perks/vangriddy/world/wm_s4_goblet.mdl", Vector(300,-100,55), Angle(0,180,0))
-    
-        nzPerks:RegisterBottle("tfa_bo1_bottle", "Bo1Bottle", {
-            [0] = "models/nz/perks/bo1/logo_"
-        }, "models/nzr/2024/perks/bo1/world/wm_t5_perk_bottle.mdl", Vector(0,0,50), Angle(0,90,0))
 
-        nzPerks:RegisterBottle("tfa_bo3_nana", "Bo3Banana", {
-            [0] = "models/nz/perks/banana/logo_"
-        }, "models/nzr/2024/perks/bo3/banana/world/wm_perk_nana.mdl", Vector(0,0,50), Angle(0,90,0))
+	hook.Add("PostGamemodeLoaded", "latte_perk_materials", function()
 
-        nzPerks:RegisterBottle("tfa_bo2_bottle", "Bo2Bottle", {
-            [0] = "models/nz/perks/bo2/logo_",
-            [1] = "models/nz/perks/bo2/bottle_"
-        }, "models/nzr/2024/perks/bo2/world/wm_t6_perk_bottle.mdl", Vector(0,0,50), Angle(0,90,0))
+	    nzPerks:RegisterBottle("tfa_perk_can", "ColdWarPerkCan", {
+	        [0] = "models/nz/perks/cold_war_can/can_",
+	        [1] = "models/nz/perks/cold_war_can/logo_",
+	        [2] = "models/nz/perks/cold_war_can/liquid_"
+	    }, "models/nzr/2024/perks/bocw/world/wm_t9_can.mdl", Vector(0,0,50), Angle(0,180,0))
 
-        nzPerks:RegisterBottle("tfa_bo4_bottle", "Bo4Bottle", {
-        	[0] = "models/nz/perks/bo3/metal_",
-    		[1] = "models/nz/perks/bo3/bottle_",
-    		[2] = "models/nz/perks/bo3/logo_"
-		}, "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
+	    nzPerks:RegisterBottle("tfa_perk_candy", "IWCandy", {
+	        [0] = "models/nz/perks/candy/logo_"
+	    }, "models/nzr/2024/perks/infinite_warfare/world/wm_iw8_candy.mdl", Vector(0,0,50), Angle(0,0,0))
 
-        nzPerks:RegisterBottle("tfa_aae_bottle", "AAEBottle", {
-        	[0] = "models/nz/perks/bo3/metal_",
-    		[1] = "models/nz/perks/bo3/bottle_",
-    		[2] = "models/nz/perks/bo3/logo_"
-		}, "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
+	    nzPerks:RegisterBottle("tfa_perk_gum", "Bo3Gobblegum", {
+	        [0] = "models/nz/perks/gobblegum/t7_gum_",
+	        [1] = "models/nz/perks/gobblegum/logo_"
+	    }, "models/nzr/2024/perks/bo3/gum/world/wm_bo3_gum.mdl", Vector(0,0,55), Angle(0,180,0))
 
-        nzPerks:RegisterBottle("tfa_rd_bottle", "RDBottle", {
-        	[0] = "models/nz/perks/bo3/metal_",
-    		[1] = "models/nz/perks/bo3/bottle_",
-    		[2] = "models/nz/perks/bo3/logo_"
-		}, "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
+	    nzPerks:RegisterBottle("tfa_perk_goblet", "VGGoblet", {
+	        [1] = "models/nz/perks/goblet/logo_",
+	        [2] = "models/nz/perks/goblet/blood_"
+	    }, "models/nzr/2024/perks/vangriddy/world/wm_s4_goblet.mdl", Vector(300,-100,55), Angle(0,180,0))
 
-        nzPerks:RegisterBottle("tfa_t7c_bottle", "T7ComplexBottle", {
-        	[0] = "models/nz/perks/bo3/metal_",
-    		[1] = "models/nz/perks/bo3/bottle_",
-    		[2] = "models/nz/perks/bo3/logo_"
-		}, "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
+	    nzPerks:RegisterBottle("tfa_bo1_bottle", "Bo1Bottle", {
+	        [0] = "models/nz/perks/bo1/logo_"
+	    }, "models/nzr/2024/perks/bo1/world/wm_t5_perk_bottle.mdl", Vector(0,0,50), Angle(0,90,0))
 
-        nzPerks:RegisterBottle("tfa_waw_bottle", "WaWBottle", {
-            [0] = "models/nz/perks/waw/bottle_in_",
-            [1] = "models/nz/perks/waw/bottle_out_"
-        }, "models/nzr/2024/perks/waw/world/wm_t4_perk_bottle.mdl", Vector(10,0,50), Angle(0,90,0))
+	    nzPerks:RegisterBottle("tfa_bo3_nana", "Bo3Banana", {
+	        [0] = "models/nz/perks/banana/logo_"
+	    }, "models/nzr/2024/perks/bo3/banana/world/wm_perk_nana.mdl", Vector(0,0,50), Angle(0,90,0))
 
-        nzPerks:RegisterBottle("tfa_perk_stim", "PerkStim", {
-            [0] = "models/nz/perks/stim/stim_",
-        }, "models/nzr/2024/perks/waw/world/wm_t4_perk_bottle.mdl", Vector(10,0,50), Angle(0,90,0))
+	    nzPerks:RegisterBottle("tfa_bo2_bottle", "Bo2Bottle", {
+	        [0] = "models/nz/perks/bo2/logo_",
+	        [1] = "models/nz/perks/bo2/bottle_"
+	    }, "models/nzr/2024/perks/bo2/world/wm_t6_perk_bottle.mdl", Vector(0,0,50), Angle(0,90,0))
 
-        nzPerks:RegisterBottle("tfa_stalker_bottle", "StalkerBottle", {
-        	[0] = "models/nz/perks/bo3/metal_",
-    		[1] = "models/nz/perks/bo3/bottle_",
-    		[2] = "models/nz/perks/bo3/logo_"
-		}, "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
+	    local bottleMaterial = ReplaceBottlePath({
+	        [0] = "models/nz/perks/bo3/metal_",
+	        [1] = "models/nz/perks/bo3/bottle_",
+	        [2] = "models/nz/perks/bo3/logo_"
+	    })
 
-        nzPerks:RegisterBottle("tfa_ren_bottle", "RenaissanceBottle", {
-        	[0] = "models/nz/perks/bo3/metal_",
-    		[1] = "models/nz/perks/ren/liquid_",
-    		[2] = "models/nz/perks/bo3/logo_"
-		}, "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
+	    nzPerks:RegisterBottle("tfa_bo4_bottle", "Bo4Bottle", table.Copy(bottleMaterial), "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
+	    nzPerks:RegisterBottle("tfa_aae_bottle", "AAEBottle", table.Copy(bottleMaterial), "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
+	    nzPerks:RegisterBottle("tfa_rd_bottle", "RDBottle", table.Copy(bottleMaterial), "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
+	    nzPerks:RegisterBottle("tfa_t7c_bottle", "T7ComplexBottle", table.Copy(bottleMaterial), "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
+	    nzPerks:RegisterBottle("tfa_stalker_bottle", "StalkerBottle", table.Copy(bottleMaterial), "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
 
-    end)
+	    nzPerks:RegisterBottle("tfa_waw_bottle", "WaWBottle", {
+	        [0] = "models/nz/perks/waw/bottle_in_",
+	        [1] = "models/nz/perks/waw/bottle_out_"
+	    }, "models/nzr/2024/perks/waw/world/wm_t4_perk_bottle.mdl", Vector(10,0,50), Angle(0,90,0))
+
+	    nzPerks:RegisterBottle("tfa_perk_stim", "PerkStim", {
+	        [0] = "models/nz/perks/stim/stim_",
+	    }, "models/nzr/2024/perks/waw/world/wm_t4_perk_bottle.mdl", Vector(10,0,50), Angle(0,90,0))
+
+	    nzPerks:RegisterBottle("tfa_ren_bottle", "RenaissanceBottle", {
+	        [0] = "models/nz/perks/bo3/metal_",
+	        [1] = "models/nz/perks/ren/liquid_",
+	        [2] = "models/nz/perks/bo3/logo_"
+	    }, "models/nzr/2022/perks/w_perk_bottle.mdl", Vector(0,0,50), Angle(0,140,0))
+	end)
 end

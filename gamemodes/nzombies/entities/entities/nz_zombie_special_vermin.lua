@@ -36,6 +36,12 @@ ENT.DeathSequences = {
 	"nz_base_vermin_dth_03",
 }
 
+ENT.ElectrocutionSequences = {
+	"nz_base_vermin_dth_01",
+	"nz_base_vermin_dth_02",
+	"nz_base_vermin_dth_03",
+}
+
 ENT.BlackHoleDeathSequences = {
 	"nz_base_vermin_deckcannon_dth_01",
 	"nz_base_vermin_deckcannon_dth_01",

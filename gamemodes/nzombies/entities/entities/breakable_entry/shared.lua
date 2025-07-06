@@ -323,15 +323,48 @@ function ENT:PlankCheck(plank, ent)
 end
 
 function ENT:SpawnPlank()
-	local plank = self:GetBoardType() == 1 and ents.Create("breakable_entry_plank") or self:GetBoardType() == 2 and ents.Create("breakable_entry_bar") or self:GetBoardType() == 3 and ents.Create("breakable_entry_ventslat") or self:GetBoardType() == 4 and ents.Create("breakable_entry_plank_zhd")
+
+	local tbl = {
+		[1] = {
+			type 		= "breakable_entry_plank",
+			pos 		= Vector(32,0,34),
+			ang 		= Angle(0,180,0),
+			bodygroups 	= true,
+		},
+		[2] = {
+			type 		= "breakable_entry_bar",
+			pos 		= Vector(32,0,29),
+			ang 		= Angle(0,90,0),
+			bodygroups 	= false,
+		},
+		[3] = {
+			type 		= "breakable_entry_ventslat",
+			pos 		= Vector(32,0,29),
+			ang 		= Angle(0,90,0),
+			bodygroups 	= false,
+		},
+		[4] = {
+			type 		= "breakable_entry_plank_zhd",
+			pos 		= Vector(32,0,34),
+			ang 		= Angle(0,180,0),
+			bodygroups 	= true,
+		},
+		[5] = {
+			type 		= "breakable_entry_plank_classic",
+			pos 		= Vector(32,0,34),
+			ang 		= Angle(0,180,0),
+			bodygroups 	= false,
+		},
+	}
+
+	local selection = tbl[self:GetBoardType()]
+
+	local plank = ents.Create(tostring(selection.type))
+
 	plank:SetParent(self)
-	if self:GetBoardType() == 1 or self:GetBoardType() == 4 then
-		plank:SetLocalPos( Vector(32,0,34))
-		plank:SetLocalAngles( Angle(0,180,0))
-	elseif self:GetBoardType() == 2 or self:GetBoardType() == 3 then
-		plank:SetLocalPos( Vector(32,0,29))
-		plank:SetLocalAngles( Angle(0,90,0))
-	end
+	plank:SetLocalPos( selection.pos)
+	plank:SetLocalAngles( selection.ang)
+
 	plank:Spawn()
 	plank:SetCollisionGroup( COLLISION_GROUP_DEBRIS )
 
@@ -343,7 +376,7 @@ function ENT:SpawnPlank()
 
 	self:PlankCheck(plank)
 
-	if IsValid(plank) and (self:GetBoardType() == 1 or self:GetBoardType() == 4) then
+	if IsValid(plank) and selection.bodygroups then
 		plank:SetBodygroup(0, plank:GetFlags() - 1)
 	end
 
@@ -447,12 +480,21 @@ hook.Add("ShouldCollide", "zCollisionHook", function(ent1, ent2)
 end)
 
 if CLIENT then
+
 	function ENT:Draw()
+		
+		local nz_preview = GetConVar("nz_creative_preview")
+		local nz_creative = nzRound:InState( ROUND_CREATE )
+
 		local mat = Material("cable/redlaser")
 		local vaultheight = 42
 		local col = Color(255,255,255)
+
+		local pos = self:GetPos()
+		local ang = self:GetAngles()
+
 		self:DrawModel()
-		if ConVarExists("nz_creative_preview") and !GetConVar("nz_creative_preview"):GetBool() and nzRound:InState( ROUND_CREATE ) then
+		if !nz_preview:GetBool() and nz_creative then
 			render.SetMaterial(mat)
 			render.DrawBeam(
 				self:LocalToWorld(Vector(0,-30,vaultheight)),
@@ -462,9 +504,12 @@ if CLIENT then
 				1,
 				col
 			)
+
+			render.DrawWireframeBox(pos + self:GetForward() * 31, ang, Vector(-6,-6,24), Vector(6,6,36), Color(175,120,120), false)
+			render.DrawWireframeBox(pos - self:GetForward() * 31, ang, Vector(-6,-6,24), Vector(6,6,36), Color(60,130,70), false)
 		end
 		self:SetBodygroup(1,self:GetProp())
-		if nzRound:InState( ROUND_CREATE ) and !GetConVar("nz_creative_preview"):GetBool() then
+		if nz_creative and !nz_preview:GetBool() then
 			self:SetBodygroup(0,0)
 		else
 			self:SetBodygroup(0,1)

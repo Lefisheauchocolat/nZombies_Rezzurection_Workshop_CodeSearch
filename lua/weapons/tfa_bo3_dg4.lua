@@ -11,7 +11,7 @@ SWEP.UseHands = true
 SWEP.Type_Displayed = "#tfa.weapontype.specialist"
 SWEP.Author = "FlamingFox"
 SWEP.Slot = 0
-SWEP.PrintName = nzombies and "Ragnarok DG-4 | BO3" or "Ragnarok DG-4"
+SWEP.PrintName = "Ragnarok DG-4"
 SWEP.DrawCrosshair = false
 SWEP.DrawCrosshairIS = false
 SWEP.AutoSwitchTo = false
@@ -221,11 +221,6 @@ SWEP.BO3CanSlam = true
 --[Coding]--
 DEFINE_BASECLASS( SWEP.Base )
 
-TFA.AddStatus("RAGNAROK_DEPLOY")
-
-TFA.Enum.HUDDisabledStatus[TFA.Enum.STATUS_RAGNAROK_DEPLOY] = true
-TFA.Enum.IronStatus[TFA.Enum.STATUS_RAGNAROK_DEPLOY] = true
-
 local CurTime = CurTime
 local sp = game.SinglePlayer()
 local pvp_bool = GetConVar("sbox_playershurtplayers")
@@ -358,13 +353,13 @@ function SWEP:ThrowStart()
 				local damage = DamageInfo()
 				damage:SetAttacker(ply)
 				damage:SetInflictor(self)
-				damage:SetDamage(nzombies and v:Health() or self:GetStat("Primary.Damage"))
+				damage:SetDamage(nzombies and v:Health() + 666 or self:GetStat("Primary.Damage"))
 				damage:SetDamageType(DMG_ENERGYBEAM)
 				damage:SetDamageForce(v:GetUp()*20000 + (v:GetPos() - ply:GetPos()):GetNormalized() * 15000)
 				damage:SetDamagePosition(v:WorldSpaceCenter())
 
-				if nzombies and v.NZBossType then
-					damage:SetDamage(math.max(1000, v:GetMaxHealth() / 8))
+				if nzombies and (v.NZBossType or v.IsMooBossZombie or v.IsMiniBoss) then
+					damage:SetDamage(math.max(1200, v:GetMaxHealth() / 8))
 					damage:ScaleDamage(math.Round(nzRound:GetNumber()/12))
 				end
 

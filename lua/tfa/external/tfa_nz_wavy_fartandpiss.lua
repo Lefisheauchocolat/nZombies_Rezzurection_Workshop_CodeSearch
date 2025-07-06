@@ -76,6 +76,7 @@ if nzombies then
 		ent = "shatterblast_effect", //***REQUIRES*** a NetworkVar Entity 'Attacker' and 'Inflictor', Entity is parented to zombie on proc
 		flash = Material("vgui/wavy_hud_cp_aat_shatterblast_alt.png", "smooth unlitgeneric"),
 		icon = Material("vgui/hud_wpn_aat_shatterblast.png", "smooth unlitgeneric"),
+		desc = "Proc to create an explosion. Thats it."
 	})
 	nzAATs:RegisterAAT("windstorm", {
 		name = "Wind Storm", //name that displays next to AAT icon on some HUDs
@@ -85,15 +86,17 @@ if nzombies then
 		ent = "windstorm_effect", //***REQUIRES*** a NetworkVar Entity 'Attacker' and 'Inflictor', Entity is parented to zombie on proc
 		flash = Material("vgui/wavy_hud_cp_aat_windstorm_alt221.png", "smooth unlitgeneric"),
 		icon = Material("vgui/hud_wpn_aat_windstorm.png", "smooth unlitgeneric"),
+		desc = "Proc to create a tornado that tears apart zombies within its radius."
 	})
 	nzAATs:RegisterAAT("reanimator", {
 		name = "Re-Animator", //name that displays next to AAT icon on some HUDs
-		chance = 0.1, //0.10 would be 10% proc chance on every shot
-		cooldown = 25, //cooldown in seconds
+		chance = 0.15, //0.10 would be 10% proc chance on every shot
+		cooldown = 15, //cooldown in seconds
 		color = Color(255, 144, 71), //color of AAT text on some HUDs
 		ent = "reanimator_effect", //***REQUIRES*** a NetworkVar Entity 'Attacker' and 'Inflictor', Entity is parented to zombie on proc
 		flash = Material("vgui/wavy_hud_cp_aat_reanimtor.png", "smooth unlitgeneric"),
 		icon = Material("vgui/wavy_hud_wpn_aat_reanimator.png", "smooth unlitgeneric"),
+		desc = "Proc to turn a zombie into a fed."
 	})
 	end)
 end

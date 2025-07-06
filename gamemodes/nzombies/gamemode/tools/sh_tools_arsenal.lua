@@ -51,6 +51,14 @@ nzTools:CreateTool("arsenaleditor", {
 			end
 		end
 
+		local Row2 = DProperties:CreateRow("Config Settings", "Require Power?")
+		Row2:Setup("Boolean")
+		Row2:SetValue(nzSettings:GetSimpleSetting("ArsenalRequirePower", false))
+		nzSettings:SyncValueToElement("ArsenalRequirePower", Row2)
+		Row2.DataChanged = function( _, val ) 
+			nzSettings:SetSimpleSetting("ArsenalRequirePower", tobool(val) or false)
+		end
+
 		local text = vgui.Create("DLabel", DProperties)
 		text:SetText("Crafting Module made by Hari")
 		text:SetFont("Trebuchet18")

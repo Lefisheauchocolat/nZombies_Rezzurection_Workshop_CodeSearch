@@ -46,6 +46,49 @@ if nzombies then
 	end
 end
 
+if not TFA.Enum.ChargeStatus then
+	TFA.Enum.ChargeStatus = {}
+end
+
+if not TFA.Enum.STATUS_CHARGE_UP then
+	TFA.AddStatus("CHARGE_UP")
+
+	TFA.Enum.ReadyStatus[TFA.Enum.STATUS_CHARGE_UP] = true
+	TFA.Enum.IronStatus[TFA.Enum.STATUS_CHARGE_UP] = true
+end
+
+TFA.Enum.ChargeStatus[TFA.Enum.STATUS_CHARGE_UP] = true
+
+if not TFA.Enum.STATUS_CHARGE_DOWN then
+	TFA.AddStatus("CHARGE_DOWN")
+
+	TFA.Enum.IronStatus[TFA.Enum.STATUS_CHARGE_DOWN] = true
+end
+
+TFA.Enum.ChargeStatus[TFA.Enum.STATUS_CHARGE_DOWN] = true
+
+if not TFA.Enum.STATUS_RAGNAROK_DEPLOY then
+	TFA.AddStatus("RAGNAROK_DEPLOY")
+
+	TFA.Enum.HUDDisabledStatus[TFA.Enum.STATUS_RAGNAROK_DEPLOY] = true
+	TFA.Enum.IronStatus[TFA.Enum.STATUS_RAGNAROK_DEPLOY] = true
+end
+
+if not TFA.Enum.STATUS_HACKING then
+	TFA.AddStatus("HACKING")
+
+	TFA.Enum.HUDDisabledStatus[TFA.Enum.STATUS_HACKING] = true
+	TFA.Enum.ReadyStatus[TFA.Enum.STATUS_HACKING] = true
+	TFA.Enum.IronStatus[TFA.Enum.STATUS_HACKING] = true
+end
+
+if not TFA.Enum.STATUS_HACKING_END then
+	TFA.AddStatus("HACKING_END")
+
+	TFA.Enum.HUDDisabledStatus[TFA.Enum.STATUS_HACKING_END] = true
+	TFA.Enum.IronStatus[TFA.Enum.STATUS_HACKING_END] = true
+end
+
 TFA.BO3Indicators = {
 	['bo3_ww_crossbow'] = Material("vgui/icon/hud_indicator_arrow.png", "smooth unlitgeneric"),
 	['bo3_ww_scavenger'] = Material("vgui/icon/hud_indicator_sniper_explosive.png", "smooth unlitgeneric")

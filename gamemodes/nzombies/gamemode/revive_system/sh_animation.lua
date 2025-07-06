@@ -5,7 +5,7 @@
 local downedPlayers = {}
 
 if CLIENT then
-    CreateClientConVar("nz_vmanip_crawl", "1", true, false, "Enable or disable VManip crawling animations")
+    CreateClientConVar("nz_vmanip_crawl", "1", true, false, "0 = Disabled, 1 = T9 anims, 2 = T7 anims")
 end
 
 //hack fix for players disconnecting while down, PlayerDisconnect is not shared
@@ -29,10 +29,14 @@ hook.Add("CalcMainActivity", "nzDownedAnimation", function(ply, vel)
 		downedPlayers[ply:EntIndex()] = nil
 
         if CLIENT then
-            VManip:QuitHolding("crawl_forward")
-            VManip:QuitHolding("crawl_back")
-            VManip:QuitHolding("crawl_left")
-            VManip:QuitHolding("crawl_right")
+            VManip:QuitHolding("crawl_forward_t7")
+            VManip:QuitHolding("crawl_back_t7")
+            VManip:QuitHolding("crawl_left_t7")
+            VManip:QuitHolding("crawl_right_t7")
+            VManip:QuitHolding("crawl_forward_t9")
+            VManip:QuitHolding("crawl_back_t9")
+            VManip:QuitHolding("crawl_left_t9")
+            VManip:QuitHolding("crawl_right_t9")
         end
 
 		local seq, dur = ply:LookupSequence("bo3_revived")
@@ -89,44 +93,49 @@ hook.Add("UpdateAnimation", "nzDownedAnimation", function(ply, vel, seqspeed)
 			end
 		end
 
+
 		ply:SetPlaybackRate(1)
 
-        if CLIENT and VManip then
-        	if GetConVar("nz_vmanip_crawl"):GetInt() == 1 then
+		local crawltype = GetConVar("nz_vmanip_crawl"):GetInt()
+		if CLIENT and VManip and crawltype > 0 then
+			local animSuffix = crawltype == 1 and "_t9" or "_t7"
             local angle, angle2 = vel:Angle(), ply:GetAngles()
             local ydif = math.abs(math.NormalizeAngle(angle.y - angle2.y))
             local xdif = math.NormalizeAngle(angle.y - angle2.y)
             
             if ply == LocalPlayer() then
 	            if len < 1 then
-	                VManip:QuitHolding("crawl_forward")
-	                VManip:QuitHolding("crawl_back")
-	                VManip:QuitHolding("crawl_left")
-	                VManip:QuitHolding("crawl_right")
+            		VManip:QuitHolding("crawl_forward_t7")
+            		VManip:QuitHolding("crawl_back_t7")
+            		VManip:QuitHolding("crawl_left_t7")
+            		VManip:QuitHolding("crawl_right_t7")
+            		VManip:QuitHolding("crawl_forward_t9")
+            		VManip:QuitHolding("crawl_back_t9")
+            		VManip:QuitHolding("crawl_left_t9")
+            		VManip:QuitHolding("crawl_right_t9")
 	            elseif ydif < 45 then
-	                VManip:QuitHolding("crawl_back")
-	                VManip:QuitHolding("crawl_left")
-	                VManip:QuitHolding("crawl_right")
-	                VManip:PlayAnim("crawl_forward")
+	                VManip:QuitHolding("crawl_back" .. animSuffix)
+	                VManip:QuitHolding("crawl_left" .. animSuffix)
+	                VManip:QuitHolding("crawl_right" .. animSuffix)
+	                VManip:PlayAnim("crawl_forward" .. animSuffix)
 	            elseif ydif > 135 then
-	                VManip:QuitHolding("crawl_forward")
-	                VManip:QuitHolding("crawl_left")
-	                VManip:QuitHolding("crawl_right")
-	                VManip:PlayAnim("crawl_back")
+	                VManip:QuitHolding("crawl_forward" .. animSuffix)
+	                VManip:QuitHolding("crawl_left" .. animSuffix)
+	                VManip:QuitHolding("crawl_right" .. animSuffix)
+	                VManip:PlayAnim("crawl_back" .. animSuffix)
 	            elseif xdif > 0 then
-	                VManip:QuitHolding("crawl_forward")
-	                VManip:QuitHolding("crawl_back")
-	                VManip:QuitHolding("crawl_left")
-	                VManip:PlayAnim("crawl_right")
+	                VManip:QuitHolding("crawl_forward" .. animSuffix)
+	                VManip:QuitHolding("crawl_back" .. animSuffix)
+	                VManip:QuitHolding("crawl_right" .. animSuffix)
+	                VManip:PlayAnim("crawl_left" .. animSuffix)
 	            else
-	                VManip:QuitHolding("crawl_forward")
-	                VManip:QuitHolding("crawl_back")
-	                VManip:QuitHolding("crawl_right")
-	                VManip:PlayAnim("crawl_left")
+	                VManip:QuitHolding("crawl_forward" .. animSuffix)
+	                VManip:QuitHolding("crawl_back" .. animSuffix)
+	                VManip:QuitHolding("crawl_left" .. animSuffix)
+	                VManip:PlayAnim("crawl_right" .. animSuffix)
 	            end
 	        end
 	    end
-	end
 
 		return true
 	end

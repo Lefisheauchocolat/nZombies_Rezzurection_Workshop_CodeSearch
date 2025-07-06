@@ -61,7 +61,7 @@ nzSounds.struct = { -- For use with 'data' when creating config menu options
 	"skyintrosnd",
     "underscoresong",
     "specunderscoresong",
-    --"headshotsound",
+    "headshotsound",
 }
 
 nzSounds.Sounds = {}
@@ -116,7 +116,7 @@ nzSounds.Sounds.Default.FullArmor = "nz_moo/zombies/vox/mute_00.mp3"
 nzSounds.Sounds.Default.SkyIntro = {"nz_moo/effects/viewin1.wav", "nz_moo/effects/viewin2.wav"}
 nzSounds.Sounds.Default.UnderScore = "nz_moo/zombies/vox/mute_00.mp3"
 nzSounds.Sounds.Default.SpecialUnderScore = "nz_moo/zombies/vox/mute_00.mp3"
---nzSounds.Sounds.Default.HeadshotSound = {"nz_moo/effects/headshot_notif_2k24/ui_zmb_headshot_fatal_00.wav","nz_moo/effects/headshot_notif_2k24/ui_zmb_headshot_fatal_01.wav","nz_moo/effects/headshot_notif_2k24/ui_zmb_headshot_fatal_02.wav","nz_moo/effects/headshot_notif_2k24/ui_zmb_headshot_fatal_03.wav","nz_moo/effects/headshot_notif_2k24/ui_zmb_headshot_fatal_04.wav"}
+nzSounds.Sounds.Default.HeadshotSound = {"nz_moo/effects/headshot_notif_2k24/ui_zmb_headshot_fatal_00.wav","nz_moo/effects/headshot_notif_2k24/ui_zmb_headshot_fatal_01.wav","nz_moo/effects/headshot_notif_2k24/ui_zmb_headshot_fatal_02.wav","nz_moo/effects/headshot_notif_2k24/ui_zmb_headshot_fatal_03.wav","nz_moo/effects/headshot_notif_2k24/ui_zmb_headshot_fatal_04.wav"}
 
 function nzSounds:RefreshSounds()
     
@@ -168,7 +168,7 @@ function nzSounds:RefreshSounds()
     nzSounds.Sounds.Custom.SkyIntro = nzMapping.Settings.skyintrosnd
     nzSounds.Sounds.Custom.UnderScore = nzMapping.Settings.underscoresong
     nzSounds.Sounds.Custom.SpecialUnderScore = nzMapping.Settings.specunderscoresong
-    --nzSounds.Sounds.Custom.HeadshotSound = nzMapping.Settings.headshotsound
+    nzSounds.Sounds.Custom.HeadshotSound = nzMapping.Settings.headshotsound
     
     if (!table.IsEmpty(nzMapping.Settings) and table.IsEmpty(nzSounds.Sounds.Custom)) then
         nzSounds.Sounds.Custom = table.Copy(nzSounds.Sounds.Default)

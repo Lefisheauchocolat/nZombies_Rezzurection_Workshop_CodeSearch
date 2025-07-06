@@ -2026,29 +2026,50 @@ nzPowerUps:NewPowerUp("fullarmor", {
 	nopitchshift = 0,
 	natural = true,
 	announcement = true,
-	func = (function(id, ply)
+	func = function(id, ply)
 		net.Start("nzPowerUps.PickupHud")
 			net.WriteString("Full Armor!")
 			net.WriteBool(true)
 		net.Broadcast()
 
-		for k, v in pairs(player.GetAll()) do
-			local bonus = math.max(v:GetMaxArmor(), v:Armor())
-			v:SetArmor(bonus)
-			v:EmitSound("nzr/2023/buildables/zm_common.all.sabl.1471.wav", SNDLVL_GUNFIRE)
+		local useBO6Armor = nzSettings:GetSimpleSetting("BO6_Armor", false)
+		local maxPlates = nzSettings:GetSimpleSetting("BO6_Armor_MaxPlates", 3)
+
+		for _, v in ipairs(player.GetAll()) do
+			if IsValid(v) then
+				local bonus = math.max(v:GetMaxArmor(), v:Armor())
+
+				if useBO6Armor then
+					v:SetNWInt("ArmorPlates", maxPlates)
+				end
+
+				v:SetArmor(bonus)
+				v:EmitSound("nzr/2023/buildables/zm_common.all.sabl.1471.wav", SNDLVL_GUNFIRE)
+			end
 		end
-	end),
-	antifunc = (function(id, ply)
+	end,
+
+	antifunc = function(id, ply)
 		net.Start("nzPowerUps.PickupHud")
 			net.WriteString("Anti Full Armor!")
 			net.WriteBool(true)
 		net.Broadcast()
 
-		for k, v in pairs(player.GetAll()) do
-			v:SetArmor(0)
+		local useBO6Armor = nzSettings:GetSimpleSetting("BO6_Armor", false)
+
+		for _, v in ipairs(player.GetAll()) do
+			if IsValid(v) then
+				if useBO6Armor then
+					v:SetNWInt("ArmorPlates", 0)
+					v:SetArmor(0)
+				else
+					v:SetArmor(0)
+				end
+			end
 		end
-	end),
+	end,
 })
+
 
 nzPowerUps:NewPowerUp("random_gum", {
 	name = "Random Gum",

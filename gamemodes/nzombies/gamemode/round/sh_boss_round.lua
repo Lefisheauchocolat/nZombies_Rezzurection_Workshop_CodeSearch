@@ -443,27 +443,6 @@ nzRound:AddBossType("Megaton", "nz_zombie_boss_steiner", {
         end
     end,
 })
-nzRound:AddBossType("Atomic Flounder", "nz_zombie_boss_flounder", {
-    specialspawn = false,
-    health = 80,
-    scale = 400,
-    dmgmul = 0.65,
-	amountatonce = 2,
-	initalrnd = 12,
-	intermission = 4,
-	perplayer = 1,
-	maxperrnd = 2,
-    initfunc = function()
-    end,
-    spawnfunc = function(self)
-		BroadcastLua("surface.PlaySound('nz_moo/zombies/vox/_steiner/spawn_mus/mus_steiner_v1_00_mas.mp3')")
-    end,
-    deathfunc = function(self, killer, dmginfo, hitgroup)
-        if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
-            attacker:GivePoints(150) -- Give killer 500 points if not downed
-        end
-    end,
-})
 nzRound:AddBossType("Krasny Soldat", "nz_zombie_boss_krasny", {
     specialspawn = false,
     health = 700,
@@ -791,8 +770,8 @@ nzRound:AddBossType("Fleshpound", "nz_zombie_boss_fleshpound", {
 	scale = 1,
 	dmgmul = 1,
 	amountatonce = 2,
-	initalrnd = 10,
-	intermission = 2,
+	initalrnd = 12,
+	intermission = 3,
 	perplayer = 1,
 	maxperrnd = 2,
 	initfunc = function()

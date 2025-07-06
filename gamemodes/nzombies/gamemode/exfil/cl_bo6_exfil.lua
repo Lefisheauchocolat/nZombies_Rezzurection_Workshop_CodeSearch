@@ -1,30 +1,8 @@
 -- Made by Hari exclusive for nZombies Rezzurection. Copying this code is prohibited!
--- hud scaling fix done by latte, i hate working with the hud i think
+-- hud scaling fix done by latte, i hate working with the hud i think - 5/23/25 still stand by this. fuck hud code.
 
-local screenAspect = ScrW() / ScrH()
-
-local function We(x)
-    return (x / 1920) * ScrW()
-end
-
-local function He(y)
-    return (y / 1080) * ScrH()
-end
-
-function ScaleToAspect(origWidth, origHeight, maxWidth, maxHeight) 
-    local aspectRatio = origWidth / origHeight
-    local scaleWidth, scaleHeight
-
-    if maxWidth / maxHeight > aspectRatio then
-        scaleWidth = maxHeight * aspectRatio
-        scaleHeight = maxHeight
-    else
-        scaleWidth = maxWidth
-        scaleHeight = maxWidth / aspectRatio
-    end
-
-    return scaleWidth, scaleHeight
-end
+local w, h = ScrW(), ScrH()
+local scale = ((w / 1920) + 1) / 2
 
 local timeRemaining = 90
 local zombiesRemaining = 0
@@ -42,57 +20,57 @@ local darkScreenMat = Material("bo6/da/dark.png")
 
 surface.CreateFont("BO6_Exfil96", {
     font = "KairosSansW06-CondMedium",
-	extended = true,
-	size = He(96),
+    extended = true,
+    size = 96 * scale,
 })
 
 surface.CreateFont("BO6_Exfil72", {
     font = "KairosSansW06-CondMedium",
-	extended = true,
-	size = He(72),
+    extended = true,
+    size = 72 * scale,
 })
 
 surface.CreateFont("BO6_Exfil40", {
     font = "KairosSansW06-CondMedium",
-	extended = true,
-	size = He(40),
+    extended = true,
+    size = 40 * scale,
 })
 
 surface.CreateFont("BO6_Exfil32", {
     font = "KairosSansW06-CondMedium",
-	extended = true,
-	size = He(32),
+    extended = true,
+    size = 32 * scale,
 })
 
 surface.CreateFont("BO6_Exfil32_2", {
     font = "KairosSansW06-CondMedium",
-	extended = true,
-	size = He(32),
+    extended = true,
+    size = 32 * scale,
     shadow = true,
 })
 
 surface.CreateFont("BO6_Exfil26", {
     font = "KairosSansW06-CondMedium",
-	extended = true,
-	size = He(26),
+    extended = true,
+    size = 26 * scale,
 })
 
 surface.CreateFont("BO6_Exfil24", {
     font = "KairosSansW06-CondMedium",
-	extended = true,
-	size = He(24),
+    extended = true,
+    size = 24 * scale,
 })
 
 surface.CreateFont("BO6_Exfil18", {
     font = "Core Sans D 35 Regular",
-	extended = true,
-	size = He(18),
+    extended = true,
+    size = 18 * scale,
 })
 
 surface.CreateFont("BO6_Exfil12", {
     font = "Core Sans D 35 Regular",
-	extended = true,
-	size = He(12),
+    extended = true,
+    size = 12 * scale,
 })
 
 local function RemoveExfilHUD()
@@ -114,32 +92,30 @@ end
 
 local exfil_lastStage = 0
 local exfil_alpha = 0
-hook.Add("HUDPaint", "DrawExfilTaskHUD", function()
-    if not hudActive or !GetConVar("cl_drawhud"):GetBool() then exfil_lastStage = 0 return end
 
-    if exfil_lastStage != currentStage and ((exfil_lastStage == 0 and currentStage == 1) or currentStage == 3) then
+hook.Add("HUDPaint", "DrawExfilTaskHUD", function()
+    if not hudActive or not GetConVar("cl_drawhud"):GetBool() then 
+        exfil_lastStage = 0 
+        return 
+    end
+
+    if exfil_lastStage ~= currentStage and ((exfil_lastStage == 0 and currentStage == 1) or currentStage == 3) then
         exfil_lastStage = currentStage
         exfil_alpha = 0
     else
-        exfil_alpha = math.min(exfil_alpha+FrameTime()/0.01, 255)
+        exfil_alpha = math.min(exfil_alpha + FrameTime() / 0.01, 255)
     end
 
-    local alp = exfil_alpha/255
-    local x, y, width, height = We(50), He(200), We(300), He(150)
-    local x, y = We(50), He(200)
-    local maxWidth, maxHeight = We(300), He(150)
-    local bgWidth, bgHeight = ScaleToAspect(1920, 1080, maxWidth, maxHeight)
+    local alp = exfil_alpha / 255
 
-    surface.SetDrawColor(200, 190, 0, 175*alp)
+    surface.SetDrawColor(200, 190, 0, 175 * alp)
     surface.SetMaterial(exfilBg)
-    surface.DrawTexturedRect(x, y, bgWidth, bgHeight)
+    surface.DrawTexturedRect(50 * scale, 200 * scale, 300 * scale, 150 * scale)
 
-    local iconMaxWidth, iconMaxHeight = We(40), He(40)
-    local iconWidth, iconHeight = ScaleToAspect(64, 64, iconMaxWidth, iconMaxHeight)
-
-    surface.SetDrawColor(255, 125, 0, 255*alp)
+    local iconSize = 40 * scale
+    surface.SetDrawColor(255, 125, 0, 255 * alp)
     surface.SetMaterial(taskIcon)
-    surface.DrawTexturedRect(x - iconWidth / 2, y - iconHeight / 2, iconWidth, iconHeight)
+    surface.DrawTexturedRect((50 * scale) - iconSize / 2, (200 * scale) - iconSize / 2, iconSize, iconSize)
 
     local objectiveText = ""
     if currentStage == 1 then
@@ -150,20 +126,19 @@ hook.Add("HUDPaint", "DrawExfilTaskHUD", function()
         objectiveText = "Enter Heli and Escape."
     end
 
-    draw.SimpleText(objectiveText, "BO6_Exfil24", x + We(10), y + He(10), Color(255, 255, 255, 255*alp), TEXT_ALIGN_LEFT)
+    draw.SimpleText(objectiveText, "BO6_Exfil24", (50 * scale) + (10 * scale), (200 * scale) + (10 * scale), Color(255, 255, 255, 255 * alp), TEXT_ALIGN_LEFT)
 
-    if currentStage != 3 then
-        draw.SimpleText("Zombies Remaining:", "BO6_Exfil24", x + We(10), y + He(55), Color(255, 255, 255, 255*alp), TEXT_ALIGN_LEFT)
-        draw.SimpleText(tostring(zombiesRemaining), "BO6_Exfil24", x + width - We(40), y + He(55), Color(255, 255, 255, 255*alp), TEXT_ALIGN_RIGHT)
+    if currentStage ~= 3 then
+        draw.SimpleText("Zombies Remaining:", "BO6_Exfil24", (50 * scale) + (10 * scale), (200 * scale) + (55 * scale), Color(255, 255, 255, 255 * alp), TEXT_ALIGN_LEFT)
+        draw.SimpleText(tostring(zombiesRemaining), "BO6_Exfil24", (50 * scale) + (300 * scale) - (40 * scale), (200 * scale) + (55 * scale), Color(255, 255, 255, 255 * alp), TEXT_ALIGN_RIGHT)
     end
 
-    local timeBarX, timeBarY, timeBarW, timeBarH = We(55), He(310), We(290), He(30)
-    surface.SetDrawColor(255, 255, 255, 255*alp)
+    surface.SetDrawColor(255, 255, 255, 255 * alp)
     surface.SetMaterial(exfilBg2)
-    surface.DrawTexturedRect(timeBarX, timeBarY, timeBarW, timeBarH)
+    surface.DrawTexturedRect(55 * scale, 310 * scale, 290 * scale, 30 * scale)
 
-    draw.SimpleText("Time Remaining", "BO6_Exfil24", timeBarX + We(10), timeBarY + He(5), Color(255, 200, 0, 255*alp), TEXT_ALIGN_LEFT)
-    draw.SimpleText(string.ToMinutesSeconds(timeRemaining+1), "BO6_Exfil24", timeBarX + timeBarW - We(10), timeBarY + He(5), Color(255, 200, 0, 255*alp), TEXT_ALIGN_RIGHT)
+    draw.SimpleText("Time Remaining", "BO6_Exfil24", (55 * scale) + (10 * scale), (310 * scale) + (5 * scale), Color(255, 200, 0, 255 * alp), TEXT_ALIGN_LEFT)
+    draw.SimpleText(string.ToMinutesSeconds(timeRemaining + 1), "BO6_Exfil24", (55 * scale) + (290 * scale) - (10 * scale), (310 * scale) + (5 * scale), Color(255, 200, 0, 255 * alp), TEXT_ALIGN_RIGHT)
 end)
 
 net.Receive("nZr.ExfilTimer", function()
@@ -270,33 +245,34 @@ local function callDrawingMessage(type)
 
     local alpha = 0
     local state = true
+
     timer.Simple(delay, function()
         state = false
     end)
 
     hook.Add("HUDPaint", "ExfilDrawMessage", function()
-        if GetConVar("cl_drawhud"):GetBool() then
+        if not GetConVar("cl_drawhud"):GetBool() then return end
 
-            surface.SetDrawColor(255,255,255,alpha)
-            surface.SetMaterial(exfilBg_mes)
-            surface.DrawTexturedRect(ScrW()/2-We(300), He(200), We(600), He(50))
+        local w, h = ScrW(), ScrH()
+        local scale = ((w / 1920) + 1) / 2
 
-            draw.SimpleText(text, "BO6_Exfil40", ScrW()/2, He(225), Color(225,175,0,alpha), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 
-            local iconMaxSize = We(128)
-            local iconWidth, iconHeight = ScaleToAspect(64, 64, iconMaxSize, iconMaxSize)
+        surface.SetDrawColor(255, 255, 255, alpha)
+        surface.SetMaterial(exfilBg_mes)
+        surface.DrawTexturedRect((w - 600 * scale) / 2, 200 * scale, 600 * scale, 50 * scale)
 
-            surface.SetDrawColor(255, 255, 255, alpha)
-            surface.SetMaterial(icon)
-            surface.DrawTexturedRect(ScrW() / 2 - iconWidth / 2, He(70), iconWidth, iconHeight)
-        end
+        draw.SimpleText(text, "BO6_Exfil40", w / 2, 225 * scale, Color(225, 175, 0, alpha), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+
+        surface.SetDrawColor(255, 255, 255, alpha)
+        surface.SetMaterial(icon)
+        surface.DrawTexturedRect((w - 120 * scale) / 2, 70 * scale, 120 * scale, 120 * scale)
 
         if not state and alpha <= 0 then
             hook.Remove("HUDPaint", "ExfilDrawMessage")
         elseif not state then
-            alpha = alpha - FrameTime() * 256
+            alpha = math.max(0, alpha - FrameTime() * 256)
         else
-            alpha = alpha + FrameTime() * 256
+            alpha = math.min(255, alpha + FrameTime() * 256)
         end
     end)
 end

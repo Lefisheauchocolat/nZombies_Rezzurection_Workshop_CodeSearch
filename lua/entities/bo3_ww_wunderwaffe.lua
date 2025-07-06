@@ -43,6 +43,7 @@ ENT.ZapRange = 300
 ENT.ZapRangePaP = 500
 ENT.ZapRangeStart = 200
 
+ENT.AttachNPCEffect = false
 ENT.Decay = 20
 
 DEFINE_BASECLASS(ENT.Base)
@@ -297,7 +298,16 @@ function ENT:Zap(ent)
 		self:SetPos(att)
 	end)
 
+	if self.AttachNPCEffect then
+		ent.WaffeTeslaMarked = true
+	end
+
 	self:InflictDamage(ent, false)
+
+	if self.AttachNPCEffect then
+		ent.WaffeTeslaMarked = nil
+	end
+
 	self.TargetsToIgnore[self:GetKills()] = ent
 end
 

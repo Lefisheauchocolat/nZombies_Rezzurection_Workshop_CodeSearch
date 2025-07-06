@@ -267,7 +267,7 @@ function ENT:PoundingTime()
 	end
 	
 	
-	self.AngryTimer = CurTime() + math.random(20,30)
+	self.AngryTimer = CurTime() + math.random(15,25)
 	self:TempBehaveThread(function(self)
 		self:SetSpecialAnimation(true)
 		self.Malding = true

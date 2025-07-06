@@ -83,4 +83,5 @@ nZr_Death_Animations_Classes = {
     ["nz_zombie_boss_abom_t10"] = "Abomination",
     ["nz_zombie_boss_amalgam"] = "Amalgam",
     ["nz_zombie_special_ghoul"] = "Doppelghast",
+    ["nz_zombie_special_vermin"] = "Vermin",
 }

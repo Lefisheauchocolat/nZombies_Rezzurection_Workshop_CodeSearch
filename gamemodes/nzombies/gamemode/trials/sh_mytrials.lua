@@ -668,8 +668,20 @@ nzTrials:NewTrial("foxtrial_12", {
 	reset = function()
 		if CLIENT then return end
 		hook.Remove("OnZombieKilled", "nz.foxtrial_12")
+
 		for _, ply in ipairs(player.GetAll()) do
-			ply.foxtrial_8kills = 0
+			ply.foxtrial_12lock1 = nil
+			ply.foxtrial_12lock2 = nil
+			ply.foxtrial_12lock3 = nil
+			
+			ply.foxtrial_12finish1 = nil
+			ply.foxtrial_12type1 = nil
+			
+			ply.foxtrial_12finish2 = nil
+			ply.foxtrial_12type2 = nil
+			
+			ply.foxtrial_12finish3 = nil
+			ply.foxtrial_12type3 = nil
 		end
 
 		return true

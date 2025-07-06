@@ -578,11 +578,11 @@ function ENT:AI()
 
 	if !self.Hiding then
 		-- Command Grab(Grab Attack)
-		if IsValid(target) and target:IsPlayer() and !self:IsAttackBlocked() and self:TargetInRange(215) then
+		--[[if IsValid(target) and target:IsPlayer() and !self:IsAttackBlocked() and self:TargetInRange(215) then
 			if CurTime() > self.GrabCooldown then
 				self:AttemptGrab()
 			end
-		end
+		end]]
 
 		-- Spit(Ranged Attack)
 		if IsValid(target) and !self:IsAttackBlocked() and !self:TargetInRange(200) and self:TargetInRange(750) then

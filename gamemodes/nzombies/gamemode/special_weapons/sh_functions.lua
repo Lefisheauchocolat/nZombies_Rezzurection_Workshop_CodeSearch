@@ -52,11 +52,11 @@ nzSpecialWeapons:RegisterModifier("knife", function(wep, data)
 
 	wep.EquipDraw = wep.Deploy
 
-	local oldattack = wep.PrimaryAttack
-	function wep:PrimaryAttack()
+	--local oldattack = wep.AltAttack
+	--[[function wep:AltAttack()
 		if self.nzCanAttack then
 			self.nzCanAttack = false
-			oldattack(self)
+			--oldattack(self)
 		end
 	end
 
@@ -72,26 +72,26 @@ nzSpecialWeapons:RegisterModifier("knife", function(wep, data)
 				self:SetStatus(TFA.Enum.STATUS_IDLE)
 			end
 
-			self:PrimaryAttack()
+			self:AltAttack()
 		else
 			self.nzHolsterTime = ct + drawtime
 		end
 		self.nzIsDrawing = nil
-	end
+	end]]
 
-	local oldthink = wep.Think
-	function wep:Think(...)
+	--local oldthink = wep.Think2
+	--[[function wep:Think(...)
 		local ct = CurTime()
 
 		if self.nzHolsterTime and ct > self.nzHolsterTime then
-			self:Holster()
+			--self:Holster()
 			self.Owner:SetUsingSpecialWeapon(false)
 			self.Owner:EquipPreviousWeapon()
 			self.nzHolsterTime = nil
 		end
 
-		oldthink(self,...)
-	end
+		--oldthink(self,...)
+	end]]
 
 	/*local oldholster = wep.Holster
 	function wep:Holster(...)

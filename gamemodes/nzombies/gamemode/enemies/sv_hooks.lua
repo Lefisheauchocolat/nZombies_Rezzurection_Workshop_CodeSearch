@@ -326,7 +326,13 @@ function GM:OnZombieKilled(zombie, dmginfo)
 		if IsValid(attacker) and attacker:IsPlayer() then
 			attacker:IncrementTotalHeadshots()
 
-			attacker:EmitSound("nz_moo/effects/headshot_notif_2k24/ui_zmb_headshot_fatal_0"..math.random(4)..".mp3", 65)
+			local headsound = nzMapping.Settings.headshotsound
+			local oursound = next(headsound) ~= nil and headsound or "nz_moo/effects/headshot_notif_2k24/ui_zmb_headshot_fatal_0"..math.random(4)..".mp3"
+			if istable(oursound) then
+				oursound = table.Random(oursound)
+			end
+
+			attacker:EmitSound(oursound, SNDLVL_GUNFIRE)
 			if nzMapping.Settings.cwpointssystem == 1 then
 				attacker:GivePoints(115)
 			else
@@ -661,7 +667,17 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 			end
 
 			if zombie:IsZombSlowed() then
-				dmginfo:ScaleDamage(2)
+				if IsValid(attacker) and isplayer and attacker:HasPerk("death") then
+					dmginfo:ScaleDamage((attacker:HasUpgrade("death") and 2.75) or 2.35)
+				else
+					dmginfo:ScaleDamage(2)
+				end
+			end
+
+			if zombie.Stunned or zombie.BO4IsToxic and zombie:BO4IsToxic() or zombie.AATIsBlastFurnace and zombie:AATIsBlastFurnace() or nzPowerUps:IsPowerupActive("timewarp") then
+				if IsValid(attacker) and isplayer and attacker:HasPerk("death") then
+					dmginfo:ScaleDamage((attacker:HasUpgrade("death") and 2.75) or 2.35)
+				end
 			end
 
 			if isplayer and IsValid(wep) and hitgroup == HITGROUP_HEAD and (zombie.GetDecapitated and !zombie:GetDecapitated()) and (!wep.IsMelee or (wep.IsMelee and attacker:HasPerk('melee'))) then 

@@ -190,7 +190,6 @@ if SERVER then
 
 		if ent:GetNW2Bool("AnniKilled") then
 			ragdoll:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
-			ragdoll:EmitSound("TFA_BO3_ANNIHILATOR.Lfe")
 
 			for i=0, ragdoll:GetPhysicsObjectCount()-1 do
 				construct.SetPhysProp( nil, ragdoll, i, nil, { GravityToggle = false } )
@@ -200,7 +199,7 @@ if SERVER then
 				ragdoll.BloodColor = ent:GetBloodColor()
 			end
 
-			timer.Simple(0.2, function()
+			timer.Simple(math.Rand(0.1,0.3), function()
 				if ragdoll:IsValid() then
 					ParticleEffect(ragdoll.BloodColor and TFA.BO3BloodColor[ragdoll.BloodColor] or "bo3_annihilator_blood",ragdoll:GetPos(),Angle(0,0,0))
 
@@ -239,7 +238,7 @@ if SERVER then
 				bonescale = bonescale + (engine.TickInterval()/2)
 			end)
 
-			timer.Simple(1.8, function()
+			timer.Simple(math.Rand(1.5,2), function()
 				if not IsValid(ragdoll) then timer.Remove(inflatetimer) return end
 
 				ParticleEffectAttach("bo3_wavegun_pop", PATTACH_ABSORIGIN_FOLLOW, ragdoll, 1)
@@ -556,7 +555,6 @@ if CLIENT then
 
 		if ent:GetNW2Bool("AnniKilled") then
 			ragdoll:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
-			ragdoll:EmitSound("TFA_BO3_ANNIHILATOR.Lfe")
 
 			for i=0, ragdoll:GetPhysicsObjectCount()-1 do
 				local phys = ragdoll:GetPhysicsObjectNum(i)
@@ -567,7 +565,7 @@ if CLIENT then
 				ragdoll.BloodColor = ent:GetBloodColor()
 			end
 
-			timer.Simple(nzombies and 0.1 or 0.2, function()
+			timer.Simple(nzombies and math.Rand(0.1,0.25) or math.Rand(0.1,0.35), function()
 				if ragdoll:IsValid() then
 					ParticleEffect(ragdoll.BloodColor and TFA.BO3BloodColor[ragdoll.BloodColor] or "bo3_annihilator_blood", ragdoll:GetPos(), Angle(0,0,0))
 
@@ -608,10 +606,10 @@ if CLIENT then
 				bonescale = bonescale + (engine.TickInterval()/2)
 			end)
 
-			timer.Simple(1.8, function()
+			timer.Simple(math.Rand(1.5,2), function()
 				if not IsValid(ragdoll) then timer.Remove(inflatetimer) return end
 
-				ParticleEffectAttach(cyborg and "bo3_wavegun_pop_blue" or "bo3_wavegun_pop", PATTACH_ABSORIGIN_FOLLOW, ragdoll, 1)
+				ParticleEffectAttach(tobool(cyborg) and "bo3_wavegun_pop_blue" or "bo3_wavegun_pop", PATTACH_ABSORIGIN_FOLLOW, ragdoll, 1)
 				ragdoll:EmitSound("TFA_BO3_WAVEGUN.Microwave.Ding")
 				ragdoll:EmitSound("TFA_BO3_GENERIC.Gib")
 				timer.Simple(engine.TickInterval(), function() SafeRemoveEntity(ragdoll) end)
