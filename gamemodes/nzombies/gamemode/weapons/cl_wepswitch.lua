@@ -3,30 +3,57 @@ local lastSwitchSlot = nil
 AccessorFunc(plyMeta, "iLastWeaponSlot", "LastWeaponSlot", FORCE_NUMBER)
 AccessorFunc(plyMeta, "iCurrentWeaponSlot", "CurrentWeaponSlot", FORCE_NUMBER)
 
-function plyMeta:SelectWeapon(class)
-	local wep = self:GetWeapon(class)
-	if not IsValid(wep) then return end
+--function plyMeta:SelectWeapon(class)
+	--local wep = self:GetWeapon(class)
+	--if not IsValid(wep) then return end
 
-	if IsValid(self.DoWeaponSwitch) then
-		if self.DoWeaponSwitch == wep then
-			self.DoWeaponSwitch = nil
-			net.Start("TFA_HolsterCancle")
-			net.SendToServer()
+	--if IsValid(self.DoWeaponSwitch) then
+	--	if self.DoWeaponSwitch == wep then
+	--		self.DoWeaponSwitch = nil
+		--	net.Start("TFA_HolsterCancle")
+		--	net.SendToServer()
+		--	return
+		--end
+	--end
+
+	--local active = self:GetActiveWeapon()
+	--if active == wep then
+	--	net.Start("TFA_HolsterCancle")
+	--	net.SendToServer()
+	--	self.DoWeaponSwitch = nil
+	--	return
+	--end
+
+	--self.DoWeaponSwitch = wep
+--end
+
+function plyMeta:SelectWeapon( class )
+	local wep = self:GetWeapon(class)
+	if !IsValid(wep) then return end
+
+	if self.DoWeaponSwitch then
+		if IsValid(self.DoWeaponSwitch) then
 			return
+		else
+			self.DoWeaponSwitch = nil
 		end
 	end
 
-	local active = self:GetActiveWeapon()
-	if active == wep then
-		net.Start("TFA_HolsterCancle")
-		net.SendToServer()
-		self.DoWeaponSwitch = nil
-		return
+	local wep2 = self:GetActiveWeapon()
+	if wep2 == wep then
+		for k, v in pairs(self:GetWeapons()) do
+			local slot = v:GetNWInt("SwitchSlot", 0)
+			if !v:IsSpecial() and self:GetCurrentWeaponSlot() and slot == math.Clamp(self:GetCurrentWeaponSlot(), 1, self:HasPerk('mulekick') and 3 or 2) then
+				self.DoWeaponSwitch = v
+				break
+			end
+		end
+	else
+		self.DoWeaponSwitch = wep
 	end
 
-	self.DoWeaponSwitch = wep
+	//print('Trying to switch weapons to '..self.DoWeaponSwitch:GetClass())
 end
-
 function GM:CreateMove(cmd)
 	local ply = LocalPlayer()
 	local wep = ply.DoWeaponSwitch

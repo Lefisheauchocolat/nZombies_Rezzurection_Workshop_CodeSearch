@@ -17,7 +17,7 @@ SWEP.NZSpecialCategory = "misc"
 --[Model]--
 SWEP.ViewModel = "models/nzr/2024/plate/vm_iw9_plate.mdl"
 SWEP.ViewModelFOV = 75
-SWEP.WorldModel = "models/bo6/wep/armor_tier3.mdl"
+SWEP.WorldModel = "models/hari/props/armor_tier3.mdl"
 SWEP.HoldType = "slam"
 SWEP.CameraAttachmentOffsets = {}
 SWEP.CameraAttachmentScale = 1

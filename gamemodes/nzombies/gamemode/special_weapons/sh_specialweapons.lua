@@ -4,6 +4,7 @@ local function RegisterDefaultSpecialWeps()
 	nzSpecialWeapons:AddKnife("tfa_bo1_knife", false, 0.7)
 	nzSpecialWeapons:AddGrenade("tfa_bo1_m67", 4, false, 0.6, false, 0.4)
 	nzSpecialWeapons:AddGrenade("tfa_bo2_grenade", 4, false, 0.6, false, 0.4)
+	nzSpecialWeapons:AddGrenade("nz_bo2_grenade", 4, false, 0.6, false, 0.4)
 	nzSpecialWeapons:AddGrenade("tfa_xm31_grenade", 4, false, 0.6, false, 0.4)
 	nzSpecialWeapons:AddGrenade("nz_mmod_grenade", 4, false, 0.6, false, 0.4)
 
