@@ -1,0 +1,26 @@
+VertexLitGeneric
+{
+    "$basetexture"    "models\lncss\t_arctic_infected\t_arctic"
+     "$envmap"             "env_cubemap"
+     "$bumpmap" "models/lncss/t_arctic_infected\t_arctic_normal"
+    "$normalmapalphaenvmapmask" "1"
+    "$envmapcontrast" 0.3
+    "$envmapsaturation" 0.7
+    "$envmaptint" "[ 0.36 0.36 0.36 ]"
+
+    "$emissiveBlendEnabled" "1"
+    $EmissiveBlendTexture       vgui/white
+    "$emissiveBlendBaseTexture" "models\lncss\t_arctic_infected\t_arctic_e"
+    "$emissiveBlendFlowTexture" "dev/null"
+    "$emissiveBlendTint" "[1 1 1]"
+    "$emissiveBlendStrength" "1"
+    
+    Proxies
+    {
+        ZombieEyeGlow
+        {
+            srcVar1 $emissiveblendtint
+            srcVar2 $emissiveblendstrength
+        }
+    }
+}

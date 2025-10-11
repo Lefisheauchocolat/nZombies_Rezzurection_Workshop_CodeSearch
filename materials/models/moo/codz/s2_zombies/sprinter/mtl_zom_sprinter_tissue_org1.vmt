@@ -1,0 +1,17 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/s2_zombies/sprinter/_vtfs/~&-czom_sprinter_tissue_org1_~debde1c8"
+	$bumpmap					"models/moo/codz/s2_zombies/sprinter/_vtfs/~&-nzom_sprinter_tissue_org1_~fcea54e3"
+	$phongexponenttexture		"models/moo/codz/s2_zombies/sprinter/_vtfs/~&-czom_sprinter_tissue_org1_~010bd39d"
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.5"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.05 .05 .05]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

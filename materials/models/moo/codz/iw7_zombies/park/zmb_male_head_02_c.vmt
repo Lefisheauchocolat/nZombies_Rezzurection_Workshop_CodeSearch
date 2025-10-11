@@ -1,0 +1,27 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/iw7_zombies/park/_vtfs/zmb_male_head_02_c_c"
+	$bumpmap					"models/moo/codz/iw7_zombies/park/_vtfs/zmb_male_head_02_n"
+	$phongexponenttexture		"models/moo/codz/iw7_zombies/park/_vtfs/zmb_male_head_02_g"
+
+    $detail                     "models/moo/codz/iw7_zombies/park/_vtfs/zmb_base_male_d"
+    $detailblendmode "0"
+    $detailblendfactor "3"
+    $detailscale "[15 15]"
+    
+	$phong	"1"
+	$phongboost	"0.22"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" 		"1"
+	"$emissiveBlendTexture" 		"vgui/white"
+	"$emissiveBlendBaseTexture" 	"models/moo/codz/iw7_zombies/park/_vtfs/zmb_male_head_02_e"
+	"$emissiveBlendFlowTexture" 	"dev/null"
+	"$emissiveBlendTint" 			"[1 0.35 0]"
+	"$emissiveBlendStrength" 		"0.1"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

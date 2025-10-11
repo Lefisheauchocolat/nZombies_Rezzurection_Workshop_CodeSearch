@@ -1,0 +1,25 @@
+"VertexLitGeneric"
+{
+    $basetexture "$invis"
+
+	"$model" 1
+    $translucent 1
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/moo/codz/codol_zombies/cyborg/_vtfs/e_zom_arterylight_col"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[0 0.15 1]"
+	"$emissiveBlendStrength" "1"
+
+	"$color2" "[1 1 1]"
+
+	Proxies
+    {
+        ZombieEyeGlow
+        {
+            srcVar1 $emissiveblendtint
+            srcVar2 $emissiveblendstrength
+        }
+    }
+}

@@ -1,0 +1,9 @@
+"UnLitGeneric"
+{
+	$basetexture				"models/moo/codz/codol_zombies/goliath/_vtfs/e_zom_halo_yel_col"
+	$bumpmap					"null-bumpmap"
+	//$phongexponenttexture		""
+
+	$nodecal "1"
+	$translucent "1"
+}

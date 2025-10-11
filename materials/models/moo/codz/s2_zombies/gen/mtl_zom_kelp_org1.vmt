@@ -1,0 +1,25 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/s2_zombies/gen/_vtfs/zom_kelp_org1_col"
+	$bumpmap					"models/moo/codz/s2_zombies/gen/_vtfs/zom_kelp_org1_nml"
+	//$phongexponenttexture		""
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongexponent "25"
+	$phongboost	"0.5"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" 		"1"
+	"$emissiveBlendTexture" 		"vgui/white"
+	"$emissiveBlendBaseTexture" 	"models/moo/codz/s2_zombies/gen/_vtfs/zom_kelp_org1_ems"
+	"$emissiveBlendFlowTexture" 	"dev/null"
+	"$emissiveBlendTint" 			"[1 1 1]"
+	"$emissiveBlendStrength" 		"0.25"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.05 .05 .05]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

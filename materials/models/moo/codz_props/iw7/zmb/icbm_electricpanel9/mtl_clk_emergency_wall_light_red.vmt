@@ -1,0 +1,27 @@
+"UnlitGeneric"
+{
+	$basetexture				"models/moo/codz_props/iw7/zmb/icbm_electricpanel9/_vtfs/clk_emergency_light_col"
+	$bumpmap					"null-bumpmap"
+	//$phongexponenttexture		""
+
+	$nodecal "1"
+
+	$color2 "{255 0 0}"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongexponent "1"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/moo/codz_props/iw7/zmb/icbm_electricpanel9/_vtfs/clk_emergency_light_col"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[1 0 0]"
+	"$emissiveBlendStrength" "0.75"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.0075 .0075 .0075]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

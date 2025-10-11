@@ -1,0 +1,26 @@
+"VertexLitGeneric"
+{
+	"$basetexture" 				"models/infected/hunter/_vtfs/bag"
+	"$bumpmap"					"models/infected/hunter/_vtfs/bag_normal"
+
+	$model "1"
+	$nodecal "1"
+
+	"$color2" "[1 1 1]"
+	
+	$detail 					"models/infected/hunter/_vtfs/hunter_01_detail"
+	$detailscale 2
+	$detailblendfactor .001 
+	$detailblendmode 0
+
+	$phong	"1"
+	$phongboost 15
+	$phongexponent 12
+	$phongtint "[0.8 0.8 1]"
+	$phongfresnelranges "[.25 1 .5]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

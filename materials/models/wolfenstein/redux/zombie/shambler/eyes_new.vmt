@@ -1,0 +1,26 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/wolfenstein/redux/zombie/shambler/eyes"
+
+	"$model" 1
+
+	$nodecal "1"
+	
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/wolfenstein/redux/zombie/shambler/eyes_e"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[1 0.5 0.1]"
+	"$emissiveBlendStrength" "1"
+
+	"$color2" "[1 1 1]"
+
+	Proxies
+    {
+        ZombieEyeGlow
+        {
+            srcVar1 $emissiveblendtint
+            srcVar2 $emissiveblendstrength
+        }
+    }
+}

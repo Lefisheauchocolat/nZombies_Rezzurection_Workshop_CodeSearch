@@ -1,0 +1,22 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/iw6_characters/theshape/_vtfs/us_space_int_boots_a_col"
+	$bumpmap					"models/moo/codz/iw6_characters/theshape/_vtfs/us_space_int_boots_a_nml"
+	$phongexponenttexture		"models/moo/codz/iw6_characters/theshape/_vtfs/us_space_int_boots_a_glo"
+
+    $detail                     "models/moo/codz/_common/_vtfs/char_base_fabric_leather_n"
+    $detailblendmode "0"
+    $detailblendfactor "5"
+    $detailscale "[5 5]"
+    
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.15"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.001 .001 .001]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

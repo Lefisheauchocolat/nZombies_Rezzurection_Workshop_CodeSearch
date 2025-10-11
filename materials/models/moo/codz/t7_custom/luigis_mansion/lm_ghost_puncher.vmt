@@ -1,0 +1,25 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/moo/codz/t7_custom/luigis_mansion/_vtfs/i_lm_ghost_puncher_c"
+	$bumpmap				"null-bumpmap"
+	//$phongexponenttexture	""
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.05"
+	$phongexponent "55"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/moo/codz/t7_custom/luigis_mansion/_vtfs/i_lm_ghost_puncher_c"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[1 1 1]"
+	"$emissiveBlendStrength" "0.5"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.05 .05 .05]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

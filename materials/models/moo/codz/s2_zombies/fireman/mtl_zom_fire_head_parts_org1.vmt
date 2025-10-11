@@ -1,0 +1,25 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/s2_zombies/fireman/_vtfs/~&-czom_fireman_head_parts_or~8112def1"
+	$bumpmap					"models/moo/codz/s2_zombies/fireman/_vtfs/~&-nzom_fireman_head_parts_or~e77b4473"
+	$phongexponenttexture		"models/moo/codz/s2_zombies/fireman/_vtfs/~&-czom_fireman_head_parts_or~618d39be"
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.95"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/moo/codz/s2_zombies/fireman/_vtfs/zom_fireman_head_parts_org1_ems"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[1 1 1]"
+	"$EmissiveBlendScrollVector" 	"[0 0]"
+	"$emissiveBlendStrength" "1"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.05 .05 .05]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

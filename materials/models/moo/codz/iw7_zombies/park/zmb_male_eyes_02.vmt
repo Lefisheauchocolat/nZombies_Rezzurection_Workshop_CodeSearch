@@ -1,0 +1,32 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/iw7_zombies/park/_vtfs/zmb_male_eye_c"
+	$bumpmap					"null-bumpmap"
+	//$phongexponenttexture		""
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongexponent "10"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" 		"1"
+	"$emissiveBlendTexture" 		"vgui/white"
+	"$emissiveBlendBaseTexture" 	"models/moo/codz/iw7_zombies/park/_vtfs/zmb_male_eye_e"
+	"$emissiveBlendFlowTexture" 	"dev/null"
+	"$emissiveBlendTint" 			"[1 0.35 0]"
+	"$emissiveBlendStrength" 		"1"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+
+	Proxies
+    {
+        ZombieEyeGlow
+        {
+            srcVar1 $emissiveblendtint
+            srcVar2 $emissiveblendstrength
+        }
+    }
+}

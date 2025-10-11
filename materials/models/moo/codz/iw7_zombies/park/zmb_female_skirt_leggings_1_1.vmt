@@ -1,0 +1,15 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/iw7_zombies/park/_vtfs/zmb_female_skirt_leggings_1_1_c"
+	$bumpmap					"models/moo/codz/iw7_zombies/park/_vtfs/zmb_female_skirt_leggings_n"
+	$phongexponenttexture		"models/moo/codz/iw7_zombies/park/_vtfs/zmb_female_skirt_leggings_g"
+
+	$phong	"1"
+	$phongboost	"0.025"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

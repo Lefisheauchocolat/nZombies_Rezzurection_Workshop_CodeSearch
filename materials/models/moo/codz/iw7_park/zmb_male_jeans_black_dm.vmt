@@ -1,0 +1,21 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/iw7_park/_vtfs/zmb_male_jeans_black_dm_c_zmb_male_jeans_black_sg_packed_cs"
+	$bumpmap					"models/moo/codz/iw7_park/_vtfs/zmb_male_jeans_black_n"
+	$phongexponenttexture		"models/moo/codz/iw7_park/_vtfs/zmb_male_jeans_black_g"
+	
+	$nodecal "1"
+	//"$nocull" "1"
+	//$alphatest 1
+
+	$phongalbedotint "1"
+    $phong "1"
+    $phongboost    "0.1"
+    $phongfresnelranges    "[1 1.05 1.25]"
+
+	$envmap	"materials/models/$black_color"
+	$envmaptint	"[.05 .05 .05]"
+    $basealphaenvmapmask   "1"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

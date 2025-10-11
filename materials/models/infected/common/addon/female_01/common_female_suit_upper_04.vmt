@@ -1,0 +1,8 @@
+patch
+{
+include "materials/models/infected/common/addon/common_infected_shared.vmt"
+insert
+{
+$baseTexture "models\infected\common/addon\female_01\common_female_suit_upper_04"
+}
+}

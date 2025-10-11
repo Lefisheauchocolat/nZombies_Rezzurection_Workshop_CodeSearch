@@ -1,0 +1,23 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/s2_zombies/assassin/_vtfs/~&-czom_assassin_eye_org1_col~36974a5e"
+	$bumpmap					"models/moo/codz/s2_zombies/assassin/_vtfs/~&-nzom_assassin_eye_org1_nml~c33bb861"
+	$phongexponenttexture		"models/moo/codz/s2_zombies/assassin/_vtfs/~&-czom_assassin_eye_org1_col~7da3a70d"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/moo/codz/s2_zombies/common/_vtfs/zom_follower_eye_org1_ems"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[1 1 1]"
+	"$EmissiveBlendScrollVector" 	"[0 0]"
+	"$emissiveBlendStrength" "1"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.05 .05 .05]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

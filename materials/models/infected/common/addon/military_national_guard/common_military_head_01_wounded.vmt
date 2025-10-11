@@ -1,0 +1,8 @@
+patch
+{
+include "materials/models/infected/common/addon/military_national_guard/common_military_head_01.vmt"
+insert
+{
+$wounded 1
+}
+}

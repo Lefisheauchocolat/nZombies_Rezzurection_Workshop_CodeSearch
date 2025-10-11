@@ -1,0 +1,22 @@
+"VertexLitGeneric"
+{
+	"$basetexture" 				"models/infected/smoker/_vtfs/smoker_hp_hair"
+	"$bumpmap"					"null-bumpmap"
+	//"$phongexponenttexture" 	""
+
+	$model "1"
+	$nodecal "1"
+	$alphatest "1"
+	$nocull "1"
+
+	"$color2" "[1 1 1]"
+	
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.1 .5 4]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

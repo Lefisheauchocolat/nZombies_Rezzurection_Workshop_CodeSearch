@@ -1,0 +1,7 @@
+vertexLitGeneric
+{
+	"$baseTexture" "models\totu\detonator_bomb\blip2_peacemaker"
+	"$envmapmask" "models\totu\detonator_bomb\blip3_ref"
+	"$bumpmap" "models\totu\detonator_bomb\normal"
+	"$Selfillum" "1"
+}

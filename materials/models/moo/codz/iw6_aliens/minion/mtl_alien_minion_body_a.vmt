@@ -1,0 +1,36 @@
+"VertexLitGeneric"
+{
+	"$basetexture" 				"models/moo/codz/iw6_aliens/minion/_vtfs/alien_minion_body_a_c"
+	"$bumpmap"					"models/moo/codz/iw6_aliens/minion/_vtfs/alien_minion_body_a_n"
+	"$phongexponenttexture"		"models/moo/codz/iw6_aliens/minion/_vtfs/alien_minion_body_a_g"
+
+	$model "1"
+	$nodecal "1"
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/moo/codz/iw6_aliens/minion/_vtfs/alien_minion_body_a_e"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[1 0.1 0]"
+	"$emissiveBlendStrength" "1"
+	
+	"$color2" "[1 1 1]"
+	
+	$phong	"1"
+	$phongboost	"0.5"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+	
+	Proxies
+    {
+        ZombieEyeGlow
+        {
+            srcVar1 $emissiveblendtint
+            srcVar2 $emissiveblendstrength
+        }
+    }
+}

@@ -1,0 +1,22 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/yolojoenshit/infinitewarfare/spaceland/upnatoms/zmb_perk_up_n_atoms"
+	$bumpmap					"models/moo/codz_props/iw7/zmb/perks/_vtfs/zmb_perk_up_n"
+	$phongexponenttexture		"models/moo/codz_props/iw7/zmb/perks/_vtfs/zmb_perk_up_g"
+	
+	$nodecal "1"
+	//"$nocull" "1"
+	//$alphatest 1
+	$selfillum "1"
+
+	$phongalbedotint "1"
+    $phong "1"
+    $phongboost    "0.1"
+    $phongfresnelranges    "[1 1.05 1.25]"
+
+	$envmap	"materials/models/$black_color"
+	$envmaptint	"[.05 .05 .05]"
+    $basealphaenvmapmask   "1"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

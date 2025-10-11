@@ -1,0 +1,11 @@
+patch
+{
+include "materials/models/infected/common/addon/common_infected_shared.vmt"
+insert
+{
+$baseTexture "models\infected\common/addon\hospital_patient/common_patient_lower_01"
+$CUTOUTDECALMAPPINGSCALE 7.0
+$envmap env_cubemap
+$envmapmask "models\infected\common/addon/hospital_patient/common_patient_lower_01_REF"
+}
+}

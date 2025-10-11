@@ -1,0 +1,25 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/dbd/slashers/springtrap/_vtfs/T_K40Head01_BC"
+	$bumpmap					"models/moo/dbd/slashers/springtrap/_vtfs/T_K40Head01_N"
+	//$phongexponenttexture		""
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.25"
+	$phongexponent "150"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/moo/dbd/slashers/springtrap/_vtfs/T_K40Head01_BDE"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[1 1 1]"
+	"$emissiveBlendStrength" "1"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.0075 .0075 .0075]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

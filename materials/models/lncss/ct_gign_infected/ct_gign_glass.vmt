@@ -1,0 +1,18 @@
+"vertexlitgeneric"
+{
+    "$baseTexture" "models/lncss/ct_gign_infected/ct_gign_glass"
+
+
+// Specularity
+    "$envmap"             "env_cubemap"
+    "$envmapmask" "models/lncss/ct_gign_infected/ct_gign_glass_spec"
+
+
+// Transparency
+    "$translucent" 1
+    "$nocull" 1
+
+
+
+}
+

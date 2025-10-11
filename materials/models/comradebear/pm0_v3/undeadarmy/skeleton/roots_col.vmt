@@ -1,0 +1,7 @@
+VertexLitGeneric
+{
+	$basetexture "models/comradebear/pm0_v3/undeadarmy/skeleton/roots_bloody_col"
+
+	$alphatest 1
+	$nocull 1
+}

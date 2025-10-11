@@ -1,0 +1,17 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/iw7/zmb/debris_concrete_rubble_pile_01_dark/_vtfs/mtl_debris_concrete_rubble_pile_01_c"
+	$bumpmap					"models/moo/codz_props/iw7/zmb/debris_concrete_rubble_pile_01_dark/_vtfs/mtl_debris_concrete_rubble_pile_01_n"
+	$phongexponenttexture		"models/moo/codz_props/iw7/zmb/debris_concrete_rubble_pile_01_dark/_vtfs/mtl_debris_concrete_rubble_pile_01_g"
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.1"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.025 .025 .025]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

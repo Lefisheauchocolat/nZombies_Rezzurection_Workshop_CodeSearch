@@ -1,0 +1,19 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/codol_zombies/goliath/_vtfs/clothes_c"
+	$bumpmap					"models/moo/codz/codol_zombies/goliath/_vtfs/zom_civ_urban_cargo_a_nml"
+	$phongexponenttexture		"models/moo/codz/codol_zombies/goliath/_vtfs/zom_civ_urban_cargo_ab_s"
+
+	$nodecal "1"
+	$alphatest "1"
+	$nocull "1"
+
+	$phong	"1"
+	$phongboost	"0.05"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.0075 .0075 .0075]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

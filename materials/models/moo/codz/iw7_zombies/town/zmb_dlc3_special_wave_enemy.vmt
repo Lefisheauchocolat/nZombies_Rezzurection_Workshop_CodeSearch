@@ -1,0 +1,22 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/iw7_zombies/town/_vtfs/zmb_dlc3_special_wave_boss_c"
+	$bumpmap					"models/moo/codz/iw7_zombies/town/_vtfs/zmb_dlc3_special_wave_boss_n"
+	$phongexponenttexture		"models/moo/codz/iw7_zombies/town/_vtfs/zmb_dlc3_special_wave_boss_g"
+
+	$phong	"1"
+	$phongboost	"0.22"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" 		"1"
+	"$emissiveBlendTexture" 		"vgui/white"
+	"$emissiveBlendBaseTexture" 	"models/moo/codz/iw7_zombies/town/_vtfs/zmb_dlc3_special_wave_boss_e"
+	"$emissiveBlendFlowTexture" 	"dev/null"
+	"$emissiveBlendTint" 			"[1 1 1]"
+	"$emissiveBlendStrength" 		"1"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

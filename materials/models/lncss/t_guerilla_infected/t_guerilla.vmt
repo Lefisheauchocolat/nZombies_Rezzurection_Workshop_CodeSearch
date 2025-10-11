@@ -1,0 +1,24 @@
+VertexLitGeneric
+{
+    "$basetexture"    "models\lncss\t_guerilla_infected\t_guerilla"
+    "$bumpmap" "models\lncss\t_guerilla_infected\t_guerilla_normal"
+    "$normalmapalphaenvmapmask" "1"
+    "$surfaceprop" "flesh"
+
+
+    "$emissiveBlendEnabled" "1"
+    $EmissiveBlendTexture       vgui/white
+    "$emissiveBlendBaseTexture" "models\lncss\t_guerilla_infected\t_guerilla_e"
+    "$emissiveBlendFlowTexture" "dev/null"
+    "$emissiveBlendTint" "[1 1 1]"
+    "$emissiveBlendStrength" "1"
+    
+    Proxies
+    {
+        ZombieEyeGlow
+        {
+            srcVar1 $emissiveblendtint
+            srcVar2 $emissiveblendstrength
+        }
+    }
+}

@@ -1,0 +1,32 @@
+"VertexLitGeneric"
+{
+    $basetexture                "models/moo/codz/s1_zombies/zombies/_vtfs/zombie_face_items_c"
+    $bumpmap                    "models/moo/codz/s1_zombies/zombies/_vtfs/zombie_face_items_n"
+    $phongexponenttexture       "models/moo/codz/s1_zombies/zombies/_vtfs/zombie_face_items_g"
+    $nodecal "1"
+
+    $phong    "1"
+    $phongboost    "0.05" 
+    $phongfresnelranges    "[.78 .9 1]"
+
+    "$emissiveBlendEnabled" "1"
+    $EmissiveBlendTexture       vgui/white
+    "$emissiveBlendBaseTexture" "models/moo/codz/s1_zombies/zombies/_vtfs/zombie_face_items_e"
+    "$emissiveBlendFlowTexture" "dev/null"
+    "$emissiveBlendTint" "[1 0.5 0.1]"
+    "$emissiveBlendStrength" "1"
+
+    $envmap    "env_cubemap"
+    $envmaptint    "[.005 .005 .005]"
+    $normalmapalphaenvmapmask    "1"
+    $envmapfresnel    "1"
+    
+    Proxies
+    {
+        ZombieEyeGlow
+        {
+            srcVar1 $emissiveblendtint
+            srcVar2 $emissiveblendstrength
+        }
+    }
+}

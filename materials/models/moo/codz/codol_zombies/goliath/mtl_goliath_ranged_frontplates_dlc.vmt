@@ -1,0 +1,17 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/codol_zombies/goliath/_vtfs/goliath_melee_frontplate_s"
+	$bumpmap					"models/moo/codz/codol_zombies/goliath/_vtfs/goliath_melee_frontplates_dlc_nml"
+	$phongexponenttexture		"models/moo/codz/codol_zombies/goliath/_vtfs/goliath_ranged_frontplates_dlc_col"
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.25"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.0095 .0095 .0095]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

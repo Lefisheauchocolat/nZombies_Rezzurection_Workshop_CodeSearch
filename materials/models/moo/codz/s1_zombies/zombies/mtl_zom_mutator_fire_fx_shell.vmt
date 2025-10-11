@@ -1,0 +1,25 @@
+"VertexLitGeneric"
+{
+    $basetexture                "models/$black_color"
+    $bumpmap                    ""
+    $phongexponenttexture       ""
+    $nodecal "1"
+    $translucent "1"
+
+    $phong    "1"
+    $phongboost    "0.015" 
+    $phongfresnelranges    "[.78 .9 1]"
+
+    $emissiveblendenabled        "1"
+    $emissiveblendstrength        "1"
+    $emissiveblendtexture        "models/moo/codz/s1_zombies/zombies/_vtfs/zom_body_mutator_fire_shell_fx_c"
+    $emissiveblendbasetexture    "models/moo/codz/s1_zombies/zombies/_vtfs/zom_body_mutator_fire_shell_fx_c"
+    $emissiveblendflowtexture    "models/moo/codz/s1_zombies/zombies/_vtfs/camo_flowmap_liquid_01_flow"
+    $emissiveblendtint            "[100 100 100]"
+    $emissiveblendscrollvector    "[0 1.25]"
+    
+    $envmap    "env_cubemap"
+    $envmaptint    "[.005 .005 .005]"
+    $normalmapalphaenvmapmask    "1"
+    $envmapfresnel    "1"
+}

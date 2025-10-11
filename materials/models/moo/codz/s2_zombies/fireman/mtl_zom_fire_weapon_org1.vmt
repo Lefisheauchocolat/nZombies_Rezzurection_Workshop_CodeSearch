@@ -1,0 +1,17 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/s2_zombies/fireman/_vtfs/~&-czom_fire_weapon_org1_col&~29b19715"
+	$bumpmap					"models/moo/codz/s2_zombies/fireman/_vtfs/~&-nzom_fire_weapon_org1_nml&~079aaa88"
+	$phongexponenttexture		"models/moo/codz/s2_zombies/fireman/_vtfs/~&-czom_fire_weapon_org1_col&~72513a50"
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.95"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.05 .05 .05]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

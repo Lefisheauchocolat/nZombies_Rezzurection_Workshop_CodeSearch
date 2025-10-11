@@ -1,0 +1,8 @@
+patch
+{
+include "materials/models/infected/common/addon/common_infected_shared.vmt"
+insert
+{
+$baseTexture "models\infected\common/addon\law_enforcement/common_police_male_head_03"
+}
+}

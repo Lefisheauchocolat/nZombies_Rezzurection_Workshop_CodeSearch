@@ -1,0 +1,29 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/s2_zombies/siz/_vtfs/mtl_zom_sizzler_head_org1_c"
+	$bumpmap					"models/moo/codz/s2_zombies/siz/_vtfs/mtl_zom_sizzler_head_org1_n"
+	$phongexponenttexture		"models/moo/codz/s2_zombies/siz/_vtfs/mtl_zom_sizzler_head_org1_g"
+
+	$model "1"
+	$nodecal "1"
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/moo/codz/s2_zombies/siz/_vtfs/mtl_zom_sizzler_head_org1_e"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[1 1 1]"
+	"$emissiveBlendStrength" "1"
+
+	Proxies
+    {
+        Sine
+        {
+            resultVar    $emissiveBlendStrength
+            sineperiod    0.5
+            sinemin        0.75
+            sinemax        1
+			timeoffset	0
+
+        }
+    }
+}

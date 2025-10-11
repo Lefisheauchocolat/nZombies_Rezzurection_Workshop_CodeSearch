@@ -1,0 +1,18 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/dbd/slashers/springtrap/_vtfs/T_K40W01_BC"
+	$bumpmap					"models/moo/dbd/slashers/springtrap/_vtfs/T_K40W01_N"
+	//$phongexponenttexture		""
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongexponent "25"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.0075 .0075 .0075]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

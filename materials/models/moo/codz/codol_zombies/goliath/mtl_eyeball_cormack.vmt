@@ -1,0 +1,18 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/codol_zombies/goliath/_vtfs/eyeball_cormack_col"
+	$bumpmap					"null-bumpmap"
+	//$phongexponenttexture		""
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.15"
+	$phongexponent "35"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.0075 .0075 .0075]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

@@ -1,0 +1,15 @@
+"vertexlitgeneric"
+{
+    "$baseTexture" "models/lncss/ct_urban_infected/ct_urban_glass"
+
+
+// Specularity
+    "$envmap"             "env_cubemap"
+    "$envmapmask" "models/lncss/ct_urban_infected/ct_urban_glass_spec"
+
+
+// Transparency
+    "$translucent" 1
+
+
+}

@@ -1,0 +1,11 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/totu\airman\arms"
+	"$bumpmap" "models/totu\airman\arms_normal"
+	"$phong" 1
+	"$phongboost" ".5"
+	"$phongexponent" 5
+	"$phongtint" "[.85 .85 1]"
+	"$phongfresnelranges" "[.3 .65 30]"
+ 	"$halflambert"		"1"
+}

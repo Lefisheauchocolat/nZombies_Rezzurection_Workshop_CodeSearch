@@ -1,0 +1,24 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/codol_zombies/quad/_vtfs/c_zom_sprinter_horns_col"
+	$bumpmap					"models/moo/codz/codol_zombies/quad/_vtfs/c_zom_sprinter_horns_nml"
+	$phongexponenttexture		"models/moo/codz/codol_zombies/quad/_vtfs/c_zom_sprinter_horns_spc"
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.05"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/moo/codz/codol_zombies/quad/_vtfs/c_zom_sprinter_horns_light"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[1 1 1]"
+	"$emissiveBlendStrength" "0.5"
+	
+	$envmap	"env_cubemap"
+	$envmaptint	"[.0075 .0075 .0075]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

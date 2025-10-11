@@ -1,0 +1,20 @@
+VertexLitGeneric
+{
+	$basetexture "models/comradebear/pm0_v3/undeadarmy/skeleton/skeleton_glow_teal"
+	$bumpmap "models/comradebear/pm0_v3/undeadarmy/skeleton/skeleton_nml"
+	$surfaceprop Default
+
+	$phong 1
+	$phongfresnelranges "[0.5 1 2]"
+	$phongexponent 7
+	$phongboost 0.3
+
+	$rimlight 1
+	$rimlightexponent 6
+	$rimlightboost 1
+
+	$selfillum 1
+	$selfillum_envmapmask_alpha 1
+
+	$model 1
+}

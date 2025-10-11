@@ -1,0 +1,13 @@
+"VertexLitGeneric"
+{
+	"$basetexture"         "models/totu/detonator/bulldozer_green"
+	"$bumpmap"             "models/totu/detonator/bulldozer_n"
+
+	"$phong"		"1"
+	"$phongboost"		"1"
+	"$phongexponent"	"150"
+
+	"$lightwarptexture"	"models/totu/detonator/lightwarp_soft_white"
+	"$phongalbedotint"      "1" 
+	"$phongfresnelranges"   "[0.5 1.5 8.0]"
+}

@@ -1,0 +1,10 @@
+patch
+{
+include "materials/models/infected/common/addon/common_infected_shared.vmt"
+insert
+{
+$baseTexture "models\infected\common/addon\female_01/common_female_casual_head_04"
+$phongboost 0.2
+$shinybloodexponent 3
+}
+}
