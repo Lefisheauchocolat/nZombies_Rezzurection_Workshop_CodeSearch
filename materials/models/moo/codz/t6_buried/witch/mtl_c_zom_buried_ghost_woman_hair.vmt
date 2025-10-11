@@ -1,0 +1,8 @@
+"VertexLitGeneric"
+{
+	"$basetexture" 				"models/moo/codz/t6_buried/witch/~-gc_zom_buried_ghost_woman_hair_c"
+	//"$bumpmap" 				"models/moo/codz/t6_buried/witch/c_zom_buried_ghost_woman_head_scarf_n"
+	//$phongexponenttexture		"models/moo/codz/t6_buried/witch/~~-gc_zom_buried_ghost_woman_~0fe8d4e2"
+	
+	$translucent 1
+}

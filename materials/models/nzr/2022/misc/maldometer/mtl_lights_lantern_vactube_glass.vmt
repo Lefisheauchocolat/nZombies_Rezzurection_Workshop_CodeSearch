@@ -1,0 +1,16 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/nzr/2022/misc/maldometer/vactube_metal_glass_alpha_d"
+	$bumpmap				"models/nzr/2022/misc/maldometer/vactube_metal_glass_n"
+	$phongexponenttexture	"models/nzr/2022/misc/maldometer/vactube_metal_glass_s"
+	$translucent "1"
+
+	$phong	"1"
+	$phongboost	"5"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.25 .25 .25]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

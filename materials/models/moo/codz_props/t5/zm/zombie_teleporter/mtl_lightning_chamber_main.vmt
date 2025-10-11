@@ -1,0 +1,30 @@
+"UnlitTwoTexture"
+{
+	"$basetexture" "models/moo/codz_props/t5/zm/zombie_teleporter/_vtfs/lightning_chamber_main_c"
+	"$model" 1
+	"$selfillum" 1
+	//"$additive" 1
+	"$color" "[1 1 1]"
+	"$color2" "[1 1 1]"
+	"$nofog" "1"
+
+	"$Texture2" "models/moo/codz_props/t5/zm/zombie_teleporter/_vtfs/lightning_chamber_scroll_base"
+
+	"Proxies"
+	{
+		"TextureScroll"
+		{
+			"texturescrollvar" "$basetexturetransform"
+			"texturescrollrate" 0.1
+			"texturescrollangle" 90
+		}
+
+		"TextureScroll"
+		{
+			"texturescrollvar" "$texture2transform"
+			"texturescrollrate" 1
+			"texturescrollangle" 90
+		}
+	}
+}
+

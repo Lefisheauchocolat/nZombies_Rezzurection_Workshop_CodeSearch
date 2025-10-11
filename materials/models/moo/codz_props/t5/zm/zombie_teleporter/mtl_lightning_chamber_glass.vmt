@@ -1,0 +1,21 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t5/zm/zombie_teleporter/_vtfs/lightning_chamber_glass_c"
+	$bumpmap					"null-bumpmap"
+	//$phongexponenttexture		""
+	
+	$nodecal "1"
+	$translucent "1"
+
+	$phongalbedotint "1"
+    $phong "1"
+    $phongboost    "2"
+    $phongexponent "20"
+    $phongfresnelranges    "[1 1.05 1.25]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+    $basealphaenvmapmask   "1"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

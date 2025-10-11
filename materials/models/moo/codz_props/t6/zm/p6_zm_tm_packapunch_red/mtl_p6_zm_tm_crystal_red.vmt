@@ -1,0 +1,41 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t6/zm/p6_zm_tm_packapunch_red/_vtfs/mtl_p6_zm_tm_crystal_red_c"
+	$bumpmap					"models/moo/codz_props/t6/zm/p6_zm_tm_packapunch_red/_vtfs/mtl_p6_zm_tm_crystal_n"
+	//$phongexponenttexture		""
+  
+    $detail                        "models/moo/codz_props/t6/zm/p6_zm_tm_packapunch_red/_vtfs/mtl_p6_zm_tm_crystal_bubbles_red_c"
+    $detailblendmode "1"
+    $detailblendfactor "15"
+    $detailscale "[3 3]"
+    
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongexponent "20"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" "1"
+	"$EmissiveBlendTexture" 		"vgui/white"
+	"$emissiveBlendBaseTexture" "models/moo/codz_props/t6/zm/p6_zm_tm_packapunch_red/_vtfs/mtl_p6_zm_tm_crystal_red_e"
+	"$emissiveBlendFlowTexture" "vgui/white"
+	"$emissiveBlendTint" "[1.25 1.25 1.25]"
+	"$emissiveBlendScrollVector" 	"[0 0]" 
+	"$emissiveBlendStrength" "1"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.5 .2 .1]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+
+	Proxies
+    {
+        TextureScroll
+        {
+            "textureScrollVar" $detailtexturetransform
+            "textureScrollRate" 0.015
+            "textureScrollAngle" 90
+        }
+    }
+}

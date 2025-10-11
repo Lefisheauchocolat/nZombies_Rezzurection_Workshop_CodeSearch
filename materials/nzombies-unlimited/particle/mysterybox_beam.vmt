@@ -1,0 +1,19 @@
+"UnlitTwoTexture"
+{
+	"$basetexture" "nzombies-unlimited/particle/light_ray_thin_soft_additive_square"
+	"$texture2" "nzombies-unlimited/particle/magic_beam_tile"
+	$vertexcolor 1
+	$vertexalpha 1
+	$additive 1
+	$nofog 1
+
+	Proxies
+	{
+		TextureScroll
+		{
+			texturescrollvar $texture2transform
+			texturescrollrate 0.1
+			texturescrollangle 90
+		}
+	}
+}

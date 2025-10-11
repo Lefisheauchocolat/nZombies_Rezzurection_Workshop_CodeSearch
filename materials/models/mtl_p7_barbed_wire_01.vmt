@@ -1,0 +1,9 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/_vtfs/i_mtl_p7_barbed_wire_01_c"
+	"$bumpmap" "models/_vtfs/i_mtl_p7_barbed_wire_01_n"
+	"$model" 1
+	"$nocull" "1"
+	$alphatest 1
+
+}

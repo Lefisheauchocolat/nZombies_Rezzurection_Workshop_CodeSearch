@@ -1,0 +1,24 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/kate/codz_props/t6/zm/t6_motd_box_lock/_vtfs/mtl_p6_zm_al_magic_box_lock_red/~-gp6_zm_al_magic_box_lock_c"
+	$bumpmap					"models/kate/codz_props/t6/zm/t6_motd_box_lock/_vtfs/mtl_p6_zm_al_magic_box_lock_red/p6_zm_al_magic_box_lock_n"
+	$phongexponenttexture		"models/kate/codz_props/t6/zm/t6_motd_box_lock/_vtfs/mtl_p6_zm_al_magic_box_lock_red/p6_zm_al_magic_box_lock_g"
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/kate/codz_props/t6/zm/t6_motd_box_lock/_vtfs/mtl_p6_zm_al_magic_box_lock_red/p6_zm_al_magic_box_lock_red_m"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[1 1 1]"
+	"$emissiveBlendStrength" "1"
+ 
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0"
+	$phongfresnelranges	"[.68 .8 0]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.1 .1 .1]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

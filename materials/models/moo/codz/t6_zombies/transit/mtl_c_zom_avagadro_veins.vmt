@@ -1,0 +1,16 @@
+"UnLitGeneric"
+{
+    $basetexture                "models/moo/codz/t6_zombies/transit/_vtfs/c_zom_avogadro_filiment_c"
+    $nodecal "1"
+    $color2 "[3 7 10]"
+
+    Proxies
+    {
+        TextureScroll
+        {
+            "textureScrollVar" "$basetexturetransform"
+            "textureScrollRate" "1"
+            "textureScrollAngle" "1"
+        }
+    }
+}

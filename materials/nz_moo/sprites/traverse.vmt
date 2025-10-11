@@ -1,0 +1,6 @@
+"UnLitGeneric"
+{
+	"$basetexture" "nz_moo/sprites/traverse"
+	$translucent 1
+	"$additive" 1
+}

@@ -1,0 +1,10 @@
+"UnlitGeneric"
+{
+	"$basetexture" "nzombies-unlimited/particle/particle_noisesphere_bright"
+	"$translucent" "1"
+	"$vertexcolor" "1"
+	"$vertexalpha" "1"
+	"$depthblend"  "1"
+	"$additive"    "1"
+	"$overbrightfactor" "15"
+}

@@ -1,0 +1,19 @@
+"VertexLitGeneric"
+{
+    $basetexture                "models/moo/codz/t6_zombies/transit/_vtfs/c_zom_avagadro_guts_c"
+    //$bumpmap                    ""
+    //$phongexponenttexture       ""
+    $nodecal "1"
+
+    $phong    "1"
+    $phongboost    "0.01" 
+    $phongfresnelranges    "[.78 .9 1]"
+
+    $emissiveblendenabled       "1"
+    $emissiveblendstrength      "1"
+    $emissiveblendtexture       "vgui/white"
+    $emissiveblendbasetexture   "models/moo/codz/t6_zombies/transit/_vtfs/c_zom_avagadro_guts_c"
+    $emissiveblendflowtexture   "vgui/white"
+    $emissiveblendtint          "[3 7 10]"
+    $emissiveblendscrollvector  "[0 0]"
+}

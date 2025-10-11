@@ -1,0 +1,25 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t5/zm/zombie_teleporter/_vtfs/zombie_teleport_mainframe_c"
+	$bumpmap					"models/moo/codz_props/t5/zm/zombie_teleporter/_vtfs/zombie_teleport_mainframe_body_n"
+	//$phongexponenttexture		""
+	
+	$nodecal "1"
+
+    $detail                     "models/moo/codz/t4_zombies/common/_vtfs/metal_bumps_n"
+    $detailblendmode "0"
+    $detailblendfactor "0.75"
+    $detailscale "[4 4]"
+    
+	$phongalbedotint "1"
+    $phong "1"
+    $phongboost    "2"
+    $phongexponent "20"
+    $phongfresnelranges    "[1 1.05 1.25]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+    $basealphaenvmapmask   "1"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

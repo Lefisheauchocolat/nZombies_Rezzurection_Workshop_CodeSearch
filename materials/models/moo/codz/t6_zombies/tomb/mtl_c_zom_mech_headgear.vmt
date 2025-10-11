@@ -1,0 +1,29 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/t6_zombies/tomb/_vtfs/c_zom_mech_headgear_c"
+	$bumpmap					"models/moo/codz/t6_zombies/tomb/_vtfs/c_zom_mech_headgear_n"
+	$phongexponenttexture		"models/moo/codz/t6_zombies/tomb/_vtfs/c_zom_mech_headgear_g"
+
+	$nodecal "1"
+
+    $detail                     "models/moo/codz/t4_zombies/common/_vtfs/char_base_fabric_leather_n"
+    $detailblendmode "0"
+    $detailblendfactor "2"
+    $detailscale "[6 6]"
+    
+	$phong	"1"
+	$phongboost	"0.05"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" 		"1"
+	"$emissiveBlendTexture" 		"vgui/white"
+	"$emissiveBlendBaseTexture" 	"models/moo/codz/t6_zombies/tomb/_vtfs/c_zom_mech_headgear_e"
+	"$emissiveBlendFlowTexture" 	"dev/null"
+	"$emissiveBlendTint" 			"[1 1 1]"
+	"$emissiveBlendStrength" 		"1"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.001 .001 .001]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

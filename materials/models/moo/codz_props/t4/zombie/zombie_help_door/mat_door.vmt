@@ -1,0 +1,19 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t4/zombie/zombie_help_door/_vtfs/okinawa_door_wood_heavy_c"
+	$bumpmap					"models/moo/codz_props/t4/zombie/zombie_help_door/_vtfs/okinawa_door_wood_heavy_n"
+
+	$nodecal "1"
+
+	$phongalbedotint "1"
+    $phong "1"
+    $phongexponent "20"
+    $phongboost    "0.05"
+    $phongfresnelranges    "[1 1.05 1.25]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+    $basealphaenvmapmask   "1"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

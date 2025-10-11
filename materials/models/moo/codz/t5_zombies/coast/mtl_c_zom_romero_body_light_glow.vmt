@@ -1,0 +1,22 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/t5_zombies/coast/_vtfs/c_zom_romero_zombified_light_c"
+	$bumpmap					"models/moo/codz/t5_zombies/coast/_vtfs/c_zom_romero_zombified_light_n"
+	$phongexponenttexture		"models/moo/codz/t5_zombies/coast/_vtfs/c_zom_romero_zombified_light_g"
+
+	$nodecal "1"
+	
+	$phong	"1"
+	$phongboost	"0.05"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$detail models/moo/codz/t5_zombies/common/_vtfs/char_base_fabric_smooth_n
+	$detailscale 3
+	$detailblendfactor 1
+	$detailblendmode 0
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.05 .05 .05]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

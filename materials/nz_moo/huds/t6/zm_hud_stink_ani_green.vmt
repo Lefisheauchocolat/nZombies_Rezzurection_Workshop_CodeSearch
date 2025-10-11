@@ -1,0 +1,20 @@
+"UnlitGeneric"
+{
+	"$basetexture" "nz_moo/huds/t6/zm_hud_stink_ani_green"
+	$additive "1"
+
+	$ignorez "1"
+	$vertexcolor "1"
+	$vertexalpha "1"
+	$frame "0"
+	
+	Proxies
+	{
+		AnimatedTexture
+		{
+			"animatedtexturevar" "$basetexture"
+			"animatedtextureframenumvar" "$frame"
+			"animatedtextureframerate" "21"
+		}
+	}
+}

@@ -1,0 +1,10 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/moo/codz_props/t6/zm/p6_zm_cratepile/p6_zm_cratepile_pot_d"
+	$bumpmap				"models/moo/codz_props/t6/zm/p6_zm_cratepile/p6_zm_cratepile_pot_n"
+
+	$phong	"1"
+	$phongboost	"0.5"
+	$phongfresnelranges	"[.78 .9 1]"
+	$phongexponent "3"
+}

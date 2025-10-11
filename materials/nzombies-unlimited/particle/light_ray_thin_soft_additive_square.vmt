@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$basetexture" "nzombies-unlimited/particle/light_ray_thin_soft_additive_square"
+	$vertexcolor 1
+	$vertexalpha 1
+	$additive 1
+}

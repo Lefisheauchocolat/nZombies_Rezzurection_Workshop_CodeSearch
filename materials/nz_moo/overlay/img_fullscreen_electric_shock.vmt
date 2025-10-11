@@ -1,0 +1,18 @@
+"SpriteCard"
+{
+	"$basetexture" "particle/img_fullscreen_electric_shock"
+	$vertexcolor 1
+	$vertexalpha 1
+	$Additive 1
+	//$depthblend 1
+	
+	Proxies
+	{
+	AnimatedTexture
+	{
+	animatedTextureVar $basetexture
+	animatedTextureFrameNumVar $frame
+	animatedTextureFrameRate 10
+	}
+	}
+}

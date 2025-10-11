@@ -1,0 +1,17 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/t5_zombies/moon/_vtfs/c_zom_moon_pressure_suit_c"
+	$bumpmap					"models/moo/codz/t5_zombies/moon/_vtfs/c_zom_moon_pressure_suit_n"
+	$phongexponenttexture		"models/moo/codz/t5_zombies/moon/_vtfs/c_zom_moon_pressure_suit_g"
+
+	$nodecal "1"
+	
+	$phong	"1"
+	$phongboost	".1"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

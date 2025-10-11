@@ -1,0 +1,17 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/nzr/2022/misc/weaponlocker/i_t8_decal_tech_detail_screw_01_d"
+	$bumpmap				"models/nzr/2022/misc/weaponlocker/i_t8_decal_tech_detail_screw_01_n"
+	$phongexponenttexture	"models/nzr/2022/misc/weaponlocker/i_t8_decal_tech_detail_screw_01_s"
+	$color2 "[.25 .25 .25]"
+	$alphatest "1"
+
+	$phong	"1"
+	$phongboost	"5"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.25 .25 .25]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

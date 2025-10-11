@@ -1,0 +1,22 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t6/zm/p6_anim_zm_barricade_board/_vtfs/p6_wood_plank_rustic01_c"
+	$bumpmap					"models/moo/codz_props/t6/zm/p6_anim_zm_barricade_board/_vtfs/p6_wood_plank_rustic01_n"
+	$phongexponenttexture		"models/moo/codz_props/t6/zm/p6_anim_zm_barricade_board/_vtfs/p6_wood_plank_rustic01_g"
+
+    $detail                     "models/moo/codz_props/t6/zm/p6_anim_zm_barricade_board/_vtfs/detail_map_wood_grain_n"
+    $detailblendmode "0"
+    $detailblendfactor "1.5"
+    $detailscale "[1 1]"
+    
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.1"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

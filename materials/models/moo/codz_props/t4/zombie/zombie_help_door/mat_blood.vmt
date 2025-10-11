@@ -1,0 +1,21 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t4/zombie/zombie_help_door/_vtfs/blood_spatter01_col"
+	$bumpmap					"models/moo/codz_props/t4/zombie/zombie_help_door/_vtfs/blood_spatter01_nml"
+
+	$nodecal "1"
+	$translucent "1"
+	$decal "1"
+
+	$phongalbedotint "1"
+    $phong "1"
+    $phongexponent "20"
+    $phongboost    "0.05"
+    $phongfresnelranges    "[1 1.05 1.25]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+    $basealphaenvmapmask   "1"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

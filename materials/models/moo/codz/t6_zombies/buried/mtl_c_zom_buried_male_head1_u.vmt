@@ -1,0 +1,25 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/$black_color"
+
+	"$model" 1
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/$white_specular"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[1 1 1]"
+	"$emissiveBlendStrength" "1"
+
+	"$color2" "[1 1 1]"
+
+	
+	Proxies
+    {
+        ZombieEyeGlow
+        {
+            srcVar1 $emissiveblendtint
+            srcVar2 $emissiveblendstrength
+        }
+    }
+}

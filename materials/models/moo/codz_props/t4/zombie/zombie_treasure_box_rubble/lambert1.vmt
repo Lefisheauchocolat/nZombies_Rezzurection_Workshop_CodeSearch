@@ -1,0 +1,21 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/$black_color"
+	//$bumpmap					""
+	//$phongexponenttexture		""
+	
+	$nodecal "1"
+	//"$nocull" "1"
+	//$alphatest 1
+
+	$phongalbedotint "1"
+    $phong "1"
+    $phongboost    "0.01"
+    $phongfresnelranges    "[1 1.05 1.25]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.05 .05 .05]"
+    $basealphaenvmapmask   "1"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

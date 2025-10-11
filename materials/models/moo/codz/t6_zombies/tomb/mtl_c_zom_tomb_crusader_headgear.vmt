@@ -1,0 +1,18 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/t6_zombies/tomb/_vtfs/c_zom_crusader_head_gear_c"
+	$bumpmap					"models/moo/codz/t6_zombies/tomb/_vtfs/c_zom_crusader_head_gear_n"
+	$phongexponenttexture		"models/moo/codz/t6_zombies/tomb/_vtfs/c_zom_crusader_head_gear_g"
+
+	$nodecal "1"
+	//$alphatest "1"
+
+	$phong	"1"
+	$phongboost	"0.75"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.025 .025 .025]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

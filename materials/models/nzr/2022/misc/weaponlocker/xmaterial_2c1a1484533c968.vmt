@@ -1,0 +1,15 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/nzr/2022/misc/weaponlocker/i_xmaterial_2c1a1484533c968_d"
+	$bumpmap				"models/nzr/2022/misc/weaponlocker/i_xmaterial_2c1a1484533c968_n"
+	$phongexponenttexture	"models/nzr/2022/misc/weaponlocker/i_xmaterial_2c1a1484533c968_s"
+
+	$phong	"1"
+	$phongboost	"5"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.25 .25 .25]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

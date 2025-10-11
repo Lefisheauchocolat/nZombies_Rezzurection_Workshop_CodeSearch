@@ -1,0 +1,20 @@
+"VertexLitGeneric"
+{
+	"$basetexture" 				"models/moo/codz/t6_buried/witch/~-gc_gen_insidemouth_c"
+	"$bumpmap" 					"models/moo/codz/t6_buried/witch/c_gen_insidemouth_n"
+	//$phongexponenttexture		"models/moo/codz/t6_buried/witch/~~-gc_zom_buried_ghost_woman_~50f78fdd"
+	
+	$phong	"1"
+	$phongboost	"0.15"
+	$phongfresnelranges	"[.78 .9 1]"
+	$phongexponent "66"
+	
+	//$detail "models/wavy_ports/wavy_enemies/bo1/octogonal_robber/skin_pore_detail_test"
+	//$detailblendmode	"4"
+	//$detailscale	"1"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.05 .05 .05]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

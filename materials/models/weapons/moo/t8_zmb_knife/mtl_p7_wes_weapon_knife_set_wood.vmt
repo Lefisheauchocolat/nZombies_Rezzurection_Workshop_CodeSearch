@@ -1,0 +1,17 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models\weapons\moo\t8_zmb_knife\i_t7_wes_wood_micro_01_c"
+	"$bumpmap"			"models\weapons\moo\t8_zmb_knife\i_mtl_p7_wes_weapon_knife_set_n"
+	$phongexponenttexture		"models\weapons\moo\t8_zmb_knife\i_t7_micro_wood_varied_teak_g"
+
+	$color2 "[1 0.8 0.7]"
+
+	$phong	"1"
+	$phongboost	".05"
+	$phongfresnelranges	"[.38 3 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.05 .05 .05]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

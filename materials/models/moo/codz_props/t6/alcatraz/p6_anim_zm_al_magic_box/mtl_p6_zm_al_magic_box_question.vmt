@@ -1,0 +1,17 @@
+"VertexLitGeneric"
+{
+	$basetexture 				"$invis"
+	// $bumpmap					"models/moo/codz_props/t6/alcatraz/p6_anim_zm_al_magic_box/_vtfs/p6_zm_al_magic_box_lock_n"
+	// $phongexponenttexture		"models/moo/codz_props/t6/alcatraz/p6_anim_zm_al_magic_box/_vtfs/p6_zm_al_magic_box_lock_g"
+   
+	
+	$nodecal "1"
+	$translucent "1"
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/moo/codz_props/t6/alcatraz/p6_anim_zm_al_magic_box/_vtfs/p6_zm_al_magic_box_question_c"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[1 1 1]"
+	"$emissiveBlendStrength" "1"
+}

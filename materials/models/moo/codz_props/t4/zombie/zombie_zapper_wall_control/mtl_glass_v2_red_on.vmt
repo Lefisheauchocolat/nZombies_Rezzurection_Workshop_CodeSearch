@@ -1,0 +1,24 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t4/zombie/zombie_zapper_wall_control/_vtfs/glass_v2_red_on_c"
+	$bumpmap					""
+	$phongexponenttexture		""
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/moo/codz_props/t4/zombie/zombie_zapper_wall_control/_vtfs/glass_v2_red_on_c"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[1 1 1]"
+	"$emissiveBlendStrength" "0.75"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.1 .1 .1]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

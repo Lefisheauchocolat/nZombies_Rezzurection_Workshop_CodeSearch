@@ -1,0 +1,22 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/t4_zombies/harrenhaus/_vtfs/char_ger_zombie_arms_c"
+	$bumpmap					"models/moo/codz/t4_zombies/harrenhaus/_vtfs/c_ger_zombie_head3_n"
+	$phongexponenttexture		"models/moo/codz/t4_zombies/harrenhaus/_vtfs/c_ger_zombie_head3_g"
+
+    $detail                     "models/moo/codz/t4_zombies/common/_vtfs/skin_pore_detail"
+    $detailblendmode "0"
+    $detailblendfactor "3"
+    $detailscale "[15 15]"
+    
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.12"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.001 .001 .001]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

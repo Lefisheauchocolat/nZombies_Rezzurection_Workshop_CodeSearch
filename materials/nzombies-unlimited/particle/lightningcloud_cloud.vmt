@@ -1,0 +1,24 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "nzombies-unlimited/particle/a_lightningcloud"
+	$vertexcolor 1
+	$vertexalpha 1
+	//$translucent 1
+	//$additive 1
+
+	//$selfillum 1
+	$detail "nzombies-unlimited/particle/a_lightningcloud_mask"
+	$detailscale 1
+	$detailblendfactor 1
+	$detailblendmode 6
+
+	"Proxies"
+	{
+		"AnimatedTexture"
+		{
+			"animatedTextureVar" "$basetexture"
+			"animatedTextureFrameNumVar" "$frame"
+			"animatedTextureFrameRate" "2"
+		}
+	}
+}

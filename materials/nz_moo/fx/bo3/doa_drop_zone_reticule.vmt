@@ -1,0 +1,7 @@
+"Sprite"
+{
+	$basetexture 	"nz_moo/fx/bo3/fxt_ui_doa_drop_zone_reticule"
+	$additive 		1
+	$spriterendermode 	5
+	$overbrightfactor 	1.2
+}

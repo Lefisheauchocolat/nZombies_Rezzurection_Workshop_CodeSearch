@@ -1,0 +1,21 @@
+"UnlitTwoTexture"
+{
+	"$baseTexture" 		"models/moo/codz_props/t6/zm/p6_zm_tm_packapunch/_vtfs/p6_zm_tm_elm_spawn_glow_01_c"
+	"$Texture2" 		"models/moo/codz_props/t6/zm/p6_zm_tm_packapunch/_vtfs/light_space_ceiling_02_c"
+	"$nocull" 			"1"	
+	"$nodecal" 			"1"
+	"$additive" 		"1"
+	"$no_fullbright" 	"1"
+	"$model" 			"1"
+	"$nofog" 			"1"
+	
+	"Proxies"
+	{
+		"TextureScroll"
+		{
+			"texturescrollvar" "$texture2transform"
+			"texturescrollrate" 0.45
+			"texturescrollangle" 90
+		}
+	}
+}

@@ -1,0 +1,9 @@
+"UnlitGeneric"
+{
+	"$basetexture" "nz_moo/huds/t7_zod/uie_t7_zm_hud_rnd_spk2"
+	$additive "1"
+
+	$ignorez "1"
+	$vertexcolor "1"
+	$vertexalpha "1"
+}

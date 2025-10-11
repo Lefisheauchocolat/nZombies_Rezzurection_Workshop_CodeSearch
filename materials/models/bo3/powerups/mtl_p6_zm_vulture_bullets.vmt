@@ -1,0 +1,22 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/bo3/powerups/i_mtl_p6_zm_bu_zombie_ammo_bullet_spc"
+	$bumpmap				"models/bo3/powerups/i_mtl_p6_zm_bu_zombie_ammo_bullet_n"
+	$phongexponenttexture	"models/bo3/powerups/i_mtl_p6_zm_bu_zombie_ammo_bullet_s"
+	$color2 "[.25 .25 .25]"
+
+	$phong	"1"
+	$phongboost	"15"
+	$phongfresnelranges	"[.78 .9 1]"
+	$phongalbedotint "1"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"{255 198 50}"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+
+	$rimlight	"1"
+	$rimmask	"1"
+	$rimlightboost	"1"
+	$rimlightexponent	"2"
+}

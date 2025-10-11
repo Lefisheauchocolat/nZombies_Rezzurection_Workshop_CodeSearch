@@ -1,0 +1,26 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t4/zombie/zombie_power_lever/_vtfs/zombie_power_lever_c"
+	$bumpmap					"models/moo/codz_props/t4/zombie/zombie_power_lever/_vtfs/zombie_power_lever_n"
+	$phongexponenttexture		"models/moo/codz_props/t4/zombie/zombie_power_lever/_vtfs/zombie_power_lever_s"
+	
+	$nodecal "1"
+
+	$phongalbedotint "1"
+    $phong "1"
+    $phongboost    "0.1"
+    $phongfresnelranges    "[1 1.05 1.25]"
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/moo/codz_props/t4/zombie/zombie_power_lever/_vtfs/zombie_power_bulb_e"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[1 1 1]"
+	"$emissiveBlendStrength" "0.85"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.05 .05 .05]"
+    $basealphaenvmapmask   "1"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

@@ -1,0 +1,41 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/t5_zombies/temple/_vtfs/c_viet_zombie_napalm_body_c"
+	$bumpmap					"models/moo/codz/t5_zombies/temple/_vtfs/c_viet_zombie_napalm_body_n"
+	$phongexponenttexture		"models/moo/codz/t5_zombies/temple/_vtfs/c_viet_zombie_napalm_body_g"
+
+    $detail                     "models/moo/codz/t5_zombies/_common/_vtfs/skin_pore_detail_test"
+    $detailblendmode "0"
+    $detailblendfactor "3"
+    $detailscale "[15 15]"
+    
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.05"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		"models/moo/codz/t5_zombies/temple/_vtfs/zombie_napalm_burnt_e"
+	"$emissiveBlendBaseTexture" "models/moo/codz/t5_zombies/temple/_vtfs/c_viet_zombie_napalm_body_e"
+    $emissiveblendflowtexture    "models/vortigaunt/vortigaunt_flow"
+	"$emissiveBlendTint" "[5 3 3]"
+	"$emissiveBlendStrength" "1"
+    $emissiveblendscrollvector    "[0.01 0.01]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.001 .001 .001]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+
+	Proxies
+    {
+        Sine
+        {
+            resultVar    $emissiveBlendStrength
+            sineperiod    1.85
+            sinemin        0.65
+            sinemax        1
+        }
+    }
+}

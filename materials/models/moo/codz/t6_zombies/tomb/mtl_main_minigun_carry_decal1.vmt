@@ -1,0 +1,23 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/t6_zombies/tomb/_vtfs/t5_weapon_carry_minigun_decal_c"
+    $bumpmap                    "null-bumpmap"
+	//$phongexponenttexture		""
+
+	$nodecal "1"
+
+    $detail                     "models/moo/codz/t4_zombies/common/_vtfs/metal_bumps_n"
+    $detailblendmode "0"
+    $detailblendfactor "0.5"
+    $detailscale "[6 6]"
+    
+	$phong	"1"
+	$phongexponent "1"
+	$phongboost	"0.05"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.001 .001 .001]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}
