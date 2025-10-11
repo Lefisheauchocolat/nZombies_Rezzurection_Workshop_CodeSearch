@@ -1,0 +1,36 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t7/zm_evil_xmas/polar_beer/_vtfs/i_zm_vending_polar_beer_aluminum_c"
+	$bumpmap					"gm_construct/construct_concrete_ground_normal"
+	//$phongexponenttexture		""
+	$phongexponent			45
+
+	$detail "models/moo/codz_props/t7/zm_evil_xmas/polar_beer/_vtfs/i_zm_vending_polar_beer_aluminum_c"
+	$detailscale 0.85
+	$detailblendmode 1
+	$detailblendfactor 1
+
+	$nodecal "1"
+
+	$color2 "[ 0.9 0.92 1 ]"
+
+	$phong	"1"
+	$phongboost	"25"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.01 .01 .05]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+
+	"Proxies"
+    {
+
+    	"TextureScroll"
+        {
+        	"texturescrollvar" "$detailtexturetransform"
+        	"texturescrollrate" 0.005
+        	"texturescrollangle" 45
+        }
+    }
+}

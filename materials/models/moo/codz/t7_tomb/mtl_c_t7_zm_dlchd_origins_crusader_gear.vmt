@@ -1,0 +1,21 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/moo/codz/t7_tomb/vtfs/i_c_t7_zm_dlchd_origins_crusader_gear_c"
+	"$bumpmap" "models/moo/codz/t7_tomb/vtfs/i_c_t7_zm_dlchd_origins_crusader_gear_n"
+	"$model" 1
+	
+	"$phong" "1"
+	"$phongboost" "1.35"
+	"$phongexponent" "15"
+	"$phongfresnelranges" "[2 1.2 8]"
+	"$phongalbedotint" "1"
+	"$normalmapalphaenvmapmask" "1"
+
+	"$cloakPassEnabled" 		"1"				
+	"$nocull" "1"
+
+	"$detail" "models/moo/codz/t7_tomb/vtfs/i_c_t7_zm_dlchd_origins_crusader_gear_s"
+	"$detailscale" "1"        
+	"$detailblendfactor" "0.05" 
+	"$detailblendmode" "1"
+}

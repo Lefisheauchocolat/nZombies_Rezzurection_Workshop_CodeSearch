@@ -1,0 +1,31 @@
+"VertexLitGeneric" 
+{
+	$basetexture				"models/nz/perks/bo3/shared/water_d"
+
+	$selfillum "1"
+	$selfillummask				"models/nz/perks/bo3/shared/water_e"
+	$selfillumtint				"{255 0 53}"
+	
+	$emissiveblendenabled		"1"
+	$emissiveblendstrength		"1"
+	$emissiveblendtexture		"vgui/white"
+	$emissiveblendbasetexture	"models/nz/perks/bo3/shared/water_e"
+	$emissiveblendflowtexture	"vgui/white"
+	$emissiveblendtint			"{255 0 53}"
+	$emissiveblendscrollvector	"[0 0]"
+	
+	$detail						"models/nz/perks/bo3/shared/bubbles_d"
+	$detailblendmode "5"
+	$detailblendfactor "4"
+	$detailscale "[2 2]"
+	
+	Proxies
+	{
+		TextureScroll
+		{
+			"textureScrollVar" $detailtexturetransform
+			"textureScrollRate" 0.15
+			"textureScrollAngle" 90
+		}
+	}
+}

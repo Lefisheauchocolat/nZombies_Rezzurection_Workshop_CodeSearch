@@ -1,0 +1,28 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/t7_temple/boss/_vtfs/i_c_t7_zm_dlchd_shangrila_napalm_head_c"
+	$bumpmap					"models/moo/codz/t7_temple/boss/_vtfs/i_c_t7_zm_dlchd_shangrila_napalm_head_n"
+	//$phongexponenttexture		"models/moo/codz/t7_temple/boss/_vtfs/i_c_t8_zmb_male_shirt_1_g"
+
+	$phong	"0"
+	$phongboost	"0"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	//$detail models/moo/codz/_common/_vtfs/char_base_fabric_cotton_n
+	//$detailscale 3
+	//$detailblendfactor 1
+	//$detailblendmode 0
+
+	"$emissiveBlendEnabled" "1"
+	"$emissiveBlendTexture" "models/i_generic_lookup"
+	"$emissiveBlendBaseTexture" "models/moo/codz/t7_temple/boss/_vtfs/i_c_t7_zm_dlchd_shangrila_napalm_head_e"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[10 0.5 0]"
+	"$emissiveBlendStrength" "1"
+	"$emissiveBlendScrollVector" "[0 0.1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.05 .05 .05]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

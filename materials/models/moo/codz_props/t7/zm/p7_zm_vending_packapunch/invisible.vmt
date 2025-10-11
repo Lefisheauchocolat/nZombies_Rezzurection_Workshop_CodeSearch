@@ -1,0 +1,5 @@
+VertexLitGeneric
+{
+    $basetexture "models/moo/codz_props/t7/zm/p7_zm_vending_packapunch/_vtfs/$invis"
+    $translucent 1
+}

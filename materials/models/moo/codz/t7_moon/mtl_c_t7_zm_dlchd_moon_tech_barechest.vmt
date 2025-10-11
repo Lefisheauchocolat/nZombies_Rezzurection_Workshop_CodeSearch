@@ -1,0 +1,22 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/t7_moon/_vtfs/i_c_t7_zm_dlchd_moon_tech_barechest_c"
+	$bumpmap					"models/moo/codz/t7_moon/_vtfs/i_c_t7_zm_dlchd_moon_tech_barechest_n"
+	$phongexponenttexture		"models/moo/codz/t7_moon/_vtfs/i_c_t7_zm_dlchd_moon_tech_barechest_g"
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.1"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$detail models/moo/codz/_common/_vtfs/skin_pore_detail
+	$detailscale 45
+	$detailblendfactor 1.5
+	$detailblendmode 0
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.05 .05 .05]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

@@ -1,0 +1,8 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/moo/codz/t7_temple/_vtfs/i_c_t7_zm_dlchd_shangrila_fem_hair_c"
+	"$bumpmap" "models/moo/codz/t7_temple/_vtfs/i_c_t7_zm_dlchd_shangrila_fem_hair_n"
+	"$model" 1
+	"$nocull" "1"
+	$alphatest 1
+}

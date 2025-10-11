@@ -1,0 +1,8 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/moo/codz/t8_office/_vtfs/i_c_t8_zmb_ofc_quad_pants_c"
+	"$bumpmap" "models/moo/codz/t8_office/_vtfs/i_c_t8_zmb_ofc_quad_pants_n"
+	"$nocull" "1"
+	$alphatest 1
+	"$model" 1
+}

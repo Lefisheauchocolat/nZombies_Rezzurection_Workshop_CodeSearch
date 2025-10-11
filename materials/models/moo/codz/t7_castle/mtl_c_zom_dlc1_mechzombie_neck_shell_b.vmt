@@ -1,0 +1,30 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/moo/codz/t7_castle/_vtfs/i_c_zom_dlc1_mechzombie_neck_shell_b_d"
+	$bumpmap				"models/moo/codz/t7_castle/_vtfs/i_c_zom_dlc1_mechzombie_neck_shell_b_n"
+	$phongexponenttexture	"models/moo/codz/t7_castle/_vtfs/i_c_zom_dlc1_mechzombie_neck_shell_b_s"
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"5"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.25 .25 .25]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+
+	$rimlight	"1"
+	$rimmask	"1"
+	$rimlightboost	"1"
+	$rimlightexponent	"2"
+	
+	$emissiveblendenabled		"1"
+	$emissiveblendstrength		"1"
+	$emissiveblendtexture		"vgui/white"
+	$emissiveblendbasetexture	"models/moo/codz/t7_castle/_vtfs/i_c_zom_dlc1_mechzombie_neck_shell_b_e"
+	$emissiveblendflowtexture	"vgui/white"
+	$emissiveblendtint			"[1 1 0.4]"
+	$emissiveblendscrollvector	"[0 0]"
+}

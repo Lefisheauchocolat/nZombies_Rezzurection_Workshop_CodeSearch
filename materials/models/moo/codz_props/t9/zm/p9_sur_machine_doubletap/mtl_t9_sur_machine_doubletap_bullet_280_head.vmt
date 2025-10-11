@@ -1,0 +1,20 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t9/zm/p9_sur_machine_doubletap/_vtfs/mtl_t9_sur_machine_doubletap_bullet_280_c"
+	$bumpmap					"null-bumpmap"
+	$phongexponenttexture		"models/moo/codz_props/t9/zm/p9_sur_machine_doubletap/_vtfs/core_metal_rusty_g"
+
+	$nodecal "1"
+
+	$color2 "{53 44 33}"
+
+	$phong	"1"
+	$phongboost	"3"
+	$phongtint "{151 107 63}"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

@@ -1,0 +1,24 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t7/zm/p7_zm_vending_flopper/_vtfs/ximage_788db3f0d37f435"
+	$bumpmap					"models/moo/codz_props/t7/zm/p7_zm_vending_flopper/_vtfs/ximage_788d83f0d37ef1c"
+	$phongexponenttexture		"models/moo/codz_props/t7/zm/p7_zm_vending_flopper/_vtfs/ximage_788d83f0d37ef1c_g"
+
+	$detail "models/moo/codz_props/t7/zm/p7_zm_vending_flopper/_vtfs/i_t7_micro_metal_rust_n"
+	$detailscale 5
+	$detailblendfactor .65
+	$detailblendmode 0
+
+	$nodecal "1"
+
+	$color2 "{245 169 184}"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.1 .1 .1]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

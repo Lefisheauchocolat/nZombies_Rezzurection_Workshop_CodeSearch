@@ -1,0 +1,17 @@
+"UnlitGeneric"
+{
+	$basetexture			"models/moo/codz/t8_zombies/_vtfs/ximage_b68713167d4d6b1_e"
+	$color2 "[3.882 6.314 8.078]"
+
+	$nodecal "1"
+	
+	Proxies
+	{
+		TextureScroll
+		{
+			"textureScrollVar" "$basetexturetransform"
+			"textureScrollRate" "4"
+			"textureScrollAngle" "30"
+		}
+	}
+}

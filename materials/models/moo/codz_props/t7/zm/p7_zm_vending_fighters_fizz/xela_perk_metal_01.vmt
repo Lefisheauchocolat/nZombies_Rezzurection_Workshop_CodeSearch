@@ -1,0 +1,17 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t7/zm/p7_zm_vending_fighters_fizz/_vtfs/xela_fighter_fizz_xela_perk_metal_01_c"
+	$bumpmap					"models/moo/codz_props/t7/zm/p7_zm_vending_fighters_fizz/_vtfs/xela_fighter_fizz_xela_perk_metal_01_n"
+	$phongexponenttexture		"models/moo/codz_props/t7/zm/p7_zm_vending_fighters_fizz/_vtfs/xela_fighter_fizz_xela_perk_metal_01_g"
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.1 .1 .1]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

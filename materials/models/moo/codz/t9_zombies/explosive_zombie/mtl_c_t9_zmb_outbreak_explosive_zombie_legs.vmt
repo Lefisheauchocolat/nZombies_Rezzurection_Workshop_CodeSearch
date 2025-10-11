@@ -1,0 +1,37 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/t9_zombies/explosive_zombie/_vtfs/ximage_af21bde7183f746"
+	$bumpmap					"models/moo/codz/t9_zombies/explosive_zombie/_vtfs/ximage_af228de71840d5d"
+	$phongexponenttexture		"models/moo/codz/t9_zombies/explosive_zombie/_vtfs/ximage_af21fde7183fe12"
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.05"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" "1"
+	"$emissiveBlendTexture" 		"vgui/white"
+	"$emissiveBlendBaseTexture" "models/moo/codz/t9_zombies/explosive_zombie/_vtfs/ximage_af21dde7183faac"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[1 1 1]"
+	"$emissiveBlendStrength" "1"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+	
+	Proxies
+    {
+        Sine
+        {
+            resultVar    $emissiveBlendStrength
+            sineperiod    0.25
+            sinemin        0.75
+            sinemax        1
+			timeoffset	0
+
+        }
+    }
+}

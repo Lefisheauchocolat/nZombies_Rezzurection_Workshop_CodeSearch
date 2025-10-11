@@ -1,0 +1,22 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t8/zm_red/p8_zm_red_floatie_duck/_vtfs/i_mtl_p7_spl_animal_floatie_duck_c"
+	$bumpmap					"models/moo/codz_props/t8/zm_red/p8_zm_red_floatie_duck/_vtfs/i_mtl_p7_spl_animal_floatie_duck_n"
+	$phongexponenttexture		"models/moo/codz_props/t8/zm_red/p8_zm_red_floatie_duck/_vtfs/i_mtl_p7_spl_animal_floatie_duck_g"
+
+	$nodecal "1"
+
+    $detail                     "models/moo/codz_props/t8/zm_red/p8_zm_red_floatie_duck/_vtfs/i_t7_detail_carpet_03"
+    $detailblendmode "0"
+    $detailblendfactor "0.5"
+    $detailscale "[6 6]"
+    
+	$phong	"1"
+	$phongboost	"0.65"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

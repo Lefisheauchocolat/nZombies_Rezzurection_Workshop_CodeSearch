@@ -1,0 +1,27 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/moo/codz/t7_castle/_vtfs/i_c_zom_der_zombie_body1_d"
+	$bumpmap				"models/moo/codz/t7_castle/_vtfs/i_c_zom_der_zombie_body1_n"
+	$phongexponenttexture	"models/moo/codz/t7_castle/_vtfs/i_c_zom_der_zombie_body1_s"
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"5"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.25 .25 .25]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+
+	$rimlight	"1"
+	$rimmask	"1"
+	$rimlightboost	"1"
+	$rimlightexponent	"2"
+	
+	$detail	"models/moo/codz/t7_castle/_vtfs/i_c_gen_char_d"
+	$detailblendmode "0"
+	$detailblendfactor "1"
+	$detailscale "[5 5]"
+}

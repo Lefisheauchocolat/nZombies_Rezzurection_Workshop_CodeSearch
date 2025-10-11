@@ -1,0 +1,24 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t7/zm/p7_zm_vending_marathon/_vtfs/i_t7_micro_wood_rough_01_c"
+	$bumpmap					"models/moo/codz_props/t7/zm/p7_zm_vending_marathon/_vtfs/i_mtl_p7_zm_vending_marathon_wood_n"
+	$phongexponenttexture		"models/moo/codz_props/t7/zm/p7_zm_vending_marathon/_vtfs/i_mtl_p7_zm_vending_marathon_wood_g"
+
+    $detail                     "models/moo/codz_props/t7/zm/p7_zm_vending_marathon/_vtfs/i_t7_micro_wood_varied_teak_n"
+    $detailblendmode "0"
+    $detailblendfactor "2"
+    $detailscale "[2 2]"
+    
+	$nodecal "1"
+
+	$color2 "[9 6 3]"
+
+	$phong	"1"
+	$phongboost	"0.075"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

@@ -1,0 +1,18 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/t7_castle/_vtfs/mtl_p7_skulls_bones_set_c"
+	$bumpmap 					"models/moo/codz/t7_castle/_vtfs/mtl_p7_skulls_bones_set_n"
+	//$phongexponenttexture		"models/moo/codz/t7_giant/_vtfs/i_c_zom_der_zombie_body1_g"
+
+	"$model" 1
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.15"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.05 .05 .05]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

@@ -1,0 +1,10 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/weapons/tfa_bo3/demonbow/i_c_t7_dlc1_zom_chomper_demongate_c"
+	$bumpmap				"models/weapons/tfa_bo3/demonbow/i_c_t7_dlc1_zom_chomper_demongate_n"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+	$phongexponent "33"
+}

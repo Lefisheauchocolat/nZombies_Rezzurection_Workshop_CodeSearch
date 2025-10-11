@@ -1,0 +1,20 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t7/zm/p7_zm_vending_three_gun/_vtfs/i_mtl_p7_zm_vending_three_gun_metal_01_green_m"
+	$bumpmap					"models/moo/codz_props/t7/zm/p7_zm_vending_three_gun/_vtfs/i_mtl_p7_zm_vending_three_gun_metal_01_n"
+	//$phongexponenttexture		""
+
+	$nodecal "1"
+
+	$color2 "{50 100 50}"
+
+	$phong	"1"
+	$phongboost	"0.5"
+	$phongexponent "25"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.075 .075 .075]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

@@ -1,0 +1,21 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/nz/perks/bo3/vtfs/logo_cherry"
+	$bumpmap				"models/nz/perks/bo3/shared/paper_n"
+	$phongexponenttexture	"models/nz/perks/bo3/shared/paper_s"
+	$translucent "1"
+
+	$phong	"1"
+	$phongboost	"5"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.25 .25 .25]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+
+	$rimlight	"1"
+	$rimmask	"1"
+	$rimlightboost	"1"
+	$rimlightexponent	"2"
+}

@@ -1,0 +1,41 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/t9_zombies/explosive_zombie/_vtfs/ximage_5a15fd3bba2844f"
+	$bumpmap					"models/moo/codz/t9_zombies/explosive_zombie/_vtfs/ximage_5a162d3bba28968"
+	$phongexponenttexture		"models/moo/codz/t9_zombies/explosive_zombie/_vtfs/ximage_c29a4f89a9dc3c5"
+
+    $detail                        "models/moo/codz_props/t6/zm/p6_zm_tm_packapunch_red/_vtfs/mtl_p6_zm_tm_crystal_bubbles_red_c"
+    $detailblendmode "1"
+    $detailblendfactor "15"
+    $detailscale "[0.75 0.75]"
+    
+	$nodecal "1"
+
+	$color2 "{255 0 0}"
+
+	$phong	"1"
+	$phongboost	"0.3"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" "1"
+	"$emissiveBlendTexture" 		"vgui/white"
+	"$emissiveBlendBaseTexture" "models/moo/codz/t9_zombies/explosive_zombie/_vtfs/ximage_5a15fd3bba2844f_e"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[50 2 0.1]"
+	"$emissiveBlendStrength" "1"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.001 .001 .001]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+
+	Proxies
+    {
+        TextureScroll
+        {
+            "textureScrollVar" $detailtexturetransform
+            "textureScrollRate" 0.015
+            "textureScrollAngle" 90
+        }
+    }
+}

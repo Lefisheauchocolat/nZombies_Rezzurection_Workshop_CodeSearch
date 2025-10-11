@@ -1,0 +1,35 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/t8_zombies/mansion/werewolf/_vtfs/i_c_t8_zmb_dlc1_werewolf_torso_c"
+	$bumpmap					"models/moo/codz/t8_zombies/mansion/werewolf/_vtfs/i_c_t8_zmb_dlc1_werewolf_torso_n"
+	$phongexponenttexture		"models/moo/codz/t8_zombies/mansion/werewolf/_vtfs/i_c_t8_zmb_dlc1_werewolf_torso_g"
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.1"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/moo/codz/t8_zombies/mansion/werewolf/_vtfs/i_c_t8_zmb_dlc1_werewolf_torso_e"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[1 1 1]"
+	"$emissiveBlendStrength" "1"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.01 .01 .01]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+
+	Proxies
+    {
+        Sine
+        {
+            resultVar    $emissiveBlendStrength
+            sineperiod    2.75
+            sinemin        0.25
+            sinemax        1
+        }
+    }
+}

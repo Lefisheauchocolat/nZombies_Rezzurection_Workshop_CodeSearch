@@ -1,0 +1,30 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/moo/codz/t7_genesis/vtfs/keeper/i_c_zom_dlc4_shadowman_tattered_parts_c"
+	"$bumpmap" "models/moo/codz/t7_genesis/vtfs/keeper/i_c_zom_dlc4_shadowman_tattered_parts_n"
+
+	//$decal 1
+
+	$alphatest 1
+
+	//"$phong" "1"
+	//"$phongboost" "3.5"
+	//"$phongexponent" "10"
+	//"$phongfresnelranges" "[2 1.2 8]"
+	//"$phongalbedotint" "1"
+	//"$normalmapalphaenvmapmask" "1"
+
+	//"$phongexponenttexture" "models/CoDVanguard\other\exponent"
+
+
+	//"$cloakPassEnabled" 		"1"				
+	"$nocull" "1"
+
+	//"$detail" "models/CoDVanguard\other\specular"
+	//"$detailscale" "1"        
+	//"$detailblendfactor" "0.05" 
+	//"$detailblendmode" "1"
+
+	//"$color2" "[.8 .8 .8]"
+
+}

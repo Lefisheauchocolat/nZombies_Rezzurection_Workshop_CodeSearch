@@ -1,0 +1,24 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t7/zm/p7_zm_vending_flopper/_vtfs/ximage_41923e43e875a94"
+	$bumpmap					"models/moo/codz_props/t7/zm/p7_zm_vending_flopper/_vtfs/ximage_41918e43e8747e3"
+	$phongexpoximage_41918e43e8747e3_gnenttexture		"models/moo/codz_props/t7/zm/p7_zm_vending_flopper/_vtfs/ximage_41918e43e8747e3_g"
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/moo/codz_props/t7/zm/p7_zm_vending_flopper/_vtfs/ximage_41923e43e875a94"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[1 1 1]"
+	"$emissiveBlendStrength" "1"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.1 .1 .1]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

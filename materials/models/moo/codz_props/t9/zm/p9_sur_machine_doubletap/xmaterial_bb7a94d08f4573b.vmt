@@ -1,0 +1,23 @@
+"VertexLitGeneric"
+{
+    $basetexture                 "models/nz/perks/cold_war_can/vtfs/cangeneric/can_gloss"
+    $bumpmap                    "models/nz/perks/cold_war_can/vtfs/cangeneric/can_nml"
+    $phongexponenttexture        "models/nz/perks/cold_war_can/vtfs/cangeneric/can_col"
+
+    $color2 "{ 153 112 32 }"
+
+    $phong    "1"
+    $phongboost    "25"
+    $phongfresnelranges    "[.78 .9 1]"
+    $phongalbedotint "1"
+
+    $envmap "env_cubemap"
+    $envmaptint    "{ 153 112 32 }"
+    $normalmapalphaenvmapmask    "1"
+    $envmapfresnel    "1"
+
+    $rimlight    "1"
+    $rimmask    "1"
+    $rimlightboost    "1"
+    $rimlightexponent    "2"
+}

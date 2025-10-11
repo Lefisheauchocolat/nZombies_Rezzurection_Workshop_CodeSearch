@@ -1,0 +1,19 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t8/zm_orange/p8_zm_ora_dynamite_bundle/_vtfs/ximage_e7dafa4044323bc"
+	//$bumpmap					""
+	//$phongexponenttexture		""
+
+	$nodecal "1"
+	$alphatest "1"
+	$decal "1"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.1 .1 .1]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

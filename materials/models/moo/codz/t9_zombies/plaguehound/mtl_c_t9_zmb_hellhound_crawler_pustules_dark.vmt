@@ -1,0 +1,12 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/moo/codz/t9_zombies/plaguehound/_vtfs/i_c_t9_zmb_hellhound_crawler_pustules_c"
+	//$bumpmap				"models/moo/codz/t8_zombies/_vtfs/ximage_34176cdda0758bc"
+	//$phongexponenttexture	"models/moo/codz/t8_zombies/_vtfs/ximage_34177cdda075a6f"
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"5"
+	$phongfresnelranges	"[.78 .9 1]"
+}

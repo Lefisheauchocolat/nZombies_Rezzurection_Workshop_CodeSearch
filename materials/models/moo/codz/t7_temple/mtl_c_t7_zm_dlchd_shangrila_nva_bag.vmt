@@ -1,0 +1,21 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/moo/codz/t7_temple/_vtfs/i_c_t7_zm_dlchd_shangrila_nva_bag_c"
+	"$bumpmap" "models/moo/codz/t7_temple/_vtfs/i_c_t7_zm_dlchd_shangrila_nva_bag_n"
+	"$model" 1
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.55 .9 0]"
+	$phongexponenttexture	"models/moo/codz/t7_temple/_vtfs/i_c_t7_zm_dlchd_shangrila_nva_bag_g"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.05 .05 .05]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+
+	"$detail" "models/moo/codz/t7_temple/_vtfs/i_c_t7_zm_dlchd_shangrila_nva_bag_s"
+	"$detailscale" "1"        
+	"$detailblendfactor" "0.05" 
+	"$detailblendmode" "1"
+	"$model" 1
+}

@@ -1,0 +1,20 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t7/zm/p7_zm_vending_widows_wine/_vtfs/i_mtl_p7_zm_vending_widows_wine_decal_ww_c"
+	$bumpmap					"null-bumpmap"
+	//$phongexponenttexture		""
+
+	$nodecal "1"
+	$translucent "1"
+
+	$color2 "{255 255 255}"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.0075 .0075 .0075]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

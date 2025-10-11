@@ -1,0 +1,6 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/moo/codz/t8_red/skeleton/_vtfs/i_c_t8_zmb_dlc2_spartoi_eyeglow_c"
+	"$selfillum" 1
+	"$model" 1
+}

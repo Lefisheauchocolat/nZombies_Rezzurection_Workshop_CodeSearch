@@ -1,0 +1,18 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t7/zm/p7_zm_vending_madgaz_moonshine/_vtfs/i_mtl_madgaz_moonshine_c"
+	$bumpmap					"models/moo/codz_props/t7/zm/p7_zm_vending_madgaz_moonshine/_vtfs/i_mtl_madgaz_moonshine_n"
+	$phongexponenttexture		"models/moo/codz_props/t7/zm/p7_zm_vending_madgaz_moonshine/_vtfs/i_mtl_madgaz_moonshine_g"
+
+	$nodecal "1"
+	$translucent "1"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.1 .1 .1]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

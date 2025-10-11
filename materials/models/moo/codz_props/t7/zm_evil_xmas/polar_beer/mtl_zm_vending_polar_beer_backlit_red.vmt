@@ -1,0 +1,17 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t7/zm_evil_xmas/polar_beer/_vtfs/i_zm_vending_polar_beer_backlit_red_c"
+	$bumpmap					"models/moo/codz_props/t7/zm_evil_xmas/polar_beer/_vtfs/i_zm_vending_polar_beer_backlit_red_n"
+	$phongexponenttexture		"models/moo/codz_props/t7/zm_evil_xmas/polar_beer/_vtfs/i_zm_vending_polar_beer_backlit_red_g"
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.1 .1 .1]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

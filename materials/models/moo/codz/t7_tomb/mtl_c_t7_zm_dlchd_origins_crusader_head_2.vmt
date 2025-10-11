@@ -1,0 +1,14 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/moo/codz/t7_tomb/vtfs/i_c_t7_zm_dlchd_origins_crusader_head_2_c"
+	"$bumpmap" "models/moo/codz/t7_tomb/vtfs/i_c_t7_zm_dlchd_origins_crusader_head_2_n"
+	"$model" 1
+
+	"$emissiveBlendEnabled" "1"
+	"$emissiveBlendTexture" "models/i_generic_lookup"
+	"$emissiveBlendBaseTexture" "models/moo/codz/t7_tomb/vtfs/i_c_t7_zm_dlchd_origins_crusader_head_2_e"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[0 2.5 10]"
+	"$emissiveBlendStrength" "1"
+	"$emissiveBlendScrollVector" "[0 0.1]"
+}

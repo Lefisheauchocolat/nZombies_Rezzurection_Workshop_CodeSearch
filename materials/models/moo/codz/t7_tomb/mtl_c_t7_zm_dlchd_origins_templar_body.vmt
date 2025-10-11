@@ -1,0 +1,6 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/moo/codz/t7_tomb/vtfs/i_c_t7_zm_dlchd_origins_crusader_body_c"
+	"$bumpmap" "models/moo/codz/t7_tomb/vtfs/i_c_t7_zm_dlchd_origins_crusader_body_n"
+	"$model" 1
+}

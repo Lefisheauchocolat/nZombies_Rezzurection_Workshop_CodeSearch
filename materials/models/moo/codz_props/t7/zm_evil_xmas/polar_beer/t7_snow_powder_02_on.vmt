@@ -1,0 +1,24 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t7/zm_evil_xmas/polar_beer/_vtfs/i_t7_snow_powder_02_c"
+	$bumpmap					"gm_construct/construct_concrete_ground_normal"
+	$phongexponenttexture		"models/moo/codz_props/t7/zm_evil_xmas/polar_beer/_vtfs/i_t7_sand_smooth_01_g"
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/moo/codz_props/t7/zm_evil_xmas/polar_beer/_vtfs/i_t7_snow_powder_02_c"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[0.2 0.6 0.75]"
+	"$emissiveBlendStrength" "1"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.1 .1 .1]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

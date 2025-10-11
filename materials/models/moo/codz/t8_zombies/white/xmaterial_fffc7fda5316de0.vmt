@@ -1,0 +1,23 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/moo/codz/t8_zombies/_vtfs/ximage_45d6f7289cf5fc1_c"
+	$bumpmap				"models/moo/codz/t8_zombies/_vtfs/ximage_45d6a7289cf5742_n"
+
+	$nodecal "1"
+	$selfillum "1"
+	$selfillummask "models/moo/codz/t8_zombies/_vtfs/ximage_45d6f7289cf5fc1_c"
+	$selfillumtint "[3 7 10]"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+	$phongexponent "33"
+
+	$emissiveblendenabled		"1"
+	$emissiveblendstrength		"1"
+	$emissiveblendtexture		"vgui/white"
+	$emissiveblendbasetexture	"models/moo/codz/t8_zombies/_vtfs/ximage_45d6f7289cf5fc1_c"
+	$emissiveblendflowtexture	"vgui/white"
+	$emissiveblendtint			"[3 7 10]"
+	$emissiveblendscrollvector	"[0 0]"
+}

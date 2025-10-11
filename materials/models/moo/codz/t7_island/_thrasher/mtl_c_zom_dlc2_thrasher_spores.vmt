@@ -1,0 +1,25 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/moo/codz/t7_island/_thrasher/_vtfs/i_c_zom_dlc2_thrasher_spores_c"
+	$bumpmap			"models/moo/codz/t7_island/_thrasher/_vtfs/i_c_zom_dlc2_thrasher_spores_n"
+	$phongexponenttexture		"models/moo/codz/t7_island/_thrasher/_vtfs/i_c_zom_dlc2_thrasher_spores_g"
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.05"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.05 .05 .05]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+		
+	$emissiveblendenabled		"1"
+	$emissiveblendstrength		"1"
+	$emissiveblendtexture		"vgui/white"
+	$emissiveblendbasetexture	"models/moo/codz/t7_island/_thrasher/_vtfs/i_c_zom_dlc2_thrasher_spores_e"
+	$emissiveblendflowtexture	"vgui/white"
+	$emissiveblendtint			"[1 1 1]"
+	$emissiveblendscrollvector	"[0 0 0]"
+}

@@ -1,0 +1,20 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t9/zm/p9_sur_machine_doubletap/_vtfs/i_t7_micro_metal_handrail_01_c"
+	$bumpmap					"null-bumpmap"
+	$phongexponenttexture		"models/moo/codz_props/t9/zm/p9_sur_machine_doubletap/_vtfs/i_t7_micro_metal_painted_01_g"
+
+	$nodecal "1"
+
+	$color2 "{203 174 105}"
+
+	$phong	"1"
+	$phongboost	"2"
+	$phongtint "{255 219 145}"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

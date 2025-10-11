@@ -1,0 +1,26 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t7/zm/p7_zm_vending_timeslip/_vtfs/mtl_p7_zm_vending_timeslip_stand_c"
+	$bumpmap					"models/moo/codz_props/t7/zm/p7_zm_vending_timeslip/_vtfs/mtl_p7_zm_vending_timeslip_stand_n"
+	$phongexponenttexture		"models/moo/codz_props/t7/zm/p7_zm_vending_timeslip/_vtfs/mtl_p7_zm_vending_timeslip_stand_g"
+
+	$nodecal "1"
+
+	$color2 "[0.506722 1 0.37496]"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/moo/codz_props/t7/zm/p7_zm_vending_timeslip/_vtfs/mtl_p7_zm_vending_timeslip_stand_c"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[0.506722 1 0.37496]"
+	"$emissiveBlendStrength" "0.35"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.1 .1 .1]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

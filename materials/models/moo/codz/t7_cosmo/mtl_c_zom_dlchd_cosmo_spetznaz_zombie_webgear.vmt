@@ -1,0 +1,6 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/moo/codz/t7_cosmo/_vtfs/i_c_zom_dlchd_cosmo_spetznaz_zombie_webgear_c"
+	"$bumpmap" "models/moo/codz/t7_cosmo/_vtfs/i_c_zom_dlchd_cosmo_spetznaz_zombie_webgear_n"
+	"$model" 1
+}

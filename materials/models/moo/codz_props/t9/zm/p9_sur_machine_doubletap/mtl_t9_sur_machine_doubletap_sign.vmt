@@ -1,0 +1,17 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t9/zm/p9_sur_machine_doubletap/_vtfs/mtl_t9_sur_machine_doubletap_logo_c"
+	$bumpmap					"null-bumpmap"
+	$phongexponenttexture		"models/moo/codz_props/t9/zm/p9_sur_machine_doubletap/_vtfs/mtl_t9_sur_machine_doubletap_logo_g"
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.5"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

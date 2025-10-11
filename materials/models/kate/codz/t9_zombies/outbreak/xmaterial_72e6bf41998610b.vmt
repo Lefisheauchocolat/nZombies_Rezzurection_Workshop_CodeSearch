@@ -1,0 +1,23 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/kate/codz/t9_zombies/outbreak/_vtfs/ximage_67eda3697f26c7e"
+	$bumpmap					"models/kate/codz/t9_zombies/outbreak/_vtfs/ximage_67ed13697f25d33" // Normal
+	$phongexponenttexture		"models/kate/codz/t9_zombies/outbreak/_vtfs/ximage_67ed03697f25b80" // Gloss
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.25"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" "1"
+	"$emissiveBlendTexture" 		"vgui/white"
+	"$emissiveBlendBaseTexture" "models/kate/codz/t9_zombies/outbreak/_vtfs/ximage_67edc3697f26fe4" // Emmissive
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[1 1 1]"
+	"$emissiveBlendStrength" "1"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.05 .05 .05]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

@@ -1,0 +1,17 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/moo/codz/t8_zombies/_vtfs/ximage_421b2d3647aeb7c"
+	$bumpmap				"models/moo/codz/t8_zombies/_vtfs/ximage_421b7d3647af3fb"
+	$phongexponenttexture	"models/moo/codz/t8_zombies/_vtfs/ximage_421aed3647ae4b0"
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.01"
+	$phongfresnelranges	"[.78 .9 1]"
+	
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

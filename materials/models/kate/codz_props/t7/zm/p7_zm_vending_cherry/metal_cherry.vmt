@@ -1,0 +1,23 @@
+"VertexLitGeneric"
+{
+	$basetexture			"vgui/white"
+	$bumpmap				"models/nz/perks/bo3/shared/metal_n"
+	$phongexponenttexture	"models/nz/perks/bo3/shared/metal_s"
+	$nodecal "1"
+	$color2 				"{8 41 86}"
+ 
+	$phong	"1"
+	$phongboost	"25"
+	$phongfresnelranges	"[.78 .9 1]"
+	$phongalbedotint "1"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.25 .25 .25]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+
+	$rimlight	"1"
+	$rimmask	"1"
+	$rimlightboost	"1"
+	$rimlightexponent	"2"
+}

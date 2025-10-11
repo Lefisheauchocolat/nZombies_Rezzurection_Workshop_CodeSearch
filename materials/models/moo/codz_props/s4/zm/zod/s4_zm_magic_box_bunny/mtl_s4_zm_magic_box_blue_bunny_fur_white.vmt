@@ -1,0 +1,17 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/moo/codz_props/s4/zm/zod/s4_zm_magic_box_bunny/_vtfs/s4_zm_magic_box_bunny_fur_w_c"
+	$bumpmap				"models/moo/codz_props/s4/zm/zod/s4_zm_magic_box_bunny/_vtfs/s4_zm_magic_box_bunny_fur_n"
+	$phongexponenttexture	"models/moo/codz_props/s4/zm/zod/s4_zm_magic_box_bunny/_vtfs/s4_zm_magic_box_bunny_fur_g"
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.15"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

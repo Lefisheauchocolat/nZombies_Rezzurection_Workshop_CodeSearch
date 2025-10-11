@@ -1,0 +1,23 @@
+"UnLitTwoTexture"
+{
+
+    "$basetexture" "models/moo/codz_props/t7/zm/p7_zm_vending_mask/_vtfs/gasscroll"
+    "$texture2" "models/moo/codz_props/t7/zm/p7_zm_vending_mask/_vtfs/gasscroll"
+    $nodecal "1"
+
+    "Proxies"
+    {
+        "TextureScroll"
+        {
+            "texturescrollvar" "$texture2transform"
+            "texturescrollrate" .03
+            "texturescrollangle" 90
+        }
+        "TextureScroll"
+        {
+            "texturescrollvar" "$basetexturetransform"
+            "texturescrollrate" .05
+            "texturescrollangle" 45
+        }
+    }
+}

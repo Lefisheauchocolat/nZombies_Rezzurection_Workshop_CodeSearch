@@ -1,0 +1,31 @@
+"UnLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t8/zm/p8_zm_wall_buy_symbol_01/_vtfs/i_mtl_p8_zm_wall_buy_symbol_01_c"
+	$basetexturetransform "center .5 .5 scale 1 1 rotate 0 translate 0 0"
+	
+	$nodecal "1"
+	$translucent "1"
+	$nocull "1"
+
+	$angle 0.0
+	$translate "[0.0 0.0]"
+	$center "[0.5 0.5]"
+
+	Proxies
+	{
+		LinearRamp
+		{
+			rate 15
+			initialValue 0.0
+			resultVar $angle
+		}
+
+		TextureTransform
+		{
+			translateVar $translate
+			rotateVar $angle
+			centerVar $center
+			resultVar $basetexturetransform
+		}
+	}
+}

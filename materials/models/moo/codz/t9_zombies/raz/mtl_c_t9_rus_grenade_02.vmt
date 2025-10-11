@@ -1,0 +1,22 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/t9_zombies/raz/_vtfs/i_c_t9_rus_grenade_02_c"
+	$bumpmap					"models/moo/codz/t9_zombies/raz/_vtfs/i_c_t9_rus_grenade_02_n"
+	$phongexponenttexture		"models/moo/codz/t9_zombies/raz/_vtfs/i_c_t9_rus_grenade_02_g"
+	
+	$detail "models/moo/codz/t9_zombies/raz/_vtfs/i_c_gen_detail_plastic_6_n"
+	$detailscale 1
+	$detailblendfactor 0.5
+	$detailblendmode 0
+	
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.75"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.05 .05 .05]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

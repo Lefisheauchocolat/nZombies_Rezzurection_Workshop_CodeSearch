@@ -1,0 +1,7 @@
+"UnLitTwoTexture"
+{
+
+    "$basetexture" "models/$black_color"
+    $nodecal "1"
+
+}

@@ -1,0 +1,24 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/t8_zombies/_vtfs/i_c_t8_zmb_male_bowtie_c"
+	$bumpmap					"models/moo/codz/t8_zombies/_vtfs/i_c_t8_zmb_male_bowtie_n"
+
+	$nodecal "1"
+	
+	$color2 "{200 145 50}"
+	
+	$phong	"1"
+	$phongexponent "35"
+	$phongboost	"0.25"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$detail models/moo/codz/_common/_vtfs/i_t7_detail_silk_01
+	$detailscale 3
+	$detailblendfactor 1
+	$detailblendmode 0
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.05 .05 .05]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

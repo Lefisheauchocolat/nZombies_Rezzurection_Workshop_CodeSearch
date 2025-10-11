@@ -1,0 +1,6 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/moo/codz/t7_sumpf/vtfs/i_c_zom_dlchd_sumpf_zom_soldier_small_box_pouch_c"
+	"$bumpmap" "models/moo/codz/t7_sumpf/vtfs/i_c_zom_dlchd_sumpf_zom_soldier_small_box_pouch_n"
+	"$model" 1
+}

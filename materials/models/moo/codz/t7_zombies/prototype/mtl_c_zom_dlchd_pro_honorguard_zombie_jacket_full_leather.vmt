@@ -1,0 +1,22 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/t7_zombies/prototype/_vtfs/i_c_zom_dlchd_pro_honorguard_zombie_jacket_full_trinkets_c"
+	$bumpmap					"models/moo/codz/t7_zombies/prototype/_vtfs/i_c_zom_dlchd_pro_honorguard_zombie_jacket_full_trinkets_n"
+	$phongexponenttexture		"models/moo/codz/t7_zombies/prototype/_vtfs/i_c_zom_dlchd_pro_honorguard_zombie_jacket_full_trinkets_g"
+
+    $detail                     "models/moo/codz/_common/_vtfs/char_base_fabric_leather_n"
+    $detailblendmode "0"
+    $detailblendfactor "5"
+    $detailscale "[5 5]"
+    
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.15"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.001 .001 .001]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

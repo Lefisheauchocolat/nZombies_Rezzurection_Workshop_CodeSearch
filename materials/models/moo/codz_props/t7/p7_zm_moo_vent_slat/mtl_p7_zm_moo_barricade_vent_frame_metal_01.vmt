@@ -1,0 +1,22 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t7/p7_zm_moo_vent_slat/_vtfs/i_t7_zm_moo_vent_slat_c"
+	$bumpmap					"models/moo/codz_props/t7/p7_zm_moo_vent_slat/_vtfs/i_t7_zm_moo_vent_slat_n"
+	$phongexponenttexture		"models/moo/codz_props/t7/p7_zm_moo_vent_slat/_vtfs/i_t7_zm_moo_vent_slat_g"
+
+	"$nocull" "1"
+	$alphatest 1
+
+	$phong	"1"
+	$phongboost	"5"
+	$phongfresnelranges	"[.78 .9 1]"
+	"$phongexponent" "10"
+	"$normalmapalphaenvmapmask" "1"
+
+	"$phongexponenttexture" "$white_specular"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.05 .05 .05]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

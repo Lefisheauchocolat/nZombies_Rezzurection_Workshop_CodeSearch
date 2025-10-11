@@ -1,0 +1,22 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/moo/codz/t8_red/skeleton/_vtfs/i_c_t8_zmb_dlc2_chaos_crystals_c"
+	"$bumpmap" "models/moo/codz/t8_red/skeleton/_vtfs/i_mtl_p7_ban_north_tunnel_crystals_n"
+	"$model" 1
+
+	"$phong" "1"
+	"$phongboost" "3.5"
+	"$phongexponent" "35"
+	"$phongfresnelranges" "[2 1.2 8]"
+	"$phongalbedotint" "1"
+	"$normalmapalphaenvmapmask" "1"
+
+	"$emissiveBlendEnabled" "1"
+	"$emissiveBlendTexture" "models/i_generic_lookup"
+	"$emissiveBlendBaseTexture" "models/moo/codz/t8_red/skeleton/_vtfs/i_c_t8_zmb_dlc2_chaos_crystals_e"
+	"$emissiveBlendFlowTexture" "models/i_generic_lookup"
+	"$emissiveBlendTint" "[10 0.5 0]"
+	"$emissiveBlendStrength" "1"
+	"$emissiveBlendScrollVector" "[0 0.1]"
+}
+

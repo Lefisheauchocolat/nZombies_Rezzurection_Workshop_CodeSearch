@@ -1,0 +1,27 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t7/zm/p7_zm_vending_widows_wine/_vtfs/i_mtl_p7_zm_vending_widows_wine_sign_c"
+	$bumpmap					"models/moo/codz_props/t7/zm/p7_zm_vending_widows_wine/_vtfs/i_mtl_p7_zm_vending_widows_wine_sign_n"
+	//$phongexponenttexture		""
+
+	$nodecal "1"
+
+	$color2 "{255 255 255}"
+
+	$phong	"1"
+	$phongboost	"0.25"
+	$phongexponent "25"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/moo/codz_props/t7/zm/p7_zm_vending_widows_wine/_vtfs/i_mtl_p7_zm_vending_widows_wine_sign_c"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[1 1 1]"
+	"$emissiveBlendStrength" "0.75"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

@@ -1,0 +1,23 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/t7_zombies/tomb/_vtfs/i_c_t7_zm_dlchd_origins_mech_faceplate_glass_c"
+	$bumpmap					"models/moo/codz/t7_zombies/tomb/_vtfs/i_c_t7_zm_dlchd_origins_mech_faceplate_glass_n"
+	$phongexponenttexture		"models/moo/codz/t7_zombies/tomb/_vtfs/i_c_t7_zm_dlchd_origins_mech_faceplate_glass_g"
+
+	"$nocull" "1"
+	$nodecal "1"
+	$alphatest 1
+
+	$phong	"1"
+	$phongboost	"10"
+	$phongfresnelranges	"[.78 .9 1]"
+	"$phongexponent" "10"
+	"$normalmapalphaenvmapmask" "1"
+
+	"$phongexponenttexture" "$white_specular"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.05 .05 .05]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

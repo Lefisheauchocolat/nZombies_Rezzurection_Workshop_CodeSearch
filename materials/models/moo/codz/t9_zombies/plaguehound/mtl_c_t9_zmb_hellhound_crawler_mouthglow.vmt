@@ -1,0 +1,20 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/moo/codz/t9_zombies/plaguehound/_vtfs/i_c_t9_zmb_hellhound_crawler_torso_c"
+	//$bumpmap				"models/moo/codz/t9_zombies/plaguehound/_vtfs/i_c_t9_zmb_hellhound_crawler_torso_n"
+	$phongexponenttexture	"models/moo/codz/t9_zombies/plaguehound/_vtfs/i_c_t9_zmb_hellhound_crawler_torso_g"
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"5"
+	$phongfresnelranges	"[.78 .9 1]"
+	
+	$emissiveblendenabled		"1"
+	$emissiveblendstrength		"1"
+	$emissiveblendtexture		"vgui/white"
+	$emissiveblendbasetexture	"models/moo/codz/t9_zombies/plaguehound/_vtfs/i_c_t9_zmb_hellhound_crawler_torso_e"
+	$emissiveblendflowtexture	"vgui/white"
+	$emissiveblendtint			"[1 1 1]"
+	$emissiveblendscrollvector	"[0 0]"
+}
