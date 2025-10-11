@@ -1,0 +1,24 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/jup/zm/jup_zm_machine_phd_flopper/_vtfs/ximage_4b39abf3f67f8ca"
+	$bumpmap					"models/moo/codz_props/jup/zm/jup_zm_machine_phd_flopper/_vtfs/ximage_821d7213255c66f_n"
+	$phongexponenttexture		"models/moo/codz_props/jup/zm/jup_zm_machine_phd_flopper/_vtfs/ximage_821d7213255c66f_g"
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" 		"1"
+	"$EmissiveBlendTexture" 		"vgui/white"
+	"$emissiveBlendBaseTexture" 	"models/moo/codz_props/jup/zm/jup_zm_machine_phd_flopper/_vtfs/ximage_1c1d1e48837f8c9"
+	"$emissiveBlendFlowTexture" 	"dev/null"
+	"$emissiveBlendTint" 			"[1 1 1]"
+	"$emissiveBlendStrength" 		"1"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.1 .1 .1]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

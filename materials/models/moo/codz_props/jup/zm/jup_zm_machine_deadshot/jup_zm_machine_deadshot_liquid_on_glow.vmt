@@ -1,0 +1,40 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/jup/zm/jup_zm_machine_deadshot/_vtfs/ximage_a78befce15d9774"
+	//$bumpmap					""
+	//$phongexponenttexture		""
+  
+    $detail                        "models/nzr/2022/perk_bottles/i_t7_zm_ctl_container115_glass_bubbles_d"
+    $detailblendmode "1"
+    $detailblendfactor "15"
+    $detailscale "[3 3]"
+    
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" "1"
+	"$EmissiveBlendTexture" 		"vgui/white"
+	"$emissiveBlendBaseTexture" "models/moo/codz_props/jup/zm/jup_zm_machine_deadshot/_vtfs/ximage_154252c69fbde27"
+	"$emissiveBlendFlowTexture" "vgui/white"
+	"$emissiveBlendTint" "[3 0.75 0.75]"
+	"$emissiveBlendScrollVector" 	"[1 0]" 
+	"$emissiveBlendStrength" "1"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.1 .1 .1]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+
+	 Proxies
+    {
+        TextureScroll
+        {
+            "textureScrollVar" $detailtexturetransform
+            "textureScrollRate" 0.1
+            "textureScrollAngle" 30
+        }
+    }
+}

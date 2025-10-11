@@ -1,0 +1,23 @@
+"VertexLitGeneric"
+{
+    $basetexture                "models/moo/codz_props/t10/zm/t10_zm_barbedwire_gate/_vtfs/ximage_ddafa41f83e997c_c"
+    $bumpmap                    "models/moo/codz_props/t10/zm/t10_zm_barbedwire_gate/_vtfs/ximage_f18fb6ff7b5065a_n"
+    $phongexponenttexture       "models/moo/codz_props/t10/zm/t10_zm_barbedwire_gate/_vtfs/ximage_f18fb6ff7b5065a_g"
+    $translucent "1"
+    $nodecal "1"
+    $nocull "1"
+
+    $detail                     "models/moo/codz_props/t10/zm/t10_zm_barbedwire_gate/_vtfs/ximage_ddafa41f83e997c_s"
+    $detailblendmode "2"
+    $detailblendfactor "0.5"
+    $detailscale "[1 1]"
+    
+    $phong    "1"
+    $phongboost    "0.35" 
+    $phongfresnelranges    "[.78 .9 1]"
+
+    $envmap    "env_cubemap"
+    $envmaptint    "[.005 .005 .005]"
+    $normalmapalphaenvmapmask    "1"
+    $envmapfresnel    "1"
+}

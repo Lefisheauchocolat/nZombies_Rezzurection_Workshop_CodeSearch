@@ -1,0 +1,15 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/moo/codz/t10_zombies/jup/hellhound/_vtfs/ximage_4d3c9eded238958"
+
+	"$model" 1
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/moo/codz/t10_zombies/jup/hellhound/_vtfs/ximage_1c04a34b77c92a2"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[1 1 1]"
+	"$emissiveBlendStrength" "1"
+
+	"$color2" "[1 1 1]"
+}

@@ -1,0 +1,24 @@
+"VertexLitGeneric"
+{
+	"$basetexture" 				"models/moo/codz/s4_zombies/skorpion/_vtfs/c_s4_zmb_demon_trickster_mask_c"
+	$bumpmap					"models/moo/codz/s4_zombies/skorpion/_vtfs/c_s4_zmb_demon_trickster_mask_n"
+	$phongexponenttexture		"models/moo/codz/s4_zombies/skorpion/_vtfs/c_s4_zmb_demon_trickster_mask_g"
+
+	$nodecal "1"
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/moo/codz/s4_zombies/skorpion/_vtfs/c_s4_zmb_demon_trickster_mask_e"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[1 1 1]"
+	"$emissiveBlendStrength" "1"
+
+	$phong	"1"
+	$phongboost	"0.85"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

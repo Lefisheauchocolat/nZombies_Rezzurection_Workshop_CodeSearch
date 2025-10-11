@@ -1,0 +1,12 @@
+"UnlitGeneric"
+{
+	$basetexture				"models/moo/codz_props/jup/zm/jup_zm_machine_deadshot/_vtfs/ximage_34cb50169a32720"
+	//$bumpmap					""
+	//$phongexponenttexture		""
+
+	$decal "1"
+
+	$color2 "{255 75 0}"
+
+	$nodecal "1"
+}

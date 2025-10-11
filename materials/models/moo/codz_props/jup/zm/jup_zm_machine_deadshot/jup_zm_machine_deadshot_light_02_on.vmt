@@ -1,0 +1,8 @@
+"UnlitGeneric"
+{
+	$basetexture				"models/$black_color"
+	//$bumpmap					""
+	//$phongexponenttexture		""
+
+	$nodecal "1"
+}

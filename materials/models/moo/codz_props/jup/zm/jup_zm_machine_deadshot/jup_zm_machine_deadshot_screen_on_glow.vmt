@@ -1,0 +1,18 @@
+"UnlitGeneric"
+{
+	$basetexture				"models/moo/codz_props/jup/zm/jup_zm_machine_deadshot/_vtfs/deadshot_screen_animated"
+	//$bumpmap					""
+	//$phongexponenttexture		""
+
+	$nodecal "1"
+
+	"proxies"
+	{
+		"animatedtexture"
+		{
+			"animatedtexturevar"			"$basetexture"
+			"animatedtextureframenumvar"	"$frame"
+			"animatedtextureframerate"		"10"
+		}
+	}
+}

@@ -1,0 +1,37 @@
+"VertexLitGeneric"
+{
+    $basetexture                "models/moo/codz/t10_zombies/zm/klaus/_vtfs/ximage_30aa69bddda99a0_c"
+    $bumpmap                    "models/moo/codz/t10_zombies/zm/klaus/_vtfs/ximage_57b90cf85be6a1f_n"
+    $phongexponenttexture       "models/moo/codz/t10_zombies/zm/klaus/_vtfs/ximage_57b90cf85be6a1f_g"
+    $nodecal "1"
+
+    $phong    "1"
+    $phongboost    "0.5" 
+    $phongfresnelranges    "[.78 .9 1]"
+
+    $detail                     "models/moo/codz/t10_zombies/zm/klaus/_vtfs/ximage_30aa69bddda99a0_s"
+    $detailblendmode "2"
+    $detailblendfactor "0.15"
+    $detailscale "[1 1]"
+    
+    "$emissiveBlendEnabled" "1"
+    $EmissiveBlendTexture       vgui/white
+    "$emissiveBlendBaseTexture" "models/moo/codz/t10_zombies/zm/klaus/_vtfs/ximage_3d249b5c1be50ec_e"
+    "$emissiveBlendFlowTexture" "dev/null"
+    "$emissiveBlendTint" "[1 1 1]"
+    "$emissiveBlendStrength" "1"
+
+    $envmap    "env_cubemap"
+    $envmaptint    "[.005 .005 .005]"
+    $normalmapalphaenvmapmask    "1"
+    $envmapfresnel    "1"
+    
+    Proxies
+    {
+        ZombieEyeGlow
+        {
+            srcVar1 $emissiveblendtint
+            srcVar2 $emissiveblendstrength
+        }
+    }
+}

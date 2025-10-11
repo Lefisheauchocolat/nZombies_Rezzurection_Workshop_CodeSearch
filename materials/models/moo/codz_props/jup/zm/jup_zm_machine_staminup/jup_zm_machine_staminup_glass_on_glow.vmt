@@ -1,0 +1,43 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/jup/zm/jup_zm_machine_staminup/_vtfs/ximage_754337fe04ed37d"
+	$bumpmap					"models/moo/codz_props/jup/zm/jup_zm_machine_staminup/_vtfs/ximage_e59518f9dd33943_n"
+	$phongexponenttexture		"models/moo/codz_props/jup/zm/jup_zm_machine_staminup/_vtfs/ximage_e59518f9dd33943_g"
+
+	$nodecal "1"
+	$translucent "1"
+	$additive 1
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/moo/codz_props/jup/zm/jup_zm_machine_staminup/_vtfs/ximage_431f77005eea9ce"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[4 4 4]"
+	"$emissiveBlendStrength" "0.75"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.1 .1 .1]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+	$offset 0 // declare custom var
+
+	Proxies
+    {	
+    	EntityRandom
+		{
+			resultVar $offset
+		}
+        Sine
+        {
+            resultVar    	$emissiveBlendStrength
+            timeoffset		$offset
+            sineperiod    	1.5
+            sinemin        	0.75
+            sinemax        	1
+        }
+    }
+}

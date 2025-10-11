@@ -1,0 +1,26 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz_props/s4/zod/s4_zm_demonic_fountain_epop/_vtfs/mtl_s4_zm_demonic_fountain_emblem_epop"
+	$bumpmap					"models/moo/codz_props/s4/zod/s4_zm_demonic_fountain_epop/_vtfs/mtl_s4_zm_demonic_fountain_emblem_epop_n"
+	$phongexponenttexture		"models/moo/codz_props/s4/zod/s4_zm_demonic_fountain_epop/_vtfs/s4_zm_fount_goblet_emblem_01_g"
+
+
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.2"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	"$emissiveBlendEnabled" 		"1"
+	"$EmissiveBlendTexture" 		"vgui/white"
+	"$emissiveBlendBaseTexture" 	"models/moo/codz_props/s4/zod/s4_zm_demonic_fountain_epop/_vtfs/mtl_s4_zm_demonic_fountain_emblem_epop"
+	"$emissiveBlendFlowTexture" 	"vgui/white"
+	"$emissiveBlendTint" 			"[1 1 1]"
+	"$emissiveBlendScrollVector" 	"[0 0]" 
+	"$emissiveBlendStrength" 		"0.5"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.005 .005 .005]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

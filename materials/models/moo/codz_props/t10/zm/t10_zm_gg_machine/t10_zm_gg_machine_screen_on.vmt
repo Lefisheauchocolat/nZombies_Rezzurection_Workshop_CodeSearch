@@ -1,0 +1,18 @@
+"UnlitGeneric"
+{
+	$basetexture				"models/moo/codz_props/t10/zm/t10_zm_gg_machine/_vtfs/ximage_b78726b5deb1c17"
+	//$bumpmap					""
+	//$phongexponenttexture		""
+
+	$nodecal "1"
+
+	"proxies"
+	{
+		"animatedtexture"
+		{
+			"animatedtexturevar"			"$basetexture"
+			"animatedtextureframenumvar"	"$frame"
+			"animatedtextureframerate"		"12"
+		}
+	}
+}

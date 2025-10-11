@@ -1,0 +1,35 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/nzr/2022/perk_bottles/fire/i_mtl_motd_hellfire_c"
+	$bumpmap					"models/moo/codz_props/s4/zod/s4_zm_demonic_fountain_01/_vtfs/s4_zm_demonic_fountain_blood_01_displace_n"
+	//$phongexponenttexture		""
+  
+	$nodecal "1"
+
+	$color2 "{35 35 35}"
+
+	$phong	"1"
+	$phongboost	"10"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$selfillum                "1"
+    $selfillummask            "vgui/white"
+    $selfillumtint            "[55 55 55]"
+
+
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[0.005 0.005 0.005]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+
+	 Proxies
+    {
+        TextureScroll
+        {
+            "textureScrollVar" $basetexturetransform
+            "textureScrollRate" 1
+            "textureScrollAngle" 90
+        }
+    }
+}

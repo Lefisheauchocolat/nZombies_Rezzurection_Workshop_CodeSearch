@@ -1,0 +1,28 @@
+"VertexLitGeneric"
+{
+    $basetexture                "models/moo/codz_props/t10/zm/t10_zm_weapon_machine/_vtfs/i_t10_zm_weapon_machine_blue_c"
+    $bumpmap                    "models/moo/codz_props/t10/zm/t10_zm_weapon_machine/_vtfs/i_t10_zm_weapon_machine_blue_n"
+    $phongexponenttexture       "models/moo/codz_props/t10/zm/t10_zm_weapon_machine/_vtfs/i_t10_zm_weapon_machine_blue_g"
+    $nodecal "1"
+
+    $detail                     "models/moo/codz_props/t10/zm/t10_zm_weapon_machine/_vtfs/i_t10_zm_weapon_machine_blue_s"
+    $detailblendmode "2"
+    $detailblendfactor "0.2"
+    $detailscale "[1 1]"
+    
+    $phong    "1"
+    $phongboost    "1" 
+    $phongfresnelranges    "[.78 .9 1]"
+
+    "$emissiveBlendEnabled" "1"
+    $EmissiveBlendTexture       vgui/white
+    "$emissiveBlendBaseTexture" "models/moo/codz_props/t10/zm/t10_zm_weapon_machine/_vtfs/i_t10_zm_weapon_machine_blue_e"
+    "$emissiveBlendFlowTexture" "dev/null"
+    "$emissiveBlendTint" "[1 1 1]"
+    "$emissiveBlendStrength" "0.75"
+
+    $envmap    "env_cubemap"
+    $envmaptint    "[.005 .005 .005]"
+    $normalmapalphaenvmapmask    "1"
+    $envmapfresnel    "1"
+}

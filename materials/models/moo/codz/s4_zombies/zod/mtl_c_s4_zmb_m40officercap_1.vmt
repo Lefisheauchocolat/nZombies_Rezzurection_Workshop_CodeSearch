@@ -1,0 +1,22 @@
+"VertexLitGeneric"
+{
+	$basetexture				"models/moo/codz/s4_zombies/zod/_vtfs/c_s4_zmb_ger_infantry_zombie_officercap_c"
+	$bumpmap					"models/moo/codz/s4_zombies/zod/_vtfs/c_s4_zmb_ger_infantry_zombie_officercap_n"
+	$phongexponenttexture		"models/moo/codz/s4_zombies/zod/_vtfs/c_s4_zmb_ger_infantry_zombie_officercap_g"
+
+	$nodecal "1"
+
+    $detail                     "models/moo/codz/t4_zombies/common/_vtfs/char_base_fabric_canvas_n"
+    $detailblendmode "0"
+    $detailblendfactor "0.5"
+    $detailscale "[6 6]"
+    
+	$phong	"1"
+	$phongboost	"0.2"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.001 .001 .001]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

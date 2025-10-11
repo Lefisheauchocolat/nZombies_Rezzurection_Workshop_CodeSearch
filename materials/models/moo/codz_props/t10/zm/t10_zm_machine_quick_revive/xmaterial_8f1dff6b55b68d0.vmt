@@ -1,0 +1,21 @@
+"VertexLitGeneric"
+{
+    $basetexture                "models/moo/codz_props/t10/zm/t10_zm_machine_quick_revive/_vtfs/ximage_e00002e86d49600_c"
+    $bumpmap                    "models/moo/codz_props/t10/zm/t10_zm_machine_quick_revive/_vtfs/ximage_8e1a08c60fb8baf_n"
+    $phongexponenttexture       "models/moo/codz_props/t10/zm/t10_zm_machine_quick_revive/_vtfs/ximage_8e1a08c60fb8baf_g"
+    $nodecal "1"
+
+    $detail                     "models/moo/codz_props/t10/zm/t10_zm_machine_quick_revive/_vtfs/ximage_e00002e86d49600_s"
+    $detailblendmode "2"
+    $detailblendfactor "0.1"
+    $detailscale "[1 1]"
+    
+    $phong    "1"
+    $phongboost    "3" 
+    $phongfresnelranges    "[.78 .9 1]"
+
+    $envmap    "env_cubemap"
+    $envmaptint    "[.0075 .0075 .0075]"
+    $normalmapalphaenvmapmask    "1"
+    $envmapfresnel    "1"
+}
