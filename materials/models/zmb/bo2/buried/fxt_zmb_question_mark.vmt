@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	$basetexture			"models/zmb/bo2/buried/fxt_zmb_question_mark"
+	$vertexalpha "1"
+	$vertexcolor "1"
+	$additive "1"
+}

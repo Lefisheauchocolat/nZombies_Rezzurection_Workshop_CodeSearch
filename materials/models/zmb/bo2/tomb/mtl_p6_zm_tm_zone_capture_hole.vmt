@@ -1,0 +1,10 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/zmb/bo2/tomb/p6_zm_tm_zone_capture_hole_d"
+	$bumpmap				"models/zmb/bo2/tomb/p6_zm_tm_zone_capture_hole_n"
+	$phongexponenttexture	"models/zmb/bo2/tomb/p6_zm_tm_zone_capture_hole_s"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+}

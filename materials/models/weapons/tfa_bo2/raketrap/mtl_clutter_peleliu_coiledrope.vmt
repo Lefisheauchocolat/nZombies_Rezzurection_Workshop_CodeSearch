@@ -1,0 +1,10 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/weapons/tfa_bo2/raketrap/clutter_peleliu_coiledrope_d"
+	$bumpmap				"models/weapons/tfa_bo2/raketrap/clutter_peleliu_coiledrope_n"
+
+	$phong	"1"
+	$phongboost	"0.5"
+	$phongfresnelranges	"[.78 .9 1]"
+	$phongexponent "255"
+}

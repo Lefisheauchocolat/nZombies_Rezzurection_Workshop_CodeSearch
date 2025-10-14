@@ -1,0 +1,12 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/weapons/tfa_bo3/vineshield/i_t7_decal_damage_glass_shatter_03_d"
+	$bumpmap				"models/weapons/tfa_bo3/vineshield/i_t7_decal_damage_glass_shatter_03_n"
+	$translucent "1"
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"0.5"
+	$phongfresnelranges	"[.78 .9 1]"
+	$phongexponent "200"
+}

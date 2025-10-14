@@ -1,0 +1,17 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/weapons/tfa_bo2/guardian/mtl_t6_wpn_turret_ads_alpha_d"
+	$bumpmap				"models/weapons/tfa_bo2/guardian/mtl_t6_wpn_turret_ads_alpha_d"
+	$phongexponenttexture	"models/weapons/tfa_bo2/guardian/mtl_t6_wpn_turret_ads_alpha_d"
+	$alphatest "1"
+	$allowalphatocoverage "1"
+
+	$phong	"1"
+	$phongboost	"5"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.25 .25 .25]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

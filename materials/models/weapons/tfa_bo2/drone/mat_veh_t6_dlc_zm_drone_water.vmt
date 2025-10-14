@@ -1,0 +1,5 @@
+"UnlitGeneric"
+{
+	$basetexture			"models/weapons/tfa_bo2/drone/brain_water_c"
+	$translucent "1"
+}

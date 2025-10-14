@@ -1,0 +1,18 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/zmb/bo2/alcatraz/c_zom_bruiser_alphas_d"
+	$bumpmap				"models/zmb/bo2/alcatraz/c_zom_bruiser_alphas_n"
+	$phongexponenttexture	"models/zmb/bo2/alcatraz/c_zom_bruiser_alphas_s"
+	$alphatest "1"
+	$allowalphatocoverage "1"
+	$nocull "1"
+
+	$phong	"1"
+	$phongboost	"5"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.25 .25 .25]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

@@ -1,0 +1,17 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/zmb/bo2/tomb/p6_zm_tm_corrugated_metal_hole_d"
+	$bumpmap				"models/zmb/bo2/tomb/p6_zm_tm_corrugated_metal_hole_n"
+	$phongexponenttexture	"models/zmb/bo2/tomb/p6_zm_tm_corrugated_metal_hole_s"
+	$alphatest "1"
+	$allowalphatocoverage "1"
+
+	$phong	"1"
+	$phongboost	"5"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.25 .25 .25]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

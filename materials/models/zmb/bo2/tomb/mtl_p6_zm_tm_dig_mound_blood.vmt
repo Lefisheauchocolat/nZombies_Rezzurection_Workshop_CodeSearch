@@ -1,0 +1,12 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/zmb/bo2/tomb/p6_zm_tm_dig_mound_e"
+
+	$emissiveblendenabled		"1"
+	$emissiveblendstrength		"1"
+	$emissiveblendtexture		"vgui/white"
+	$emissiveblendbasetexture	"models/zmb/bo2/tomb/p6_zm_tm_dig_mound_e"
+	$emissiveblendflowtexture	"vgui/white"
+	$emissiveblendtint			"[10 10 10]"
+	$emissiveblendscrollvector	"[0 0]"
+}

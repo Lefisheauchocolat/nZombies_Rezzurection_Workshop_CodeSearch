@@ -1,0 +1,16 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/zmb/bo3/zod/i_t7_metal_grunge_light_01_spc"
+	$bumpmap				"models/zmb/bo3/zod/i_t7_metal_grunge_light_01_n"
+	$phongexponenttexture	"models/zmb/bo3/zod/i_t7_metal_grunge_light_01_s"
+	$color2 "[.25 .25 .25]"
+
+	$phong	"1"
+	$phongboost	"5"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.25 .25 .25]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

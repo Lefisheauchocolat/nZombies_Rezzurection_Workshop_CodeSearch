@@ -1,0 +1,25 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/zmb/bo2/alcatraz/p6_anim_zm_al_pakasplat_d"
+	$bumpmap				"models/zmb/bo2/alcatraz/p6_anim_zm_al_pakasplat_n"
+	$phongexponenttexture	"models/zmb/bo2/alcatraz/p6_anim_zm_al_pakasplat_s"
+
+	$phong	"1"
+	$phongboost	"15"
+	$phongfresnelranges	"[.78 .9 1]"
+	$phongalbedotint "1"
+	$phongalbedoboost "5"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.25 .25 .25]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+
+	$emissiveblendenabled		"1"
+	$emissiveblendstrength		"1"
+	$emissiveblendtexture		"vgui/white"
+	$emissiveblendbasetexture	"models/zmb/bo2/alcatraz/p6_anim_zm_al_pakasplat_e"
+	$emissiveblendflowtexture	"vgui/white"
+	$emissiveblendtint			"[1 0.05 0]"
+	$emissiveblendscrollvector	"[0 0]"
+}

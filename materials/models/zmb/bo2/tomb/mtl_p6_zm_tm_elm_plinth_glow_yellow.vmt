@@ -1,0 +1,21 @@
+"UnlitTwoTexture"
+{
+	$basetexture			"models/zmb/bo2/tomb/p6_zm_tm_elm_spawn_glow_ylo_02_c"
+	$texture2				"models/zmb/bo2/tomb/light_space_ceiling_02_c"
+
+	$model		"1"
+	$nocull		"1"
+	$additive	"1"
+	
+	"Proxies"
+	{
+
+		"TextureScroll"
+		{
+			"texturescrollvar" "$texture2transform"
+			"texturescrollrate" -.2
+			"texturescrollangle" 0
+		}
+	}
+
+}

@@ -1,0 +1,16 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/weapons/tfa_bo2/subwoofer/mtl_t6_wpn_zmb_subwoofer_d"
+	$bumpmap				"models/weapons/tfa_bo2/subwoofer/mtl_t6_wpn_zmb_subwoofer_n"
+	$phongexponenttexture	"models/weapons/tfa_bo2/subwoofer/mtl_t6_wpn_zmb_subwoofer_s"
+
+	$phong	"1"
+	$phongboost	"25"
+	$phongfresnelranges	"[.78 .9 1]"
+	$phongalbedotint "1"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.25 .25 .25]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

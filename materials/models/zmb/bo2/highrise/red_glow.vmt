@@ -1,0 +1,18 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/zmb/bo2/highrise/red_glow_test"
+	$color2 "[1 1 1]"
+	$selfillum "1"
+	$selfillummask "vgui/white"
+
+	"Proxies"
+	{
+		"Sine"
+		{
+			"resultVar" "$selfIllumTint"
+			"sinemin" 0.01
+			"sinemax" 0.4
+			"sineperiod" 4
+		}
+	}
+}

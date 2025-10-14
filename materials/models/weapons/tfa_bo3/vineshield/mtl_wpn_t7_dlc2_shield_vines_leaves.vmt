@@ -1,0 +1,18 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/weapons/tfa_bo3/vineshield/i_wpn_t7_dlc2_shield_vines_leaves_d"
+	$bumpmap				"models/weapons/tfa_bo3/vineshield/i_mtl_p7_foliage_vines_leaves_n"
+	$phongexponenttexture	"models/weapons/tfa_bo3/vineshield/i_mtl_p7_foliage_vines_leaves_s"
+	$translucent "1"
+	$nocull "1"
+	$nodecal "1"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.25 .25 .25]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

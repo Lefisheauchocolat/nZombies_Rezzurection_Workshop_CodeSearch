@@ -1,0 +1,15 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/weapons/tfa_bo2/drone/veh_t6_drone_quad_rotor_blades_c"
+	$translucent "1"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+	$phongexponent "250"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.05 .05 .05]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

@@ -1,0 +1,10 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/zmb/bo2/tomb/p6_wood_plank_rustic01_d"
+	$bumpmap				"models/zmb/bo2/tomb/p6_wood_plank_rustic01_n"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+	$phongexponent "6"
+}

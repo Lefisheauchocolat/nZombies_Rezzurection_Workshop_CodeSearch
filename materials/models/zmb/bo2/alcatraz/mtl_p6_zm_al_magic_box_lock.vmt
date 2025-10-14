@@ -1,0 +1,34 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/zmb/bo2/alcatraz/p6_zm_al_magic_box_lock_d"
+	$bumpmap				"models/zmb/bo2/alcatraz/p6_zm_al_magic_box_lock_n"
+	$phongexponenttexture	"models/zmb/bo2/alcatraz/p6_zm_al_magic_box_lock_s"
+
+	$phong	"1"
+	$phongboost	"5"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.25 .25 .25]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+
+	$emissiveblendenabled		"1"
+	$emissiveblendstrength		"1"
+	$emissiveblendtexture		"vgui/white"
+	$emissiveblendbasetexture	"models/zmb/bo2/alcatraz/p6_zm_al_magic_box_lock_m"
+	$emissiveblendflowtexture	"vgui/white"
+	$emissiveblendtint			"[1 1 1]"
+	$emissiveblendscrollvector	"[0 0]"
+
+	"Proxies"
+	{
+		"Sine"
+		{
+			"resultVar" "$emissiveblendstrength"
+			"sinemin" 0.10
+			"sinemax" 1.0
+			"sineperiod" 1
+		}
+	}
+}

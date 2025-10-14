@@ -1,0 +1,11 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/zmb/bo2/tranzit/com_debris_paper_c"
+	$bumpmap				"null-bumpmap"
+	$translucent "1"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+	$phongexponent "250"
+}

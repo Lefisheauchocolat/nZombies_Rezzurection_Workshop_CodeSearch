@@ -1,0 +1,12 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/zmb/bo2/highrise/zm_hr_dragon_sign_palette_d"
+	$bumpmap				"models/zmb/bo2/highrise/zm_hr_dragon_sign_palette_n"
+	$phongexponenttexture	"models/zmb/bo2/highrise/zm_hr_dragon_sign_palette_s"
+	$alphatest "1"
+	$allowalphatocoverage "1"
+
+	$phong	"1"
+	$phongboost	"5"
+	$phongfresnelranges	"[.78 .9 1]"
+}

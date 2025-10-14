@@ -1,0 +1,26 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/zmb/bo2/alcatraz/p6_anim_zm_al_pakasplat_acid_c"
+
+	$emissiveblendenabled		"1"
+	$emissiveblendstrength		"1"
+	$emissiveblendtexture		"vgui/white"
+	$emissiveblendbasetexture	"models/zmb/bo2/alcatraz/p6_anim_zm_al_pakasplat_acid_c"
+	$emissiveblendflowtexture	"vgui/white"
+	$emissiveblendtint			"[2 .1 0]"
+	$emissiveblendscrollvector	"[0 0 0]"
+
+	$detail	"models/zmb/bo2/alcatraz/fxt_env_water_bubble_field_02"
+	$detailblendmode "5"
+	$detailscale "0.25"
+
+	"Proxies"
+	{
+		"TextureScroll"
+		{
+			"textureScrollVar" "$detailtexturetransform"
+			"textureScrollRate" "0.2"
+			"textureScrollAngle" "90"
+		}
+	}
+}

@@ -1,0 +1,10 @@
+"VertexLitGeneric"
+{
+	$basetexture			"vgui/white"
+	$bumpmap				"null-bumpmap"
+	$color2 "{41 45 41}"
+
+	$phong	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+	$phongexponent "66"
+}

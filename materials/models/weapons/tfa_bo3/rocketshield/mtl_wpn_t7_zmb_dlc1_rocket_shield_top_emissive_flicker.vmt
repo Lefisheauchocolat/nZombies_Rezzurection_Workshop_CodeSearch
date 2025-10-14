@@ -1,0 +1,13 @@
+"VertexLitGeneric"
+{
+	$basetexture			"vgui/black"
+	$nodecal "1"
+
+	$emissiveblendenabled		"1"
+	$emissiveblendstrength		"1"
+	$emissiveblendtexture		"vgui/white"
+	$emissiveblendbasetexture	"models/weapons/tfa_bo3/rocketshield/i_wpn_t7_zmb_dlc1_rocket_shield_top_emissive_e"
+	$emissiveblendflowtexture	"vgui/white"
+	$emissiveblendtint			"[25 25 25]"
+	$emissiveblendscrollvector	"[0 0 0]"
+}

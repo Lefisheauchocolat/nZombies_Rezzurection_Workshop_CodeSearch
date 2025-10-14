@@ -1,0 +1,10 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/zmb/bo2/buried/p6_zm_bu_target_c"
+	$bumpmap				"models/zmb/bo2/buried/p6_zm_bu_target_n"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+	$phongexponent "9"
+}

@@ -1,0 +1,16 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/weapons/tfa_bo2/tranzitshield/mtl_t6_wpn_zmb_shield_glass_d"
+	$bumpmap				"null-bumpmap"
+	$translucent "1"
+
+	$phong	"1"
+	$phongboost	"1"
+	$phongfresnelranges	"[.78 .9 1]"
+	$phongexponent "33"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.05 .05 .05]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}

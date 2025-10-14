@@ -1,0 +1,15 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/zmb/bo2/alcatraz/mtl_p6_zm_al_books_01_d"
+	$bumpmap				"models/zmb/bo2/alcatraz/mtl_p6_zm_al_books_01_n"
+	$phongexponenttexture	"models/zmb/bo2/alcatraz/mtl_p6_zm_al_books_01_s"
+
+	$phong	"1"
+	$phongboost	"5"
+	$phongfresnelranges	"[.78 .9 1]"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.1 .1 .1]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+}
