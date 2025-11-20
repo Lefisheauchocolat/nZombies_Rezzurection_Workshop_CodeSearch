@@ -1,0 +1,30 @@
+"VertexLitGeneric"
+{
+	$basetexture			"models/weapons/papcamo/bo1hd/i_t7_camo_zmbhd_bo1_pap_spc"
+	$bumpmap				"models/weapons/papcamo/bo1hd/i_t7_camo_zmbhd_bo1_pap_n"
+	$phongexponenttexture	"models/weapons/papcamo/bo1hd/i_t7_camo_zmbhd_bo1_pap_s"
+	$basetexturetransform "center .5 .5 scale 0.5 0.5 rotate 0 translate 0 0"
+	$color2 "[.25 .25 .25]"
+
+	$phong	"1"
+	$phongboost	"55"
+	$phongfresnelranges	"[.78 .9 1]"
+	$phongalbedotint "1"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"[.25 .25 .25]"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+
+	$rimlight	"1"
+	$rimmask	"1"
+	$rimlightboost	"1"
+	$rimlightexponent	"2"
+	
+	"Proxies"
+	{
+		"TextureTransform"
+		{
+		}
+	} 
+}

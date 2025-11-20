@@ -1,0 +1,21 @@
+"VertexLitGeneric"
+{
+	$basetexture			"vgui/black"
+	$bumpmap				"models/weapons/bo3/c_bo3_1911/base/bullet_n"
+	$phongexponenttexture	"models/weapons/bo3/c_bo3_1911/base/bullet_s"
+
+	$phong	"1"
+	$phongboost	"15"
+	$phongfresnelranges	"[.78 .9 1]"
+	$phongtint "{154 128 71}"
+
+	$envmap	"env_cubemap"
+	$envmaptint	"{154 128 71}"
+	$normalmapalphaenvmapmask	"1"
+	$envmapfresnel	"1"
+
+	$rimlight	"1"
+	$rimmask	"1"
+	$rimlightboost	"1"
+	$rimlightexponent	"2"
+}
