@@ -1,0 +1,22 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/moo/codz/saturn_zombies/zm/_vtfs/image_35629465562b2af3"
+
+	"$model" 1
+
+	"$emissiveBlendEnabled" "1"
+	$EmissiveBlendTexture 		vgui/white
+	"$emissiveBlendBaseTexture" "models/moo/codz/saturn_zombies/zm/_vtfs/image_30f747f63c9b1b1c"
+	"$emissiveBlendFlowTexture" "dev/null"
+	"$emissiveBlendTint" "[1 1 1]"
+	"$emissiveBlendStrength" "1"
+	
+	Proxies
+    {
+        ZombieEyeGlow
+        {
+            srcVar1 $emissiveblendtint
+            srcVar2 $emissiveblendstrength
+        }
+    }
+}
